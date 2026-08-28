@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conta de Bar Controlada por Voz</title>
+<style>
+:root{
+  --bg:#10131a;--panel:#191e28;--panel2:#222938;--text:#f4f7fb;--muted:#aeb8c8;
+  --accent:#39c97a;--accent2:#2da967;--danger:#ef5d67;--border:#30394a;
+}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#0d1016,#171d29);color:var(--text)}
+header{padding:18px 22px;background:#121722;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:24px} header p{margin:5px 0 0;color:var(--muted)}
+.container{max-width:1200px;margin:auto;padding:18px}
+.voice{background:linear-gradient(135deg,#1d4937,#19382e);border:1px solid #367a5a;border-radius:16px;padding:18px;margin-bottom:18px}
+.voice-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+button{border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:bold;background:var(--accent);color:#092114}
+button:hover{filter:brightness(1.08)}button.secondary{background:#344057;color:white}button.danger{background:var(--danger);color:white}button.small{padding:7px 10px;font-size:12px}
+.status{color:#d7ffe8;font-weight:bold}.command{margin-top:10px;color:#d7e3ee}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+nav button{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+nav button.active{background:var(--accent);color:#092114}
+.screen{display:none}.screen.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.card{background:rgba(25,30,40,.97);border:1px solid var(--border);border-radius:15px;padding:18px}
+.card h2,.card h3{margin-top:0}
+input,select{width:100%;padding:11px;border-radius:9px;border:1px solid var(--border);background:#10151f;color:white;margin:6px 0 12px}
+label{font-size:13px;color:var(--muted)}
+.row{display:flex;gap:10px}.row>*{flex:1}
+table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}th{color:var(--muted)}
+.total{font-size:28px;font-weight:bold;color:#79e9aa}.money{font-weight:bold;color:#8df0b8}
+.list-item{padding:10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;align-items:center}
+.note{color:var(--muted);font-size:13px}.empty{text-align:center;color:var(--muted);padding:25px}
+.badge{background:#263247;padding:4px 8px;border-radius:20px;font-size:12px}
+footer{text-align:center;color:var(--muted);padding:25px}
+@media(max-width:650px){header h1{font-size:19px}.container{padding:12px}.row{flex-direction:column}.row>*{width:100%}table{font-size:13px}th,td{padding:7px}}
+.command-list{columns:2;column-gap:30px;}
+.command-list li{break-inside:avoid;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;}
+.command-list .cmd{color:#79e9aa;font-weight:bold;}
+.command-list .desc{color:var(--muted);font-size:13px;}
+.import-area{border:2px dashed var(--border);border-radius:10px;padding:30px;text-align:center;margin:15px 0;cursor:pointer;transition:all 0.3s;}
+.import-area:hover{border-color:var(--accent);background:rgba(57,201,122,0.05);}
+.import-area.dragover{border-color:var(--accent);background:rgba(57,201,122,0.1);}
+@media(max-width:650px){.command-list{columns:1;}}
+</style>
+</head>
+<body>
+<header>
+<h1>🍺 Conta de Bar Controlada por Voz</h1>
+<p>Cadastros • Pedidos • Gorjeta • PIX • Histórico</p>
+</header>
+
+<div class="container">
+<section class="voice">
+<div class="voice-row">
+<button id="voiceBtn" style="font-size:18px;padding:16px 24px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
+<button class="secondary" id="speakToggle">🔊 Voz: ATIVADA</button>
+<span class="status" id="voiceStatus">Assistente desligado.</span>
+<button class="secondary" onclick="showScreen('comandos')">📋 Ver Comandos</button>
+</div>
+<div class="command" id="lastCommand">Exemplos: "abrir produtos", "fazer pedido de 2 cervejas", "fechar a conta".</div>
+<div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone quando o navegador solicitar.</div>
+</section>
+
+<nav id="nav">
+<button data-screen="inicio" class="active">🏠 Início</button>
+<button data-screen="cliente">👤 Cliente</button>
+<button data-screen="estabelecimento">🏢 Estabelecimento</button>
+<button data-screen="produtos">🍺 Produtos</button>
+<button data-screen="pedido">🛒 Pedido</button>
+<button data-screen="conta">🧾 Conta</button>
+<button data-screen="historico">📜 Histórico</button>
+<button data-screen="comandos">🎯 Comandos</button>
+<button data-screen="dados">💾 Dados</button>
+</nav>
+
+<section id="inicio" class="screen active">
+<div class="grid">
+<div class="card">
+<h2>🎤 Comandos de voz</h2>
+<p>Use o botão <b>Ouvir comando</b> e fale naturalmente.</p>
+<ul class="note">
+<li><b>"Abrir conta"</b> - Cria uma nova conta (pede para escolher estabelecimento)</li>
+<li><b>"Abrir conta [nome]"</b> - Ex: "abrir conta Bar do Zé"</li>
+<li><b>"Incluir produtos [nome] [valor]"</b> - Ex: "incluir produtos cerveja Brahma 10 reais"</li>
+<li><b>"Incluir cliente"</b> - Ex: "incluir cliente João Silva"</li>
+<li><b>"Incluir estabelecimento"</b> - Ex: "incluir estabelecimento Bar do Zé"</li>
+<li><b>"Ver conta parcial"</b> - Mostra o subtotal atual</li>
+<li>"Fazer pedido de 2 cervejas Brahma"</li>
+<li>"Mostrar minha conta"</li>
+<li>"Fechar a conta"</li>
+</ul>
+<button onclick="showScreen('comandos')" style="margin-top:10px">📋 Ver todos os comandos</button>
+</div>
+<div class="card">
+<h2>📊 Conta atual</h2>
+<div class="note">Subtotal</div><div class="total" id="homeSubtotal">R$ 0,00</div>
+<div class="note" id="homeItems">Nenhum item no pedido.</div>
+<button onclick="showScreen('pedido')">Abrir pedido</button>
+</div>
+</div>
+</section>
+
+<section id="cliente" class="screen">
+<div class="card">
+<h2>👤 Cadastro do Cliente</h2>
+<div class="row">
+<div><label>Nome</label><input id="clienteNome" placeholder="Nome do cliente"></div>
+<div><label>Telefone</label><input id="clienteTelefone" placeholder="(00) 00000-0000"></div>
+</div>
+<label>Banco para PIX</label><input id="clienteBanco" placeholder="Ex.: Banco do Brasil, Nubank">
+<button onclick="saveCliente()">💾 Salvar cliente</button>
+<p class="note" id="clienteInfo"></p>
+</div>
+</section>
+
+<section id="estabelecimento" class="screen">
+<div class="card">
+<h2>🏢 Cadastro do Estabelecimento</h2>
+<label>Nome</label><input id="barNome" placeholder="Nome do bar">
+<label>Endereço</label><input id="barEndereco" placeholder="Endereço completo">
+<label>Chave PIX</label><input id="barPix" placeholder="CPF, telefone, e-mail ou chave aleatória">
+<button onclick="saveEstabelecimento()">💾 Salvar estabelecimento</button>
+<p class="note" id="barInfo"></p>
+</div>
+</section>
+
+<section id="produtos" class="screen">
+<div class="grid">
+<div class="card">
+<h2>🍺 Cadastro de Produtos</h2>
+<label>Nome do produto</label><input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml">
+<label>Preço</label><input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10.00">
+<button onclick="addProduto()">➕ Cadastrar produto</button>
+<p class="note">Por voz: "incluir produtos cerveja Brahma 10 reais" - cadastra automaticamente.</p>
+</div>
+<div class="card">
+<h2>📦 Produtos cadastrados</h2>
+<div id="listaProdutos"></div>
+</div>
+</div>
+</section>
+
+<section id="pedido" class="screen">
+<div class="grid">
+<div class="card">
+<h2>🛒 Fazer Pedido</h2>
+<label>Produto</label><select id="pedidoProduto"></select>
+<label>Quantidade</label><input id="pedidoQtd" type="number" min="1" value="1">
+<button onclick="addPedido()">➕ Adicionar ao pedido</button>
+<p class="note">Por voz: "Fazer pedido de 3 cervejas Brahma".</p>
+</div>
+<div class="card">
+<h2>🧾 Pedido atual</h2>
+<div id="listaPedido"></div>
+<div style="margin-top:15px">Subtotal: <span class="money" id="pedidoSubtotal">R$ 0,00</span></div>
+<button style="margin-top:12px" onclick="showScreen('conta')">Ver conta</button>
+</div>
+</div>
+</section>
+
+<section id="conta" class="screen">
+<div class="grid">
+<div class="card">
+<h2>🧾 Fechar Conta</h2>
+<div id="contaItens"></div>
+<hr style="border-color:var(--border)">
+<div>Subtotal: <span class="money" id="contaSubtotal">R$ 0,00</span></div>
+<div style="margin-top:10px"><label>Gorjeta</label>
+<select id="gorjeta" onchange="saveGorjetaConfig()">
+<option value="0">Sem gorjeta</option>
+<option value="10">10% - Serviço</option>
+<option value="15">15%</option>
+<option value="20">20%</option>
+</select></div>
+<div>Gorjeta: <span class="money" id="contaGorjeta">R$ 0,00</span></div>
+<div style="margin-top:12px">TOTAL</div><div class="total" id="contaTotal">R$ 0,00</div>
+<button onclick="fecharConta()">✅ Confirmar fechamento</button>
+</div>
+<div class="card">
+<h2>💳 Pagamento PIX</h2>
+<div id="pixInfo" class="note">Cadastre o estabelecimento para mostrar os dados de pagamento.</div>
+</div>
+</div>
+</section>
+
+<section id="historico" class="screen">
+<div class="card">
+<h2>📜 Histórico de Contas</h2>
+<div id="listaHistorico"></div>
+<button class="danger" style="margin-top:15px" onclick="clearHistorico()">🗑 Limpar histórico</button>
+</div>
+</section>
+
+<section id="comandos" class="screen">
+<div class="card">
+<h2>🎯 Lista Completa de Comandos de Voz</h2>
+<p class="note">Todos os comandos disponíveis para controle por voz do sistema.</p>
+<hr style="border-color:var(--border);margin:15px 0">
+
+<h3>🆕 Comandos Principais</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Ver conta parcial"</span><br><span class="desc">Mostra o subtotal atual e quantidade de itens</span></li>
+  <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Cria uma nova conta (pede para escolher estabelecimento)</span></li>
+  <li><span class="cmd">"Abrir conta [nome]"</span><br><span class="desc">Ex: "abrir conta Bar do Zé" - abre conta com estabelecimento</span></li>
+  <li><span class="cmd">"Incluir produtos [nome] [valor]"</span><br><span class="desc">Ex: "incluir produtos cerveja Brahma 10 reais"</span></li>
+  <li><span class="cmd">"Incluir produtos [nome]"</span><br><span class="desc">Ex: "incluir produtos cerveja Brahma" - abre cadastro com nome</span></li>
+  <li><span class="cmd">"Incluir cliente [nome]"</span><br><span class="desc">Ex: "incluir cliente João Silva"</span></li>
+  <li><span class="cmd">"Incluir estabelecimento [nome]"</span><br><span class="desc">Ex: "incluir estabelecimento Bar do Zé"</span></li>
+  <li><span class="cmd">"Ver histórico"</span><br><span class="desc">Mostra o histórico de contas fechadas</span></li>
+</ul>
+
+<h3>📂 Comandos de Navegação</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Abrir produtos"</span><br><span class="desc">Abre a tela de cadastro de produtos</span></li>
+  <li><span class="cmd">"Abrir cliente"</span><br><span class="desc">Abre a tela de cadastro de cliente</span></li>
+  <li><span class="cmd">"Abrir estabelecimento"</span><br><span class="desc">Abre a tela de cadastro de estabelecimento</span></li>
+  <li><span class="cmd">"Abrir pedido"</span><br><span class="desc">Abre a tela de pedidos</span></li>
+  <li><span class="cmd">"Mostrar conta"</span><br><span class="desc">Abre a tela da conta e fala o subtotal</span></li>
+</ul>
+
+<h3>🛒 Comandos de Pedido</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Fazer pedido de [qtd] [produto]"</span><br><span class="desc">Ex: "fazer pedido de 2 cervejas Brahma"</span></li>
+  <li><span class="cmd">"Adicionar [qtd] [produto]"</span><br><span class="desc">Ex: "adicionar 3 águas"</span></li>
+  <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Ex: "pedir uma porção de batata"</span></li>
+</ul>
+
+<h3>💰 Comandos de Conta</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Fechar conta"</span><br><span class="desc">Finaliza a conta, calcula gorjeta e mostra o total</span></li>
+  <li><span class="cmd">"Ver conta parcial"</span><br><span class="desc">Mostra o subtotal atual</span></li>
+</ul>
+
+<h3>⚙️ Comandos de Controle</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Desativar comando por voz"</span><br><span class="desc">Desativa o assistente de voz</span></li>
+  <li><span class="cmd">"Desligar app"</span><br><span class="desc">Fecha o aplicativo (tenta fechar a página)</span></li>
+</ul>
+
+<h3>💾 Comandos de Dados</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Exportar dados"</span><br><span class="desc">Exporta todos os dados do app para um arquivo JSON</span></li>
+  <li><span class="cmd">"Importar dados"</span><br><span class="desc">Importa dados de um arquivo JSON (abre a tela de dados)</span></li>
+</ul>
+
+<h3>📝 Comandos de Cadastro</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Cadastrar [produto] preço [valor]"</span><br><span class="desc">Ex: "cadastrar cerveja Brahma preço 10 reais"</span></li>
+</ul>
+
+<div style="margin-top:20px;padding:15px;background:rgba(57,201,122,0.1);border-radius:10px;border:1px solid var(--accent);">
+  <p style="margin:0;color:var(--text);">
+    💡 <b>Dica:</b> Você pode falar números como "um", "dois", "três" ou usar números escritos como "2", "3", "10".
+  </p>
+</div>
+</div>
+</section>
+
+<section id="dados" class="screen">
+<div class="card">
+<h2>💾 Importar / Exportar Dados</h2>
+<p class="note">Gerencie seus dados do aplicativo. Exporte para backup ou importe dados salvos.</p>
+<hr style="border-color:var(--border);margin:15px 0">
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+  <button onclick="exportarDados()" style="flex:1;">📤 Exportar Dados (JSON)</button>
+  <button onclick="document.getElementById('fileInput').click()" style="flex:1;background:var(--panel2);color:var(--text);">📥 Importar Dados</button>
+  <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="importarDados(event)">
+</div>
+
+<div class="import-area" id="dropArea">
+  <p style="font-size:48px;margin:0;">📂</p>
+  <p><b>Arraste e solte um arquivo JSON aqui</b></p>
+  <p class="note">ou clique no botão "Importar Dados" acima</p>
+</div>
+
+<div id="importStatus" style="margin-top:15px;padding:10px;border-radius:8px;display:none;"></div>
+
+<hr style="border-color:var(--border);margin:20px 0">
+
+<h3>📊 Resumo dos Dados</h3>
+<div id="dadosResumo" class="note">
+  <p>Produtos: <b id="resumoProdutos">0</b></p>
+  <p>Itens no pedido: <b id="resumoPedido">0</b></p>
+  <p>Contas no histórico: <b id="resumoHistorico">0</b></p>
+  <p>Cliente: <b id="resumoCliente">Não cadastrado</b></p>
+  <p>Estabelecimento: <b id="resumoEstabelecimento">Não cadastrado</b></p>
+</div>
+
+<button class="danger" onclick="clearAllData()" style="margin-top:10px;">🗑 Limpar todos os dados</button>
+</div>
+</section>
+</div>
+<footer>Conta de Bar Controlada por Voz • Dados salvos neste navegador</footer>
+
+<script>
+const KEY='contaBarVoz_v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'{}');
+data.produtos=data.produtos||[]; 
+data.pedido=data.pedido||[]; 
+data.historico=data.historico||[];
+data.gorjetaConfig = data.gorjetaConfig || 0;
+let speechOn=data.speechOn!==false;
+const $=id=>document.getElementById(id);
+
+function save(){
+  data.speechOn=speechOn;
+  localStorage.setItem(KEY,JSON.stringify(data));
+}
+
+function money(v){
+  return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+
+function normalize(s){
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+function speak(text){
+  if(!speechOn||!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  let u=new SpeechSynthesisUtterance(text);
+  u.lang='pt-BR';
+  u.rate=0.9;
+  speechSynthesis.speak(u);
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  $(id).classList.add('active');
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.screen===id));
+  renderAll();
+}
+
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>showScreen(b.dataset.screen));
+
+// ========== FUNÇÕES DE IMPORTAR/EXPORTAR ==========
+
+function exportarDados(){
+  try{
+    const dadosJSON = JSON.stringify(data, null, 2);
+    const blob = new Blob([dadosJSON], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const dataAtual = new Date().toISOString().slice(0,19).replace(/[:-]/g, '');
+    a.download = `conta_bar_dados_${dataAtual}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    speak('Dados exportados com sucesso');
+    alert('✅ Dados exportados com sucesso!');
+  }catch(e){
+    alert('❌ Erro ao exportar dados: '+e.message);
+  }
+}
+
+function importarDados(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  processarImportacao(file);
+  event.target.value = '';
+}
+
+function processarImportacao(file){
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const dados = JSON.parse(e.target.result);
+      
+      // Validação básica
+      if(!dados.produtos || !Array.isArray(dados.produtos) ||
+         !dados.pedido || !Array.isArray(dados.pedido) ||
+         !dados.historico || !Array.isArray(dados.historico)){
+        throw new Error('Arquivo inválido. Estrutura de dados incorreta.');
+      }
+      
+      // Confirmação
+      const confirmar = confirm(
+        '⚠️ Isso irá SUBSTITUIR todos os dados atuais!\n\n' +
+        'Produtos: '+dados.produtos.length+'\n' +
+        'Itens no pedido: '+dados.pedido.length+'\n' +
+        'Contas no histórico: '+dados.historico.length+'\n\n' +
+        'Deseja continuar?'
+      );
+      
+      if(!confirmar) return;
+      
+      // Importa os dados
+      data.produtos = dados.produtos;
+      data.pedido = dados.pedido;
+      data.historico = dados.historico;
+      data.cliente = dados.cliente || null;
+      data.estabelecimento = dados.estabelecimento || null;
+      data.gorjetaConfig = dados.gorjetaConfig || 0;
+      data.speechOn = dados.speechOn !== undefined ? dados.speechOn : true;
+      
+      save();
+      renderAll();
+      
+      const status = $('importStatus');
+      status.style.display = 'block';
+      status.style.background = 'rgba(57,201,122,0.1)';
+      status.style.border = '1px solid var(--accent)';
+      status.style.color = '#79e9aa';
+      status.innerHTML = '✅ <b>Dados importados com sucesso!</b><br>' +
+        'Produtos: '+data.produtos.length+', ' +
+        'Itens no pedido: '+data.pedido.length+', ' +
+        'Contas no histórico: '+data.historico.length;
+      
+      speak('Dados importados com sucesso');
+      alert('✅ Dados importados com sucesso!');
+      
+      // Atualiza resumo
+      atualizarResumoDados();
+      
+    }catch(e){
+      const status = $('importStatus');
+      status.style.display = 'block';
+      status.style.background = 'rgba(239,93,103,0.1)';
+      status.style.border = '1px solid var(--danger)';
+      status.style.color = '#ef5d67';
+      status.innerHTML = '❌ <b>Erro ao importar dados:</b><br>' + e.message;
+      alert('❌ Erro ao importar dados: '+e.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function atualizarResumoDados(){
+  $('resumoProdutos').textContent = data.produtos.length;
+  $('resumoPedido').textContent = data.pedido.reduce((s,x)=>s+x.qtd,0);
+  $('resumoHistorico').textContent = data.historico.length;
+  $('resumoCliente').textContent = data.cliente?.nome || 'Não cadastrado';
+  $('resumoEstabelecimento').textContent = data.estabelecimento?.nome || 'Não cadastrado';
+}
+
+function clearAllData(){
+  if(confirm('⚠️ Tem certeza que deseja limpar TODOS os dados?\n\nIsso inclui:\n- Produtos cadastrados\n- Pedido atual\n- Histórico de contas\n- Cliente e estabelecimento\n\nEsta ação não pode ser desfeita!')){
+    if(confirm('Confirmar limpeza total dos dados?')){
+      data.produtos = [];
+      data.pedido = [];
+      data.historico = [];
+      data.cliente = null;
+      data.estabelecimento = null;
+      data.gorjetaConfig = 0;
+      save();
+      renderAll();
+      atualizarResumoDados();
+      speak('Todos os dados foram limpos');
+      alert('🗑️ Todos os dados foram limpos!');
+    }
+  }
+}
+
+// Drag and Drop para importação
+const dropArea = document.getElementById('dropArea');
+if(dropArea){
+  dropArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropArea.classList.add('dragover');
+  });
+  
+  dropArea.addEventListener('dragleave', () => {
+    dropArea.classList.remove('dragover');
+  });
+  
+  dropArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropArea.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if(files.length > 0 && files[0].type === 'application/json'){
+      processarImportacao(files[0]);
+    }else{
+      alert('⚠️ Por favor, selecione um arquivo JSON válido.');
+    }
+  });
+}
+
+// ========== FIM FUNÇÕES DE IMPORTAR/EXPORTAR ==========
+
+function saveGorjetaConfig(){
+  const valor = Number($('gorjeta').value || 0);
+  data.gorjetaConfig = valor;
+  save();
+  renderConta();
+}
+
+function loadGorjetaConfig(){
+  const valor = data.gorjetaConfig || 0;
+  $('gorjeta').value = valor;
+}
+
+function saveCliente(){
+  data.cliente={
+    nome:$('clienteNome').value,
+    telefone:$('clienteTelefone').value,
+    banco:$('clienteBanco').value
+  };
+  save();
+  $('clienteInfo').textContent='Cliente salvo com sucesso.';
+  speak('Cliente salvo com sucesso');
+  atualizarResumoDados();
+}
+
+function saveEstabelecimento(){
+  data.estabelecimento={
+    nome:$('barNome').value,
+    endereco:$('barEndereco').value,
+    pix:$('barPix').value
+  };
+  save();
+  $('barInfo').textContent='Estabelecimento salvo com sucesso.';
+  speak('Estabelecimento salvo com sucesso');
+  atualizarResumoDados();
+}
+
+function addProduto(nome,preco){
+  nome=nome||$('produtoNome').value.trim(); 
+  preco=preco??Number($('produtoPreco').value);
+  if(!nome||isNaN(preco)||preco<=0){
+    alert('Informe nome e preço válido.');
+    return;
+  }
+  data.produtos.push({id:Date.now()+Math.random(),nome,preco:Number(preco)});
+  save();
+  $('produtoNome').value='';
+  $('produtoPreco').value='';
+  renderAll();
+  speak(nome+' cadastrado por '+money(preco));
+  atualizarResumoDados();
+}
+
+function deleteProduto(id){
+  data.produtos=data.produtos.filter(p=>p.id!==id);
+  save();
+  renderAll();
+  atualizarResumoDados();
+}
+
+function addPedido(produtoId,qtd){
+  produtoId=produtoId??Number($('pedidoProduto').value);
+  qtd=qtd??Number($('pedidoQtd').value);
+  const p=data.produtos.find(x=>x.id==produtoId);
+  if(!p){
+    alert('Selecione um produto.');
+    return;
+  }
+  qtd=Math.max(1,Number(qtd)||1);
+  let item=data.pedido.find(x=>x.produtoId==p.id);
+  if(item)item.qtd+=qtd;
+  else data.pedido.push({produtoId:p.id,nome:p.nome,preco:p.preco,qtd});
+  save();
+  renderAll();
+  speak(qtd+' unidade'+(qtd>1?'s':'')+' de '+p.nome+' adicionada'+(qtd>1?'s':'')+' ao pedido');
+  atualizarResumoDados();
+}
+
+function removePedido(i){
+  data.pedido.splice(i,1);
+  save();
+  renderAll();
+  atualizarResumoDados();
+}
+
+function subtotal(){
+  return data.pedido.reduce((s,x)=>s+x.preco*x.qtd,0);
+}
+
+function renderProdutos(){
+  $('listaProdutos').innerHTML=data.produtos.length?
+    data.produtos.map(p=>`<div class="list-item"><span>${p.nome}<br><b>${money(p.preco)}</b></span><button class="danger small" onclick="deleteProduto(${p.id})">Excluir</button></div>`).join(''):
+    '<div class="empty">Nenhum produto cadastrado.</div>';
+  $('pedidoProduto').innerHTML=data.produtos.map(p=>`<option value="${p.id}">${p.nome} — ${money(p.preco)}</option>`).join('');
+}
+
+function renderPedido(){
+  $('listaPedido').innerHTML=data.pedido.length?
+    `<table><tr><th>Produto</th><th>Qtd.</th><th>Total</th><th></th></tr>${
+      data.pedido.map((x,i)=>`<tr><td>${x.nome}</td><td>${x.qtd}</td><td>${money(x.preco*x.qtd)}</td><td><button class="danger small" onclick="removePedido(${i})">×</button></td></tr>`).join('')
+    }</table>`:
+    '<div class="empty">Nenhum item no pedido.</div>';
+  $('pedidoSubtotal').textContent=money(subtotal());
+  $('homeSubtotal').textContent=money(subtotal());
+  $('homeItems').textContent=data.pedido.length?data.pedido.reduce((s,x)=>s+x.qtd,0)+' item(ns) no pedido.':'Nenhum item no pedido.';
+}
+
+function renderConta(){
+  const sub=subtotal();
+  const perc=Number($('gorjeta').value||0);
+  const gor=sub*perc/100;
+  const total=sub+gor;
+  $('contaItens').innerHTML=data.pedido.length?
+    data.pedido.map(x=>`<div class="list-item"><span>${x.qtd}× ${x.nome}</span><span>${money(x.preco*x.qtd)}</span></div>`).join(''):
+    '<div class="empty">Nenhum pedido aberto.</div>';
+  $('contaSubtotal').textContent=money(sub);
+  $('contaGorjeta').textContent=money(gor);
+  $('contaTotal').textContent=money(total);
+  const e=data.estabelecimento||{};
+  $('pixInfo').innerHTML=e.nome?
+    `<b>${e.nome}</b><br>${e.endereco||''}<br><br><b>Chave PIX:</b><br>${e.pix||'Não informada'}`:
+    'Cadastre o estabelecimento para mostrar os dados de pagamento.';
+}
+
+function fecharConta(){
+  if(!data.pedido.length){
+    speak('Não há itens para fechar a conta');
+    alert('Não há itens no pedido.');
+    return;
+  }
+  const sub=subtotal();
+  const perc=Number($('gorjeta').value||0);
+  const gor=sub*perc/100;
+  const total=sub+gor;
+  const conta={
+    id:Date.now(),
+    data:new Date().toLocaleString('pt-BR'),
+    cliente:data.cliente?.nome||'Não informado',
+    itens:JSON.parse(JSON.stringify(data.pedido)),
+    subtotal:sub,
+    gorjeta:gor,
+    percentual:perc,
+    total
+  };
+  data.historico.unshift(conta);
+  data.pedido=[];
+  save();
+  renderAll();
+  const texto=`Conta fechada. Subtotal ${money(sub)}. Gorjeta de ${perc} por cento: ${money(gor)}. Total para pagamento: ${money(total)}.`;
+  speak(texto);
+  alert(texto);
+  atualizarResumoDados();
+}
+
+function verContaParcial(){
+  const sub=subtotal();
+  const texto = `O subtotal atual é ${money(sub)}. ${data.pedido.length} item(ns) no pedido.`;
+  speak(texto);
+  alert(texto);
+  showScreen('conta');
+}
+
+function renderHistorico(){
+  $('listaHistorico').innerHTML=data.historico.length?
+    data.historico.map(h=>`<div class="card" style="margin-bottom:12px"><b>${h.data}</b><br><span class="note">Cliente: ${h.cliente}</span><br>${h.itens.map(x=>`${x.qtd}× ${x.nome}`).join(', ')}<br><b>Total: ${money(h.total)}</b></div>`).join(''):
+    '<div class="empty">Nenhuma conta no histórico.</div>';
+}
+
+function clearHistorico(){
+  if(confirm('Limpar todo o histórico?')){
+    data.historico=[];
+    save();
+    renderHistorico();
+    atualizarResumoDados();
+  }
+}
+
+function renderAll(){
+  if(data.cliente){
+    $('clienteNome').value=data.cliente.nome||'';
+    $('clienteTelefone').value=data.cliente.telefone||'';
+    $('clienteBanco').value=data.cliente.banco||'';
+  }
+  if(data.estabelecimento){
+    $('barNome').value=data.estabelecimento.nome||'';
+    $('barEndereco').value=data.estabelecimento.endereco||'';
+    $('barPix').value=data.estabelecimento.pix||'';
+  }
+  loadGorjetaConfig();
+  renderProdutos();
+  renderPedido();
+  renderConta();
+  renderHistorico();
+  atualizarResumoDados();
+}
+
+$('speakToggle').onclick=()=>{
+  speechOn=!speechOn;
+  $('speakToggle').textContent='🔊 Voz: '+(speechOn?'ATIVADA':'DESATIVADA');
+  save();
+  if(speechOn)speak('Respostas por voz ativadas');
+};
+$('speakToggle').textContent='🔊 Voz: '+(speechOn?'ATIVADA':'DESATIVADA');
+
+function parseNumberWords(s){
+  const words={um:1,uma:1,dois:2,duas:2,tres:3,'três':3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10};
+  let m=s.match(/\b(\d+)\b/);
+  if(m)return Number(m[1]);
+  for(const [w,n] of Object.entries(words)){
+    if(normalize(s).includes(normalize(w)))return n;
+  }
+  return 1;
+}
+
+function findProduto(text){
+  const t=normalize(text);
+  let best=null,score=0;
+  data.produtos.forEach(p=>{
+    let words=normalize(p.nome).split(/\s+/);
+    let sc=words.filter(w=>w.length>2&&t.includes(w)).length;
+    if(sc>score){score=sc;best=p}
+  });
+  return best;
+}
+
+function extractClienteNome(text){
+  let cleaned = text.replace(/incluir\s+cliente\s*/i, '').trim();
+  if(cleaned.length > 0 && !cleaned.match(/^(produtos?|estabelecimento|bar|conta)/i)){
+    return cleaned;
+  }
+  return null;
+}
+
+function extractEstabelecimentoNome(text){
+  let cleaned = text.replace(/incluir\s+(estabelecimento|bar)\s*/i, '').trim();
+  if(cleaned.length > 0 && !cleaned.match(/^(produtos?|cliente|conta)/i)){
+    return cleaned;
+  }
+  return null;
+}
+
+function extractAbrirContaNome(text){
+  let cleaned = text.replace(/abrir\s+conta\s*/i, '').trim();
+  if(cleaned.length > 0 && !cleaned.match(/^(produtos?|cliente|estabelecimento|bar|pedido|conta)/i)){
+    return cleaned;
+  }
+  return null;
+}
+
+function extractProdutoNomeValor(text){
+  let cleaned = text.replace(/incluir\s+produtos?\s*/i, '').trim();
+  let match = cleaned.match(/^(.+?)\s+(?:a|por|de|r\$|R\$)?\s*([\d,.]+)/i);
+  
+  if(match){
+    let nome = match[1].trim();
+    let valor = parseFloat(match[2].replace('.','').replace(',','.'));
+    if(!isNaN(valor) && valor > 0){
+      return { nome, valor };
+    }
+  }
+  
+  return { nome: cleaned, valor: null };
+}
+
+function processVoice(raw){
+  $('lastCommand').textContent='🎤 Você disse: "'+raw+'"';
+  const t=normalize(raw);
+  
+  // 1. Exportar dados
+  if(t.includes('exportar') && t.includes('dados')){
+    exportarDados();
+    return;
+  }
+  
+  // 2. Importar dados
+  if(t.includes('importar') && t.includes('dados')){
+    showScreen('dados');
+    speak('Abrindo tela de importação de dados. Selecione um arquivo JSON.');
+    return;
+  }
+  
+  // 3. Ver conta parcial
+  if(t.includes('ver') && t.includes('conta') && t.includes('parcial')){
+    verContaParcial();
+    return;
+  }
+  
+  // 4. Ver histórico
+  if(t.includes('ver') && t.includes('historico')){
+    showScreen('historico');
+    speak('Abrindo histórico de contas');
+    return;
+  }
+  
+  // 5. Desativar comando por voz
+  if(t.includes('desativar') && (t.includes('comando') || t.includes('voz'))){
+    stopAssistant();
+    speak('Assistente de voz desativado');
+    return;
+  }
+  
+  // 6. Desligar app
+  if(t.includes('desligar') && (t.includes('app') || t.includes('aplicativo') || t.includes('sistema'))){
+    speak('Desligando aplicativo...');
+    setTimeout(() => {
+      if(window.close){
+        window.close();
+      } else {
+        alert('Para fechar o aplicativo, feche a aba do navegador.');
+      }
+    }, 1000);
+    return;
+  }
+  
+  // 7. Abrir conta com ou sem nome do estabelecimento
+  if(t.includes('abrir') && t.includes('conta')){
+    let nomeEstabelecimento = extractAbrirContaNome(raw);
+    
+    if(nomeEstabelecimento && nomeEstabelecimento.length > 0){
+      data.estabelecimento = data.estabelecimento || {};
+      data.estabelecimento.nome = nomeEstabelecimento;
+      $('barNome').value = nomeEstabelecimento;
+      save();
+      speak('Abrindo conta no '+nomeEstabelecimento);
+      
+      if(data.pedido.length > 0){
+        speak('Já existe uma conta aberta com itens no pedido.');
+        showScreen('conta');
+      } else {
+        data.pedido = [];
+        save();
+        speak('Nova conta aberta com sucesso!');
+        showScreen('pedido');
+      }
+    } else {
+      if(data.pedido.length > 0){
+        speak('Já existe uma conta aberta com itens no pedido.');
+        showScreen('conta');
+      } else {
+        data.pedido = [];
+        save();
+        speak('Nova conta aberta! Por favor, escolha o estabelecimento.');
+        showScreen('estabelecimento');
+        setTimeout(() => {
+          $('barNome').focus();
+          $('barNome').select();
+        }, 500);
+      }
+    }
+    return;
+  }
+  
+  // 8. Incluir produtos com nome e valor
+  if(t.includes('incluir') && (t.includes('produto') || t.includes('produtos'))){
+    let result = extractProdutoNomeValor(raw);
+    
+    if(result.nome && result.nome.length > 0){
+      if(result.valor !== null && result.valor > 0){
+        addProduto(result.nome, result.valor);
+        showScreen('produtos');
+        return;
+      } else {
+        $('produtoNome').value = result.nome;
+        setTimeout(() => {
+          $('produtoPreco').focus();
+          $('produtoPreco').select();
+        }, 300);
+        speak('Vou abrir o cadastro de produtos para '+result.nome+'. Informe o preço.');
+        showScreen('produtos');
+        return;
+      }
+    }
+    
+    speak('Não consegui identificar o nome do produto. Tente: incluir produtos cerveja Brahma 10 reais');
+    return;
+  }
+  
+  // 9. Incluir cliente
+  if(t.includes('incluir') && t.includes('cliente')){
+    let nome = extractClienteNome(raw);
+    if(nome && nome.length > 0){
+      data.cliente = data.cliente || {};
+      data.cliente.nome = nome;
+      $('clienteNome').value = nome;
+      save();
+      $('clienteInfo').textContent = 'Cliente "'+nome+'" salvo com sucesso.';
+      speak('Cliente '+nome+' incluído com sucesso');
+      showScreen('cliente');
+      return;
+    }
+    speak('Não consegui identificar o nome do cliente. Tente: incluir cliente João Silva');
+    return;
+  }
+  
+  // 10. Incluir estabelecimento
+  if(t.includes('incluir') && (t.includes('estabelecimento') || t.includes('bar'))){
+    let nome = extractEstabelecimentoNome(raw);
+    if(nome && nome.length > 0){
+      data.estabelecimento = data.estabelecimento || {};
+      data.estabelecimento.nome = nome;
+      $('barNome').value = nome;
+      save();
+      $('barInfo').textContent = 'Estabelecimento "'+nome+'" salvo com sucesso.';
+      speak('Estabelecimento '+nome+' incluído com sucesso');
+      showScreen('estabelecimento');
+      return;
+    }
+    speak('Não consegui identificar o nome do estabelecimento. Tente: incluir estabelecimento Bar do Zé');
+    return;
+  }
+  
+  // COMANDOS EXISTENTES:
+  if(t.includes('abrir')&&(t.includes('produto')||t.includes('produtos'))){showScreen('produtos');speak('Cadastro de produtos aberto');return}
+  if(t.includes('abrir')&&(t.includes('cliente')||t.includes('usuario')||t.includes('usuário'))){showScreen('cliente');speak('Cadastro de cliente aberto');return}
+  if(t.includes('abrir')&&(t.includes('estabelecimento')||t.includes('bar'))){showScreen('estabelecimento');speak('Cadastro de estabelecimento aberto');return}
+  if(t.includes('abrir')&&(t.includes('pedido')||t.includes('pedidos'))){showScreen('pedido');speak('Tela de pedidos aberta');return}
+  if(t.includes('mostrar')&&(t.includes('conta')||t.includes('pedido'))){showScreen('conta');speak('O subtotal atual é '+money(subtotal()));return}
+  if(t.includes('fechar')&&t.includes('conta')){showScreen('conta');setTimeout(fecharConta,100);return}
+  if(t.includes('pedido')||t.includes('pedir')||t.includes('adicionar')){
+    const p=findProduto(raw);
+    if(p){
+      let q=parseNumberWords(raw);
+      addPedido(p.id,q);
+      showScreen('pedido');
+      return;
+    }
+    speak('Não encontrei esse produto. Cadastre o produto primeiro.');
+    return;
+  }
+  
+  speak('Não entendi o comando. Tente dizer: "abrir conta", "ver conta parcial", "incluir produtos cerveja 10 reais", "incluir cliente" ou "incluir estabelecimento".');
+}
+
+// Função para manter a tela ativa/acesa
+function keepScreenOn(keepOn) {
+  if (!navigator.wakeLock) {
+    console.warn('Wake Lock API não suportada neste navegador.');
+    return;
+  }
+  
+  let wakeLock = null;
+  
+  if (keepOn) {
+    navigator.wakeLock.request('screen')
+      .then(lock => {
+        wakeLock = lock;
+        console.log('Tela mantida ativa.');
+        
+        wakeLock.addEventListener('release', () => {
+          console.log('Wake Lock foi liberado.');
+          if (assistantActive) {
+            setTimeout(() => {
+              navigator.wakeLock.request('screen')
+                .then(newLock => {
+                  wakeLock = newLock;
+                  console.log('Wake Lock reconectado.');
+                })
+                .catch(err => console.warn('Erro ao reconectar Wake Lock:', err));
+            }, 1000);
+          }
+        });
+      })
+      .catch(err => {
+        console.warn('Erro ao ativar Wake Lock:', err);
+      });
+  } else {
+    if (wakeLock) {
+      wakeLock.release()
+        .then(() => {
+          wakeLock = null;
+          console.log('Wake Lock liberado.');
+        })
+        .catch(err => console.warn('Erro ao liberar Wake Lock:', err));
+    }
+  }
+  
+  window._wakeLock = wakeLock;
+}
+
+// Configuração do reconhecimento de voz
+let recognition;
+let assistantActive = false;
+let permissionDenied = false;
+let restartTimeout = null;
+let isListening = false;
+
+function setVoiceUI(){
+  const btn=$('voiceBtn');
+  if(assistantActive){
+    btn.textContent='🔴 DESLIGAR ASSISTENTE DE VOZ';
+    btn.classList.add('danger');
+    keepScreenOn(true);
+  }else{
+    btn.textContent='🎤 ATIVAR ASSISTENTE DE VOZ';
+    btn.classList.remove('danger');
+    keepScreenOn(false);
+  }
+}
+
+function startListening(){
+  if(!recognition || !assistantActive || permissionDenied || isListening) return;
+  try{
+    isListening = true;
+    recognition.start();
+  }catch(e){
+    isListening = false;
+    if(e.name !== 'InvalidStateError'){
+      console.warn('Erro ao iniciar reconhecimento:', e);
+    }
+  }
+}
+
+function stopAssistant(){
+  assistantActive = false;
+  isListening = false;
+  if(restartTimeout){
+    clearTimeout(restartTimeout);
+    restartTimeout = null;
+  }
+  if(recognition){
+    try{
+      recognition.stop();
+    }catch(e){}
+  }
+  $('voiceStatus').textContent='Assistente desligado.';
+  setVoiceUI();
+}
+
+if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'pt-BR';
+  recognition.interimResults = false;
+  recognition.continuous = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    isListening = true;
+    $('voiceStatus').textContent='🟢 ASSISTENTE ATIVO — Ouvindo comando...';
+    $('permissionHelp').textContent='Pode falar agora. Após cada comando, o assistente continuará aguardando o próximo.';
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    if(assistantActive && !permissionDenied){
+      $('voiceStatus').textContent='🟢 ASSISTENTE ATIVO — aguardando próximo comando...';
+      if(restartTimeout){
+        clearTimeout(restartTimeout);
+      }
+      restartTimeout = setTimeout(() => {
+        if(assistantActive && !permissionDenied){
+          startListening();
+        }
+      }, 300);
+    }
+  };
+
+  recognition.onerror = (e) => {
+    isListening = false;
+    if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+      permissionDenied = true;
+      assistantActive = false;
+      setVoiceUI();
+      $('voiceStatus').textContent='🚫 Microfone não autorizado.';
+      $('permissionHelp').innerHTML = 'O navegador bloqueou o microfone. Clique no ícone de cadeado 🔒 ao lado do endereço do site, permita o uso do <b>Microfone</b> e recarregue a página. Se estiver abrindo o arquivo diretamente, tente usar Google Chrome ou Microsoft Edge.';
+      if(restartTimeout){
+        clearTimeout(restartTimeout);
+        restartTimeout = null;
+      }
+      return;
+    }
+    if(e.error === 'no-speech'){
+      $('voiceStatus').textContent='🟢 Não ouvi nada. Continuando a escutar...';
+      if(assistantActive && !permissionDenied){
+        if(restartTimeout){
+          clearTimeout(restartTimeout);
+        }
+        restartTimeout = setTimeout(() => {
+          if(assistantActive && !permissionDenied){
+            startListening();
+          }
+        }, 500);
+      }
+      return;
+    }
+    if(e.error === 'aborted') {
+      return;
+    }
+    $('voiceStatus').textContent='Erro no reconhecimento: '+e.error+'. Tentando continuar...';
+    if(assistantActive && !permissionDenied){
+      if(restartTimeout){
+        clearTimeout(restartTimeout);
+      }
+      restartTimeout = setTimeout(() => {
+        if(assistantActive && !permissionDenied){
+          startListening();
+        }
+      }, 1000);
+    }
+  };
+
+  recognition.onresult = (e) => {
+    const raw = e.results[e.results.length-1][0].transcript;
+    processVoice(raw);
+    if(assistantActive && !permissionDenied){
+      if(restartTimeout){
+        clearTimeout(restartTimeout);
+      }
+      restartTimeout = setTimeout(() => {
+        if(assistantActive && !permissionDenied){
+          startListening();
+        }
+      }, 300);
+    }
+  };
+
+  $('voiceBtn').onclick = async () => {
+    if(assistantActive){
+      stopAssistant();
+      return;
+    }
+
+    permissionDenied = false;
+    isListening = false;
+    
+    if(restartTimeout){
+      clearTimeout(restartTimeout);
+      restartTimeout = null;
+    }
+
+    try{
+      if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+        $('voiceStatus').textContent='Solicitando acesso ao microfone...';
+        const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+        stream.getTracks().forEach(track => track.stop());
+      }
+    }catch(err){
+      permissionDenied = true;
+      $('voiceStatus').textContent='🚫 Não foi possível acessar o microfone.';
+      $('permissionHelp').innerHTML = 'Permita o microfone nas configurações do navegador. Procure o ícone 🔒 ao lado do endereço da página e altere Microfone para <b>Permitir</b>.';
+      return;
+    }
+
+    assistantActive = true;
+    setVoiceUI();
+    $('permissionHelp').textContent='Assistente ativado. Pode falar comandos como "abrir produtos".';
+    speak('Assistente de voz ativado. Pode falar.');
+    
+    setTimeout(() => {
+      if(assistantActive && !permissionDenied){
+        startListening();
+      }
+    }, 500);
+  };
+  
+  setVoiceUI();
+}else{
+  $('voiceStatus').textContent='Reconhecimento de voz não suportado neste navegador.';
+  $('voiceBtn').disabled = true;
+  $('permissionHelp').textContent='Use preferencialmente Google Chrome ou Microsoft Edge atualizado.';
+}
+
+renderAll();
+</script>
+</body>
+</html>
