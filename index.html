@@ -325,11 +325,16 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <ul class="command-list">
   <li><span class="cmd">"Exportar dados"</span><br><span class="desc">Exporta todos os dados do app para um arquivo JSON</span></li>
   <li><span class="cmd">"Importar dados"</span><br><span class="desc">Importa dados de um arquivo JSON (abre a tela de dados)</span></li>
+  <li><span class="cmd">"Limpar histórico"</span><br><span class="desc">Remove todo o histórico de contas</span></li>
+  <li><span class="cmd">"Limpar dados"</span><br><span class="desc">Remove TODOS os dados (produtos, pedido, histórico, etc.)</span></li>
+  <li><span class="cmd">"Limpar todos os dados"</span><br><span class="desc">Sinônimo de "limpar dados"</span></li>
 </ul>
 
 <h3>📝 Comandos de Cadastro</h3>
 <ul class="command-list">
   <li><span class="cmd">"Cadastrar [produto] preço [valor]"</span><br><span class="desc">Ex: "cadastrar cerveja Brahma preço 10 reais"</span></li>
+  <li><span class="cmd">"Salvar cliente"</span><br><span class="desc">Salva o cliente atual (precisa ter nome preenchido)</span></li>
+  <li><span class="cmd">"Salvar estabelecimento"</span><br><span class="desc">Salva o estabelecimento atual (precisa ter nome preenchido)</span></li>
 </ul>
 
 <div style="margin-top:20px;padding:15px;background:rgba(57,201,122,0.1);border-radius:10px;border:1px solid var(--accent);">
@@ -1113,20 +1118,21 @@ function verContaParcial(){
   showScreen('conta');
 }
 
-function renderHistorico(){
-  $('listaHistorico').innerHTML=data.historico.length?
-    data.historico.map(h=>`<div class="card" style="margin-bottom:12px"><b>${h.data}</b><br><span class="note">Cliente: ${h.cliente}</span><br>${h.itens.map(x=>`${x.qtd}× ${x.nome}`).join(', ')}<br><b>Total: ${money(h.total)}</b></div>`).join(''):
-    '<div class="empty">Nenhuma conta no histórico.</div>';
-}
-
 function clearHistorico(){
   if(confirm('Limpar todo o histórico?')){
     data.historico=[];
     save();
     renderHistorico();
     atualizarResumoDados();
+    speak('Histórico limpo');
     showFeedback('🗑️ Histórico limpo');
   }
+}
+
+function renderHistorico(){
+  $('listaHistorico').innerHTML=data.historico.length?
+    data.historico.map(h=>`<div class="card" style="margin-bottom:12px"><b>${h.data}</b><br><span class="note">Cliente: ${h.cliente}</span><br>${h.itens.map(x=>`${x.qtd}× ${x.nome}`).join(', ')}<br><b>Total: ${money(h.total)}</b></div>`).join(''):
+    '<div class="empty">Nenhuma conta no histórico.</div>';
 }
 
 function renderAll(){
@@ -1226,16 +1232,42 @@ function processVoice(raw){
   document.getElementById('lastCommand').textContent='🎤 Você disse: "'+raw+'"';
   const t=normalize(raw);
   
-  // ====== COMANDOS COM SINÔNIMOS ======
+  // ====== COMANDOS DE BOTÕES (AÇÕES) ======
   
-  // 1. Exportar dados
+  // 1. Limpar histórico
+  if(t.includes('limpar') && (t.includes('historico') || t.includes('histórico'))){
+    clearHistorico();
+    return;
+  }
+  
+  // 2. Limpar dados / Limpar todos os dados
+  if(t.includes('limpar') && t.includes('dados')){
+    clearAllData();
+    return;
+  }
+  
+  // 3. Salvar cliente
+  if(t.includes('salvar') && t.includes('cliente')){
+    saveCliente();
+    return;
+  }
+  
+  // 4. Salvar estabelecimento
+  if(t.includes('salvar') && (t.includes('estabelecimento') || t.includes('bar'))){
+    saveEstabelecimento();
+    return;
+  }
+  
+  // ====== COMANDOS DE NAVEGAÇÃO E DADOS (já existentes) ======
+  
+  // 5. Exportar dados
   if(t.includes('exportar') && t.includes('dados')){
     exportarDados();
     showFeedback('📤 Exportando dados...');
     return;
   }
   
-  // 2. Importar dados
+  // 6. Importar dados
   if(t.includes('importar') && t.includes('dados')){
     showScreen('dados');
     speak('Abrindo tela de importação de dados. Selecione um arquivo JSON.');
@@ -1243,13 +1275,13 @@ function processVoice(raw){
     return;
   }
   
-  // 3. Ver conta parcial
+  // 7. Ver conta parcial
   if(t.includes('ver') && t.includes('conta') && t.includes('parcial')){
     verContaParcial();
     return;
   }
   
-  // 4. Ver histórico
+  // 8. Ver histórico
   if(t.includes('ver') && t.includes('historico')){
     showScreen('historico');
     speak('Abrindo histórico de contas');
@@ -1257,7 +1289,7 @@ function processVoice(raw){
     return;
   }
   
-  // 5. Desativar / Desligar comando por voz (SINÔNIMOS)
+  // 9. Desativar / Desligar comando por voz (SINÔNIMOS)
   if((t.includes('desativar') || t.includes('desligar')) && (t.includes('comando') || t.includes('voz'))){
     if(recognizer) recognizer.deactivate();
     speak('Assistente de voz desativado');
@@ -1265,7 +1297,7 @@ function processVoice(raw){
     return;
   }
   
-  // 6. Desligar app (mantém o "desligar" específico)
+  // 10. Desligar app (mantém o "desligar" específico)
   if(t.includes('desligar') && (t.includes('app') || t.includes('aplicativo') || t.includes('sistema'))){
     speak('Desligando aplicativo...');
     showFeedback('⏻ Desligando...');
@@ -1279,7 +1311,7 @@ function processVoice(raw){
     return;
   }
   
-  // 7. Abrir conta
+  // 11. Abrir conta
   if(t.includes('abrir') && t.includes('conta')){
     let nomeEstabelecimento = extractAbrirContaNome(raw);
     
@@ -1322,7 +1354,7 @@ function processVoice(raw){
     return;
   }
   
-  // 8. Incluir produtos
+  // 12. Incluir produtos
   if(t.includes('incluir') && (t.includes('produto') || t.includes('produtos'))){
     let result = extractProdutoNomeValor(raw);
     
@@ -1349,7 +1381,7 @@ function processVoice(raw){
     return;
   }
   
-  // 9. Incluir cliente
+  // 13. Incluir cliente
   if(t.includes('incluir') && t.includes('cliente')){
     let nome = extractClienteNome(raw);
     if(nome && nome.length > 0){
@@ -1368,7 +1400,7 @@ function processVoice(raw){
     return;
   }
   
-  // 10. Incluir estabelecimento
+  // 14. Incluir estabelecimento
   if(t.includes('incluir') && (t.includes('estabelecimento') || t.includes('bar'))){
     let nome = extractEstabelecimentoNome(raw);
     if(nome && nome.length > 0){
@@ -1396,14 +1428,11 @@ function processVoice(raw){
   if(t.includes('fechar')&&t.includes('conta')){showScreen('conta');setTimeout(fecharConta,100);return}
   
   // ====== COMANDOS DE PEDIDO COM SINÔNIMOS ======
-  // Verifica se contém "pedir", "solicitar", "mais uma", "mais um", "adicionar"
   const isPedido = t.includes('pedir') || t.includes('solicitar') || t.includes('adicionar') || 
                    t.includes('pedido') || t.includes('mais uma') || t.includes('mais um');
   
   if(isPedido){
-    // Para "mais uma" ou "mais um", a quantidade é 1
     let qtd = parseNumberWords(raw);
-    // Se for "mais uma" ou "mais um" e não tiver número explícito, força qtd=1
     if ((t.includes('mais uma') || t.includes('mais um')) && !raw.match(/\b\d+\b/)) {
       qtd = 1;
     }
