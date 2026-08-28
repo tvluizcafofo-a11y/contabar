@@ -2,8 +2,8 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Conta de Bar Controlada por Voz</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🍺 Conta de Bar Controlada por Voz</title>
 <style>
 :root{
   --bg:#10131a;--panel:#191e28;--panel2:#222938;--text:#f4f7fb;--muted:#aeb8c8;
@@ -293,9 +293,17 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 </div>
-<footer>Conta de Bar Controlada por Voz • Dados salvos neste navegador</footer>
+<footer>🍺 Conta de Bar Controlada por Voz • Dados salvos neste navegador</footer>
 
 <script>
+// ========== DETECÇÃO DE AMBIENTE ==========
+const isAndroidWebView = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isWebView = typeof window.Android !== 'undefined' || isAndroidWebView;
+const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+
+console.log('Ambiente:', isAndroidWebView ? 'Android WebView' : isChrome ? 'Chrome' : 'Outro');
+
+// ========== VARIÁVEIS GLOBAIS ==========
 const KEY='contaBarVoz_v1';
 let data=JSON.parse(localStorage.getItem(KEY)||'{}');
 data.produtos=data.produtos||[]; 
@@ -318,15 +326,222 @@ function normalize(s){
   return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 }
 
+// ========== FUNÇÃO DE VOZ (COMPATÍVEL COM WEBVIEW) ==========
 function speak(text){
-  if(!speechOn||!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  let u=new SpeechSynthesisUtterance(text);
-  u.lang='pt-BR';
-  u.rate=0.9;
-  speechSynthesis.speak(u);
+  if(!speechOn) return;
+  
+  // Tenta usar o mecanismo padrão
+  if(window.speechSynthesis){
+    try{
+      speechSynthesis.cancel();
+      let u = new SpeechSynthesisUtterance(text);
+      u.lang = 'pt-BR';
+      u.rate = 0.9;
+      speechSynthesis.speak(u);
+      return;
+    }catch(e){
+      console.warn('Erro no speechSynthesis:', e);
+    }
+  }
+  
+  // Fallback para Android WebView - usa TTS nativo se disponível
+  if(isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.ttsSpeak){
+    try{
+      window.Android.ttsSpeak(text);
+      return;
+    }catch(e){
+      console.warn('Erro no TTS nativo:', e);
+    }
+  }
+  
+  // Fallback: exibe texto na tela com destaque
+  const lastCmd = document.getElementById('lastCommand');
+  if(lastCmd){
+    lastCmd.innerHTML = '🔊 ' + text;
+    lastCmd.style.background = 'rgba(57,201,122,0.2)';
+    lastCmd.style.padding = '8px';
+    lastCmd.style.borderRadius = '8px';
+    setTimeout(() => {
+      lastCmd.style.background = 'transparent';
+      lastCmd.style.padding = '0';
+    }, 3000);
+  }
 }
 
+// ========== RECONHECIMENTO DE VOZ (COMPATÍVEL COM WEBVIEW) ==========
+class VoiceRecognizer {
+  constructor() {
+    this.isListening = false;
+    this.isActive = false;
+    this.permissionDenied = false;
+    this.recognition = null;
+    this.recognitionMethod = null;
+    
+    // Detecta método disponível
+    if(isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.startVoiceRecognition){
+      this.recognitionMethod = 'native';
+      console.log('Usando reconhecimento nativo Android');
+    } else if(('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window)){
+      this.recognitionMethod = 'web';
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      this.recognition = new SR();
+      this.recognition.lang = 'pt-BR';
+      this.recognition.interimResults = false;
+      this.recognition.continuous = false;
+      this.recognition.maxAlternatives = 1;
+      console.log('Usando Web Speech API');
+    } else {
+      this.recognitionMethod = 'none';
+      console.warn('Nenhum método de reconhecimento de voz disponível');
+    }
+    
+    this.setupListeners();
+  }
+  
+  setupListeners(){
+    if(this.recognitionMethod === 'web' && this.recognition){
+      this.recognition.onstart = () => {
+        this.isListening = true;
+        document.getElementById('voiceStatus').textContent = '🟢 Ouvindo comando...';
+      };
+      
+      this.recognition.onend = () => {
+        this.isListening = false;
+        if(this.isActive && !this.permissionDenied){
+          document.getElementById('voiceStatus').textContent = '🟢 Aguardando próximo comando...';
+          this.startListening();
+        }
+      };
+      
+      this.recognition.onerror = (e) => {
+        this.isListening = false;
+        if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+          this.permissionDenied = true;
+          this.isActive = false;
+          document.getElementById('voiceStatus').textContent = '🚫 Microfone não autorizado.';
+          this.updateUI();
+          return;
+        }
+        if(e.error === 'no-speech') {
+          if(this.isActive && !this.permissionDenied){
+            this.startListening();
+          }
+          return;
+        }
+        if(e.error !== 'aborted' && this.isActive && !this.permissionDenied){
+          this.startListening();
+        }
+      };
+      
+      this.recognition.onresult = (e) => {
+        const raw = e.results[e.results.length-1][0].transcript;
+        processVoice(raw);
+        if(this.isActive && !this.permissionDenied){
+          this.startListening();
+        }
+      };
+    }
+  }
+  
+  startListening(){
+    if(!this.isActive || this.permissionDenied || this.isListening) return;
+    
+    if(this.recognitionMethod === 'web' && this.recognition){
+      try{
+        this.isListening = true;
+        this.recognition.start();
+      }catch(e){
+        this.isListening = false;
+        if(e.name !== 'InvalidStateError'){
+          console.warn('Erro ao iniciar reconhecimento web:', e);
+        }
+      }
+    } else if(this.recognitionMethod === 'native' && typeof window.Android !== 'undefined' && window.Android.startVoiceRecognition){
+      try{
+        this.isListening = true;
+        window.Android.startVoiceRecognition();
+        document.getElementById('voiceStatus').textContent = '🟢 Ouvindo comando...';
+      }catch(e){
+        this.isListening = false;
+        console.warn('Erro ao iniciar reconhecimento nativo:', e);
+      }
+    }
+  }
+  
+  stopListening(){
+    if(this.recognitionMethod === 'web' && this.recognition){
+      try{
+        this.recognition.stop();
+      }catch(e){}
+    } else if(this.recognitionMethod === 'native' && typeof window.Android !== 'undefined' && window.Android.stopVoiceRecognition){
+      try{
+        window.Android.stopVoiceRecognition();
+      }catch(e){}
+    }
+    this.isListening = false;
+  }
+  
+  activate(){
+    this.isActive = true;
+    this.permissionDenied = false;
+    document.getElementById('voiceStatus').textContent = '🟢 Ativando...';
+    this.updateUI();
+    
+    setTimeout(() => {
+      if(this.isActive && !this.permissionDenied){
+        this.startListening();
+      }
+    }, 500);
+  }
+  
+  deactivate(){
+    this.isActive = false;
+    this.isListening = false;
+    this.stopListening();
+    document.getElementById('voiceStatus').textContent = 'Assistente desligado.';
+    this.updateUI();
+  }
+  
+  updateUI(){
+    const btn = document.getElementById('voiceBtn');
+    if(this.isActive){
+      btn.textContent = '🔴 DESLIGAR ASSISTENTE DE VOZ';
+      btn.classList.add('danger');
+      keepScreenOn(true);
+    }else{
+      btn.textContent = '🎤 ATIVAR ASSISTENTE DE VOZ';
+      btn.classList.remove('danger');
+      keepScreenOn(false);
+    }
+  }
+  
+  isSupported(){
+    return this.recognitionMethod !== 'none';
+  }
+  
+  processNativeResult(text){
+    processVoice(text);
+    if(this.isActive && !this.permissionDenied){
+      setTimeout(() => {
+        this.startListening();
+      }, 500);
+    }
+  }
+}
+
+// ========== INICIALIZAÇÃO DO RECONHECEDOR ==========
+let recognizer = new VoiceRecognizer();
+
+// Bridge para comunicação com Android nativo
+if(isAndroidWebView){
+  window.processVoiceResult = function(text){
+    if(recognizer){
+      recognizer.processNativeResult(text);
+    }
+  };
+}
+
+// ========== FUNÇÕES DE TELA E INTERFACE ==========
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
   $(id).classList.add('active');
@@ -336,8 +551,7 @@ function showScreen(id){
 
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>showScreen(b.dataset.screen));
 
-// ========== FUNÇÕES DE IMPORTAR/EXPORTAR ==========
-
+// ========== FUNÇÕES DE DADOS ==========
 function exportarDados(){
   try{
     const dadosJSON = JSON.stringify(data, null, 2);
@@ -371,14 +585,12 @@ function processarImportacao(file){
     try{
       const dados = JSON.parse(e.target.result);
       
-      // Validação básica
       if(!dados.produtos || !Array.isArray(dados.produtos) ||
          !dados.pedido || !Array.isArray(dados.pedido) ||
          !dados.historico || !Array.isArray(dados.historico)){
         throw new Error('Arquivo inválido. Estrutura de dados incorreta.');
       }
       
-      // Confirmação
       const confirmar = confirm(
         '⚠️ Isso irá SUBSTITUIR todos os dados atuais!\n\n' +
         'Produtos: '+dados.produtos.length+'\n' +
@@ -389,7 +601,6 @@ function processarImportacao(file){
       
       if(!confirmar) return;
       
-      // Importa os dados
       data.produtos = dados.produtos;
       data.pedido = dados.pedido;
       data.historico = dados.historico;
@@ -413,8 +624,6 @@ function processarImportacao(file){
       
       speak('Dados importados com sucesso');
       alert('✅ Dados importados com sucesso!');
-      
-      // Atualiza resumo
       atualizarResumoDados();
       
     }catch(e){
@@ -456,7 +665,7 @@ function clearAllData(){
   }
 }
 
-// Drag and Drop para importação
+// Drag and Drop
 const dropArea = document.getElementById('dropArea');
 if(dropArea){
   dropArea.addEventListener('dragover', (e) => {
@@ -480,8 +689,7 @@ if(dropArea){
   });
 }
 
-// ========== FIM FUNÇÕES DE IMPORTAR/EXPORTAR ==========
-
+// ========== FUNÇÕES DE NEGÓCIO ==========
 function saveGorjetaConfig(){
   const valor = Number($('gorjeta').value || 0);
   data.gorjetaConfig = valor;
@@ -677,6 +885,7 @@ function renderAll(){
   atualizarResumoDados();
 }
 
+// ========== CONFIGURAÇÃO DE VOZ ==========
 $('speakToggle').onclick=()=>{
   speechOn=!speechOn;
   $('speakToggle').textContent='🔊 Voz: '+(speechOn?'ATIVADA':'DESATIVADA');
@@ -685,6 +894,7 @@ $('speakToggle').onclick=()=>{
 };
 $('speakToggle').textContent='🔊 Voz: '+(speechOn?'ATIVADA':'DESATIVADA');
 
+// ========== PROCESSAMENTO DE VOZ ==========
 function parseNumberWords(s){
   const words={um:1,uma:1,dois:2,duas:2,tres:3,'três':3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10};
   let m=s.match(/\b(\d+)\b/);
@@ -746,7 +956,7 @@ function extractProdutoNomeValor(text){
 }
 
 function processVoice(raw){
-  $('lastCommand').textContent='🎤 Você disse: "'+raw+'"';
+  document.getElementById('lastCommand').textContent='🎤 Você disse: "'+raw+'"';
   const t=normalize(raw);
   
   // 1. Exportar dados
@@ -777,7 +987,7 @@ function processVoice(raw){
   
   // 5. Desativar comando por voz
   if(t.includes('desativar') && (t.includes('comando') || t.includes('voz'))){
-    stopAssistant();
+    if(recognizer) recognizer.deactivate();
     speak('Assistente de voz desativado');
     return;
   }
@@ -795,7 +1005,7 @@ function processVoice(raw){
     return;
   }
   
-  // 7. Abrir conta com ou sem nome do estabelecimento
+  // 7. Abrir conta
   if(t.includes('abrir') && t.includes('conta')){
     let nomeEstabelecimento = extractAbrirContaNome(raw);
     
@@ -833,7 +1043,7 @@ function processVoice(raw){
     return;
   }
   
-  // 8. Incluir produtos com nome e valor
+  // 8. Incluir produtos
   if(t.includes('incluir') && (t.includes('produto') || t.includes('produtos'))){
     let result = extractProdutoNomeValor(raw);
     
@@ -914,7 +1124,7 @@ function processVoice(raw){
   speak('Não entendi o comando. Tente dizer: "abrir conta", "ver conta parcial", "incluir produtos cerveja 10 reais", "incluir cliente" ou "incluir estabelecimento".');
 }
 
-// Função para manter a tela ativa/acesa
+// ========== WAKE LOCK (MANTER TELA ATIVA) ==========
 function keepScreenOn(keepOn) {
   if (!navigator.wakeLock) {
     console.warn('Wake Lock API não suportada neste navegador.');
@@ -931,7 +1141,7 @@ function keepScreenOn(keepOn) {
         
         wakeLock.addEventListener('release', () => {
           console.log('Wake Lock foi liberado.');
-          if (assistantActive) {
+          if (recognizer && recognizer.isActive) {
             setTimeout(() => {
               navigator.wakeLock.request('screen')
                 .then(newLock => {
@@ -960,190 +1170,66 @@ function keepScreenOn(keepOn) {
   window._wakeLock = wakeLock;
 }
 
-// Configuração do reconhecimento de voz
-let recognition;
-let assistantActive = false;
-let permissionDenied = false;
-let restartTimeout = null;
-let isListening = false;
-
-function setVoiceUI(){
-  const btn=$('voiceBtn');
-  if(assistantActive){
-    btn.textContent='🔴 DESLIGAR ASSISTENTE DE VOZ';
-    btn.classList.add('danger');
-    keepScreenOn(true);
-  }else{
-    btn.textContent='🎤 ATIVAR ASSISTENTE DE VOZ';
-    btn.classList.remove('danger');
-    keepScreenOn(false);
+// ========== BOTÃO DE ATIVAÇÃO DE VOZ ==========
+document.getElementById('voiceBtn').onclick = async () => {
+  if(recognizer.isActive){
+    recognizer.deactivate();
+    return;
   }
-}
 
-function startListening(){
-  if(!recognition || !assistantActive || permissionDenied || isListening) return;
+  if(!recognizer.isSupported()){
+    alert('⚠️ Reconhecimento de voz não disponível neste navegador.\n\n' +
+          'Para usar no Android, certifique-se de que o app tem permissão de microfone.\n\n' +
+          'Se estiver no Chrome, tente usar o navegador Chrome diretamente.');
+    return;
+  }
+
+  // Solicita permissão do microfone
   try{
-    isListening = true;
-    recognition.start();
-  }catch(e){
-    isListening = false;
-    if(e.name !== 'InvalidStateError'){
-      console.warn('Erro ao iniciar reconhecimento:', e);
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      document.getElementById('voiceStatus').textContent = 'Solicitando acesso ao microfone...';
+      const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+      stream.getTracks().forEach(track => track.stop());
     }
+  }catch(err){
+    document.getElementById('voiceStatus').textContent = '🚫 Não foi possível acessar o microfone.';
+    document.getElementById('permissionHelp').innerHTML = 'Permita o microfone nas configurações do dispositivo.';
+    return;
   }
-}
 
-function stopAssistant(){
-  assistantActive = false;
-  isListening = false;
-  if(restartTimeout){
-    clearTimeout(restartTimeout);
-    restartTimeout = null;
-  }
-  if(recognition){
-    try{
-      recognition.stop();
-    }catch(e){}
-  }
-  $('voiceStatus').textContent='Assistente desligado.';
-  setVoiceUI();
-}
+  recognizer.activate();
+  document.getElementById('permissionHelp').textContent = 'Assistente ativado. Pode falar comandos.';
+  speak('Assistente de voz ativado. Pode falar.');
+};
 
-if('webkitSpeechRecognition' in window || 'SpeechRecognition' in window){
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SR();
-  recognition.lang = 'pt-BR';
-  recognition.interimResults = false;
-  recognition.continuous = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = () => {
-    isListening = true;
-    $('voiceStatus').textContent='🟢 ASSISTENTE ATIVO — Ouvindo comando...';
-    $('permissionHelp').textContent='Pode falar agora. Após cada comando, o assistente continuará aguardando o próximo.';
-  };
-
-  recognition.onend = () => {
-    isListening = false;
-    if(assistantActive && !permissionDenied){
-      $('voiceStatus').textContent='🟢 ASSISTENTE ATIVO — aguardando próximo comando...';
-      if(restartTimeout){
-        clearTimeout(restartTimeout);
-      }
-      restartTimeout = setTimeout(() => {
-        if(assistantActive && !permissionDenied){
-          startListening();
-        }
-      }, 300);
-    }
-  };
-
-  recognition.onerror = (e) => {
-    isListening = false;
-    if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
-      permissionDenied = true;
-      assistantActive = false;
-      setVoiceUI();
-      $('voiceStatus').textContent='🚫 Microfone não autorizado.';
-      $('permissionHelp').innerHTML = 'O navegador bloqueou o microfone. Clique no ícone de cadeado 🔒 ao lado do endereço do site, permita o uso do <b>Microfone</b> e recarregue a página. Se estiver abrindo o arquivo diretamente, tente usar Google Chrome ou Microsoft Edge.';
-      if(restartTimeout){
-        clearTimeout(restartTimeout);
-        restartTimeout = null;
-      }
-      return;
-    }
-    if(e.error === 'no-speech'){
-      $('voiceStatus').textContent='🟢 Não ouvi nada. Continuando a escutar...';
-      if(assistantActive && !permissionDenied){
-        if(restartTimeout){
-          clearTimeout(restartTimeout);
-        }
-        restartTimeout = setTimeout(() => {
-          if(assistantActive && !permissionDenied){
-            startListening();
-          }
-        }, 500);
-      }
-      return;
-    }
-    if(e.error === 'aborted') {
-      return;
-    }
-    $('voiceStatus').textContent='Erro no reconhecimento: '+e.error+'. Tentando continuar...';
-    if(assistantActive && !permissionDenied){
-      if(restartTimeout){
-        clearTimeout(restartTimeout);
-      }
-      restartTimeout = setTimeout(() => {
-        if(assistantActive && !permissionDenied){
-          startListening();
-        }
-      }, 1000);
-    }
-  };
-
-  recognition.onresult = (e) => {
-    const raw = e.results[e.results.length-1][0].transcript;
-    processVoice(raw);
-    if(assistantActive && !permissionDenied){
-      if(restartTimeout){
-        clearTimeout(restartTimeout);
-      }
-      restartTimeout = setTimeout(() => {
-        if(assistantActive && !permissionDenied){
-          startListening();
-        }
-      }, 300);
-    }
-  };
-
-  $('voiceBtn').onclick = async () => {
-    if(assistantActive){
-      stopAssistant();
-      return;
-    }
-
-    permissionDenied = false;
-    isListening = false;
-    
-    if(restartTimeout){
-      clearTimeout(restartTimeout);
-      restartTimeout = null;
-    }
-
-    try{
-      if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
-        $('voiceStatus').textContent='Solicitando acesso ao microfone...';
-        const stream = await navigator.mediaDevices.getUserMedia({audio: true});
-        stream.getTracks().forEach(track => track.stop());
-      }
-    }catch(err){
-      permissionDenied = true;
-      $('voiceStatus').textContent='🚫 Não foi possível acessar o microfone.';
-      $('permissionHelp').innerHTML = 'Permita o microfone nas configurações do navegador. Procure o ícone 🔒 ao lado do endereço da página e altere Microfone para <b>Permitir</b>.';
-      return;
-    }
-
-    assistantActive = true;
-    setVoiceUI();
-    $('permissionHelp').textContent='Assistente ativado. Pode falar comandos como "abrir produtos".';
-    speak('Assistente de voz ativado. Pode falar.');
-    
-    setTimeout(() => {
-      if(assistantActive && !permissionDenied){
-        startListening();
-      }
-    }, 500);
-  };
-  
-  setVoiceUI();
-}else{
-  $('voiceStatus').textContent='Reconhecimento de voz não suportado neste navegador.';
-  $('voiceBtn').disabled = true;
-  $('permissionHelp').textContent='Use preferencialmente Google Chrome ou Microsoft Edge atualizado.';
-}
-
+// ========== INICIALIZAÇÃO ==========
 renderAll();
+
+// Mensagem de compatibilidade
+if(!recognizer.isSupported()){
+  document.getElementById('voiceStatus').textContent = '⚠️ Voz não disponível neste dispositivo.';
+  document.getElementById('permissionHelp').innerHTML = 'O reconhecimento de voz não está disponível. ' +
+    'Use um navegador Chrome ou um dispositivo Android com suporte a TTS.';
+  document.getElementById('voiceBtn').disabled = true;
+} else if(isAndroidWebView){
+  document.getElementById('voiceStatus').textContent = '📱 Modo Android WebView';
+  document.getElementById('permissionHelp').innerHTML = 'Assistente de voz otimizado para Android. ' +
+    'Certifique-se de que o app tem permissão de microfone.';
+}
+
+console.log('✅ App inicializado com sucesso!');
+console.log('Comandos de voz disponíveis:');
+console.log('- exportar dados');
+console.log('- importar dados');
+console.log('- abrir conta');
+console.log('- incluir produtos cerveja 10 reais');
+console.log('- incluir cliente João Silva');
+console.log('- incluir estabelecimento Bar do Zé');
+console.log('- ver conta parcial');
+console.log('- ver histórico');
+console.log('- fechar conta');
+console.log('- desativar comando por voz');
+console.log('- desligar app');
 </script>
 </body>
 </html>
