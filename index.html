@@ -303,6 +303,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <li><span class="cmd">"Fazer pedido de [qtd] [produto]"</span><br><span class="desc">Ex: "fazer pedido de 2 cervejas Brahma"</span></li>
   <li><span class="cmd">"Adicionar [qtd] [produto]"</span><br><span class="desc">Ex: "adicionar 3 águas"</span></li>
   <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Ex: "pedir uma porção de batata"</span></li>
+  <li><span class="cmd">"Solicitar [qtd] [produto]"</span><br><span class="desc">Ex: "solicitar 2 cervejas"</span></li>
+  <li><span class="cmd">"Mais uma [produto]"</span><br><span class="desc">Ex: "mais uma cerveja" (adiciona 1)</span></li>
+  <li><span class="cmd">"Mais um [produto]"</span><br><span class="desc">Ex: "mais um refrigerante" (adiciona 1)</span></li>
 </ul>
 
 <h3>💰 Comandos de Conta</h3>
@@ -314,6 +317,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <h3>⚙️ Comandos de Controle</h3>
 <ul class="command-list">
   <li><span class="cmd">"Desativar comando por voz"</span><br><span class="desc">Desativa o assistente de voz</span></li>
+  <li><span class="cmd">"Desligar comando por voz"</span><br><span class="desc">Sinônimo de "desativar"</span></li>
   <li><span class="cmd">"Desligar app"</span><br><span class="desc">Fecha o aplicativo (tenta fechar a página)</span></li>
 </ul>
 
@@ -402,7 +406,7 @@ data.voicePreference = data.voicePreference || 'default';
 let speechOn=data.speechOn!==false;
 let currentEditId = null;
 let feedbackTimer = null;
-let feedbackDismissed = false; // Sessão atual
+let feedbackDismissed = false;
 const $=id=>document.getElementById(id);
 
 function save(){
@@ -427,7 +431,6 @@ function showFeedback(mensagem) {
   const msg = document.getElementById('feedbackMessage');
   msg.textContent = mensagem;
   
-  // Cancela timer anterior
   if (feedbackTimer) {
     clearTimeout(feedbackTimer);
     feedbackTimer = null;
@@ -435,7 +438,6 @@ function showFeedback(mensagem) {
   
   modal.classList.add('show');
   
-  // Fecha automaticamente após 3 segundos
   feedbackTimer = setTimeout(() => {
     fecharFeedback();
   }, 3000);
@@ -766,7 +768,7 @@ function exportarDados(){
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     speak('Dados exportados com sucesso');
-    showFeedback('✅ Dados exportados com sucesso');
+    showFeedback('📤 Dados exportados com sucesso');
     alert('✅ Dados exportados com sucesso!');
   }catch(e){
     alert('❌ Erro ao exportar dados: '+e.message);
@@ -1159,7 +1161,7 @@ $('speakToggle').onclick=()=>{
 };
 $('speakToggle').textContent='🔊 Voz: '+(speechOn?'ATIVADA':'DESATIVADA');
 
-// ========== PROCESSAMENTO DE VOZ ==========
+// ========== PROCESSAMENTO DE VOZ COM SINÔNIMOS ==========
 function parseNumberWords(s){
   const words={um:1,uma:1,dois:2,duas:2,tres:3,'três':3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10};
   let m=s.match(/\b(\d+)\b/);
@@ -1224,6 +1226,8 @@ function processVoice(raw){
   document.getElementById('lastCommand').textContent='🎤 Você disse: "'+raw+'"';
   const t=normalize(raw);
   
+  // ====== COMANDOS COM SINÔNIMOS ======
+  
   // 1. Exportar dados
   if(t.includes('exportar') && t.includes('dados')){
     exportarDados();
@@ -1253,15 +1257,15 @@ function processVoice(raw){
     return;
   }
   
-  // 5. Desativar comando por voz
-  if(t.includes('desativar') && (t.includes('comando') || t.includes('voz'))){
+  // 5. Desativar / Desligar comando por voz (SINÔNIMOS)
+  if((t.includes('desativar') || t.includes('desligar')) && (t.includes('comando') || t.includes('voz'))){
     if(recognizer) recognizer.deactivate();
     speak('Assistente de voz desativado');
     showFeedback('🔇 Assistente desativado');
     return;
   }
   
-  // 6. Desligar app
+  // 6. Desligar app (mantém o "desligar" específico)
   if(t.includes('desligar') && (t.includes('app') || t.includes('aplicativo') || t.includes('sistema'))){
     speak('Desligando aplicativo...');
     showFeedback('⏻ Desligando...');
@@ -1383,18 +1387,30 @@ function processVoice(raw){
     return;
   }
   
-  // COMANDOS EXISTENTES:
+  // ====== COMANDOS DE NAVEGAÇÃO (sem alterações) ======
   if(t.includes('abrir')&&(t.includes('produto')||t.includes('produtos'))){showScreen('produtos');speak('Cadastro de produtos aberto');showFeedback('📦 Abrindo produtos');return}
   if(t.includes('abrir')&&(t.includes('cliente')||t.includes('usuario')||t.includes('usuário'))){showScreen('cliente');speak('Cadastro de cliente aberto');showFeedback('👤 Abrindo cliente');return}
   if(t.includes('abrir')&&(t.includes('estabelecimento')||t.includes('bar'))){showScreen('estabelecimento');speak('Cadastro de estabelecimento aberto');showFeedback('🏢 Abrindo estabelecimento');return}
   if(t.includes('abrir')&&(t.includes('pedido')||t.includes('pedidos'))){showScreen('pedido');speak('Tela de pedidos aberta');showFeedback('🛒 Abrindo pedidos');return}
   if(t.includes('mostrar')&&(t.includes('conta')||t.includes('pedido'))){showScreen('conta');speak('O subtotal atual é '+money(subtotal()));showFeedback('🧾 Mostrando conta');return}
   if(t.includes('fechar')&&t.includes('conta')){showScreen('conta');setTimeout(fecharConta,100);return}
-  if(t.includes('pedido')||t.includes('pedir')||t.includes('adicionar')){
-    const p=findProduto(raw);
+  
+  // ====== COMANDOS DE PEDIDO COM SINÔNIMOS ======
+  // Verifica se contém "pedir", "solicitar", "mais uma", "mais um", "adicionar"
+  const isPedido = t.includes('pedir') || t.includes('solicitar') || t.includes('adicionar') || 
+                   t.includes('pedido') || t.includes('mais uma') || t.includes('mais um');
+  
+  if(isPedido){
+    // Para "mais uma" ou "mais um", a quantidade é 1
+    let qtd = parseNumberWords(raw);
+    // Se for "mais uma" ou "mais um" e não tiver número explícito, força qtd=1
+    if ((t.includes('mais uma') || t.includes('mais um')) && !raw.match(/\b\d+\b/)) {
+      qtd = 1;
+    }
+    
+    const p = findProduto(raw);
     if(p){
-      let q=parseNumberWords(raw);
-      addPedido(p.id,q);
+      addPedido(p.id, qtd);
       showScreen('pedido');
       return;
     }
@@ -1403,6 +1419,17 @@ function processVoice(raw){
     return;
   }
   
+  // ====== COMANDO DE CADASTRO ======
+  if(t.includes('cadastrar') && (t.includes('preco') || t.includes('preço'))){
+    let m=raw.match(/cadastrar\s+(.+?)\s+pre[cç]o\s+(?:r\$?\s*)?([\d,.]+)/i);
+    if(!m)m=raw.match(/cadastrar\s+(.+?)\s+(?:por|valor)\s+(?:r\$?\s*)?([\d,.]+)/i);
+    if(m){let preco=parseFloat(m[2].replace('.','').replace(',','.'));addProduto(m[1].trim(),preco);showScreen('produtos');return}
+    speak('Não consegui identificar o nome e o preço. Tente dizer cadastrar produto, preço 10 reais.');
+    showFeedback('❌ Não entendi o cadastro');
+    return;
+  }
+  
+  // ====== FALLBACK ======
   speak('Não entendi o comando. Tente dizer: "abrir conta", "ver conta parcial", "incluir produtos cerveja 10 reais", "incluir cliente" ou "incluir estabelecimento".');
   showFeedback('❓ Comando não reconhecido');
 }
