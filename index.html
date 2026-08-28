@@ -15,6 +15,7 @@ header h1{margin:0;font-size:24px} header p{margin:5px 0 0;color:var(--muted)}
 .container{max-width:1200px;margin:auto;padding:18px}
 .voice{background:linear-gradient(135deg,#1d4937,#19382e);border:1px solid #367a5a;border-radius:16px;padding:18px;margin-bottom:18px}
 .voice-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.voice-row select{background:#10151f;color:white;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;width:auto;margin:0;}
 button{border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:bold;background:var(--accent);color:#092114}
 button:hover{filter:brightness(1.08)}button.secondary{background:#344057;color:white}button.danger{background:var(--danger);color:white}button.small{padding:7px 10px;font-size:12px}
 .status{color:#d7ffe8;font-weight:bold}.command{margin-top:10px;color:#d7e3ee}
@@ -31,6 +32,7 @@ label{font-size:13px;color:var(--muted)}
 table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}th{color:var(--muted)}
 .total{font-size:28px;font-weight:bold;color:#79e9aa}.money{font-weight:bold;color:#8df0b8}
 .list-item{padding:10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;align-items:center}
+.list-item .actions{display:flex;gap:6px;flex-wrap:wrap;}
 .note{color:var(--muted);font-size:13px}.empty{text-align:center;color:var(--muted);padding:25px}
 .badge{background:#263247;padding:4px 8px;border-radius:20px;font-size:12px}
 footer{text-align:center;color:var(--muted);padding:25px}
@@ -58,6 +60,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button class="secondary" id="speakToggle">🔊 Voz: ATIVADA</button>
 <span class="status" id="voiceStatus">Assistente desligado.</span>
 <button class="secondary" onclick="showScreen('comandos')">📋 Ver Comandos</button>
+<select id="voiceSelect" onchange="changeVoice()">
+<option value="default">🎙️ Voz Padrão</option>
+<option value="feminina">👩 Voz Feminina</option>
+<option value="masculina">👨 Voz Masculina</option>
+</select>
 </div>
 <div class="command" id="lastCommand">Exemplos: "abrir produtos", "fazer pedido de 2 cervejas", "fechar a conta".</div>
 <div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone quando o navegador solicitar.</div>
@@ -310,11 +317,14 @@ data.produtos=data.produtos||[];
 data.pedido=data.pedido||[]; 
 data.historico=data.historico||[];
 data.gorjetaConfig = data.gorjetaConfig || 0;
+data.voicePreference = data.voicePreference || 'default';
 let speechOn=data.speechOn!==false;
+let currentEditId = null;
 const $=id=>document.getElementById(id);
 
 function save(){
   data.speechOn=speechOn;
+  data.voicePreference = document.getElementById('voiceSelect').value;
   localStorage.setItem(KEY,JSON.stringify(data));
 }
 
@@ -326,37 +336,107 @@ function normalize(s){
   return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 }
 
-// ========== FUNÇÃO DE VOZ (COMPATÍVEL COM WEBVIEW) ==========
-function speak(text){
-  if(!speechOn) return;
+// ========== FUNÇÃO DE VOZ COM OPÇÕES FEMININA/MASCULINA ==========
+let selectedVoice = null;
+let voicesLoaded = false;
+
+function loadVoices() {
+  if (!window.speechSynthesis) return;
+  const voices = speechSynthesis.getVoices();
+  if (voices.length === 0) {
+    setTimeout(loadVoices, 200);
+    return;
+  }
+  voicesLoaded = true;
+  const pref = document.getElementById('voiceSelect').value;
+  selectVoiceByPreference(pref);
+}
+
+function selectVoiceByPreference(pref) {
+  if (!window.speechSynthesis) return;
+  const voices = speechSynthesis.getVoices();
+  if (voices.length === 0) return;
   
-  // Tenta usar o mecanismo padrão
-  if(window.speechSynthesis){
-    try{
+  let found = null;
+  if (pref === 'feminina') {
+    // Tenta encontrar vozes femininas em português
+    found = voices.find(v => v.lang.startsWith('pt') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('feminina') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('maria')));
+    if (!found) found = voices.find(v => v.lang.startsWith('pt') && v.name.toLowerCase().includes('female'));
+    if (!found) found = voices.find(v => v.lang.startsWith('pt') && !v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('masculino'));
+  } else if (pref === 'masculina') {
+    found = voices.find(v => v.lang.startsWith('pt') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('masculino') || v.name.toLowerCase().includes('joão') || v.name.toLowerCase().includes('carlos')));
+    if (!found) found = voices.find(v => v.lang.startsWith('pt') && v.name.toLowerCase().includes('male'));
+    if (!found) found = voices.find(v => v.lang.startsWith('pt') && !v.name.toLowerCase().includes('female') && !v.name.toLowerCase().includes('feminina'));
+  }
+  // Fallback: qualquer voz em português
+  if (!found) found = voices.find(v => v.lang.startsWith('pt'));
+  if (!found && voices.length > 0) found = voices[0]; // qualquer voz disponível
+  
+  selectedVoice = found;
+  console.log('Voz selecionada:', selectedVoice ? selectedVoice.name : 'nenhuma');
+}
+
+function changeVoice() {
+  const pref = document.getElementById('voiceSelect').value;
+  data.voicePreference = pref;
+  save();
+  if (window.speechSynthesis) {
+    // Recarrega vozes e seleciona
+    if (speechSynthesis.getVoices().length === 0) {
+      speechSynthesis.onvoiceschanged = () => {
+        selectVoiceByPreference(pref);
+        speechSynthesis.onvoiceschanged = null;
+      };
+    } else {
+      selectVoiceByPreference(pref);
+    }
+  }
+}
+
+function speak(text) {
+  if (!speechOn) return;
+  
+  // Tenta usar Web Speech API
+  if (window.speechSynthesis) {
+    try {
       speechSynthesis.cancel();
-      let u = new SpeechSynthesisUtterance(text);
-      u.lang = 'pt-BR';
-      u.rate = 0.9;
-      speechSynthesis.speak(u);
+      let utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.9;
+      
+      // Se temos uma voz selecionada, usa ela
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      } else {
+        // Tenta carregar vozes
+        const voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          const pref = document.getElementById('voiceSelect').value;
+          selectVoiceByPreference(pref);
+          if (selectedVoice) utterance.voice = selectedVoice;
+        }
+      }
+      
+      speechSynthesis.speak(utterance);
       return;
-    }catch(e){
+    } catch(e) {
       console.warn('Erro no speechSynthesis:', e);
     }
   }
   
-  // Fallback para Android WebView - usa TTS nativo se disponível
-  if(isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.ttsSpeak){
-    try{
+  // Fallback para Android WebView (TTS nativo)
+  if (isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.ttsSpeak) {
+    try {
       window.Android.ttsSpeak(text);
       return;
-    }catch(e){
+    } catch(e) {
       console.warn('Erro no TTS nativo:', e);
     }
   }
   
-  // Fallback: exibe texto na tela com destaque
+  // Fallback visual
   const lastCmd = document.getElementById('lastCommand');
-  if(lastCmd){
+  if (lastCmd) {
     lastCmd.innerHTML = '🔊 ' + text;
     lastCmd.style.background = 'rgba(57,201,122,0.2)';
     lastCmd.style.padding = '8px';
@@ -368,7 +448,16 @@ function speak(text){
   }
 }
 
-// ========== RECONHECIMENTO DE VOZ (COMPATÍVEL COM WEBVIEW) ==========
+// Carrega vozes quando a página é carregada
+if (window.speechSynthesis) {
+  if (speechSynthesis.getVoices().length > 0) {
+    loadVoices();
+  } else {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+}
+
+// ========== RECONHECIMENTO DE VOZ ==========
 class VoiceRecognizer {
   constructor() {
     this.isListening = false;
@@ -377,7 +466,6 @@ class VoiceRecognizer {
     this.recognition = null;
     this.recognitionMethod = null;
     
-    // Detecta método disponível
     if(isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.startVoiceRecognition){
       this.recognitionMethod = 'native';
       console.log('Usando reconhecimento nativo Android');
@@ -532,7 +620,6 @@ class VoiceRecognizer {
 // ========== INICIALIZAÇÃO DO RECONHECEDOR ==========
 let recognizer = new VoiceRecognizer();
 
-// Bridge para comunicação com Android nativo
 if(isAndroidWebView){
   window.processVoiceResult = function(text){
     if(recognizer){
@@ -541,7 +628,7 @@ if(isAndroidWebView){
   };
 }
 
-// ========== FUNÇÕES DE TELA E INTERFACE ==========
+// ========== FUNÇÕES DE TELA ==========
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
   $(id).classList.add('active');
@@ -733,20 +820,52 @@ function addProduto(nome,preco){
     alert('Informe nome e preço válido.');
     return;
   }
-  data.produtos.push({id:Date.now()+Math.random(),nome,preco:Number(preco)});
+  if (currentEditId !== null) {
+    // Edição
+    const index = data.produtos.findIndex(p => p.id === currentEditId);
+    if (index !== -1) {
+      data.produtos[index].nome = nome;
+      data.produtos[index].preco = Number(preco);
+      currentEditId = null;
+      document.querySelector('#produtos .card h2').textContent = '🍺 Cadastro de Produtos';
+      document.querySelector('#produtos .card button').textContent = '➕ Cadastrar produto';
+      speak('Produto atualizado com sucesso');
+    }
+  } else {
+    data.produtos.push({id:Date.now()+Math.random(),nome,preco:Number(preco)});
+    speak(nome+' cadastrado por '+money(preco));
+  }
   save();
   $('produtoNome').value='';
   $('produtoPreco').value='';
   renderAll();
-  speak(nome+' cadastrado por '+money(preco));
   atualizarResumoDados();
 }
 
+function editProduto(id){
+  const p = data.produtos.find(x => x.id === id);
+  if(!p) return;
+  currentEditId = id;
+  $('produtoNome').value = p.nome;
+  $('produtoPreco').value = p.preco;
+  document.querySelector('#produtos .card h2').textContent = '✏️ Editando Produto';
+  document.querySelector('#produtos .card button').textContent = '💾 Atualizar produto';
+  showScreen('produtos');
+  $('produtoNome').focus();
+}
+
 function deleteProduto(id){
-  data.produtos=data.produtos.filter(p=>p.id!==id);
-  save();
-  renderAll();
-  atualizarResumoDados();
+  if(confirm('Excluir este produto?')){
+    data.produtos=data.produtos.filter(p=>p.id!==id);
+    if(currentEditId === id) {
+      currentEditId = null;
+      document.querySelector('#produtos .card h2').textContent = '🍺 Cadastro de Produtos';
+      document.querySelector('#produtos .card button').textContent = '➕ Cadastrar produto';
+    }
+    save();
+    renderAll();
+    atualizarResumoDados();
+  }
 }
 
 function addPedido(produtoId,qtd){
@@ -780,9 +899,21 @@ function subtotal(){
 
 function renderProdutos(){
   $('listaProdutos').innerHTML=data.produtos.length?
-    data.produtos.map(p=>`<div class="list-item"><span>${p.nome}<br><b>${money(p.preco)}</b></span><button class="danger small" onclick="deleteProduto(${p.id})">Excluir</button></div>`).join(''):
+    data.produtos.map(p=>`<div class="list-item"><span>${p.nome}<br><b>${money(p.preco)}</b></span>
+      <div class="actions">
+        <button class="secondary small" onclick="editProduto(${p.id})">✏️</button>
+        <button class="danger small" onclick="deleteProduto(${p.id})">🗑</button>
+      </div></div>`).join(''):
     '<div class="empty">Nenhum produto cadastrado.</div>';
   $('pedidoProduto').innerHTML=data.produtos.map(p=>`<option value="${p.id}">${p.nome} — ${money(p.preco)}</option>`).join('');
+  // Se estiver em modo de edição, manter o título e botão
+  if (currentEditId !== null) {
+    document.querySelector('#produtos .card h2').textContent = '✏️ Editando Produto';
+    document.querySelector('#produtos .card button').textContent = '💾 Atualizar produto';
+  } else {
+    document.querySelector('#produtos .card h2').textContent = '🍺 Cadastro de Produtos';
+    document.querySelector('#produtos .card button').textContent = '➕ Cadastrar produto';
+  }
 }
 
 function renderPedido(){
@@ -883,6 +1014,12 @@ function renderAll(){
   renderConta();
   renderHistorico();
   atualizarResumoDados();
+  // Restaura a preferência de voz
+  const pref = data.voicePreference || 'default';
+  document.getElementById('voiceSelect').value = pref;
+  if (window.speechSynthesis && speechSynthesis.getVoices().length > 0) {
+    selectVoiceByPreference(pref);
+  }
 }
 
 // ========== CONFIGURAÇÃO DE VOZ ==========
@@ -1124,7 +1261,7 @@ function processVoice(raw){
   speak('Não entendi o comando. Tente dizer: "abrir conta", "ver conta parcial", "incluir produtos cerveja 10 reais", "incluir cliente" ou "incluir estabelecimento".');
 }
 
-// ========== WAKE LOCK (MANTER TELA ATIVA) ==========
+// ========== WAKE LOCK ==========
 function keepScreenOn(keepOn) {
   if (!navigator.wakeLock) {
     console.warn('Wake Lock API não suportada neste navegador.');
@@ -1138,7 +1275,6 @@ function keepScreenOn(keepOn) {
       .then(lock => {
         wakeLock = lock;
         console.log('Tela mantida ativa.');
-        
         wakeLock.addEventListener('release', () => {
           console.log('Wake Lock foi liberado.');
           if (recognizer && recognizer.isActive) {
@@ -1153,9 +1289,7 @@ function keepScreenOn(keepOn) {
           }
         });
       })
-      .catch(err => {
-        console.warn('Erro ao ativar Wake Lock:', err);
-      });
+      .catch(err => console.warn('Erro ao ativar Wake Lock:', err));
   } else {
     if (wakeLock) {
       wakeLock.release()
@@ -1166,11 +1300,10 @@ function keepScreenOn(keepOn) {
         .catch(err => console.warn('Erro ao liberar Wake Lock:', err));
     }
   }
-  
   window._wakeLock = wakeLock;
 }
 
-// ========== BOTÃO DE ATIVAÇÃO DE VOZ ==========
+// ========== BOTÃO DE ATIVAÇÃO ==========
 document.getElementById('voiceBtn').onclick = async () => {
   if(recognizer.isActive){
     recognizer.deactivate();
@@ -1184,7 +1317,6 @@ document.getElementById('voiceBtn').onclick = async () => {
     return;
   }
 
-  // Solicita permissão do microfone
   try{
     if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
       document.getElementById('voiceStatus').textContent = 'Solicitando acesso ao microfone...';
@@ -1205,7 +1337,6 @@ document.getElementById('voiceBtn').onclick = async () => {
 // ========== INICIALIZAÇÃO ==========
 renderAll();
 
-// Mensagem de compatibilidade
 if(!recognizer.isSupported()){
   document.getElementById('voiceStatus').textContent = '⚠️ Voz não disponível neste dispositivo.';
   document.getElementById('permissionHelp').innerHTML = 'O reconhecimento de voz não está disponível. ' +
@@ -1218,18 +1349,6 @@ if(!recognizer.isSupported()){
 }
 
 console.log('✅ App inicializado com sucesso!');
-console.log('Comandos de voz disponíveis:');
-console.log('- exportar dados');
-console.log('- importar dados');
-console.log('- abrir conta');
-console.log('- incluir produtos cerveja 10 reais');
-console.log('- incluir cliente João Silva');
-console.log('- incluir estabelecimento Bar do Zé');
-console.log('- ver conta parcial');
-console.log('- ver histórico');
-console.log('- fechar conta');
-console.log('- desativar comando por voz');
-console.log('- desligar app');
 </script>
 </body>
 </html>
