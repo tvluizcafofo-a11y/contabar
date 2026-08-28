@@ -45,6 +45,77 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .import-area:hover{border-color:var(--accent);background:rgba(57,201,122,0.05);}
 .import-area.dragover{border-color:var(--accent);background:rgba(57,201,122,0.1);}
 @media(max-width:650px){.command-list{columns:1;}}
+
+/* Modal de feedback */
+.feedback-modal {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(57, 201, 122, 0.95);
+  color: #092114;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  z-index: 9999;
+  max-width: 90%;
+  min-width: 280px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px);
+  pointer-events: none;
+}
+.feedback-modal.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.feedback-modal .close-btn {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #092114;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 4px;
+  font-weight: bold;
+  opacity: 0.7;
+}
+.feedback-modal .close-btn:hover {
+  opacity: 1;
+}
+.feedback-modal .dismiss-check {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.feedback-modal .dismiss-check input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #092114;
+  cursor: pointer;
+}
+.feedback-modal .dismiss-check label {
+  cursor: pointer;
+  color: #092114;
+  opacity: 0.8;
+}
+.feedback-modal .dismiss-check label:hover {
+  opacity: 1;
+}
 </style>
 </head>
 <body>
@@ -302,6 +373,16 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 <footer>🍺 Conta de Bar Controlada por Voz • Dados salvos neste navegador</footer>
 
+<!-- Modal de feedback -->
+<div id="feedbackModal" class="feedback-modal">
+  <button class="close-btn" onclick="fecharFeedback()">×</button>
+  <div id="feedbackMessage">✅ Comando executado!</div>
+  <div class="dismiss-check">
+    <input type="checkbox" id="dismissFeedback" onchange="toggleFeedbackDismiss()">
+    <label for="dismissFeedback">Não mostrar mais durante esta sessão</label>
+  </div>
+</div>
+
 <script>
 // ========== DETECÇÃO DE AMBIENTE ==========
 const isAndroidWebView = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -320,6 +401,8 @@ data.gorjetaConfig = data.gorjetaConfig || 0;
 data.voicePreference = data.voicePreference || 'default';
 let speechOn=data.speechOn!==false;
 let currentEditId = null;
+let feedbackTimer = null;
+let feedbackDismissed = false; // Sessão atual
 const $=id=>document.getElementById(id);
 
 function save(){
@@ -336,7 +419,46 @@ function normalize(s){
   return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 }
 
-// ========== FUNÇÃO DE VOZ COM OPÇÕES FEMININA/MASCULINA ==========
+// ========== FEEDBACK VISUAL (MODAL) ==========
+function showFeedback(mensagem) {
+  if (feedbackDismissed) return;
+  
+  const modal = document.getElementById('feedbackModal');
+  const msg = document.getElementById('feedbackMessage');
+  msg.textContent = mensagem;
+  
+  // Cancela timer anterior
+  if (feedbackTimer) {
+    clearTimeout(feedbackTimer);
+    feedbackTimer = null;
+  }
+  
+  modal.classList.add('show');
+  
+  // Fecha automaticamente após 3 segundos
+  feedbackTimer = setTimeout(() => {
+    fecharFeedback();
+  }, 3000);
+}
+
+function fecharFeedback() {
+  const modal = document.getElementById('feedbackModal');
+  modal.classList.remove('show');
+  if (feedbackTimer) {
+    clearTimeout(feedbackTimer);
+    feedbackTimer = null;
+  }
+}
+
+function toggleFeedbackDismiss() {
+  const checkbox = document.getElementById('dismissFeedback');
+  feedbackDismissed = checkbox.checked;
+  if (feedbackDismissed) {
+    fecharFeedback();
+  }
+}
+
+// ========== FUNÇÃO DE VOZ COM OPÇÕES ==========
 let selectedVoice = null;
 let voicesLoaded = false;
 
@@ -359,7 +481,6 @@ function selectVoiceByPreference(pref) {
   
   let found = null;
   if (pref === 'feminina') {
-    // Tenta encontrar vozes femininas em português
     found = voices.find(v => v.lang.startsWith('pt') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('feminina') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('maria')));
     if (!found) found = voices.find(v => v.lang.startsWith('pt') && v.name.toLowerCase().includes('female'));
     if (!found) found = voices.find(v => v.lang.startsWith('pt') && !v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('masculino'));
@@ -368,9 +489,8 @@ function selectVoiceByPreference(pref) {
     if (!found) found = voices.find(v => v.lang.startsWith('pt') && v.name.toLowerCase().includes('male'));
     if (!found) found = voices.find(v => v.lang.startsWith('pt') && !v.name.toLowerCase().includes('female') && !v.name.toLowerCase().includes('feminina'));
   }
-  // Fallback: qualquer voz em português
   if (!found) found = voices.find(v => v.lang.startsWith('pt'));
-  if (!found && voices.length > 0) found = voices[0]; // qualquer voz disponível
+  if (!found && voices.length > 0) found = voices[0];
   
   selectedVoice = found;
   console.log('Voz selecionada:', selectedVoice ? selectedVoice.name : 'nenhuma');
@@ -381,7 +501,6 @@ function changeVoice() {
   data.voicePreference = pref;
   save();
   if (window.speechSynthesis) {
-    // Recarrega vozes e seleciona
     if (speechSynthesis.getVoices().length === 0) {
       speechSynthesis.onvoiceschanged = () => {
         selectVoiceByPreference(pref);
@@ -396,7 +515,6 @@ function changeVoice() {
 function speak(text) {
   if (!speechOn) return;
   
-  // Tenta usar Web Speech API
   if (window.speechSynthesis) {
     try {
       speechSynthesis.cancel();
@@ -404,11 +522,9 @@ function speak(text) {
       utterance.lang = 'pt-BR';
       utterance.rate = 0.9;
       
-      // Se temos uma voz selecionada, usa ela
       if (selectedVoice) {
         utterance.voice = selectedVoice;
       } else {
-        // Tenta carregar vozes
         const voices = speechSynthesis.getVoices();
         if (voices.length > 0) {
           const pref = document.getElementById('voiceSelect').value;
@@ -424,7 +540,6 @@ function speak(text) {
     }
   }
   
-  // Fallback para Android WebView (TTS nativo)
   if (isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.ttsSpeak) {
     try {
       window.Android.ttsSpeak(text);
@@ -448,7 +563,6 @@ function speak(text) {
   }
 }
 
-// Carrega vozes quando a página é carregada
 if (window.speechSynthesis) {
   if (speechSynthesis.getVoices().length > 0) {
     loadVoices();
@@ -617,7 +731,6 @@ class VoiceRecognizer {
   }
 }
 
-// ========== INICIALIZAÇÃO DO RECONHECEDOR ==========
 let recognizer = new VoiceRecognizer();
 
 if(isAndroidWebView){
@@ -653,6 +766,7 @@ function exportarDados(){
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     speak('Dados exportados com sucesso');
+    showFeedback('✅ Dados exportados com sucesso');
     alert('✅ Dados exportados com sucesso!');
   }catch(e){
     alert('❌ Erro ao exportar dados: '+e.message);
@@ -710,6 +824,7 @@ function processarImportacao(file){
         'Contas no histórico: '+data.historico.length;
       
       speak('Dados importados com sucesso');
+      showFeedback('✅ Dados importados com sucesso');
       alert('✅ Dados importados com sucesso!');
       atualizarResumoDados();
       
@@ -747,6 +862,7 @@ function clearAllData(){
       renderAll();
       atualizarResumoDados();
       speak('Todos os dados foram limpos');
+      showFeedback('🗑️ Todos os dados foram limpos');
       alert('🗑️ Todos os dados foram limpos!');
     }
   }
@@ -782,6 +898,7 @@ function saveGorjetaConfig(){
   data.gorjetaConfig = valor;
   save();
   renderConta();
+  showFeedback('💲 Gorjeta configurada para ' + valor + '%');
 }
 
 function loadGorjetaConfig(){
@@ -798,6 +915,7 @@ function saveCliente(){
   save();
   $('clienteInfo').textContent='Cliente salvo com sucesso.';
   speak('Cliente salvo com sucesso');
+  showFeedback('👤 Cliente salvo com sucesso');
   atualizarResumoDados();
 }
 
@@ -810,6 +928,7 @@ function saveEstabelecimento(){
   save();
   $('barInfo').textContent='Estabelecimento salvo com sucesso.';
   speak('Estabelecimento salvo com sucesso');
+  showFeedback('🏢 Estabelecimento salvo com sucesso');
   atualizarResumoDados();
 }
 
@@ -821,7 +940,6 @@ function addProduto(nome,preco){
     return;
   }
   if (currentEditId !== null) {
-    // Edição
     const index = data.produtos.findIndex(p => p.id === currentEditId);
     if (index !== -1) {
       data.produtos[index].nome = nome;
@@ -830,10 +948,12 @@ function addProduto(nome,preco){
       document.querySelector('#produtos .card h2').textContent = '🍺 Cadastro de Produtos';
       document.querySelector('#produtos .card button').textContent = '➕ Cadastrar produto';
       speak('Produto atualizado com sucesso');
+      showFeedback('✏️ Produto atualizado: ' + nome + ' - ' + money(preco));
     }
   } else {
     data.produtos.push({id:Date.now()+Math.random(),nome,preco:Number(preco)});
     speak(nome+' cadastrado por '+money(preco));
+    showFeedback('✅ Produto cadastrado: ' + nome + ' - ' + money(preco));
   }
   save();
   $('produtoNome').value='';
@@ -852,10 +972,12 @@ function editProduto(id){
   document.querySelector('#produtos .card button').textContent = '💾 Atualizar produto';
   showScreen('produtos');
   $('produtoNome').focus();
+  showFeedback('✏️ Editando: ' + p.nome);
 }
 
 function deleteProduto(id){
   if(confirm('Excluir este produto?')){
+    const p = data.produtos.find(x => x.id === id);
     data.produtos=data.produtos.filter(p=>p.id!==id);
     if(currentEditId === id) {
       currentEditId = null;
@@ -865,6 +987,7 @@ function deleteProduto(id){
     save();
     renderAll();
     atualizarResumoDados();
+    if(p) showFeedback('🗑️ Produto excluído: ' + p.nome);
   }
 }
 
@@ -882,15 +1005,19 @@ function addPedido(produtoId,qtd){
   else data.pedido.push({produtoId:p.id,nome:p.nome,preco:p.preco,qtd});
   save();
   renderAll();
-  speak(qtd+' unidade'+(qtd>1?'s':'')+' de '+p.nome+' adicionada'+(qtd>1?'s':'')+' ao pedido');
+  const msg = qtd + 'x ' + p.nome + ' adicionado ao pedido';
+  speak(msg);
+  showFeedback('🛒 ' + msg);
   atualizarResumoDados();
 }
 
 function removePedido(i){
+  const item = data.pedido[i];
   data.pedido.splice(i,1);
   save();
   renderAll();
   atualizarResumoDados();
+  if(item) showFeedback('🗑️ Removido: ' + item.nome);
 }
 
 function subtotal(){
@@ -906,7 +1033,6 @@ function renderProdutos(){
       </div></div>`).join(''):
     '<div class="empty">Nenhum produto cadastrado.</div>';
   $('pedidoProduto').innerHTML=data.produtos.map(p=>`<option value="${p.id}">${p.nome} — ${money(p.preco)}</option>`).join('');
-  // Se estiver em modo de edição, manter o título e botão
   if (currentEditId !== null) {
     document.querySelector('#produtos .card h2').textContent = '✏️ Editando Produto';
     document.querySelector('#produtos .card button').textContent = '💾 Atualizar produto';
@@ -947,6 +1073,7 @@ function renderConta(){
 function fecharConta(){
   if(!data.pedido.length){
     speak('Não há itens para fechar a conta');
+    showFeedback('⚠️ Nenhum item no pedido');
     alert('Não há itens no pedido.');
     return;
   }
@@ -968,16 +1095,18 @@ function fecharConta(){
   data.pedido=[];
   save();
   renderAll();
-  const texto=`Conta fechada. Subtotal ${money(sub)}. Gorjeta de ${perc} por cento: ${money(gor)}. Total para pagamento: ${money(total)}.`;
+  const texto=`Conta fechada. Subtotal ${money(sub)}. Gorjeta de ${perc}%. Total: ${money(total)}.`;
   speak(texto);
+  showFeedback('🧾 ' + texto);
   alert(texto);
   atualizarResumoDados();
 }
 
 function verContaParcial(){
   const sub=subtotal();
-  const texto = `O subtotal atual é ${money(sub)}. ${data.pedido.length} item(ns) no pedido.`;
+  const texto = `Subtotal atual: ${money(sub)}. ${data.pedido.length} item(ns) no pedido.`;
   speak(texto);
+  showFeedback('📊 ' + texto);
   alert(texto);
   showScreen('conta');
 }
@@ -994,6 +1123,7 @@ function clearHistorico(){
     save();
     renderHistorico();
     atualizarResumoDados();
+    showFeedback('🗑️ Histórico limpo');
   }
 }
 
@@ -1014,7 +1144,6 @@ function renderAll(){
   renderConta();
   renderHistorico();
   atualizarResumoDados();
-  // Restaura a preferência de voz
   const pref = data.voicePreference || 'default';
   document.getElementById('voiceSelect').value = pref;
   if (window.speechSynthesis && speechSynthesis.getVoices().length > 0) {
@@ -1022,7 +1151,6 @@ function renderAll(){
   }
 }
 
-// ========== CONFIGURAÇÃO DE VOZ ==========
 $('speakToggle').onclick=()=>{
   speechOn=!speechOn;
   $('speakToggle').textContent='🔊 Voz: '+(speechOn?'ATIVADA':'DESATIVADA');
@@ -1099,6 +1227,7 @@ function processVoice(raw){
   // 1. Exportar dados
   if(t.includes('exportar') && t.includes('dados')){
     exportarDados();
+    showFeedback('📤 Exportando dados...');
     return;
   }
   
@@ -1106,6 +1235,7 @@ function processVoice(raw){
   if(t.includes('importar') && t.includes('dados')){
     showScreen('dados');
     speak('Abrindo tela de importação de dados. Selecione um arquivo JSON.');
+    showFeedback('📥 Abrindo importação de dados');
     return;
   }
   
@@ -1119,6 +1249,7 @@ function processVoice(raw){
   if(t.includes('ver') && t.includes('historico')){
     showScreen('historico');
     speak('Abrindo histórico de contas');
+    showFeedback('📜 Abrindo histórico');
     return;
   }
   
@@ -1126,12 +1257,14 @@ function processVoice(raw){
   if(t.includes('desativar') && (t.includes('comando') || t.includes('voz'))){
     if(recognizer) recognizer.deactivate();
     speak('Assistente de voz desativado');
+    showFeedback('🔇 Assistente desativado');
     return;
   }
   
   // 6. Desligar app
   if(t.includes('desligar') && (t.includes('app') || t.includes('aplicativo') || t.includes('sistema'))){
     speak('Desligando aplicativo...');
+    showFeedback('⏻ Desligando...');
     setTimeout(() => {
       if(window.close){
         window.close();
@@ -1152,24 +1285,29 @@ function processVoice(raw){
       $('barNome').value = nomeEstabelecimento;
       save();
       speak('Abrindo conta no '+nomeEstabelecimento);
+      showFeedback('🏢 Abrindo conta em: ' + nomeEstabelecimento);
       
       if(data.pedido.length > 0){
         speak('Já existe uma conta aberta com itens no pedido.');
+        showFeedback('⚠️ Já existe uma conta aberta');
         showScreen('conta');
       } else {
         data.pedido = [];
         save();
         speak('Nova conta aberta com sucesso!');
+        showFeedback('✅ Nova conta aberta!');
         showScreen('pedido');
       }
     } else {
       if(data.pedido.length > 0){
         speak('Já existe uma conta aberta com itens no pedido.');
+        showFeedback('⚠️ Já existe uma conta aberta');
         showScreen('conta');
       } else {
         data.pedido = [];
         save();
         speak('Nova conta aberta! Por favor, escolha o estabelecimento.');
+        showFeedback('✅ Nova conta aberta! Defina o estabelecimento.');
         showScreen('estabelecimento');
         setTimeout(() => {
           $('barNome').focus();
@@ -1196,12 +1334,14 @@ function processVoice(raw){
           $('produtoPreco').select();
         }, 300);
         speak('Vou abrir o cadastro de produtos para '+result.nome+'. Informe o preço.');
+        showFeedback('📝 Abrindo cadastro para: ' + result.nome);
         showScreen('produtos');
         return;
       }
     }
     
     speak('Não consegui identificar o nome do produto. Tente: incluir produtos cerveja Brahma 10 reais');
+    showFeedback('❌ Produto não identificado');
     return;
   }
   
@@ -1215,10 +1355,12 @@ function processVoice(raw){
       save();
       $('clienteInfo').textContent = 'Cliente "'+nome+'" salvo com sucesso.';
       speak('Cliente '+nome+' incluído com sucesso');
+      showFeedback('👤 Cliente salvo: ' + nome);
       showScreen('cliente');
       return;
     }
     speak('Não consegui identificar o nome do cliente. Tente: incluir cliente João Silva');
+    showFeedback('❌ Cliente não identificado');
     return;
   }
   
@@ -1232,19 +1374,21 @@ function processVoice(raw){
       save();
       $('barInfo').textContent = 'Estabelecimento "'+nome+'" salvo com sucesso.';
       speak('Estabelecimento '+nome+' incluído com sucesso');
+      showFeedback('🏢 Estabelecimento salvo: ' + nome);
       showScreen('estabelecimento');
       return;
     }
     speak('Não consegui identificar o nome do estabelecimento. Tente: incluir estabelecimento Bar do Zé');
+    showFeedback('❌ Estabelecimento não identificado');
     return;
   }
   
   // COMANDOS EXISTENTES:
-  if(t.includes('abrir')&&(t.includes('produto')||t.includes('produtos'))){showScreen('produtos');speak('Cadastro de produtos aberto');return}
-  if(t.includes('abrir')&&(t.includes('cliente')||t.includes('usuario')||t.includes('usuário'))){showScreen('cliente');speak('Cadastro de cliente aberto');return}
-  if(t.includes('abrir')&&(t.includes('estabelecimento')||t.includes('bar'))){showScreen('estabelecimento');speak('Cadastro de estabelecimento aberto');return}
-  if(t.includes('abrir')&&(t.includes('pedido')||t.includes('pedidos'))){showScreen('pedido');speak('Tela de pedidos aberta');return}
-  if(t.includes('mostrar')&&(t.includes('conta')||t.includes('pedido'))){showScreen('conta');speak('O subtotal atual é '+money(subtotal()));return}
+  if(t.includes('abrir')&&(t.includes('produto')||t.includes('produtos'))){showScreen('produtos');speak('Cadastro de produtos aberto');showFeedback('📦 Abrindo produtos');return}
+  if(t.includes('abrir')&&(t.includes('cliente')||t.includes('usuario')||t.includes('usuário'))){showScreen('cliente');speak('Cadastro de cliente aberto');showFeedback('👤 Abrindo cliente');return}
+  if(t.includes('abrir')&&(t.includes('estabelecimento')||t.includes('bar'))){showScreen('estabelecimento');speak('Cadastro de estabelecimento aberto');showFeedback('🏢 Abrindo estabelecimento');return}
+  if(t.includes('abrir')&&(t.includes('pedido')||t.includes('pedidos'))){showScreen('pedido');speak('Tela de pedidos aberta');showFeedback('🛒 Abrindo pedidos');return}
+  if(t.includes('mostrar')&&(t.includes('conta')||t.includes('pedido'))){showScreen('conta');speak('O subtotal atual é '+money(subtotal()));showFeedback('🧾 Mostrando conta');return}
   if(t.includes('fechar')&&t.includes('conta')){showScreen('conta');setTimeout(fecharConta,100);return}
   if(t.includes('pedido')||t.includes('pedir')||t.includes('adicionar')){
     const p=findProduto(raw);
@@ -1255,10 +1399,12 @@ function processVoice(raw){
       return;
     }
     speak('Não encontrei esse produto. Cadastre o produto primeiro.');
+    showFeedback('❌ Produto não encontrado');
     return;
   }
   
   speak('Não entendi o comando. Tente dizer: "abrir conta", "ver conta parcial", "incluir produtos cerveja 10 reais", "incluir cliente" ou "incluir estabelecimento".');
+  showFeedback('❓ Comando não reconhecido');
 }
 
 // ========== WAKE LOCK ==========
@@ -1332,6 +1478,7 @@ document.getElementById('voiceBtn').onclick = async () => {
   recognizer.activate();
   document.getElementById('permissionHelp').textContent = 'Assistente ativado. Pode falar comandos.';
   speak('Assistente de voz ativado. Pode falar.');
+  showFeedback('🎤 Assistente de voz ativado');
 };
 
 // ========== INICIALIZAÇÃO ==========
