@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🍺 Conta de Bar Controlada por Voz</title>
+<style>
+:root{
+  --bg:#10131a;--panel:#191e28;--panel2:#222938;--text:#f4f7fb;--muted:#aeb8c8;
+  --accent:#39c97a;--accent2:#2da967;--danger:#ef5d67;--border:#30394a;
+}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#0d1016,#171d29);color:var(--text)}
+header{padding:18px 22px;background:#121722;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+header h1{margin:0;font-size:24px} header p{margin:5px 0 0;color:var(--muted)}
+.container{max-width:1200px;margin:auto;padding:18px}
+.voice{background:linear-gradient(135deg,#1d4937,#19382e);border:1px solid #367a5a;border-radius:16px;padding:18px;margin-bottom:18px}
+.voice-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.voice-row select{background:#10151f;color:white;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;width:auto;margin:0;}
+button{border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:bold;background:var(--accent);color:#092114}
+button:hover{filter:brightness(1.08)}button.secondary{background:#344057;color:white}button.danger{background:var(--danger);color:white}button.small{padding:7px 10px;font-size:12px}
+.status{color:#d7ffe8;font-weight:bold}.command{margin-top:10px;color:#d7e3ee}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+nav button{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
+nav button.active{background:var(--accent);color:#092114}
+.screen{display:none}.screen.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.card{background:rgba(25,30,40,.97);border:1px solid var(--border);border-radius:15px;padding:18px}
+.card h2,.card h3{margin-top:0}
+input,select{width:100%;padding:11px;border-radius:9px;border:1px solid var(--border);background:#10151f;color:white;margin:6px 0 12px}
+label{font-size:13px;color:var(--muted)}
+.row{display:flex;gap:10px}.row>*{flex:1}
+table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}th{color:var(--muted)}
+.total{font-size:28px;font-weight:bold;color:#79e9aa}.money{font-weight:bold;color:#8df0b8}
+.list-item{padding:10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;align-items:center}
+.list-item .actions{display:flex;gap:6px;flex-wrap:wrap;}
+.note{color:var(--muted);font-size:13px}.empty{text-align:center;color:var(--muted);padding:25px}
+.badge{background:#263247;padding:4px 8px;border-radius:20px;font-size:12px}
+footer{text-align:center;color:var(--muted);padding:25px}
+@media(max-width:650px){header h1{font-size:19px}.container{padding:12px}.row{flex-direction:column}.row>*{width:100%}table{font-size:13px}th,td{padding:7px}}
+.command-list{columns:2;column-gap:30px;}
+.command-list li{break-inside:avoid;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;}
+.command-list .cmd{color:#79e9aa;font-weight:bold;}
+.command-list .desc{color:var(--muted);font-size:13px;}
+.import-area{border:2px dashed var(--border);border-radius:10px;padding:30px;text-align:center;margin:15px 0;cursor:pointer;transition:all 0.3s;}
+.import-area:hover{border-color:var(--accent);background:rgba(57,201,122,0.05);}
+.import-area.dragover{border-color:var(--accent);background:rgba(57,201,122,0.1);}
+@media(max-width:650px){.command-list{columns:1;}}
+
+/* Modal de feedback */
+.feedback-modal {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(57, 201, 122, 0.95);
+  color: #092114;
+  padding: 16px 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  z-index: 9999;
+  max-width: 90%;
+  min-width: 280px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.2);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px);
+  pointer-events: none;
+}
+.feedback-modal.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.feedback-modal .close-btn {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #092114;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0 4px;
+  font-weight: bold;
+  opacity: 0.7;
+}
+.feedback-modal .close-btn:hover {
+  opacity: 1;
+}
+.feedback-modal .dismiss-check {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.feedback-modal .dismiss-check input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #092114;
+  cursor: pointer;
+}
+.feedback-modal .dismiss-check label {
+  cursor: pointer;
+  color: #092114;
+  opacity: 0.8;
+}
+.feedback-modal .dismiss-check label:hover {
+  opacity: 1;
+}
+.estab-list .estab-item {
+  background: var(--panel2);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-left: 4px solid var(--border);
+}
+.estab-list .estab-item.ativo {
+  border-left-color: var(--accent);
+  background: rgba(57,201,122,0.08);
+}
+.estab-list .estab-item .info {
+  flex:1;
+}
+.estab-list .estab-item .info .nome {
+  font-weight:bold;
+}
+.estab-list .estab-item .info .detalhes {
+  color:var(--muted);
+  font-size:13px;
+}
+.estab-list .estab-item .actions {
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.filtros-historico {
+  background: var(--panel2);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+}
+.filtros-historico .filtro-group {
+  flex: 1 1 180px;
+  min-width: 140px;
+}
+.filtros-historico .filtro-group label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+.filtros-historico .filtro-group select,
+.filtros-historico .filtro-group input {
+  margin:0;
+}
+.filtros-historico .filtro-actions {
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+.total-filtrado {
+  font-size: 20px;
+  font-weight: bold;
+  color: #79e9aa;
+  margin-top: 10px;
+}
+</style>
+</head>
+<body>
+<header>
+<h1>🍺 Conta de Bar Controlada por Voz</h1>
+<p>Cadastros • Pedidos • Gorjeta • PIX • Histórico</p>
+</header>
+
+<div class="container">
+<section class="voice">
+<div class="voice-row">
+<button id="voiceBtn" style="font-size:18px;padding:16px 24px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
+<button class="secondary" id="speakToggle">🔊 Voz: ATIVADA</button>
+<span class="status" id="voiceStatus">Assistente desligado.</span>
+<button class="secondary" onclick="showScreen('comandos')">📋 Ver Comandos</button>
+<select id="voiceSelect" onchange="changeVoice()">
+<option value="default">🎙️ Voz Padrão</option>
+<option value="feminina">👩 Voz Feminina</option>
+<option value="masculina">👨 Voz Masculina</option>
+</select>
+</div>
+<div class="command" id="lastCommand">Exemplos: "abrir produtos", "fazer pedido de 2 cervejas", "fechar a conta".</div>
+<div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone quando o navegador solicitar.</div>
+</section>
+
+<nav id="nav">
+<button data-screen="inicio" class="active">🏠 Início</button>
+<button data-screen="cliente">👤 Cliente</button>
+<button data-screen="estabelecimento">🏢 Estabelecimentos</button>
+<button data-screen="produtos">🍺 Produtos</button>
+<button data-screen="pedido">🛒 Pedido</button>
+<button data-screen="conta">🧾 Conta</button>
+<button data-screen="historico">📜 Histórico</button>
+<button data-screen="comandos">🎯 Comandos</button>
+<button data-screen="dados">💾 Dados</button>
+</nav>
+
+<section id="inicio" class="screen active">
+<div class="grid">
+<div class="card">
+<h2>🎤 Comandos de voz</h2>
+<p>Use o botão <b>Ouvir comando</b> e fale naturalmente.</p>
+<ul class="note">
+<li><b>"Abrir conta"</b> - Cria uma nova conta (usa o estabelecimento ativo)</li>
+<li><b>"Abrir conta [nome]"</b> - Ex: "abrir conta Bar do Zé" (cria ou usa esse estabelecimento)</li>
+<li><b>"Incluir produtos [nome] [valor]"</b> - Ex: "incluir produtos cerveja Brahma 10 reais"</li>
+<li><b>"Incluir cliente"</b> - Ex: "incluir cliente João Silva"</li>
+<li><b>"Incluir estabelecimento"</b> - Ex: "incluir estabelecimento Bar do Zé"</li>
+<li><b>"Ver conta parcial"</b> - Mostra o subtotal atual</li>
+<li>"Fazer pedido de 2 cervejas Brahma"</li>
+<li>"Mostrar minha conta"</li>
+<li>"Fechar a conta"</li>
+</ul>
+<button onclick="showScreen('comandos')" style="margin-top:10px">📋 Ver todos os comandos</button>
+</div>
+<div class="card">
+<h2>📊 Conta atual</h2>
+<div class="note">Subtotal</div><div class="total" id="homeSubtotal">R$ 0,00</div>
+<div class="note" id="homeItems">Nenhum item no pedido.</div>
+<button onclick="showScreen('pedido')">Abrir pedido</button>
+</div>
+</div>
+</section>
+
+<section id="cliente" class="screen">
+<div class="card">
+<h2>👤 Cadastro do Cliente</h2>
+<div class="row">
+<div><label>Nome</label><input id="clienteNome" placeholder="Nome do cliente"></div>
+<div><label>Telefone</label><input id="clienteTelefone" placeholder="(00) 00000-0000"></div>
+</div>
+<label>Banco para PIX</label><input id="clienteBanco" placeholder="Ex.: Banco do Brasil, Nubank">
+<button onclick="saveCliente()">💾 Salvar cliente</button>
+<p class="note" id="clienteInfo"></p>
+</div>
+</section>
+
+<section id="estabelecimento" class="screen">
+<div class="card">
+<h2>🏢 Gerenciar Estabelecimentos</h2>
+<p class="note">Cadastre os bares/restaurantes que você frequenta. Defina um como <b>ativo</b> para usar na conta atual.</p>
+<hr style="border-color:var(--border);margin:15px 0">
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<div>
+<h3>➕ Novo Estabelecimento</h3>
+<label>Nome *</label><input id="estabNome" placeholder="Nome do bar">
+<label>Endereço</label><input id="estabEndereco" placeholder="Endereço completo">
+<label>Telefone</label><input id="estabTelefone" placeholder="(00) 00000-0000">
+<label>E-mail</label><input id="estabEmail" placeholder="email@exemplo.com">
+<label>Chave PIX</label><input id="estabPix" placeholder="CPF, telefone, e-mail ou chave aleatória">
+<input type="hidden" id="estabEditId" value="">
+<button id="estabSalvarBtn" onclick="salvarEstabelecimento()">➕ Adicionar</button>
+<button class="secondary" id="estabCancelarBtn" onclick="cancelarEdicaoEstab()" style="display:none;">Cancelar</button>
+</div>
+<div>
+<h3>📋 Estabelecimentos Cadastrados</h3>
+<div id="listaEstabelecimentos" class="estab-list"></div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="produtos" class="screen">
+<div class="grid">
+<div class="card">
+<h2>🍺 Cadastro de Produtos</h2>
+<label>Nome do produto</label><input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml">
+<label>Preço</label><input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10.00">
+<button onclick="addProduto()">➕ Cadastrar produto</button>
+<p class="note">Por voz: "incluir produtos cerveja Brahma 10 reais" - cadastra automaticamente.</p>
+</div>
+<div class="card">
+<h2>📦 Produtos cadastrados</h2>
+<div id="listaProdutos"></div>
+</div>
+</div>
+</section>
+
+<section id="pedido" class="screen">
+<div class="grid">
+<div class="card">
+<h2>🛒 Fazer Pedido</h2>
+<label>Produto</label><select id="pedidoProduto"></select>
+<label>Quantidade</label><input id="pedidoQtd" type="number" min="1" value="1">
+<button onclick="addPedido()">➕ Adicionar ao pedido</button>
+<p class="note">Por voz: "Fazer pedido de 3 cervejas Brahma".</p>
+</div>
+<div class="card">
+<h2>🧾 Pedido atual</h2>
+<div id="listaPedido"></div>
+<div style="margin-top:15px">Subtotal: <span class="money" id="pedidoSubtotal">R$ 0,00</span></div>
+<button style="margin-top:12px" onclick="showScreen('conta')">Ver conta</button>
+</div>
+</div>
+</section>
+
+<section id="conta" class="screen">
+<div class="grid">
+<div class="card">
+<h2>🧾 Fechar Conta</h2>
+<div id="contaEstabAtivo" class="note" style="margin-bottom:10px;"></div>
+<div id="contaItens"></div>
+<hr style="border-color:var(--border)">
+<div>Subtotal: <span class="money" id="contaSubtotal">R$ 0,00</span></div>
+<div style="margin-top:10px"><label>Gorjeta</label>
+<select id="gorjeta" onchange="saveGorjetaConfig()">
+<option value="0">Sem gorjeta</option>
+<option value="10">10% - Serviço</option>
+<option value="15">15%</option>
+<option value="20">20%</option>
+</select></div>
+<div>Gorjeta: <span class="money" id="contaGorjeta">R$ 0,00</span></div>
+<div style="margin-top:12px">TOTAL</div><div class="total" id="contaTotal">R$ 0,00</div>
+<button onclick="fecharConta()">✅ Confirmar fechamento</button>
+</div>
+<div class="card">
+<h2>💳 Pagamento PIX</h2>
+<div id="pixInfo" class="note">Cadastre um estabelecimento ativo para mostrar os dados de pagamento.</div>
+</div>
+</div>
+</section>
+
+<section id="historico" class="screen">
+<div class="card">
+<h2>📜 Histórico de Contas</h2>
+
+<!-- Filtros -->
+<div class="filtros-historico">
+  <div class="filtro-group">
+    <label>Estabelecimento</label>
+    <select id="filtroEstab"><option value="todos">Todos</option></select>
+  </div>
+  <div class="filtro-group">
+    <label>Mês/Ano</label>
+    <select id="filtroMes"><option value="todos">Todos</option></select>
+  </div>
+  <div class="filtro-group">
+    <label>Período de</label>
+    <input type="date" id="filtroDataInicio">
+  </div>
+  <div class="filtro-group">
+    <label>até</label>
+    <input type="date" id="filtroDataFim">
+  </div>
+  <div class="filtro-actions">
+    <button onclick="aplicarFiltros()">🔍 Filtrar</button>
+    <button class="secondary" onclick="limparFiltros()">✖ Limpar</button>
+  </div>
+</div>
+
+<div id="listaHistorico"></div>
+<div class="total-filtrado" id="totalFiltrado">Total: R$ 0,00</div>
+<button class="danger" style="margin-top:15px" onclick="clearHistorico()">🗑 Limpar histórico</button>
+</div>
+</section>
+
+<section id="comandos" class="screen">
+<div class="card">
+<h2>🎯 Lista Completa de Comandos de Voz</h2>
+<p class="note">Todos os comandos disponíveis para controle por voz do sistema.</p>
+<hr style="border-color:var(--border);margin:15px 0">
+
+<h3>🆕 Comandos Principais</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Ver conta parcial"</span><br><span class="desc">Mostra o subtotal atual e quantidade de itens</span></li>
+  <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Cria uma nova conta (usa o estabelecimento ativo)</span></li>
+  <li><span class="cmd">"Abrir conta [nome]"</span><br><span class="desc">Ex: "abrir conta Bar do Zé" - abre conta com esse estabelecimento</span></li>
+  <li><span class="cmd">"Incluir produtos [nome] [valor]"</span><br><span class="desc">Ex: "incluir produtos cerveja Brahma 10 reais"</span></li>
+  <li><span class="cmd">"Incluir produtos [nome]"</span><br><span class="desc">Ex: "incluir produtos cerveja Brahma" - abre cadastro com nome</span></li>
+  <li><span class="cmd">"Incluir cliente [nome]"</span><br><span class="desc">Ex: "incluir cliente João Silva"</span></li>
+  <li><span class="cmd">"Incluir estabelecimento [nome]"</span><br><span class="desc">Ex: "incluir estabelecimento Bar do Zé"</span></li>
+  <li><span class="cmd">"Ver histórico"</span><br><span class="desc">Mostra o histórico de contas fechadas</span></li>
+</ul>
+
+<h3>📂 Comandos de Navegação</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Abrir produtos"</span><br><span class="desc">Abre a tela de cadastro de produtos</span></li>
+  <li><span class="cmd">"Abrir cliente"</span><br><span class="desc">Abre a tela de cadastro de cliente</span></li>
+  <li><span class="cmd">"Abrir estabelecimento"</span><br><span class="desc">Abre a tela de gerenciamento de estabelecimentos</span></li>
+  <li><span class="cmd">"Abrir pedido"</span><br><span class="desc">Abre a tela de pedidos</span></li>
+  <li><span class="cmd">"Mostrar conta"</span><br><span class="desc">Abre a tela da conta e fala o subtotal</span></li>
+</ul>
+
+<h3>🛒 Comandos de Pedido</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Fazer pedido de [qtd] [produto]"</span><br><span class="desc">Ex: "fazer pedido de 2 cervejas Brahma"</span></li>
+  <li><span class="cmd">"Adicionar [qtd] [produto]"</span><br><span class="desc">Ex: "adicionar 3 águas"</span></li>
+  <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Ex: "pedir uma porção de batata"</span></li>
+  <li><span class="cmd">"Solicitar [qtd] [produto]"</span><br><span class="desc">Ex: "solicitar 2 cervejas"</span></li>
+  <li><span class="cmd">"Mais uma [produto]"</span><br><span class="desc">Ex: "mais uma cerveja" (adiciona 1)</span></li>
+  <li><span class="cmd">"Mais um [produto]"</span><br><span class="desc">Ex: "mais um refrigerante" (adiciona 1)</span></li>
+</ul>
+
+<h3>💰 Comandos de Conta</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Fechar conta"</span><br><span class="desc">Finaliza a conta, calcula gorjeta e mostra o total</span></li>
+  <li><span class="cmd">"Ver conta parcial"</span><br><span class="desc">Mostra o subtotal atual</span></li>
+</ul>
+
+<h3>⚙️ Comandos de Controle</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Desativar comando por voz"</span><br><span class="desc">Desativa o assistente de voz</span></li>
+  <li><span class="cmd">"Desligar comando por voz"</span><br><span class="desc">Sinônimo de "desativar"</span></li>
+  <li><span class="cmd">"Desligar app"</span><br><span class="desc">Fecha o aplicativo (tenta fechar a página)</span></li>
+</ul>
+
+<h3>💾 Comandos de Dados</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Exportar dados"</span><br><span class="desc">Exporta todos os dados do app para um arquivo JSON</span></li>
+  <li><span class="cmd">"Importar dados"</span><br><span class="desc">Importa dados de um arquivo JSON (abre a tela de dados)</span></li>
+  <li><span class="cmd">"Limpar histórico"</span><br><span class="desc">Remove todo o histórico de contas</span></li>
+  <li><span class="cmd">"Limpar dados"</span><br><span class="desc">Remove TODOS os dados (produtos, pedido, histórico, etc.)</span></li>
+  <li><span class="cmd">"Limpar todos os dados"</span><br><span class="desc">Sinônimo de "limpar dados"</span></li>
+</ul>
+
+<h3>📝 Comandos de Cadastro</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Cadastrar [produto] preço [valor]"</span><br><span class="desc">Ex: "cadastrar cerveja Brahma preço 10 reais"</span></li>
+  <li><span class="cmd">"Salvar cliente"</span><br><span class="desc">Salva o cliente atual (precisa ter nome preenchido)</span></li>
+  <li><span class="cmd">"Salvar estabelecimento"</span><br><span class="desc">Salva o estabelecimento atual (precisa ter nome preenchido)</span></li>
+</ul>
+
+<div style="margin-top:20px;padding:15px;background:rgba(57,201,122,0.1);border-radius:10px;border:1px solid var(--accent);">
+  <p style="margin:0;color:var(--text);">
+    💡 <b>Dica:</b> Você pode falar números como "um", "dois", "três" ou usar números escritos como "2", "3", "10".
+  </p>
+</div>
+</div>
+</section>
+
+<section id="dados" class="screen">
+<div class="card">
+<h2>💾 Importar / Exportar Dados</h2>
+<p class="note">Gerencie seus dados do aplicativo. Exporte para backup ou importe dados salvos.</p>
+<hr style="border-color:var(--border);margin:15px 0">
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
+  <button onclick="exportarDados()" style="flex:1;">📤 Exportar Dados (JSON)</button>
+  <button onclick="document.getElementById('fileInput').click()" style="flex:1;background:var(--panel2);color:var(--text);">📥 Importar Dados</button>
+  <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="importarDados(event)">
+</div>
+
+<div class="import-area" id="dropArea">
+  <p style="font-size:48px;margin:0;">📂</p>
+  <p><b>Arraste e solte um arquivo JSON aqui</b></p>
+  <p class="note">ou clique no botão "Importar Dados" acima</p>
+</div>
+
+<div id="importStatus" style="margin-top:15px;padding:10px;border-radius:8px;display:none;"></div>
+
+<hr style="border-color:var(--border);margin:20px 0">
+
+<h3>📊 Resumo dos Dados</h3>
+<div id="dadosResumo" class="note">
+  <p>Produtos: <b id="resumoProdutos">0</b></p>
+  <p>Itens no pedido: <b id="resumoPedido">0</b></p>
+  <p>Contas no histórico: <b id="resumoHistorico">0</b></p>
+  <p>Estabelecimentos: <b id="resumoEstabelecimentos">0</b></p>
+  <p>Cliente: <b id="resumoCliente">Não cadastrado</b></p>
+</div>
+
+<button class="danger" onclick="clearAllData()" style="margin-top:10px;">🗑 Limpar todos os dados</button>
+</div>
+</section>
+</div>
+<footer>🍺 Conta de Bar Controlada por Voz • Dados salvos neste navegador</footer>
+
+<!-- Modal de feedback -->
+<div id="feedbackModal" class="feedback-modal">
+  <button class="close-btn" onclick="fecharFeedback()">×</button>
+  <div id="feedbackMessage">✅ Comando executado!</div>
+  <div class="dismiss-check">
+    <input type="checkbox" id="dismissFeedback" onchange="toggleFeedbackDismiss()">
+    <label for="dismissFeedback">Não mostrar mais durante esta sessão</label>
+  </div>
+</div>
+
+<script>
+// ========== DETECÇÃO DE AMBIENTE ==========
+const isAndroidWebView = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isWebView = typeof window.Android !== 'undefined' || isAndroidWebView;
+const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+
+console.log('Ambiente:', isAndroidWebView ? 'Android WebView' : isChrome ? 'Chrome' : 'Outro');
+
+// ========== VARIÁVEIS GLOBAIS ==========
+const KEY='contaBarVoz_v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'{}');
+// Migração: se existir data.estabelecimento (único), migrar para estabelecimentos
+if(data.estabelecimento && !data.estabelecimentos) {
+  data.estabelecimentos = [];
+  const old = data.estabelecimento;
+  if(old.nome) {
+    data.estabelecimentos.push({
+      id: Date.now(),
+      nome: old.nome || '',
+      endereco: old.endereco || '',
+      telefone: '',
+      email: '',
+      pix: old.pix || ''
+    });
+    data.estabelecimentoAtivoId = data.estabelecimentos[0].id;
+  }
+  delete data.estabelecimento;
+}
+data.estabelecimentos = data.estabelecimentos || [];
+data.estabelecimentoAtivoId = data.estabelecimentoAtivoId || null;
+data.produtos=data.produtos||[]; 
+data.pedido=data.pedido||[]; 
+data.historico=data.historico||[];
+data.gorjetaConfig = data.gorjetaConfig || 0;
+data.voicePreference = data.voicePreference || 'default';
+let speechOn=data.speechOn!==false;
+let currentEditId = null;
+let feedbackTimer = null;
+let feedbackDismissed = false;
+const $=id=>document.getElementById(id);
+
+function save(){
+  data.speechOn=speechOn;
+  data.voicePreference = document.getElementById('voiceSelect').value;
+  localStorage.setItem(KEY,JSON.stringify(data));
+}
+
+function money(v){
+  return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+
+function normalize(s){
+  return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
+
+// ========== FEEDBACK VISUAL (MODAL) ==========
+function showFeedback(mensagem) {
+  if (feedbackDismissed) return;
+  
+  const modal = document.getElementById('feedbackModal');
+  const msg = document.getElementById('feedbackMessage');
+  msg.textContent = mensagem;
+  
+  if (feedbackTimer) {
+    clearTimeout(feedbackTimer);
+    feedbackTimer = null;
+  }
+  
+  modal.classList.add('show');
+  
+  feedbackTimer = setTimeout(() => {
+    fecharFeedback();
+  }, 3000);
+}
+
+function fecharFeedback() {
+  const modal = document.getElementById('feedbackModal');
+  modal.classList.remove('show');
+  if (feedbackTimer) {
+    clearTimeout(feedbackTimer);
+    feedbackTimer = null;
+  }
+}
+
+function toggleFeedbackDismiss() {
+  const checkbox = document.getElementById('dismissFeedback');
+  feedbackDismissed = checkbox.checked;
+  if (feedbackDismissed) {
+    fecharFeedback();
+  }
+}
+
+// ========== FUNÇÃO DE VOZ COM OPÇÕES ==========
+let selectedVoice = null;
+let voicesLoaded = false;
+
+function loadVoices() {
+  if (!window.speechSynthesis) return;
+  const voices = speechSynthesis.getVoices();
+  if (voices.length === 0) {
+    setTimeout(loadVoices, 200);
+    return;
+  }
+  voicesLoaded = true;
+  const pref = document.getElementById('voiceSelect').value;
+  selectVoiceByPreference(pref);
+}
+
+function selectVoiceByPreference(pref) {
+  if (!window.speechSynthesis) return;
+  const voices = speechSynthesis.getVoices();
+  if (voices.length === 0) return;
+  
+  let found = null;
+  if (pref === 'feminina') {
+    found = voices.find(v => v.lang.startsWith('pt') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('feminina') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('maria')));
+    if (!found) found = voices.find(v => v.lang.startsWith('pt') && v.name.toLowerCase().includes('female'));
+    if (!found) found = voices.find(v => v.lang.startsWith('pt') && !v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('masculino'));
+  } else if (pref === 'masculina') {
+    found = voices.find(v => v.lang.startsWith('pt') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('masculino') || v.name.toLowerCase().includes('joão') || v.name.toLowerCase().includes('carlos')));
+    if (!found) found = voices.find(v => v.lang.startsWith('pt') && v.name.toLowerCase().includes('male'));
+    if (!found) found = voices.find(v => v.lang.startsWith('pt') && !v.name.toLowerCase().includes('female') && !v.name.toLowerCase().includes('feminina'));
+  }
+  if (!found) found = voices.find(v => v.lang.startsWith('pt'));
+  if (!found && voices.length > 0) found = voices[0];
+  
+  selectedVoice = found;
+  console.log('Voz selecionada:', selectedVoice ? selectedVoice.name : 'nenhuma');
+}
+
+function changeVoice() {
+  const pref = document.getElementById('voiceSelect').value;
+  data.voicePreference = pref;
+  save();
+  if (window.speechSynthesis) {
+    if (speechSynthesis.getVoices().length === 0) {
+      speechSynthesis.onvoiceschanged = () => {
+        selectVoiceByPreference(pref);
+        speechSynthesis.onvoiceschanged = null;
+      };
+    } else {
+      selectVoiceByPreference(pref);
+    }
+  }
+}
+
+function speak(text) {
+  if (!speechOn) return;
+  
+  if (window.speechSynthesis) {
+    try {
+      speechSynthesis.cancel();
+      let utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.9;
+      
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      } else {
+        const voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          const pref = document.getElementById('voiceSelect').value;
+          selectVoiceByPreference(pref);
+          if (selectedVoice) utterance.voice = selectedVoice;
+        }
+      }
+      
+      speechSynthesis.speak(utterance);
+      return;
+    } catch(e) {
+      console.warn('Erro no speechSynthesis:', e);
+    }
+  }
+  
+  if (isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.ttsSpeak) {
+    try {
+      window.Android.ttsSpeak(text);
+      return;
+    } catch(e) {
+      console.warn('Erro no TTS nativo:', e);
+    }
+  }
+  
+  // Fallback visual
+  const lastCmd = document.getElementById('lastCommand');
+  if (lastCmd) {
+    lastCmd.innerHTML = '🔊 ' + text;
+    lastCmd.style.background = 'rgba(57,201,122,0.2)';
+    lastCmd.style.padding = '8px';
+    lastCmd.style.borderRadius = '8px';
+    setTimeout(() => {
+      lastCmd.style.background = 'transparent';
+      lastCmd.style.padding = '0';
+    }, 3000);
+  }
+}
+
+if (window.speechSynthesis) {
+  if (speechSynthesis.getVoices().length > 0) {
+    loadVoices();
+  } else {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+}
+
+// ========== RECONHECIMENTO DE VOZ ==========
+class VoiceRecognizer {
+  constructor() {
+    this.isListening = false;
+    this.isActive = false;
+    this.permissionDenied = false;
+    this.recognition = null;
+    this.recognitionMethod = null;
+    
+    if(isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.startVoiceRecognition){
+      this.recognitionMethod = 'native';
+      console.log('Usando reconhecimento nativo Android');
+    } else if(('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window)){
+      this.recognitionMethod = 'web';
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      this.recognition = new SR();
+      this.recognition.lang = 'pt-BR';
+      this.recognition.interimResults = false;
+      this.recognition.continuous = false;
+      this.recognition.maxAlternatives = 1;
+      console.log('Usando Web Speech API');
+    } else {
+      this.recognitionMethod = 'none';
+      console.warn('Nenhum método de reconhecimento de voz disponível');
+    }
+    
+    this.setupListeners();
+  }
+  
+  setupListeners(){
+    if(this.recognitionMethod === 'web' && this.recognition){
+      this.recognition.onstart = () => {
+        this.isListening = true;
+        document.getElementById('voiceStatus').textContent = '🟢 Ouvindo comando...';
+      };
+      
+      this.recognition.onend = () => {
+        this.isListening = false;
+        if(this.isActive && !this.permissionDenied){
+          document.getElementById('voiceStatus').textContent = '🟢 Aguardando próximo comando...';
+          this.startListening();
+        }
+      };
+      
+      this.recognition.onerror = (e) => {
+        this.isListening = false;
+        if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+          this.permissionDenied = true;
+          this.isActive = false;
+          document.getElementById('voiceStatus').textContent = '🚫 Microfone não autorizado.';
+          this.updateUI();
+          return;
+        }
+        if(e.error === 'no-speech') {
+          if(this.isActive && !this.permissionDenied){
+            this.startListening();
+          }
+          return;
+        }
+        if(e.error !== 'aborted' && this.isActive && !this.permissionDenied){
+          this.startListening();
+        }
+      };
+      
+      this.recognition.onresult = (e) => {
+        const raw = e.results[e.results.length-1][0].transcript;
+        processVoice(raw);
+        if(this.isActive && !this.permissionDenied){
+          this.startListening();
+        }
+      };
+    }
+  }
+  
+  startListening(){
+    if(!this.isActive || this.permissionDenied || this.isListening) return;
+    
+    if(this.recognitionMethod === 'web' && this.recognition){
+      try{
+        this.isListening = true;
+        this.recognition.start();
+      }catch(e){
+        this.isListening = false;
+        if(e.name !== 'InvalidStateError'){
+          console.warn('Erro ao iniciar reconhecimento web:', e);
+        }
+      }
+    } else if(this.recognitionMethod === 'native' && typeof window.Android !== 'undefined' && window.Android.startVoiceRecognition){
+      try{
+        this.isListening = true;
+        window.Android.startVoiceRecognition();
+        document.getElementById('voiceStatus').textContent = '🟢 Ouvindo comando...';
+      }catch(e){
+        this.isListening = false;
+        console.warn('Erro ao iniciar reconhecimento nativo:', e);
+      }
+    }
+  }
+  
+  stopListening(){
+    if(this.recognitionMethod === 'web' && this.recognition){
+      try{
+        this.recognition.stop();
+      }catch(e){}
+    } else if(this.recognitionMethod === 'native' && typeof window.Android !== 'undefined' && window.Android.stopVoiceRecognition){
+      try{
+        window.Android.stopVoiceRecognition();
+      }catch(e){}
+    }
+    this.isListening = false;
+  }
+  
+  activate(){
+    this.isActive = true;
+    this.permissionDenied = false;
+    document.getElementById('voiceStatus').textContent = '🟢 Ativando...';
+    this.updateUI();
+    
+    setTimeout(() => {
+      if(this.isActive && !this.permissionDenied){
+        this.startListening();
+      }
+    }, 500);
+  }
+  
+  deactivate(){
+    this.isActive = false;
+    this.isListening = false;
+    this.stopListening();
+    document.getElementById('voiceStatus').textContent = 'Assistente desligado.';
+    this.updateUI();
+  }
+  
+  updateUI(){
+    const btn = document.getElementById('voiceBtn');
+    if(this.isActive){
+      btn.textContent = '🔴 DESLIGAR ASSISTENTE DE VOZ';
+      btn.classList.add('danger');
+      keepScreenOn(true);
+    }else{
+      btn.textContent = '🎤 ATIVAR ASSISTENTE DE VOZ';
+      btn.classList.remove('danger');
+      keepScreenOn(false);
+    }
+  }
+  
+  isSupported(){
+    return this.recognitionMethod !== 'none';
+  }
+  
+  processNativeResult(text){
+    processVoice(text);
+    if(this.isActive && !this.permissionDenied){
+      setTimeout(() => {
+        this.startListening();
+      }, 500);
+    }
+  }
+}
+
+let recognizer = new VoiceRecognizer();
+
+if(isAndroidWebView){
+  window.processVoiceResult = function(text){
+    if(recognizer){
+      recognizer.processNativeResult(text);
+    }
+  };
+}
+
+// ========== FUNÇÕES DE TELA ==========
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
+  $(id).classList.add('active');
+  document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('active',x.dataset.screen===id));
+  renderAll();
+}
+
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>showScreen(b.dataset.screen));
+
+// ========== FUNÇÕES DE DADOS ==========
+function exportarDados(){
+  try{
+    const dadosJSON = JSON.stringify(data, null, 2);
+    const blob = new Blob([dadosJSON], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const dataAtual = new Date().toISOString().slice(0,19).replace(/[:-]/g, '');
+    a.download = `conta_bar_dados_${dataAtual}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    speak('Dados exportados com sucesso');
+    showFeedback('📤 Dados exportados com sucesso');
+    alert('✅ Dados exportados com sucesso!');
+  }catch(e){
+    alert('❌ Erro ao exportar dados: '+e.message);
+  }
+}
+
+function importarDados(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  processarImportacao(file);
+  event.target.value = '';
+}
+
+function processarImportacao(file){
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const dados = JSON.parse(e.target.result);
+      
+      if(!dados.produtos || !Array.isArray(dados.produtos) ||
+         !dados.pedido || !Array.isArray(dados.pedido) ||
+         !dados.historico || !Array.isArray(dados.historico)){
+        throw new Error('Arquivo inválido. Estrutura de dados incorreta.');
+      }
+      
+      const confirmar = confirm(
+        '⚠️ Isso irá SUBSTITUIR todos os dados atuais!\n\n' +
+        'Produtos: '+dados.produtos.length+'\n' +
+        'Itens no pedido: '+dados.pedido.length+'\n' +
+        'Contas no histórico: '+dados.historico.length+'\n' +
+        'Estabelecimentos: '+(dados.estabelecimentos?.length||0)+'\n\n' +
+        'Deseja continuar?'
+      );
+      
+      if(!confirmar) return;
+      
+      data.produtos = dados.produtos;
+      data.pedido = dados.pedido;
+      data.historico = dados.historico;
+      data.estabelecimentos = dados.estabelecimentos || [];
+      data.estabelecimentoAtivoId = dados.estabelecimentoAtivoId || null;
+      data.cliente = dados.cliente || null;
+      data.gorjetaConfig = dados.gorjetaConfig || 0;
+      data.speechOn = dados.speechOn !== undefined ? dados.speechOn : true;
+      
+      save();
+      renderAll();
+      
+      const status = $('importStatus');
+      status.style.display = 'block';
+      status.style.background = 'rgba(57,201,122,0.1)';
+      status.style.border = '1px solid var(--accent)';
+      status.style.color = '#79e9aa';
+      status.innerHTML = '✅ <b>Dados importados com sucesso!</b><br>' +
+        'Produtos: '+data.produtos.length+', ' +
+        'Itens no pedido: '+data.pedido.length+', ' +
+        'Contas no histórico: '+data.historico.length+', ' +
+        'Estabelecimentos: '+data.estabelecimentos.length;
+      
+      speak('Dados importados com sucesso');
+      showFeedback('✅ Dados importados com sucesso');
+      alert('✅ Dados importados com sucesso!');
+      atualizarResumoDados();
+      
+    }catch(e){
+      const status = $('importStatus');
+      status.style.display = 'block';
+      status.style.background = 'rgba(239,93,103,0.1)';
+      status.style.border = '1px solid var(--danger)';
+      status.style.color = '#ef5d67';
+      status.innerHTML = '❌ <b>Erro ao importar dados:</b><br>' + e.message;
+      alert('❌ Erro ao importar dados: '+e.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function atualizarResumoDados(){
+  $('resumoProdutos').textContent = data.produtos.length;
+  $('resumoPedido').textContent = data.pedido.reduce((s,x)=>s+x.qtd,0);
+  $('resumoHistorico').textContent = data.historico.length;
+  $('resumoEstabelecimentos').textContent = data.estabelecimentos.length;
+  $('resumoCliente').textContent = data.cliente?.nome || 'Não cadastrado';
+}
+
+function clearAllData(){
+  if(confirm('⚠️ Tem certeza que deseja limpar TODOS os dados?\n\nIsso inclui:\n- Produtos cadastrados\n- Pedido atual\n- Histórico de contas\n- Cliente\n- Todos os estabelecimentos\n\nEsta ação não pode ser desfeita!')){
+    if(confirm('Confirmar limpeza total dos dados?')){
+      data.produtos = [];
+      data.pedido = [];
+      data.historico = [];
+      data.cliente = null;
+      data.estabelecimentos = [];
+      data.estabelecimentoAtivoId = null;
+      data.gorjetaConfig = 0;
+      save();
+      renderAll();
+      atualizarResumoDados();
+      speak('Todos os dados foram limpos');
+      showFeedback('🗑️ Todos os dados foram limpos');
+      alert('🗑️ Todos os dados foram limpos!');
+    }
+  }
+}
+
+// Drag and Drop
+const dropArea = document.getElementById('dropArea');
+if(dropArea){
+  dropArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropArea.classList.add('dragover');
+  });
+  
+  dropArea.addEventListener('dragleave', () => {
+    dropArea.classList.remove('dragover');
+  });
+  
+  dropArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropArea.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if(files.length > 0 && files[0].type === 'application/json'){
+      processarImportacao(files[0]);
+    }else{
+      alert('⚠️ Por favor, selecione um arquivo JSON válido.');
+    }
+  });
+}
+
+// ========== FUNÇÕES DE GERENCIAMENTO DE ESTABELECIMENTOS ==========
+function getEstabelecimentoAtivo() {
+  if (data.estabelecimentoAtivoId === null) return null;
+  return data.estabelecimentos.find(e => e.id === data.estabelecimentoAtivoId) || null;
+}
+
+function setEstabelecimentoAtivo(id) {
+  data.estabelecimentoAtivoId = id;
+  save();
+  renderAll();
+  speak('Estabelecimento ativo alterado');
+  showFeedback('🏢 Ativo: ' + (getEstabelecimentoAtivo()?.nome || 'Nenhum'));
+}
+
+function salvarEstabelecimento() {
+  const id = parseInt($('estabEditId').value) || null;
+  const nome = $('estabNome').value.trim();
+  if (!nome) { alert('O nome do estabelecimento é obrigatório.'); return; }
+  
+  const obj = {
+    nome,
+    endereco: $('estabEndereco').value.trim(),
+    telefone: $('estabTelefone').value.trim(),
+    email: $('estabEmail').value.trim(),
+    pix: $('estabPix').value.trim()
+  };
+  
+  if (id) {
+    // Editar existente
+    const idx = data.estabelecimentos.findIndex(e => e.id === id);
+    if (idx !== -1) {
+      data.estabelecimentos[idx] = { ...data.estabelecimentos[idx], ...obj };
+      speak('Estabelecimento atualizado');
+      showFeedback('✏️ Estabelecimento atualizado: ' + nome);
+    }
+  } else {
+    // Adicionar novo
+    const novo = { id: Date.now() + Math.random(), ...obj };
+    data.estabelecimentos.push(novo);
+    speak('Estabelecimento adicionado');
+    showFeedback('✅ Estabelecimento cadastrado: ' + nome);
+    // Se for o primeiro, definir como ativo
+    if (data.estabelecimentos.length === 1) {
+      data.estabelecimentoAtivoId = novo.id;
+    }
+  }
+  save();
+  cancelarEdicaoEstab();
+  renderAll();
+  atualizarResumoDados();
+}
+
+function editarEstabelecimento(id) {
+  const estab = data.estabelecimentos.find(e => e.id === id);
+  if (!estab) return;
+  $('estabNome').value = estab.nome || '';
+  $('estabEndereco').value = estab.endereco || '';
+  $('estabTelefone').value = estab.telefone || '';
+  $('estabEmail').value = estab.email || '';
+  $('estabPix').value = estab.pix || '';
+  $('estabEditId').value = id;
+  $('estabSalvarBtn').textContent = '💾 Atualizar';
+  $('estabCancelarBtn').style.display = 'inline-block';
+  showFeedback('✏️ Editando: ' + estab.nome);
+}
+
+function cancelarEdicaoEstab() {
+  $('estabNome').value = '';
+  $('estabEndereco').value = '';
+  $('estabTelefone').value = '';
+  $('estabEmail').value = '';
+  $('estabPix').value = '';
+  $('estabEditId').value = '';
+  $('estabSalvarBtn').textContent = '➕ Adicionar';
+  $('estabCancelarBtn').style.display = 'none';
+}
+
+function excluirEstabelecimento(id) {
+  const estab = data.estabelecimentos.find(e => e.id === id);
+  if (!estab) return;
+  if (!confirm(`Deseja excluir o estabelecimento "${estab.nome}"?`)) return;
+  data.estabelecimentos = data.estabelecimentos.filter(e => e.id !== id);
+  if (data.estabelecimentoAtivoId === id) {
+    data.estabelecimentoAtivoId = data.estabelecimentos.length > 0 ? data.estabelecimentos[0].id : null;
+  }
+  save();
+  renderAll();
+  atualizarResumoDados();
+  speak('Estabelecimento excluído');
+  showFeedback('🗑️ Excluído: ' + estab.nome);
+}
+
+function renderEstabelecimentos() {
+  const container = $('listaEstabelecimentos');
+  if (!data.estabelecimentos.length) {
+    container.innerHTML = '<div class="empty">Nenhum estabelecimento cadastrado.</div>';
+    return;
+  }
+  const ativoId = data.estabelecimentoAtivoId;
+  container.innerHTML = data.estabelecimentos.map(e => {
+    const isAtivo = e.id === ativoId;
+    return `<div class="estab-item ${isAtivo ? 'ativo' : ''}">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div class="info">
+          <div class="nome">${e.nome} ${isAtivo ? '⭐' : ''}</div>
+          <div class="detalhes">${e.endereco || ''} ${e.telefone ? '| Tel: '+e.telefone : ''} ${e.email ? '| Email: '+e.email : ''}</div>
+          <div class="detalhes">PIX: ${e.pix || 'Não informado'}</div>
+        </div>
+        <div class="actions">
+          ${!isAtivo ? `<button class="secondary small" onclick="setEstabelecimentoAtivo(${e.id})">⭐ Ativar</button>` : `<span class="badge">Ativo</span>`}
+          <button class="secondary small" onclick="editarEstabelecimento(${e.id})">✏️</button>
+          <button class="danger small" onclick="excluirEstabelecimento(${e.id})">🗑</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ========== FUNÇÕES DE NEGÓCIO ==========
+function saveGorjetaConfig(){
+  const valor = Number($('gorjeta').value || 0);
+  data.gorjetaConfig = valor;
+  save();
+  renderConta();
+  showFeedback('💲 Gorjeta configurada para ' + valor + '%');
+}
+
+function loadGorjetaConfig(){
+  const valor = data.gorjetaConfig || 0;
+  $('gorjeta').value = valor;
+}
+
+function saveCliente(){
+  data.cliente={
+    nome:$('clienteNome').value,
+    telefone:$('clienteTelefone').value,
+    banco:$('clienteBanco').value
+  };
+  save();
+  $('clienteInfo').textContent='Cliente salvo com sucesso.';
+  speak('Cliente salvo com sucesso');
+  showFeedback('👤 Cliente salvo com sucesso');
+  atualizarResumoDados();
+}
+
+function addProduto(nome,preco){
+  nome=nome||$('produtoNome').value.trim(); 
+  preco=preco??Number($('produtoPreco').value);
+  if(!nome||isNaN(preco)||preco<=0){
+    alert('Informe nome e preço válido.');
+    return;
+  }
+  if (currentEditId !== null) {
+    const index = data.produtos.findIndex(p => p.id === currentEditId);
+    if (index !== -1) {
+      data.produtos[index].nome = nome;
+      data.produtos[index].preco = Number(preco);
+      currentEditId = null;
+      document.querySelector('#produtos .card h2').textContent = '🍺 Cadastro de Produtos';
+      document.querySelector('#produtos .card button').textContent = '➕ Cadastrar produto';
+      speak('Produto atualizado com sucesso');
+      showFeedback('✏️ Produto atualizado: ' + nome + ' - ' + money(preco));
+    }
+  } else {
+    data.produtos.push({id:Date.now()+Math.random(),nome,preco:Number(preco)});
+    speak(nome+' cadastrado por '+money(preco));
+    showFeedback('✅ Produto cadastrado: ' + nome + ' - ' + money(preco));
+  }
+  save();
+  $('produtoNome').value='';
+  $('produtoPreco').value='';
+  renderAll();
+  atualizarResumoDados();
+}
+
+function editProduto(id){
+  const p = data.produtos.find(x => x.id === id);
+  if(!p) return;
+  currentEditId = id;
+  $('produtoNome').value = p.nome;
+  $('produtoPreco').value = p.preco;
+  document.querySelector('#produtos .card h2').textContent = '✏️ Editando Produto';
+  document.querySelector('#produtos .card button').textContent = '💾 Atualizar produto';
+  showScreen('produtos');
+  $('produtoNome').focus();
+  showFeedback('✏️ Editando: ' + p.nome);
+}
+
+function deleteProduto(id){
+  if(confirm('Excluir este produto?')){
+    const p = data.produtos.find(x => x.id === id);
+    data.produtos=data.produtos.filter(p=>p.id!==id);
+    if(currentEditId === id) {
+      currentEditId = null;
+      document.querySelector('#produtos .card h2').textContent = '🍺 Cadastro de Produtos';
+      document.querySelector('#produtos .card button').textContent = '➕ Cadastrar produto';
+    }
+    save();
+    renderAll();
+    atualizarResumoDados();
+    if(p) showFeedback('🗑️ Produto excluído: ' + p.nome);
+  }
+}
+
+function addPedido(produtoId,qtd){
+  produtoId=produtoId??Number($('pedidoProduto').value);
+  qtd=qtd??Number($('pedidoQtd').value);
+  const p=data.produtos.find(x=>x.id==produtoId);
+  if(!p){
+    alert('Selecione um produto.');
+    return;
+  }
+  qtd=Math.max(1,Number(qtd)||1);
+  let item=data.pedido.find(x=>x.produtoId==p.id);
+  if(item)item.qtd+=qtd;
+  else data.pedido.push({produtoId:p.id,nome:p.nome,preco:p.preco,qtd});
+  save();
+  renderAll();
+  const msg = qtd + 'x ' + p.nome + ' adicionado ao pedido';
+  speak(msg);
+  showFeedback('🛒 ' + msg);
+  atualizarResumoDados();
+}
+
+function removePedido(i){
+  const item = data.pedido[i];
+  data.pedido.splice(i,1);
+  save();
+  renderAll();
+  atualizarResumoDados();
+  if(item) showFeedback('🗑️ Removido: ' + item.nome);
+}
+
+function subtotal(){
+  return data.pedido.reduce((s,x)=>s+x.preco*x.qtd,0);
+}
+
+function renderProdutos(){
+  $('listaProdutos').innerHTML=data.produtos.length?
+    data.produtos.map(p=>`<div class="list-item"><span>${p.nome}<br><b>${money(p.preco)}</b></span>
+      <div class="actions">
+        <button class="secondary small" onclick="editProduto(${p.id})">✏️</button>
+        <button class="danger small" onclick="deleteProduto(${p.id})">🗑</button>
+      </div></div>`).join(''):
+    '<div class="empty">Nenhum produto cadastrado.</div>';
+  $('pedidoProduto').innerHTML=data.produtos.map(p=>`<option value="${p.id}">${p.nome} — ${money(p.preco)}</option>`).join('');
+  if (currentEditId !== null) {
+    document.querySelector('#produtos .card h2').textContent = '✏️ Editando Produto';
+    document.querySelector('#produtos .card button').textContent = '💾 Atualizar produto';
+  } else {
+    document.querySelector('#produtos .card h2').textContent = '🍺 Cadastro de Produtos';
+    document.querySelector('#produtos .card button').textContent = '➕ Cadastrar produto';
+  }
+}
+
+function renderPedido(){
+  $('listaPedido').innerHTML=data.pedido.length?
+    `<table><tr><th>Produto</th><th>Qtd.</th><th>Total</th><th></th></tr>${
+      data.pedido.map((x,i)=>`<tr><td>${x.nome}</td><td>${x.qtd}</td><td>${money(x.preco*x.qtd)}</td><td><button class="danger small" onclick="removePedido(${i})">×</button></td></tr>`).join('')
+    }</table>`:
+    '<div class="empty">Nenhum item no pedido.</div>';
+  $('pedidoSubtotal').textContent=money(subtotal());
+  $('homeSubtotal').textContent=money(subtotal());
+  $('homeItems').textContent=data.pedido.length?data.pedido.reduce((s,x)=>s+x.qtd,0)+' item(ns) no pedido.':'Nenhum item no pedido.';
+}
+
+function renderConta(){
+  const sub=subtotal();
+  const perc=Number($('gorjeta').value||0);
+  const gor=sub*perc/100;
+  const total=sub+gor;
+  const ativo = getEstabelecimentoAtivo();
+  $('contaEstabAtivo').innerHTML = ativo ? `<b>Estabelecimento:</b> ${ativo.nome} ${ativo.endereco ? '— '+ativo.endereco : ''}` : '<span style="color:var(--danger);">⚠️ Nenhum estabelecimento ativo. Cadastre e ative um estabelecimento.</span>';
+  $('contaItens').innerHTML=data.pedido.length?
+    data.pedido.map(x=>`<div class="list-item"><span>${x.qtd}× ${x.nome}</span><span>${money(x.preco*x.qtd)}</span></div>`).join(''):
+    '<div class="empty">Nenhum pedido aberto.</div>';
+  $('contaSubtotal').textContent=money(sub);
+  $('contaGorjeta').textContent=money(gor);
+  $('contaTotal').textContent=money(total);
+  
+  // Dados PIX do estabelecimento ativo
+  if (ativo && ativo.pix) {
+    $('pixInfo').innerHTML = `<b>${ativo.nome}</b><br>${ativo.endereco||''}<br>${ativo.telefone ? 'Tel: '+ativo.telefone+'<br>' : ''}${ativo.email ? 'Email: '+ativo.email+'<br>' : ''}<br><b>Chave PIX:</b><br>${ativo.pix}`;
+  } else {
+    $('pixInfo').innerHTML = 'Nenhum estabelecimento ativo com PIX cadastrado.';
+  }
+}
+
+function fecharConta(){
+  if(!data.pedido.length){
+    speak('Não há itens para fechar a conta');
+    showFeedback('⚠️ Nenhum item no pedido');
+    alert('Não há itens no pedido.');
+    return;
+  }
+  const ativo = getEstabelecimentoAtivo();
+  if (!ativo) {
+    alert('Nenhum estabelecimento ativo. Por favor, selecione um estabelecimento antes de fechar a conta.');
+    showScreen('estabelecimento');
+    return;
+  }
+  const sub=subtotal();
+  const perc=Number($('gorjeta').value||0);
+  const gor=sub*perc/100;
+  const total=sub+gor;
+  const conta={
+    id:Date.now(),
+    data:new Date().toLocaleString('pt-BR'),
+    cliente:data.cliente?.nome||'Não informado',
+    estabelecimentoId: ativo.id,
+    estabelecimentoNome: ativo.nome,
+    itens:JSON.parse(JSON.stringify(data.pedido)),
+    subtotal:sub,
+    gorjeta:gor,
+    percentual:perc,
+    total
+  };
+  data.historico.unshift(conta);
+  data.pedido=[];
+  save();
+  renderAll();
+  const texto=`Conta fechada em ${ativo.nome}. Subtotal ${money(sub)}. Gorjeta de ${perc}%. Total: ${money(total)}.`;
+  speak(texto);
+  showFeedback('🧾 ' + texto);
+  alert(texto);
+  atualizarResumoDados();
+  // Atualiza os filtros do histórico
+  popularFiltrosHistorico();
+}
+
+function verContaParcial(){
+  const sub=subtotal();
+  const texto = `Subtotal atual: ${money(sub)}. ${data.pedido.length} item(ns) no pedido.`;
+  speak(texto);
+  showFeedback('📊 ' + texto);
+  alert(texto);
+  showScreen('conta');
+}
+
+function clearHistorico(){
+  if(confirm('Limpar todo o histórico?')){
+    data.historico=[];
+    save();
+    renderHistorico();
+    atualizarResumoDados();
+    speak('Histórico limpo');
+    showFeedback('🗑️ Histórico limpo');
+    popularFiltrosHistorico();
+  }
+}
+
+// ========== HISTÓRICO COM FILTROS ==========
+function popularFiltrosHistorico() {
+  // Estabelecimentos
+  const selEstab = $('filtroEstab');
+  const atual = selEstab.value;
+  selEstab.innerHTML = '<option value="todos">Todos</option>';
+  data.estabelecimentos.forEach(e => {
+    selEstab.innerHTML += `<option value="${e.id}">${e.nome}</option>`;
+  });
+  selEstab.value = atual;
+
+  // Meses/Anos
+  const selMes = $('filtroMes');
+  const atualMes = selMes.value;
+  const meses = {};
+  data.historico.forEach(c => {
+    const partes = c.data.split('/');
+    if (partes.length === 3) {
+      const mes = partes[1];
+      const ano = partes[2];
+      const chave = mes+'/'+ano;
+      meses[chave] = true;
+    }
+  });
+  selMes.innerHTML = '<option value="todos">Todos</option>';
+  const chaves = Object.keys(meses).sort((a,b) => {
+    const [ma, aa] = a.split('/');
+    const [mb, ab] = b.split('/');
+    if (aa !== ab) return parseInt(ab) - parseInt(aa);
+    return parseInt(mb) - parseInt(ma);
+  });
+  chaves.forEach(k => {
+    selMes.innerHTML += `<option value="${k}">${k}</option>`;
+  });
+  selMes.value = atualMes;
+}
+
+function aplicarFiltros() {
+  renderHistorico();
+}
+
+function limparFiltros() {
+  $('filtroEstab').value = 'todos';
+  $('filtroMes').value = 'todos';
+  $('filtroDataInicio').value = '';
+  $('filtroDataFim').value = '';
+  renderHistorico();
+}
+
+function getContasFiltradas() {
+  const estabId = $('filtroEstab').value;
+  const mesAno = $('filtroMes').value;
+  const dataInicio = $('filtroDataInicio').value;
+  const dataFim = $('filtroDataFim').value;
+  
+  let contas = data.historico;
+  
+  // Filtro por estabelecimento
+  if (estabId !== 'todos') {
+    contas = contas.filter(c => c.estabelecimentoId == estabId);
+  }
+  
+  // Filtro por mês/ano
+  if (mesAno !== 'todos') {
+    contas = contas.filter(c => {
+      const partes = c.data.split('/');
+      if (partes.length === 3) {
+        const mes = partes[1];
+        const ano = partes[2];
+        return (mes+'/'+ano) === mesAno;
+      }
+      return false;
+    });
+  }
+  
+  // Filtro por período
+  if (dataInicio) {
+    const inicio = new Date(dataInicio);
+    contas = contas.filter(c => {
+      const partes = c.data.split('/');
+      if (partes.length === 3) {
+        const d = new Date(parseInt(partes[2]), parseInt(partes[1])-1, parseInt(partes[0]));
+        return d >= inicio;
+      }
+      return false;
+    });
+  }
+  if (dataFim) {
+    const fim = new Date(dataFim);
+    fim.setHours(23,59,59,999);
+    contas = contas.filter(c => {
+      const partes = c.data.split('/');
+      if (partes.length === 3) {
+        const d = new Date(parseInt(partes[2]), parseInt(partes[1])-1, parseInt(partes[0]));
+        return d <= fim;
+      }
+      return false;
+    });
+  }
+  
+  return contas;
+}
+
+function renderHistorico(){
+  const contas = getContasFiltradas();
+  const total = contas.reduce((s, c) => s + c.total, 0);
+  $('totalFiltrado').textContent = 'Total: ' + money(total);
+  
+  if (!contas.length) {
+    $('listaHistorico').innerHTML = '<div class="empty">Nenhuma conta encontrada com os filtros aplicados.</div>';
+    return;
+  }
+  
+  $('listaHistorico').innerHTML = contas.map(h => `
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+        <div><b>${h.data}</b> — <span class="note">${h.estabelecimentoNome || 'Estabelecimento não informado'}</span></div>
+        <div><b>Total: ${money(h.total)}</b></div>
+      </div>
+      <div class="note">Cliente: ${h.cliente}</div>
+      <div class="note">${h.itens.map(x => `${x.qtd}× ${x.nome}`).join(', ')}</div>
+      <div class="note">Subtotal: ${money(h.subtotal)} | Gorjeta: ${money(h.gorjeta)} (${h.percentual}%)</div>
+    </div>
+  `).join('');
+}
+
+// ========== PROCESSAMENTO DE VOZ COM SINÔNIMOS ==========
+function parseNumberWords(s){
+  const words={um:1,uma:1,dois:2,duas:2,tres:3,'três':3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10};
+  let m=s.match(/\b(\d+)\b/);
+  if(m)return Number(m[1]);
+  for(const [w,n] of Object.entries(words)){
+    if(normalize(s).includes(normalize(w)))return n;
+  }
+  return 1;
+}
+
+function findProduto(text){
+  const t=normalize(text);
+  let best=null,score=0;
+  data.produtos.forEach(p=>{
+    let words=normalize(p.nome).split(/\s+/);
+    let sc=words.filter(w=>w.length>2&&t.includes(w)).length;
+    if(sc>score){score=sc;best=p}
+  });
+  return best;
+}
+
+function extractClienteNome(text){
+  let cleaned = text.replace(/incluir\s+cliente\s*/i, '').trim();
+  if(cleaned.length > 0 && !cleaned.match(/^(produtos?|estabelecimento|bar|conta)/i)){
+    return cleaned;
+  }
+  return null;
+}
+
+function extractEstabelecimentoNome(text){
+  let cleaned = text.replace(/incluir\s+(estabelecimento|bar)\s*/i, '').trim();
+  if(cleaned.length > 0 && !cleaned.match(/^(produtos?|cliente|conta)/i)){
+    return cleaned;
+  }
+  return null;
+}
+
+function extractAbrirContaNome(text){
+  let cleaned = text.replace(/abrir\s+conta\s*/i, '').trim();
+  if(cleaned.length > 0 && !cleaned.match(/^(produtos?|cliente|estabelecimento|bar|pedido|conta)/i)){
+    return cleaned;
+  }
+  return null;
+}
+
+function extractProdutoNomeValor(text){
+  let cleaned = text.replace(/incluir\s+produtos?\s*/i, '').trim();
+  let match = cleaned.match(/^(.+?)\s+(?:a|por|de|r\$|R\$)?\s*([\d,.]+)/i);
+  
+  if(match){
+    let nome = match[1].trim();
+    let valor = parseFloat(match[2].replace('.','').replace(',','.'));
+    if(!isNaN(valor) && valor > 0){
+      return { nome, valor };
+    }
+  }
+  
+  return { nome: cleaned, valor: null };
+}
+
+function processVoice(raw){
+  document.getElementById('lastCommand').textContent='🎤 Você disse: "'+raw+'"';
+  const t=normalize(raw);
+  
+  // ====== COMANDOS DE BOTÕES (AÇÕES) ======
+  
+  // 1. Limpar histórico
+  if(t.includes('limpar') && (t.includes('historico') || t.includes('histórico'))){
+    clearHistorico();
+    return;
+  }
+  
+  // 2. Limpar dados / Limpar todos os dados
+  if(t.includes('limpar') && t.includes('dados')){
+    clearAllData();
+    return;
+  }
+  
+  // 3. Salvar cliente
+  if(t.includes('salvar') && t.includes('cliente')){
+    saveCliente();
+    return;
+  }
+  
+  // 4. Salvar estabelecimento
+  if(t.includes('salvar') && (t.includes('estabelecimento') || t.includes('bar'))){
+    // Salva o estabelecimento ativo? Vamos abrir a tela de estabelecimentos.
+    showScreen('estabelecimento');
+    speak('Tela de estabelecimentos aberta');
+    showFeedback('🏢 Abrindo estabelecimentos');
+    return;
+  }
+  
+  // ====== COMANDOS DE NAVEGAÇÃO E DADOS ======
+  
+  // 5. Exportar dados
+  if(t.includes('exportar') && t.includes('dados')){
+    exportarDados();
+    showFeedback('📤 Exportando dados...');
+    return;
+  }
+  
+  // 6. Importar dados
+  if(t.includes('importar') && t.includes('dados')){
+    showScreen('dados');
+    speak('Abrindo tela de importação de dados. Selecione um arquivo JSON.');
+    showFeedback('📥 Abrindo importação de dados');
+    return;
+  }
+  
+  // 7. Ver conta parcial
+  if(t.includes('ver') && t.includes('conta') && t.includes('parcial')){
+    verContaParcial();
+    return;
+  }
+  
+  // 8. Ver histórico
+  if(t.includes('ver') && t.includes('historico')){
+    showScreen('historico');
+    popularFiltrosHistorico();
+    renderHistorico();
+    speak('Abrindo histórico de contas');
+    showFeedback('📜 Abrindo histórico');
+    return;
+  }
+  
+  // 9. Desativar / Desligar comando por voz
+  if((t.includes('desativar') || t.includes('desligar')) && (t.includes('comando') || t.includes('voz'))){
+    if(recognizer) recognizer.deactivate();
+    speak('Assistente de voz desativado');
+    showFeedback('🔇 Assistente desativado');
+    return;
+  }
+  
+  // 10. Desligar app
+  if(t.includes('desligar') && (t.includes('app') || t.includes('aplicativo') || t.includes('sistema'))){
+    speak('Desligando aplicativo...');
+    showFeedback('⏻ Desligando...');
+    setTimeout(() => {
+      if(window.close){
+        window.close();
+      } else {
+        alert('Para fechar o aplicativo, feche a aba do navegador.');
+      }
+    }, 1000);
+    return;
+  }
+  
+  // 11. Abrir conta
+  if(t.includes('abrir') && t.includes('conta')){
+    let nomeEstabelecimento = extractAbrirContaNome(raw);
+    
+    if(nomeEstabelecimento && nomeEstabelecimento.length > 0){
+      // Procura estabelecimento com esse nome (case insensitive)
+      let estab = data.estabelecimentos.find(e => normalize(e.nome) === normalize(nomeEstabelecimento));
+      if (!estab) {
+        // Cria um novo estabelecimento com esse nome
+        const novo = { id: Date.now()+Math.random(), nome: nomeEstabelecimento, endereco: '', telefone: '', email: '', pix: '' };
+        data.estabelecimentos.push(novo);
+        data.estabelecimentoAtivoId = novo.id;
+        save();
+        speak('Estabelecimento "'+nomeEstabelecimento+'" criado e ativado.');
+        showFeedback('🏢 Novo estabelecimento: ' + nomeEstabelecimento);
+      } else {
+        data.estabelecimentoAtivoId = estab.id;
+        save();
+        speak('Estabelecimento ativo alterado para '+estab.nome);
+        showFeedback('🏢 Ativo: ' + estab.nome);
+      }
+      // Se já houver pedido, avisa que vai limpar
+      if (data.pedido.length > 0) {
+        speak('Abrindo nova conta. O pedido atual será limpo.');
+        data.pedido = [];
+        save();
+      }
+      renderAll();
+      showScreen('pedido');
+      return;
+    } else {
+      // Sem nome: usa o ativo ou pede para selecionar
+      const ativo = getEstabelecimentoAtivo();
+      if (!ativo) {
+        speak('Nenhum estabelecimento ativo. Por favor, selecione um na tela de estabelecimentos.');
+        showFeedback('⚠️ Nenhum estabelecimento ativo');
+        showScreen('estabelecimento');
+        return;
+      }
+      if (data.pedido.length > 0) {
+        speak('Já existe uma conta aberta com itens no pedido. Deseja limpar e abrir uma nova?');
+        if (!confirm('Já existe um pedido em andamento. Deseja limpar e abrir uma nova conta?')) return;
+      }
+      data.pedido = [];
+      save();
+      speak('Nova conta aberta em '+ativo.nome);
+      showFeedback('✅ Nova conta aberta em ' + ativo.nome);
+      showScreen('pedido');
+      return;
+    }
+  }
+  
+  // 12. Incluir produtos
+  if(t.includes('incluir') && (t.includes('produto') || t.includes('produtos'))){
+    let result = extractProdutoNomeValor(raw);
+    
+    if(result.nome && result.nome.length > 0){
+      if(result.valor !== null && result.valor > 0){
+        addProduto(result.nome, result.valor);
+        showScreen('produtos');
+        return;
+      } else {
+        $('produtoNome').value = result.nome;
+        setTimeout(() => {
+          $('produtoPreco').focus();
+          $('produtoPreco').select();
+        }, 300);
+        speak('Vou abrir o cadastro de produtos para '+result.nome+'. Informe o preço.');
+        showFeedback('📝 Abrindo cadastro para: ' + result.nome);
+        showScreen('produtos');
+        return;
+      }
+    }
+    
+    speak('Não consegui identificar o nome do produto. Tente: incluir produtos cerveja Brahma 10 reais');
+    showFeedback('❌ Produto não identificado');
+    return;
+  }
+  
+  // 13. Incluir cliente
+  if(t.includes('incluir') && t.includes('cliente')){
+    let nome = extractClienteNome(raw);
+    if(nome && nome.length > 0){
+      data.cliente = data.cliente || {};
+      data.cliente.nome = nome;
+      $('clienteNome').value = nome;
+      save();
+      $('clienteInfo').textContent = 'Cliente "'+nome+'" salvo com sucesso.';
+      speak('Cliente '+nome+' incluído com sucesso');
+      showFeedback('👤 Cliente salvo: ' + nome);
+      showScreen('cliente');
+      return;
+    }
+    speak('Não consegui identificar o nome do cliente. Tente: incluir cliente João Silva');
+    showFeedback('❌ Cliente não identificado');
+    return;
+  }
+  
+  // 14. Incluir estabelecimento
+  if(t.includes('incluir') && (t.includes('estabelecimento') || t.includes('bar'))){
+    let nome = extractEstabelecimentoNome(raw);
+    if(nome && nome.length > 0){
+      // Verifica se já existe
+      let existente = data.estabelecimentos.find(e => normalize(e.nome) === normalize(nome));
+      if (!existente) {
+        const novo = { id: Date.now()+Math.random(), nome, endereco: '', telefone: '', email: '', pix: '' };
+        data.estabelecimentos.push(novo);
+        if (data.estabelecimentos.length === 1) data.estabelecimentoAtivoId = novo.id;
+        save();
+        speak('Estabelecimento "'+nome+'" incluído com sucesso.');
+        showFeedback('🏢 Estabelecimento salvo: ' + nome);
+      } else {
+        speak('Estabelecimento "'+nome+'" já existe. Ativando.');
+        data.estabelecimentoAtivoId = existente.id;
+        save();
+        showFeedback('⭐ Ativado: ' + nome);
+      }
+      renderAll();
+      showScreen('estabelecimento');
+      return;
+    }
+    speak('Não consegui identificar o nome do estabelecimento. Tente: incluir estabelecimento Bar do Zé');
+    showFeedback('❌ Estabelecimento não identificado');
+    return;
+  }
+  
+  // ====== COMANDOS DE NAVEGAÇÃO ======
+  if(t.includes('abrir')&&(t.includes('produto')||t.includes('produtos'))){showScreen('produtos');speak('Cadastro de produtos aberto');showFeedback('📦 Abrindo produtos');return}
+  if(t.includes('abrir')&&(t.includes('cliente')||t.includes('usuario')||t.includes('usuário'))){showScreen('cliente');speak('Cadastro de cliente aberto');showFeedback('👤 Abrindo cliente');return}
+  if(t.includes('abrir')&&(t.includes('estabelecimento')||t.includes('bar'))){showScreen('estabelecimento');speak('Gerenciamento de estabelecimentos aberto');showFeedback('🏢 Abrindo estabelecimentos');return}
+  if(t.includes('abrir')&&(t.includes('pedido')||t.includes('pedidos'))){showScreen('pedido');speak('Tela de pedidos aberta');showFeedback('🛒 Abrindo pedidos');return}
+  if(t.includes('mostrar')&&(t.includes('conta')||t.includes('pedido'))){showScreen('conta');speak('O subtotal atual é '+money(subtotal()));showFeedback('🧾 Mostrando conta');return}
+  if(t.includes('fechar')&&t.includes('conta')){showScreen('conta');setTimeout(fecharConta,100);return}
+  
+  // ====== COMANDOS DE PEDIDO COM SINÔNIMOS ======
+  const isPedido = t.includes('pedir') || t.includes('solicitar') || t.includes('adicionar') || 
+                   t.includes('pedido') || t.includes('mais uma') || t.includes('mais um');
+  
+  if(isPedido){
+    let qtd = parseNumberWords(raw);
+    if ((t.includes('mais uma') || t.includes('mais um')) && !raw.match(/\b\d+\b/)) {
+      qtd = 1;
+    }
+    
+    const p = findProduto(raw);
+    if(p){
+      addPedido(p.id, qtd);
+      showScreen('pedido');
+      return;
+    }
+    speak('Não encontrei esse produto. Cadastre o produto primeiro.');
+    showFeedback('❌ Produto não encontrado');
+    return;
+  }
+  
+  // ====== COMANDO DE CADASTRO ======
+  if(t.includes('cadastrar') && (t.includes('preco') || t.includes('preço'))){
+    let m=raw.match(/cadastrar\s+(.+?)\s+pre[cç]o\s+(?:r\$?\s*)?([\d,.]+)/i);
+    if(!m)m=raw.match(/cadastrar\s+(.+?)\s+(?:por|valor)\s+(?:r\$?\s*)?([\d,.]+)/i);
+    if(m){let preco=parseFloat(m[2].replace('.','').replace(',','.'));addProduto(m[1].trim(),preco);showScreen('produtos');return}
+    speak('Não consegui identificar o nome e o preço. Tente dizer cadastrar produto, preço 10 reais.');
+    showFeedback('❌ Não entendi o cadastro');
+    return;
+  }
+  
+  // ====== FALLBACK ======
+  speak('Não entendi o comando. Tente dizer: "abrir conta", "ver conta parcial", "incluir produtos cerveja 10 reais", "incluir cliente" ou "incluir estabelecimento".');
+  showFeedback('❓ Comando não reconhecido');
+}
+
+// ========== WAKE LOCK ==========
+function keepScreenOn(keepOn) {
+  if (!navigator.wakeLock) {
+    console.warn('Wake Lock API não suportada neste navegador.');
+    return;
+  }
+  
+  let wakeLock = null;
+  
+  if (keepOn) {
+    navigator.wakeLock.request('screen')
+      .then(lock => {
+        wakeLock = lock;
+        console.log('Tela mantida ativa.');
+        wakeLock.addEventListener('release', () => {
+          console.log('Wake Lock foi liberado.');
+          if (recognizer && recognizer.isActive) {
+            setTimeout(() => {
+              navigator.wakeLock.request('screen')
+                .then(newLock => {
+                  wakeLock = newLock;
+                  console.log('Wake Lock reconectado.');
+                })
+                .catch(err => console.warn('Erro ao reconectar Wake Lock:', err));
+            }, 1000);
+          }
+        });
+      })
+      .catch(err => console.warn('Erro ao ativar Wake Lock:', err));
+  } else {
+    if (wakeLock) {
+      wakeLock.release()
+        .then(() => {
+          wakeLock = null;
+          console.log('Wake Lock liberado.');
+        })
+        .catch(err => console.warn('Erro ao liberar Wake Lock:', err));
+    }
+  }
+  window._wakeLock = wakeLock;
+}
+
+// ========== BOTÃO DE ATIVAÇÃO ==========
+document.getElementById('voiceBtn').onclick = async () => {
+  if(recognizer.isActive){
+    recognizer.deactivate();
+    return;
+  }
+
+  if(!recognizer.isSupported()){
+    alert('⚠️ Reconhecimento de voz não disponível neste navegador.\n\n' +
+          'Para usar no Android, certifique-se de que o app tem permissão de microfone.\n\n' +
+          'Se estiver no Chrome, tente usar o navegador Chrome diretamente.');
+    return;
+  }
+
+  try{
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+      document.getElementById('voiceStatus').textContent = 'Solicitando acesso ao microfone...';
+      const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+      stream.getTracks().forEach(track => track.stop());
+    }
+  }catch(err){
+    document.getElementById('voiceStatus').textContent = '🚫 Não foi possível acessar o microfone.';
+    document.getElementById('permissionHelp').innerHTML = 'Permita o microfone nas configurações do dispositivo.';
+    return;
+  }
+
+  recognizer.activate();
+  document.getElementById('permissionHelp').textContent = 'Assistente ativado. Pode falar comandos.';
+  speak('Assistente de voz ativado. Pode falar.');
+  showFeedback('🎤 Assistente de voz ativado');
+};
+
+// ========== INICIALIZAÇÃO ==========
+function renderAll() {
+  // Cliente
+  if(data.cliente){
+    $('clienteNome').value=data.cliente.nome||'';
+    $('clienteTelefone').value=data.cliente.telefone||'';
+    $('clienteBanco').value=data.cliente.banco||'';
+  }
+  // Estabelecimentos
+  renderEstabelecimentos();
+  loadGorjetaConfig();
+  renderProdutos();
+  renderPedido();
+  renderConta();
+  renderHistorico();
+  atualizarResumoDados();
+  // Preferência de voz
+  const pref = data.voicePreference || 'default';
+  document.getElementById('voiceSelect').value = pref;
+  if (window.speechSynthesis && speechSynthesis.getVoices().length > 0) {
+    selectVoiceByPreference(pref);
+  }
+  // Popular filtros do histórico
+  popularFiltrosHistorico();
+}
+
+$('speakToggle').onclick=()=>{
+  speechOn=!speechOn;
+  $('speakToggle').textContent='🔊 Voz: '+(speechOn?'ATIVADA':'DESATIVADA');
+  save();
+  if(speechOn)speak('Respostas por voz ativadas');
+};
+$('speakToggle').textContent='🔊 Voz: '+(speechOn?'ATIVADA':'DESATIVADA');
+
+renderAll();
+
+if(!recognizer.isSupported()){
+  document.getElementById('voiceStatus').textContent = '⚠️ Voz não disponível neste dispositivo.';
+  document.getElementById('permissionHelp').innerHTML = 'O reconhecimento de voz não está disponível. ' +
+    'Use um navegador Chrome ou um dispositivo Android com suporte a TTS.';
+  document.getElementById('voiceBtn').disabled = true;
+} else if(isAndroidWebView){
+  document.getElementById('voiceStatus').textContent = '📱 Modo Android WebView';
+  document.getElementById('permissionHelp').innerHTML = 'Assistente de voz otimizado para Android. ' +
+    'Certifique-se de que o app tem permissão de microfone.';
+}
+
+console.log('✅ App inicializado com sucesso!');
+</script>
+</body>
+</html>
