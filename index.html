@@ -238,8 +238,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <h2>🎤 Comandos de voz</h2>
 <p>Use o botão <b>Ouvir comando</b> e fale naturalmente.</p>
 <ul class="note">
-<li><b>"Abrir conta"</b> - Cria nova conta no estabelecimento ativo</li>
-<li><b>"Abrir conta [nome]"</b> - Ex: "abrir conta Bar do Zé" (seleciona e abre)</li>
+<li><b>"Abrir conta"</b> - Cria nova conta no estabelecimento ativo (pergunta se deseja fechar a atual se houver)</li>
+<li><b>"Abrir conta [nome]"</b> - Ex: "abrir conta Bar do Zé" (seleciona e abre, com a mesma verificação)</li>
 <li><b>"Selecionar [nome]"</b> - Ex: "selecionar Bar do Zé"</li>
 <li><b>"Incluir produtos [nome] [valor]"</b> - Ex: "incluir produtos cerveja 10 reais"</li>
 <li><b>"Ver cardápio"</b> - Mostra o mini cardápio do estabelecimento ativo</li>
@@ -253,7 +253,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="note">Estabelecimento ativo: <b id="homeEstabAtivo">Nenhum</b></div>
 <div class="note">Subtotal</div><div class="total" id="homeSubtotal">R$ 0,00</div>
 <div class="note" id="homeItems">Nenhum item no pedido.</div>
-<button onclick="showScreen('pedido')">Abrir pedido</button>
+<button onclick="abrirContaManual()">📂 Abrir nova conta</button>
 </div>
 </div>
 </section>
@@ -402,8 +402,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
 <h3>💰 Conta</h3>
 <ul class="command-list">
-  <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Nova conta no estabelecimento ativo</span></li>
-  <li><span class="cmd">"Abrir conta [nome]"</span><br><span class="desc">Seleciona o estabelecimento e abre a conta</span></li>
+  <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Nova conta no estabelecimento ativo (pergunta se quer fechar a atual)</span></li>
+  <li><span class="cmd">"Abrir conta [nome]"</span><br><span class="desc">Seleciona o estabelecimento e abre a conta (com a mesma verificação)</span></li>
   <li><span class="cmd">"Ver conta parcial"</span><br><span class="desc">Mostra o subtotal atual</span></li>
   <li><span class="cmd">"Mostrar conta"</span><br><span class="desc">Abre a tela da conta</span></li>
   <li><span class="cmd">"Fechar conta"</span><br><span class="desc">Finaliza a conta</span></li>
@@ -531,13 +531,14 @@ data.pedido = data.pedido || [];
 data.historico = data.historico || [];
 data.gorjetaConfig = data.gorjetaConfig || 0;
 data.voicePreference = data.voicePreference || 'default';
-data.usuario = data.usuario || null; // { nome, email, telefone, pix, banco, bancoLink, endereco }
+data.usuario = data.usuario || null;
 let speechOn = data.speechOn !== false;
 let currentEditId = null;
 let feedbackTimer = null;
 let feedbackDismissed = false;
 let contaFechada = null; // guarda os dados da conta para pagamento
 let pagamentoConfirmado = false;
+let callbackAposFechar = null; // callback para após o fechamento da conta (abrir nova)
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -856,6 +857,10 @@ function confirmarFechamento() {
 
 function fecharPaymentModal() {
   document.getElementById('paymentModal').classList.remove('active');
+  // Se havia um callback pendente e o usuário cancelou, limpa o callback
+  if (callbackAposFechar) {
+    callbackAposFechar = null;
+  }
   contaFechada = null;
 }
 
@@ -884,14 +889,9 @@ function pagarPix() {
 }
 
 function gerarPixCopiaCola(chave, valor, nome) {
-  // Formato simplificado do payload PIX (versão estática)
-  // Ref: https://www.bcb.gov.br/estabilidadefinanceira/pix
-  // Montagem básica para gerar um código funcional
-  // Payload: 00 01 26 33 14 BR.GOV.BCB.PIX 01 11 chave 52 04 0000 53 03 986 54 12 valor 58 02 BR 59 14 nome 60 08 cidade 62 05 0304...
-  // Vamos gerar um código simplificado que funciona em muitos apps
+  // Payload simplificado (sem CRC16, funcional para testes)
   const valorFormat = valor.toFixed(2).replace('.', '');
   const tamanhoValor = (valorFormat.length).toString().padStart(2, '0');
-  // Montagem básica
   let payload = '000201';
   payload += '26330014BR.GOV.BCB.PIX0111' + chave;
   payload += '52040000';
@@ -901,10 +901,7 @@ function gerarPixCopiaCola(chave, valor, nome) {
   const nomeLimpo = nome.substring(0, 25);
   payload += '59' + (nomeLimpo.length).toString().padStart(2, '0') + nomeLimpo;
   payload += '6008BRASILIA';
-  // CRC16 (simplificado - não implementado aqui, mas a maioria dos apps aceita sem CRC)
-  // Para fins de demonstração, vamos adicionar um CRC fixo 6304 (ignorado por alguns)
   payload += '6304';
-  // Calcular CRC16 (não implementado, mas deixamos o código funcional para teste)
   return payload;
 }
 
@@ -914,7 +911,6 @@ function copiarPix() {
     navigator.clipboard.writeText(code).then(() => {
       showFeedback('📋 Código PIX copiado!');
     }).catch(() => {
-      // Fallback
       copiarPixFallback(code);
     });
   } else {
@@ -943,7 +939,6 @@ function abrirBanco() {
     return;
   }
   const link = user.bancoLink;
-  // Tenta abrir o link (intent ou URL)
   try {
     if (isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.abrirLink) {
       window.Android.abrirLink(link);
@@ -980,6 +975,13 @@ function finalizarPagamento() {
   fecharPaymentModal();
   contaFechada = null;
   pagamentoConfirmado = true;
+  
+  // Se houver um callback agendado (abrir nova conta), executa
+  if (callbackAposFechar) {
+    const cb = callbackAposFechar;
+    callbackAposFechar = null;
+    cb(); // executa o callback (abrir nova conta)
+  }
 }
 
 function pagarDinheiro() {
@@ -994,6 +996,84 @@ function pagarCartao() {
   if (confirm(`Confirmar pagamento em CARTÃO no valor de ${money(contaFechada.total)}?`)) {
     finalizarPagamento();
   }
+}
+
+// ========== FUNÇÕES DE ABERTURA DE CONTA (com verificação) ==========
+function abrirContaManual() {
+  // Versão manual (botão)
+  if (data.pedido.length > 0) {
+    if (confirm('Já existe uma conta aberta com itens. Deseja fechá-la antes de abrir uma nova?')) {
+      // Fecha a conta atual e depois abre uma nova
+      callbackAposFechar = function() {
+        abrirNovaConta(null);
+      };
+      showScreen('conta');
+      setTimeout(confirmarFechamento, 300);
+    }
+  } else {
+    abrirNovaConta(null);
+  }
+}
+
+function abrirNovaConta(nomeEstab) {
+  // Se houver pedido, pergunta se quer fechar primeiro
+  if (data.pedido.length > 0) {
+    const msg = 'Já existe uma conta aberta com itens. Deseja fechá-la antes de abrir uma nova?';
+    if (confirm(msg)) {
+      // Agenda a abertura após o fechamento
+      callbackAposFechar = function() {
+        abrirNovaConta(nomeEstab);
+      };
+      showScreen('conta');
+      setTimeout(confirmarFechamento, 300);
+      return;
+    } else {
+      return; // cancela a abertura
+    }
+  }
+  
+  // Se chegou aqui, não há pedido, pode abrir a conta
+  const estabAtivo = getEstabelecimentoAtivo();
+  if (!estabAtivo) {
+    // Se não há estabelecimento ativo, redireciona para escolher/criar
+    speak('Nenhum estabelecimento ativo. Vou abrir a tela de estabelecimentos.');
+    showFeedback('🏢 Selecione um estabelecimento');
+    showScreen('estabelecimentos');
+    return;
+  }
+  
+  // Se há nome de estabelecimento, tenta selecionar ou criar
+  if (nomeEstab) {
+    const ids = Object.keys(data.estabelecimentos);
+    let found = null;
+    const nomeNorm = normalize(nomeEstab);
+    for (let id of ids) {
+      if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) {
+        found = id; break;
+      }
+    }
+    if (found) {
+      setEstabelecimentoAtivo(found);
+    } else {
+      // Cria o estabelecimento
+      const id = Date.now() + Math.random();
+      data.estabelecimentos[id] = { nome: nomeEstab, endereco: '', pix: '', produtos: [] };
+      data.estabelecimentoAtivoId = id;
+      save();
+      renderAll();
+      speak('Novo estabelecimento ' + nomeEstab + ' criado.');
+      showFeedback('🏢 ' + nomeEstab + ' criado');
+    }
+  }
+  
+  // Limpa pedido e abre nova conta
+  data.pedido = [];
+  save();
+  renderAll();
+  const estab = getEstabelecimentoAtivo();
+  speak('Nova conta aberta em ' + estab.nome);
+  showFeedback('✅ Nova conta aberta!');
+  showScreen('pedido');
 }
 
 // ========== FUNÇÕES DE RENDERIZAÇÃO ==========
@@ -1445,45 +1525,22 @@ function processVoice(raw) {
       }
       if (found) {
         setEstabelecimentoAtivo(found);
-        data.pedido = [];
-        save();
-        speak('Conta aberta em ' + data.estabelecimentos[found].nome);
-        showFeedback('✅ Conta aberta em ' + data.estabelecimentos[found].nome);
-        showScreen('pedido');
+        abrirNovaConta(null); // usa o ativo já selecionado
         return;
       } else {
         speak('Estabelecimento "' + nomeEstab + '" não encontrado. Criando novo...');
+        // Cria automaticamente
         const id = Date.now() + Math.random();
         data.estabelecimentos[id] = { nome: nomeEstab, endereco: '', pix: '', produtos: [] };
         data.estabelecimentoAtivoId = id;
-        data.pedido = [];
         save();
         renderAll();
-        speak('Novo estabelecimento ' + nomeEstab + ' criado e conta aberta.');
-        showFeedback('🏢 ' + nomeEstab + ' criado e conta aberta!');
-        showScreen('pedido');
+        abrirNovaConta(null);
         return;
       }
     } else {
-      // Apenas "abrir conta" - usa o ativo ou pede para selecionar
-      const estab = getEstabelecimentoAtivo();
-      if (!estab) {
-        speak('Nenhum estabelecimento ativo. Vou abrir a tela de estabelecimentos.');
-        showFeedback('🏢 Selecione um estabelecimento');
-        showScreen('estabelecimentos');
-        return;
-      }
-      if (data.pedido.length > 0) {
-        speak('Já existe uma conta aberta com itens.');
-        showFeedback('⚠️ Já existe uma conta aberta');
-        showScreen('conta');
-      } else {
-        data.pedido = [];
-        save();
-        speak('Nova conta aberta em ' + estab.nome);
-        showFeedback('✅ Nova conta aberta!');
-        showScreen('pedido');
-      }
+      // Apenas "abrir conta"
+      abrirNovaConta(null);
       return;
     }
   }
@@ -1784,7 +1841,6 @@ if (dropArea) {
 // Verifica se o usuário tem cadastro. Se não, direciona para a tela de usuário.
 function verificarUsuario() {
   if (!data.usuario) {
-    // Mostra a tela de usuário e alerta
     showScreen('usuario');
     alert('👤 Antes de começar, faça seu cadastro de usuário.');
   }
