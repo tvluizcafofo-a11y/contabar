@@ -7,6 +7,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
 </script>
 <style>
+/* ===== ESTILOS GERAIS ===== */
 :root{
   --bg:#10131a;--panel:#191e28;--panel2:#222938;--text:#f4f7fb;--muted:#aeb8c8;
   --accent:#39c97a;--accent2:#2da967;--danger:#ef5d67;--border:#30394a;
@@ -75,6 +76,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   flex:1;
   min-width:150px;
 }
+/* ===== MODAL DE FEEDBACK ===== */
 .feedback-modal {
   position: fixed;
   top: 20px;
@@ -116,9 +118,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   font-weight: bold;
   opacity: 0.7;
 }
-.feedback-modal .close-btn:hover {
-  opacity: 1;
-}
+.feedback-modal .close-btn:hover { opacity: 1; }
 .feedback-modal .dismiss-check {
   margin-top: 10px;
   font-size: 13px;
@@ -130,21 +130,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
   cursor: pointer;
 }
 .feedback-modal .dismiss-check input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: #092114;
-  cursor: pointer;
+  width: 18px; height: 18px; margin: 0; accent-color: #092114; cursor: pointer;
 }
-.feedback-modal .dismiss-check label {
-  cursor: pointer;
-  color: #092114;
-  opacity: 0.8;
-}
-.feedback-modal .dismiss-check label:hover {
-  opacity: 1;
-}
-/* Modal de pagamento */
+.feedback-modal .dismiss-check label { cursor: pointer; color: #092114; opacity: 0.8; }
+.feedback-modal .dismiss-check label:hover { opacity: 1; }
+
+/* ===== MODAL DE PAGAMENTO ===== */
 .payment-modal {
   display: none;
   position: fixed;
@@ -154,9 +145,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   justify-content: center;
   align-items: center;
 }
-.payment-modal.active {
-  display: flex;
-}
+.payment-modal.active { display: flex; }
 .payment-content {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -195,24 +184,36 @@ footer{text-align:center;color:var(--muted);padding:25px}
   color: var(--text);
   border: 1px solid var(--border);
 }
-.payment-options button:hover {
-  background: var(--accent);
-  color: #092114;
-}
-#qrcode {
+.payment-options button:hover { background: var(--accent); color: #092114; }
+
+/* QR Code com moldura */
+#qrcode-container {
   display: flex;
   justify-content: center;
   margin: 15px 0;
   padding: 10px;
   background: white;
-  border-radius: 8px;
-  min-height: 220px;
+  border-radius: 12px;
+  border: 4px solid var(--accent);
+  box-shadow: 0 0 20px rgba(57, 201, 122, 0.3);
+}
+#qrcode {
+  display: flex;
+  justify-content: center;
   align-items: center;
+  min-height: 210px;
+  min-width: 210px;
 }
 #qrcode canvas, #qrcode img {
   display: block !important;
   margin: 0 auto;
+  max-width: 100%;
+  height: auto;
 }
+
+/* ===== ITENS DO HISTÓRICO ===== */
+.historico-item .actions .btn-excluir { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 4px 12px; border-radius: 6px; cursor: pointer; }
+.historico-item .actions .btn-excluir:hover { background: var(--danger); color: white; }
 </style>
 </head>
 <body>
@@ -250,6 +251,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button data-screen="dados">💾 Dados</button>
 </nav>
 
+<!-- ===== INÍCIO ===== -->
 <section id="inicio" class="screen active">
 <div class="grid">
 <div class="card">
@@ -277,6 +279,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
+<!-- ===== ESTABELECIMENTOS ===== -->
 <section id="estabelecimentos" class="screen">
 <div class="card">
 <h2>🏢 Gerenciar Estabelecimentos</h2>
@@ -299,6 +302,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
+<!-- ===== CARDÁPIO ===== -->
 <section id="cardapio" class="screen">
 <div class="grid">
 <div class="card">
@@ -316,6 +320,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
+<!-- ===== PEDIDO ===== -->
 <section id="pedido" class="screen">
 <div class="grid">
 <div class="card">
@@ -336,6 +341,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
+<!-- ===== CONTA ===== -->
 <section id="conta" class="screen">
 <div class="grid">
 <div class="card">
@@ -363,14 +369,16 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
+<!-- ===== HISTÓRICO ===== -->
 <section id="historico" class="screen">
 <div class="card">
 <h2>📜 Histórico de Contas</h2>
 <div id="listaHistorico"></div>
-<button class="danger" style="margin-top:15px" onclick="clearHistorico()">🗑 Limpar histórico</button>
+<button class="danger" style="margin-top:15px" onclick="limparHistorico()">🗑 Limpar histórico</button>
 </div>
 </section>
 
+<!-- ===== USUÁRIO ===== -->
 <section id="usuario" class="screen">
 <div class="card">
 <h2>👤 Meu Cadastro</h2>
@@ -393,25 +401,23 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
+<!-- ===== COMANDOS ===== -->
 <section id="comandos" class="screen">
 <div class="card">
 <h2>🎯 Lista Completa de Comandos de Voz</h2>
 <p class="note">Todos os comandos disponíveis para controle por voz do sistema.</p>
 <hr style="border-color:var(--border);margin:15px 0">
-
 <h3>🏢 Estabelecimentos</h3>
 <ul class="command-list">
   <li><span class="cmd">"Selecionar [nome]"</span><br><span class="desc">Ex: "selecionar Bar do Zé"</span></li>
   <li><span class="cmd">"Incluir estabelecimento [nome]"</span><br><span class="desc">Ex: "incluir estabelecimento Bar do Zé"</span></li>
   <li><span class="cmd">"Ver cardápio"</span><br><span class="desc">Exibe o mini cardápio do estabelecimento ativo</span></li>
 </ul>
-
 <h3>🍺 Produtos</h3>
 <ul class="command-list">
   <li><span class="cmd">"Incluir produtos [nome] [valor]"</span><br><span class="desc">Ex: "incluir produtos cerveja 10 reais"</span></li>
   <li><span class="cmd">"Incluir produtos [nome]"</span><br><span class="desc">Abre o cadastro com o nome preenchido</span></li>
 </ul>
-
 <h3>🛒 Pedidos</h3>
 <ul class="command-list">
   <li><span class="cmd">"Fazer pedido de [qtd] [produto]"</span><br><span class="desc">Ex: "fazer pedido de 2 cervejas"</span></li>
@@ -420,7 +426,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <li><span class="cmd">"Mais uma [produto]"</span><br><span class="desc">Adiciona 1 unidade</span></li>
   <li><span class="cmd">"Mais um [produto]"</span><br><span class="desc">Adiciona 1 unidade</span></li>
 </ul>
-
 <h3>💰 Conta</h3>
 <ul class="command-list">
   <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Nova conta no estabelecimento ativo (pergunta se quer fechar a atual)</span></li>
@@ -429,56 +434,46 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <li><span class="cmd">"Mostrar conta"</span><br><span class="desc">Abre a tela da conta</span></li>
   <li><span class="cmd">"Fechar conta"</span><br><span class="desc">Finaliza a conta</span></li>
 </ul>
-
 <h3>📜 Histórico</h3>
 <ul class="command-list">
   <li><span class="cmd">"Ver histórico"</span><br><span class="desc">Mostra o histórico de contas</span></li>
   <li><span class="cmd">"Limpar histórico"</span><br><span class="desc">Remove todo o histórico</span></li>
 </ul>
-
 <h3>💾 Dados</h3>
 <ul class="command-list">
   <li><span class="cmd">"Exportar dados"</span><br><span class="desc">Exporta todos os dados para JSON</span></li>
   <li><span class="cmd">"Importar dados"</span><br><span class="desc">Abre a tela de importação</span></li>
   <li><span class="cmd">"Limpar dados"</span><br><span class="desc">Remove TODOS os dados</span></li>
 </ul>
-
 <h3>⚙️ Controle</h3>
 <ul class="command-list">
   <li><span class="cmd">"Desativar comando por voz"</span><br><span class="desc">Desliga o assistente</span></li>
   <li><span class="cmd">"Desligar app"</span><br><span class="desc">Fecha o aplicativo</span></li>
 </ul>
-
 <div style="margin-top:20px;padding:15px;background:rgba(57,201,122,0.1);border-radius:10px;border:1px solid var(--accent);">
-  <p style="margin:0;color:var(--text);">
-    💡 <b>Dica:</b> Números falados: "um", "dois", "três" ou "2", "3", "10".
-  </p>
+  <p style="margin:0;color:var(--text);">💡 <b>Dica:</b> Números falados: "um", "dois", "três" ou "2", "3", "10".</p>
 </div>
 </div>
 </section>
 
+<!-- ===== DADOS ===== -->
 <section id="dados" class="screen">
 <div class="card">
 <h2>💾 Importar / Exportar Dados</h2>
 <p class="note">Gerencie seus dados do aplicativo. Exporte para backup ou importe dados salvos.</p>
 <hr style="border-color:var(--border);margin:15px 0">
-
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
   <button onclick="exportarDados()" style="flex:1;">📤 Exportar Dados (JSON)</button>
   <button onclick="document.getElementById('fileInput').click()" style="flex:1;background:var(--panel2);color:var(--text);">📥 Importar Dados</button>
   <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="importarDados(event)">
 </div>
-
 <div class="import-area" id="dropArea">
   <p style="font-size:48px;margin:0;">📂</p>
   <p><b>Arraste e solte um arquivo JSON aqui</b></p>
   <p class="note">ou clique no botão "Importar Dados" acima</p>
 </div>
-
 <div id="importStatus" style="margin-top:15px;padding:10px;border-radius:8px;display:none;"></div>
-
 <hr style="border-color:var(--border);margin:20px 0">
-
 <h3>📊 Resumo dos Dados</h3>
 <div id="dadosResumo" class="note">
   <p>Estabelecimentos: <b id="resumoEstabs">0</b></p>
@@ -487,14 +482,13 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <p>Contas no histórico: <b id="resumoHistorico">0</b></p>
   <p>Conta aberta: <b id="resumoContaAtiva">Não</b></p>
 </div>
-
 <button class="danger" onclick="clearAllData()" style="margin-top:10px;">🗑 Limpar todos os dados</button>
 </div>
 </section>
 </div>
 <footer>🍺 Conta de Bar - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
 
-<!-- Modal de feedback -->
+<!-- ===== MODAL DE FEEDBACK ===== -->
 <div id="feedbackModal" class="feedback-modal">
   <button class="close-btn" onclick="fecharFeedback()">×</button>
   <div id="feedbackMessage">✅ Comando executado!</div>
@@ -504,14 +498,14 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<!-- Modal do mini cardápio -->
+<!-- ===== MODAL MINI CARDÁPIO ===== -->
 <div id="miniCardapioModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;z-index:10000;max-width:90%;max-height:80%;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.8);min-width:300px;">
   <h3 style="margin-top:0;">📋 Cardápio de <span id="modalCardapioNome"></span></h3>
   <div id="modalCardapioLista" style="margin:15px 0;"></div>
   <button onclick="fecharMiniCardapio()" style="width:100%;">Fechar</button>
 </div>
 
-<!-- Modal de pagamento -->
+<!-- ===== MODAL DE PAGAMENTO ===== -->
 <div id="paymentModal" class="payment-modal">
   <div class="payment-content">
     <h2>💳 Opções de Pagamento</h2>
@@ -525,7 +519,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <div id="pixDetalhes" style="display:none;margin-top:15px;border-top:1px solid var(--border);padding-top:15px;">
       <p><b>Chave PIX do estabelecimento:</b> <span id="pixChaveEstab"></span></p>
       <p><b>Valor:</b> <span id="pixValor"></span></p>
-      <div id="qrcode"></div>
+      <div id="qrcode-container">
+        <div id="qrcode"></div>
+      </div>
       <label>Código PIX copia e cola:</label>
       <div class="pix-code" id="pixCode"></div>
       <button onclick="copiarPix()">📋 Copiar código</button>
@@ -547,7 +543,6 @@ console.log('Ambiente:', isAndroidWebView ? 'Android WebView' : isChrome ? 'Chro
 // ========== VARIÁVEIS GLOBAIS ==========
 const KEY='contaBarVoz_v1';
 let data=JSON.parse(localStorage.getItem(KEY)||'{}');
-// Estrutura: estabelecimentos: { id: { nome, endereco, pix, produtos: [] } }
 data.estabelecimentos = data.estabelecimentos || {};
 data.estabelecimentoAtivoId = data.estabelecimentoAtivoId || null;
 data.pedido = data.pedido || [];
@@ -555,7 +550,7 @@ data.historico = data.historico || [];
 data.gorjetaConfig = data.gorjetaConfig || 0;
 data.voicePreference = data.voicePreference || 'default';
 data.usuario = data.usuario || null;
-data.contaAtiva = data.contaAtiva || false; // NOVO: flag para indicar se há conta aberta (mesmo vazia)
+data.contaAtiva = data.contaAtiva || false;
 let speechOn = data.speechOn !== false;
 let currentEditId = null;
 let currentEditEstabId = null;
@@ -576,12 +571,11 @@ function save() {
 function money(v) {
   return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
-
 function normalize(s) {
   return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-// ========== FUNÇÃO PARA CAPITALIZAR NOMES ==========
+// ========== CAPITALIZAR NOMES ==========
 function capitalizarNome(nome) {
   if (!nome) return '';
   return nome.split(' ').map(palavra => {
@@ -591,10 +585,6 @@ function capitalizarNome(nome) {
 }
 
 // ========== FUNÇÕES DE USUÁRIO ==========
-function getUsuario() {
-  return data.usuario;
-}
-
 function salvarUsuario() {
   const nome = $('userNome').value.trim();
   const email = $('userEmail').value.trim();
@@ -610,7 +600,6 @@ function salvarUsuario() {
   speak('Dados do usuário salvos');
   showFeedback('👤 Dados salvos');
 }
-
 function excluirUsuario() {
   if (confirm('Tem certeza que deseja excluir seu cadastro? Esta ação não pode ser desfeita.')) {
     data.usuario = null;
@@ -620,7 +609,6 @@ function excluirUsuario() {
     showFeedback('🗑️ Cadastro removido');
   }
 }
-
 function carregarUsuario() {
   const u = data.usuario;
   if (u) {
@@ -634,24 +622,20 @@ function carregarUsuario() {
   }
 }
 
-// ========== FUNÇÕES DE ESTABELECIMENTO ==========
+// ========== ESTABELECIMENTOS ==========
 function getEstabelecimentoAtivo() {
   if (!data.estabelecimentoAtivoId) return null;
   return data.estabelecimentos[data.estabelecimentoAtivoId] || null;
 }
-
 function getProdutosAtivos() {
   const estab = getEstabelecimentoAtivo();
   return estab ? estab.produtos || [] : [];
 }
-
 function setEstabelecimentoAtivo(id) {
   if (id && data.estabelecimentos[id]) {
     data.estabelecimentoAtivoId = id;
-    // Ao trocar de estabelecimento, se houver conta aberta, perguntar se quer fechar
     if (data.contaAtiva) {
       if (confirm('Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?')) {
-        // Fecha a conta atual
         callbackAposFechar = function() {
           data.pedido = [];
           data.contaAtiva = false;
@@ -662,9 +646,7 @@ function setEstabelecimentoAtivo(id) {
         showScreen('conta');
         setTimeout(confirmarFechamento, 300);
         return;
-      } else {
-        return; // cancela a troca
-      }
+      } else { return; }
     }
     data.pedido = [];
     data.contaAtiva = false;
@@ -682,7 +664,6 @@ function setEstabelecimentoAtivo(id) {
     speak('Nenhum estabelecimento selecionado');
   }
 }
-
 function editarEstabelecimento(id) {
   const e = data.estabelecimentos[id];
   if (!e) return;
@@ -694,13 +675,11 @@ function editarEstabelecimento(id) {
   showScreen('estabelecimentos');
   showFeedback('✏️ Editando: ' + e.nome);
 }
-
 function salvarEstabelecimento() {
   const nome = capitalizarNome($('barNome').value.trim());
   const endereco = $('barEndereco').value.trim();
   const pix = $('barPix').value.trim();
   if (!nome) { alert('Informe o nome do estabelecimento.'); return; }
-
   if (currentEditEstabId) {
     data.estabelecimentos[currentEditEstabId].nome = nome;
     data.estabelecimentos[currentEditEstabId].endereco = endereco;
@@ -711,15 +690,8 @@ function salvarEstabelecimento() {
     showFeedback('✅ Estabelecimento atualizado');
   } else {
     const id = Date.now() + Math.random();
-    data.estabelecimentos[id] = {
-      nome: nome,
-      endereco: endereco || '',
-      pix: pix || '',
-      produtos: []
-    };
-    if (!data.estabelecimentoAtivoId) {
-      data.estabelecimentoAtivoId = id;
-    }
+    data.estabelecimentos[id] = { nome, endereco: endereco || '', pix: pix || '', produtos: [] };
+    if (!data.estabelecimentoAtivoId) data.estabelecimentoAtivoId = id;
     speak('Estabelecimento ' + nome + ' adicionado');
     showFeedback('🏢 ' + nome + ' adicionado!');
   }
@@ -729,7 +701,6 @@ function salvarEstabelecimento() {
   save();
   renderAll();
 }
-
 function excluirEstabelecimento(id) {
   if (!confirm('Excluir este estabelecimento e todos os seus produtos?')) return;
   if (data.contaAtiva) {
@@ -754,27 +725,19 @@ function excluirEstabelecimento(id) {
   speak('Estabelecimento ' + nome + ' excluído');
   showFeedback('🗑️ ' + nome + ' removido');
 }
-
 function trocarEstabelecimentoAtivo() {
   const select = $('estabAtivoSelect');
   const id = select.value;
-  if (id === '') {
-    data.estabelecimentoAtivoId = null;
-  } else {
-    data.estabelecimentoAtivoId = id;
-  }
+  if (id === '') data.estabelecimentoAtivoId = null;
+  else data.estabelecimentoAtivoId = id;
   data.pedido = [];
   data.contaAtiva = false;
   save();
   renderAll();
 }
-
 function mostrarMiniCardapio() {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) {
-    alert('Nenhum estabelecimento ativo. Selecione ou crie um.');
-    return;
-  }
+  if (!estab) { alert('Nenhum estabelecimento ativo.'); return; }
   const modal = document.getElementById('miniCardapioModal');
   document.getElementById('modalCardapioNome').textContent = estab.nome;
   const lista = document.getElementById('modalCardapioLista');
@@ -787,26 +750,17 @@ function mostrarMiniCardapio() {
   }
   modal.style.display = 'block';
 }
-
 function fecharMiniCardapio() {
   document.getElementById('miniCardapioModal').style.display = 'none';
 }
 
-// ========== FUNÇÕES DE PRODUTOS ==========
+// ========== PRODUTOS ==========
 function addProduto(nome, preco) {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) {
-    alert('Nenhum estabelecimento ativo. Selecione ou crie um primeiro.');
-    return;
-  }
-  nome = nome || $('produtoNome').value.trim();
-  // Capitalizar nome do produto
-  nome = capitalizarNome(nome);
+  if (!estab) { alert('Nenhum estabelecimento ativo.'); return; }
+  nome = capitalizarNome(nome || $('produtoNome').value.trim());
   preco = preco ?? Number($('produtoPreco').value);
-  if (!nome || isNaN(preco) || preco <= 0) {
-    alert('Informe nome e preço válido.');
-    return;
-  }
+  if (!nome || isNaN(preco) || preco <= 0) { alert('Informe nome e preço válido.'); return; }
   if (currentEditId !== null) {
     const index = estab.produtos.findIndex(p => p.id === currentEditId);
     if (index !== -1) {
@@ -828,7 +782,6 @@ function addProduto(nome, preco) {
   save();
   renderAll();
 }
-
 function editProduto(id) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
@@ -843,7 +796,6 @@ function editProduto(id) {
   $('produtoNome').focus();
   showFeedback('✏️ Editando: ' + p.nome);
 }
-
 function deleteProduto(id) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
@@ -861,58 +813,37 @@ function deleteProduto(id) {
   }
 }
 
-// ========== FUNÇÕES DE PEDIDO ==========
+// ========== PEDIDO ==========
 function addPedido(produtoId, qtd) {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) {
-    alert('Nenhum estabelecimento ativo.');
-    return;
-  }
-  if (!data.contaAtiva) {
-    alert('Não há conta aberta. Abra uma conta primeiro.');
-    return;
-  }
+  if (!estab) { alert('Nenhum estabelecimento ativo.'); return; }
+  if (!data.contaAtiva) { alert('Não há conta aberta. Abra uma conta primeiro.'); return; }
   produtoId = produtoId ?? Number($('pedidoProduto').value);
   qtd = qtd ?? Number($('pedidoQtd').value);
   const p = estab.produtos.find(x => x.id == produtoId);
-  if (!p) {
-    alert('Produto não encontrado no cardápio atual.');
-    return;
-  }
+  if (!p) { alert('Produto não encontrado no cardápio atual.'); return; }
   qtd = Math.max(1, Number(qtd) || 1);
   let item = data.pedido.find(x => x.produtoId == p.id && x.estabId === data.estabelecimentoAtivoId);
-  if (item) {
-    item.qtd += qtd;
-  } else {
-    data.pedido.push({
-      produtoId: p.id,
-      estabId: data.estabelecimentoAtivoId,
-      nome: p.nome,
-      preco: p.preco,
-      qtd: qtd
-    });
-  }
+  if (item) item.qtd += qtd;
+  else data.pedido.push({ produtoId: p.id, estabId: data.estabelecimentoAtivoId, nome: p.nome, preco: p.preco, qtd });
   save();
   renderAll();
   const msg = qtd + 'x ' + p.nome + ' adicionado ao pedido';
   speak(msg);
   showFeedback('🛒 ' + msg);
 }
-
 function removePedido(i) {
   const item = data.pedido[i];
   data.pedido.splice(i, 1);
   save();
   renderAll();
   if (item) showFeedback('🗑️ Removido: ' + item.nome);
-  // Se o pedido ficou vazio, ainda mantém a conta ativa
 }
-
 function subtotal() {
   return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0);
 }
 
-// ========== FUNÇÕES DE CONTA E PAGAMENTO (com QR Code) ==========
+// ========== CONTA E PAGAMENTO ==========
 function confirmarFechamento() {
   if (!data.contaAtiva) {
     speak('Não há conta aberta para fechar.');
@@ -921,34 +852,22 @@ function confirmarFechamento() {
     return;
   }
   if (!data.pedido.length) {
-    // Se não há itens, ainda assim pode fechar? Vamos permitir fechar sem itens (conta vazia)
     if (confirm('A conta está vazia (sem itens). Deseja fechá-la mesmo assim?')) {
-      // Fecha conta vazia
       fecharContaVazia();
       return;
-    } else {
-      return;
-    }
+    } else { return; }
   }
   const estab = getEstabelecimentoAtivo();
-  if (!estab) {
-    alert('Nenhum estabelecimento ativo.');
-    return;
-  }
+  if (!estab) { alert('Nenhum estabelecimento ativo.'); return; }
   const sub = subtotal();
   const perc = Number($('gorjeta').value || 0);
   const gor = sub * perc / 100;
   const total = sub + gor;
   contaFechada = {
-    estab: estab,
-    sub: sub,
-    gor: gor,
-    perc: perc,
-    total: total,
+    estab, sub, gor, perc, total,
     itens: JSON.parse(JSON.stringify(data.pedido)),
     cliente: data.cliente?.nome || 'Não informado'
   };
-  // Mostra modal de pagamento
   const modal = document.getElementById('paymentModal');
   document.getElementById('paymentResumo').innerHTML = `
     <p><b>Estabelecimento:</b> ${estab.nome}</p>
@@ -960,20 +879,14 @@ function confirmarFechamento() {
   modal.classList.add('active');
   pagamentoConfirmado = false;
 }
-
 function fecharContaVazia() {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
   const conta = {
-    id: Date.now(),
-    data: new Date().toLocaleString('pt-BR'),
+    id: Date.now(), data: new Date().toLocaleString('pt-BR'),
     estabelecimento: estab.nome,
     cliente: data.cliente?.nome || 'Não informado',
-    itens: [],
-    subtotal: 0,
-    gorjeta: 0,
-    percentual: 0,
-    total: 0
+    itens: [], subtotal: 0, gorjeta: 0, percentual: 0, total: 0
   };
   data.historico.unshift(conta);
   data.pedido = [];
@@ -984,33 +897,20 @@ function fecharContaVazia() {
   showFeedback('🧾 Conta fechada (sem itens)');
   alert('Conta fechada com sucesso! (sem itens)');
 }
-
 function fecharPaymentModal() {
   document.getElementById('paymentModal').classList.remove('active');
   const container = document.getElementById('qrcode');
-  // Limpeza completa do container
-  while (container.firstChild) {
-    container.removeChild(container.firstChild);
-  }
-  if (qrCodeInstance) {
-    qrCodeInstance = null;
-  }
-  if (callbackAposFechar) {
-    callbackAposFechar = null;
-  }
+  while (container.firstChild) container.removeChild(container.firstChild);
+  if (qrCodeInstance) qrCodeInstance = null;
+  if (callbackAposFechar) { callbackAposFechar = null; }
   contaFechada = null;
 }
-
 function pagarPix() {
   const modal = document.getElementById('pixDetalhes');
   const estab = contaFechada.estab;
-  if (!estab.pix) {
-    alert('Este estabelecimento não possui chave PIX cadastrada.');
-    return;
-  }
+  if (!estab.pix) { alert('Este estabelecimento não possui chave PIX cadastrada.'); return; }
   document.getElementById('pixChaveEstab').textContent = estab.pix;
   document.getElementById('pixValor').textContent = money(contaFechada.total);
-  // Gera código PIX com CRC16 (função mais robusta do app PIX Recebimentos)
   const codigo = gerarPayloadPIX(estab, contaFechada.total);
   document.getElementById('pixCode').textContent = codigo;
   gerarQRCode(codigo);
@@ -1019,32 +919,33 @@ function pagarPix() {
   const btnBanco = document.getElementById('btnAbrirBanco');
   if (user && user.bancoLink) {
     btnBanco.style.display = 'inline-block';
+    // Copia automaticamente e abre o banco
+    copiarPixSilencioso(codigo);
+    setTimeout(() => {
+      abrirBanco();
+    }, 600);
   } else {
     btnBanco.style.display = 'none';
+    // Copia automaticamente mesmo sem banco
+    copiarPixSilencioso(codigo);
   }
 }
-
-// ====== FUNÇÕES DE GERAÇÃO DE PIX (copiadas do app PIX Recebimentos) ======
-function campo(id, tamanho, valor) {
-  const s = String(valor);
-  return id + String(s.length).padStart(2, '0') + s;
-}
-
-function crc16(str) {
-  let crc = 0xFFFF;
-  for (let i = 0; i < str.length; i++) {
-    crc ^= str.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) {
-      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
-    }
+function copiarPixSilencioso(texto) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texto).then(() => {
+      showFeedback('📋 Código PIX copiado automaticamente!');
+    }).catch(() => {});
+  } else {
+    // fallback silencioso
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    ta.remove();
+    showFeedback('📋 Código PIX copiado automaticamente!');
   }
-  return crc.toString(16).toUpperCase().padStart(4, '0');
 }
-
-function limparTexto(s, max) {
-  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9 .\\-]/g,'').toUpperCase().trim().slice(0,max);
-}
-
 function gerarPayloadPIX(estab, valor) {
   const nome = limparTexto(estab.nome, 25);
   const cidade = limparTexto(estab.endereco || 'BRASILIA', 15);
@@ -1073,16 +974,27 @@ function gerarPayloadPIX(estab, valor) {
   const semCRC = payload + '6304';
   return semCRC + crc16(semCRC);
 }
-
+function campo(id, tamanho, valor) {
+  const s = String(valor);
+  return id + String(s.length).padStart(2, '0') + s;
+}
+function crc16(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+function limparTexto(s, max) {
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9 .\\-]/g,'').toUpperCase().trim().slice(0,max);
+}
 function gerarQRCode(texto) {
   const container = document.getElementById('qrcode');
-  // Limpeza completa
-  while (container.firstChild) {
-    container.removeChild(container.firstChild);
-  }
-  if (qrCodeInstance) {
-    qrCodeInstance = null;
-  }
+  while (container.firstChild) container.removeChild(container.firstChild);
+  if (qrCodeInstance) qrCodeInstance = null;
   if (typeof QRCode !== 'undefined' && QRCode) {
     try {
       qrCodeInstance = new QRCode(container, {
@@ -1094,11 +1006,7 @@ function gerarQRCode(texto) {
         correctLevel: QRCode.CorrectLevel.H
       });
       const canvas = container.querySelector('canvas');
-      if (canvas) {
-        canvas.style.display = 'block';
-        canvas.style.margin = '0 auto';
-      }
-      // Remove qualquer elemento img duplicado que possa ter sido adicionado
+      if (canvas) { canvas.style.display = 'block'; canvas.style.margin = '0 auto'; }
       const imgs = container.querySelectorAll('img');
       imgs.forEach(img => img.remove());
     } catch (e) {
@@ -1109,40 +1017,26 @@ function gerarQRCode(texto) {
     container.innerHTML = '<p class="note">Biblioteca QR Code não carregada.</p>';
   }
 }
-
 function copiarPix() {
   const code = document.getElementById('pixCode').textContent;
+  if (!code) return;
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(code).then(() => {
       showFeedback('📋 Código PIX copiado!');
-    }).catch(() => {
-      copiarPixFallback(code);
-    });
-  } else {
-    copiarPixFallback(code);
-  }
+    }).catch(() => { copiarPixFallback(code); });
+  } else { copiarPixFallback(code); }
 }
-
 function copiarPixFallback(code) {
-  const textarea = document.createElement('textarea');
-  textarea.value = code;
-  document.body.appendChild(textarea);
-  textarea.select();
-  try {
-    document.execCommand('copy');
-    showFeedback('📋 Código PIX copiado!');
-  } catch (e) {
-    alert('Copie manualmente o código abaixo:\n\n' + code);
-  }
-  document.body.removeChild(textarea);
+  const ta = document.createElement('textarea');
+  ta.value = code;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); showFeedback('📋 Código PIX copiado!'); } catch(e) { alert('Copie manualmente:\n\n' + code); }
+  ta.remove();
 }
-
 function abrirBanco() {
   const user = data.usuario;
-  if (!user || !user.bancoLink) {
-    alert('Link do banco não cadastrado.');
-    return;
-  }
+  if (!user || !user.bancoLink) { alert('Link do banco não cadastrado.'); return; }
   const link = user.bancoLink;
   try {
     if (isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.abrirLink) {
@@ -1154,12 +1048,10 @@ function abrirBanco() {
     alert('Não foi possível abrir o app do banco. Verifique o link cadastrado.');
   }
 }
-
 function finalizarPagamento() {
   if (!contaFechada) return;
   const conta = {
-    id: Date.now(),
-    data: new Date().toLocaleString('pt-BR'),
+    id: Date.now(), data: new Date().toLocaleString('pt-BR'),
     estabelecimento: contaFechada.estab.nome,
     cliente: contaFechada.cliente,
     itens: contaFechada.itens,
@@ -1180,20 +1072,14 @@ function finalizarPagamento() {
   fecharPaymentModal();
   contaFechada = null;
   pagamentoConfirmado = true;
-  if (callbackAposFechar) {
-    const cb = callbackAposFechar;
-    callbackAposFechar = null;
-    cb();
-  }
+  if (callbackAposFechar) { const cb = callbackAposFechar; callbackAposFechar = null; cb(); }
 }
-
 function pagarDinheiro() {
   if (!contaFechada) return;
   if (confirm(`Confirmar pagamento em DINHEIRO no valor de ${money(contaFechada.total)}?`)) {
     finalizarPagamento();
   }
 }
-
 function pagarCartao() {
   if (!contaFechada) return;
   if (confirm(`Confirmar pagamento em CARTÃO no valor de ${money(contaFechada.total)}?`)) {
@@ -1201,13 +1087,11 @@ function pagarCartao() {
   }
 }
 
-// ========== FUNÇÕES DE ABERTURA DE CONTA ==========
+// ========== ABRIR CONTA ==========
 function abrirContaManual() {
   if (data.contaAtiva) {
     if (confirm('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?')) {
-      callbackAposFechar = function() {
-        abrirNovaConta(null);
-      };
+      callbackAposFechar = function() { abrirNovaConta(null); };
       showScreen('conta');
       setTimeout(confirmarFechamento, 300);
     }
@@ -1215,22 +1099,15 @@ function abrirContaManual() {
     abrirNovaConta(null);
   }
 }
-
 function abrirNovaConta(nomeEstab) {
   if (data.contaAtiva) {
-    const msg = 'Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?';
-    if (confirm(msg)) {
-      callbackAposFechar = function() {
-        abrirNovaConta(nomeEstab);
-      };
+    if (confirm('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?')) {
+      callbackAposFechar = function() { abrirNovaConta(nomeEstab); };
       showScreen('conta');
       setTimeout(confirmarFechamento, 300);
       return;
-    } else {
-      return;
-    }
+    } else { return; }
   }
-  
   const estabAtivo = getEstabelecimentoAtivo();
   if (!estabAtivo) {
     speak('Nenhum estabelecimento ativo. Vou abrir a tela de estabelecimentos.');
@@ -1238,19 +1115,15 @@ function abrirNovaConta(nomeEstab) {
     showScreen('estabelecimentos');
     return;
   }
-  
   if (nomeEstab) {
     const ids = Object.keys(data.estabelecimentos);
     let found = null;
     const nomeNorm = normalize(nomeEstab);
     for (let id of ids) {
-      if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) {
-        found = id; break;
-      }
+      if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) { found = id; break; }
     }
-    if (found) {
-      setEstabelecimentoAtivo(found);
-    } else {
+    if (found) setEstabelecimentoAtivo(found);
+    else {
       const id = Date.now() + Math.random();
       data.estabelecimentos[id] = { nome: capitalizarNome(nomeEstab), endereco: '', pix: '', produtos: [] };
       data.estabelecimentoAtivoId = id;
@@ -1260,7 +1133,6 @@ function abrirNovaConta(nomeEstab) {
       showFeedback('🏢 ' + nomeEstab + ' criado');
     }
   }
-  
   data.pedido = [];
   data.contaAtiva = true;
   save();
@@ -1271,25 +1143,43 @@ function abrirNovaConta(nomeEstab) {
   showScreen('pedido');
 }
 
-// ========== FUNÇÕES DE RENDERIZAÇÃO ==========
+// ========== EXCLUIR ITEM DO HISTÓRICO ==========
+function excluirContaHistorico(id) {
+  if (!confirm('Tem certeza que deseja excluir esta conta do histórico?')) return;
+  data.historico = data.historico.filter(item => item.id !== id);
+  save();
+  renderHistorico();
+  atualizarResumoDados();
+  speak('Conta removida do histórico');
+  showFeedback('🗑️ Conta removida');
+}
+
+// ========== LIMPAR HISTÓRICO (antigo clearHistorico) ==========
+function limparHistorico() {
+  if (confirm('Limpar todo o histórico?')) {
+    data.historico = [];
+    save();
+    renderHistorico();
+    atualizarResumoDados();
+    showFeedback('🗑️ Histórico limpo');
+  }
+}
+
+// ========== RENDERIZAÇÃO ==========
 function renderEstabelecimentos() {
   const select = $('estabAtivoSelect');
   const currentId = data.estabelecimentoAtivoId;
   select.innerHTML = '<option value="">Nenhum</option>';
-  const ids = Object.keys(data.estabelecimentos);
-  ids.forEach(id => {
+  Object.keys(data.estabelecimentos).forEach(id => {
     const opt = document.createElement('option');
     opt.value = id;
     opt.textContent = data.estabelecimentos[id].nome;
     if (id === currentId) opt.selected = true;
     select.appendChild(opt);
   });
-
   const lista = document.getElementById('listaEstabelecimentos');
-  if (ids.length === 0) {
-    lista.innerHTML = '<div class="empty">Nenhum estabelecimento cadastrado.</div>';
-    return;
-  }
+  const ids = Object.keys(data.estabelecimentos);
+  if (ids.length === 0) { lista.innerHTML = '<div class="empty">Nenhum estabelecimento cadastrado.</div>'; return; }
   lista.innerHTML = ids.map(id => {
     const e = data.estabelecimentos[id];
     const ativo = (id === currentId) ? '⭐ ' : '';
@@ -1301,7 +1191,6 @@ function renderEstabelecimentos() {
       </div></div>`;
   }).join('');
 }
-
 function renderCardapio() {
   const estab = getEstabelecimentoAtivo();
   const nomeSpan = document.getElementById('cardapioEstabNome');
@@ -1314,32 +1203,21 @@ function renderCardapio() {
   }
   nomeSpan.textContent = estab.nome;
   const prods = estab.produtos || [];
-  if (prods.length === 0) {
-    mini.innerHTML = '<div class="note">Nenhum produto no cardápio.</div>';
-  } else {
-    mini.innerHTML = prods.map(p =>
-      `<div class="menu-mini-item"><span>${p.nome}</span><span>${money(p.preco)}</span></div>`
-    ).join('');
-  }
+  mini.innerHTML = prods.length ? prods.map(p =>
+    `<div class="menu-mini-item"><span>${p.nome}</span><span>${money(p.preco)}</span></div>`
+  ).join('') : '<div class="note">Nenhum produto no cardápio.</div>';
   const lista = document.getElementById('listaProdutos');
-  if (prods.length === 0) {
-    lista.innerHTML = '<div class="empty">Nenhum produto cadastrado.</div>';
-  } else {
-    lista.innerHTML = prods.map(p =>
-      `<div class="list-item"><span>${p.nome}<br><b>${money(p.preco)}</b></span>
-      <div class="actions">
-        <button class="secondary small" onclick="editProduto(${p.id})">✏️</button>
-        <button class="danger small" onclick="deleteProduto(${p.id})">🗑</button>
-      </div></div>`
-    ).join('');
-  }
+  lista.innerHTML = prods.length ? prods.map(p =>
+    `<div class="list-item"><span>${p.nome}<br><b>${money(p.preco)}</b></span>
+    <div class="actions">
+      <button class="secondary small" onclick="editProduto(${p.id})">✏️</button>
+      <button class="danger small" onclick="deleteProduto(${p.id})">🗑</button>
+    </div></div>`
+  ).join('') : '<div class="empty">Nenhum produto cadastrado.</div>';
   const pedSelect = document.getElementById('pedidoProduto');
-  pedSelect.innerHTML = prods.map(p =>
-    `<option value="${p.id}">${p.nome} — ${money(p.preco)}</option>`
-  ).join('');
-  if (prods.length === 0) pedSelect.innerHTML = '<option value="">Nenhum produto</option>';
+  pedSelect.innerHTML = prods.map(p => `<option value="${p.id}">${p.nome} — ${money(p.preco)}</option>`).join('');
+  if (!prods.length) pedSelect.innerHTML = '<option value="">Nenhum produto</option>';
 }
-
 function renderPedido() {
   const estab = getEstabelecimentoAtivo();
   document.getElementById('pedidoEstabNome').textContent = estab ? estab.nome : 'Nenhum';
@@ -1361,10 +1239,8 @@ function renderPedido() {
   const totalItems = data.pedido.reduce((s, x) => s + x.qtd, 0);
   document.getElementById('homeItems').textContent = totalItems ? totalItems + ' item(ns) no pedido.' : 'Nenhum item no pedido.';
   document.getElementById('homeEstabAtivo').textContent = estab ? estab.nome : 'Nenhum';
-  const homeStatus = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
-  document.getElementById('homeStatusConta').textContent = homeStatus;
+  document.getElementById('homeStatusConta').textContent = statusText;
 }
-
 function renderConta() {
   const estab = getEstabelecimentoAtivo();
   document.getElementById('contaEstabNome').textContent = estab ? estab.nome : 'Nenhum';
@@ -1390,7 +1266,6 @@ function renderConta() {
     `<b>${e.nome}</b><br>${e.endereco || ''}<br><br><b>Chave PIX:</b><br>${e.pix || 'Não informada'}` :
     'Selecione um estabelecimento para ver os dados PIX.';
 }
-
 function renderHistorico() {
   const lista = document.getElementById('listaHistorico');
   if (data.historico.length === 0) {
@@ -1398,10 +1273,21 @@ function renderHistorico() {
     return;
   }
   lista.innerHTML = data.historico.map(h =>
-    `<div class="card" style="margin-bottom:12px"><b>${h.data}</b><br><span class="note">Estabelecimento: ${h.estabelecimento} | Cliente: ${h.cliente}</span><br>${h.itens.map(x => `${x.qtd}× ${x.nome}`).join(', ')}<br><b>Total: ${money(h.total)}</b></div>`
+    `<div class="card historico-item" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;">
+        <div>
+          <b>${h.data}</b><br>
+          <span class="note">Estabelecimento: ${h.estabelecimento} | Cliente: ${h.cliente}</span><br>
+          ${h.itens.map(x => `${x.qtd}× ${x.nome}`).join(', ')}<br>
+          <b>Total: ${money(h.total)}</b>
+        </div>
+        <div class="actions">
+          <button class="btn-excluir" onclick="excluirContaHistorico(${h.id})">🗑 Excluir</button>
+        </div>
+      </div>
+    </div>`
   ).join('');
 }
-
 function renderAll() {
   renderEstabelecimentos();
   renderCardapio();
@@ -1411,8 +1297,7 @@ function renderAll() {
   carregarUsuario();
   const estabs = Object.keys(data.estabelecimentos).length;
   document.getElementById('resumoEstabs').textContent = estabs;
-  const prods = getProdutosAtivos().length;
-  document.getElementById('resumoProdutos').textContent = prods;
+  document.getElementById('resumoProdutos').textContent = getProdutosAtivos().length;
   document.getElementById('resumoPedido').textContent = data.pedido.reduce((s, x) => s + x.qtd, 0);
   document.getElementById('resumoHistorico').textContent = data.historico.length;
   document.getElementById('resumoContaAtiva').textContent = data.contaAtiva ? 'Sim' : 'Não';
@@ -1422,15 +1307,18 @@ function renderAll() {
     selectVoiceByPreference(pref);
   }
 }
+function atualizarResumoDados() {
+  // já é feito no renderAll
+}
 
-// ========== FUNÇÕES DE FEEDBACK E VOZ ==========
+// ========== FEEDBACK E VOZ ==========
 function showFeedback(mensagem) {
   if (feedbackDismissed) return;
   const modal = document.getElementById('feedbackModal');
   document.getElementById('feedbackMessage').textContent = mensagem;
   if (feedbackTimer) clearTimeout(feedbackTimer);
   modal.classList.add('show');
-  feedbackTimer = setTimeout(() => fecharFeedback(), 3000);
+  feedbackTimer = setTimeout(fecharFeedback, 3000);
 }
 function fecharFeedback() {
   document.getElementById('feedbackModal').classList.remove('show');
@@ -1546,10 +1434,7 @@ class VoiceRecognizer {
           document.getElementById('voiceStatus').textContent = '🚫 Microfone não autorizado.';
           this.updateUI(); return;
         }
-        if (e.error === 'no-speech') {
-          if (this.isActive && !this.permissionDenied) this.startListening();
-          return;
-        }
+        if (e.error === 'no-speech') { if (this.isActive && !this.permissionDenied) this.startListening(); return; }
         if (e.error !== 'aborted' && this.isActive && !this.permissionDenied) this.startListening();
       };
       this.recognition.onresult = (e) => {
@@ -1595,7 +1480,7 @@ if (isAndroidWebView) {
   window.processVoiceResult = function(text) { if (recognizer) recognizer.processNativeResult(text); };
 }
 
-// ========== PROCESSAMENTO DE COMANDOS DE VOZ ==========
+// ========== COMANDOS DE VOZ ==========
 function parseNumberWords(s) {
   const words = { um: 1, uma: 1, dois: 2, duas: 2, tres: 3, 'três': 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, dez: 10 };
   let m = s.match(/\b(\d+)\b/);
@@ -1603,7 +1488,6 @@ function parseNumberWords(s) {
   for (const [w, n] of Object.entries(words)) if (normalize(s).includes(normalize(w))) return n;
   return 1;
 }
-
 function findProdutoNoAtivo(text) {
   const prods = getProdutosAtivos();
   const t = normalize(text);
@@ -1615,32 +1499,27 @@ function findProdutoNoAtivo(text) {
   });
   return best;
 }
-
 function extractClienteNome(text) {
   let cleaned = text.replace(/incluir\s+cliente\s*/i, '').trim();
   if (cleaned.length > 0 && !cleaned.match(/^(produtos?|estabelecimento|bar|conta)/i)) return cleaned;
   return null;
 }
-
 function extractEstabelecimentoNome(text) {
   let cleaned = text.replace(/incluir\s+(estabelecimento|bar)\s*/i, '').trim();
   if (cleaned.length > 0 && !cleaned.match(/^(produtos?|cliente|conta)/i)) return cleaned;
   return null;
 }
-
 function extractSelecionarEstabelecimento(text) {
   let cleaned = text.replace(/selecionar\s+estabelecimento\s*/i, '').trim();
   if (!cleaned) cleaned = text.replace(/selecionar\s+bar\s*/i, '').trim();
   if (cleaned.length > 0) return cleaned;
   return null;
 }
-
 function extractAbrirConta(text) {
   let cleaned = text.replace(/abrir\s+conta\s*/i, '').trim();
   if (cleaned.length > 0 && !cleaned.match(/^(produtos?|cliente|estabelecimento|bar|pedido|conta)/i)) return cleaned;
   return null;
 }
-
 function extractProdutoNomeValor(text) {
   let cleaned = text.replace(/incluir\s+produtos?\s*/i, '').trim();
   let match = cleaned.match(/^(.+?)\s+(?:a|por|de|r\$|R\$)?\s*([\d,.]+)/i);
@@ -1651,12 +1530,10 @@ function extractProdutoNomeValor(text) {
   }
   return { nome: cleaned, valor: null };
 }
-
 function processVoice(raw) {
   document.getElementById('lastCommand').textContent = '🎤 Você disse: "' + raw + '"';
   const t = normalize(raw);
 
-  // ====== COMANDOS DE ESTABELECIMENTO ======
   if (t.includes('selecionar') && (t.includes('estabelecimento') || t.includes('bar'))) {
     let nome = extractSelecionarEstabelecimento(raw);
     if (nome) {
@@ -1664,32 +1541,21 @@ function processVoice(raw) {
       let found = null;
       const nomeNorm = normalize(nome);
       for (let id of ids) {
-        if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) {
-          found = id; break;
-        }
+        if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) { found = id; break; }
       }
-      if (found) {
-        setEstabelecimentoAtivo(found);
-        showScreen('inicio');
-        return;
-      } else {
-        speak('Estabelecimento "' + nome + '" não encontrado.');
-        showFeedback('❌ Estabelecimento não encontrado');
-        return;
-      }
+      if (found) { setEstabelecimentoAtivo(found); showScreen('inicio'); return; }
+      else { speak('Estabelecimento "' + nome + '" não encontrado.'); showFeedback('❌ Estabelecimento não encontrado'); return; }
     }
     speak('Não consegui identificar o nome do estabelecimento.');
     showFeedback('❌ Nome não identificado');
     return;
   }
-
   if (t.includes('ver') && t.includes('cardapio')) {
     mostrarMiniCardapio();
     speak('Abrindo cardápio do estabelecimento ativo');
     showFeedback('📋 Mostrando cardápio');
     return;
   }
-
   if (t.includes('incluir') && (t.includes('estabelecimento') || t.includes('bar'))) {
     let nome = extractEstabelecimentoNome(raw);
     if (nome && nome.length > 0) {
@@ -1709,8 +1575,6 @@ function processVoice(raw) {
     showFeedback('❌ Estabelecimento não identificado');
     return;
   }
-
-  // ====== ABRIR CONTA ======
   if (t.includes('abrir') && t.includes('conta')) {
     let nomeEstab = extractAbrirConta(raw);
     if (nomeEstab) {
@@ -1718,15 +1582,10 @@ function processVoice(raw) {
       let found = null;
       const nomeNorm = normalize(nomeEstab);
       for (let id of ids) {
-        if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) {
-          found = id; break;
-        }
+        if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) { found = id; break; }
       }
-      if (found) {
-        setEstabelecimentoAtivo(found);
-        abrirNovaConta(null);
-        return;
-      } else {
+      if (found) { setEstabelecimentoAtivo(found); abrirNovaConta(null); return; }
+      else {
         speak('Estabelecimento "' + nomeEstab + '" não encontrado. Criando novo...');
         const id = Date.now() + Math.random();
         data.estabelecimentos[id] = { nome: capitalizarNome(nomeEstab), endereco: '', pix: '', produtos: [] };
@@ -1736,13 +1595,8 @@ function processVoice(raw) {
         abrirNovaConta(null);
         return;
       }
-    } else {
-      abrirNovaConta(null);
-      return;
-    }
+    } else { abrirNovaConta(null); return; }
   }
-
-  // ====== PRODUTOS ======
   if (t.includes('incluir') && (t.includes('produto') || t.includes('produtos'))) {
     const estab = getEstabelecimentoAtivo();
     if (!estab) {
@@ -1769,10 +1623,7 @@ function processVoice(raw) {
     showFeedback('❌ Produto não identificado');
     return;
   }
-
-  // ====== PEDIDO ======
-  const isPedido = t.includes('pedir') || t.includes('solicitar') || t.includes('adicionar') ||
-                   t.includes('pedido') || t.includes('mais uma') || t.includes('mais um');
+  const isPedido = t.includes('pedir') || t.includes('solicitar') || t.includes('adicionar') || t.includes('pedido') || t.includes('mais uma') || t.includes('mais um');
   if (isPedido) {
     const estab = getEstabelecimentoAtivo();
     if (!estab) {
@@ -1788,17 +1639,11 @@ function processVoice(raw) {
     let qtd = parseNumberWords(raw);
     if ((t.includes('mais uma') || t.includes('mais um')) && !raw.match(/\b\d+\b/)) qtd = 1;
     const p = findProdutoNoAtivo(raw);
-    if (p) {
-      addPedido(p.id, qtd);
-      showScreen('pedido');
-      return;
-    }
+    if (p) { addPedido(p.id, qtd); showScreen('pedido'); return; }
     speak('Não encontrei esse produto no cardápio atual.');
     showFeedback('❌ Produto não encontrado');
     return;
   }
-
-  // ====== CLIENTE ======
   if (t.includes('incluir') && t.includes('cliente')) {
     let nome = extractClienteNome(raw);
     if (nome) {
@@ -1815,8 +1660,6 @@ function processVoice(raw) {
     showFeedback('❌ Cliente não identificado');
     return;
   }
-
-  // ====== CONTA ======
   if (t.includes('ver') && t.includes('conta') && t.includes('parcial')) {
     const sub = subtotal();
     const texto = `Subtotal atual: ${money(sub)}. ${data.pedido.length} item(ns) no pedido.`;
@@ -1837,20 +1680,14 @@ function processVoice(raw) {
     showFeedback('🧾 Mostrando conta');
     return;
   }
-
-  // ====== NAVEGAÇÃO ======
   if (t.includes('abrir') && t.includes('cardapio')) { showScreen('cardapio'); speak('Abrindo cardápio'); showFeedback('📦 Abrindo cardápio'); return; }
   if (t.includes('abrir') && (t.includes('estabelecimento') || t.includes('estabelecimentos'))) { showScreen('estabelecimentos'); speak('Abrindo estabelecimentos'); showFeedback('🏢 Abrindo estabelecimentos'); return; }
   if (t.includes('abrir') && (t.includes('pedido') || t.includes('pedidos'))) { showScreen('pedido'); speak('Tela de pedidos aberta'); showFeedback('🛒 Abrindo pedidos'); return; }
   if (t.includes('ver') && t.includes('historico')) { showScreen('historico'); speak('Abrindo histórico'); showFeedback('📜 Abrindo histórico'); return; }
-
-  // ====== DADOS ======
   if (t.includes('exportar') && t.includes('dados')) { exportarDados(); showFeedback('📤 Exportando dados...'); return; }
   if (t.includes('importar') && t.includes('dados')) { showScreen('dados'); speak('Abrindo importação'); showFeedback('📥 Abrindo importação'); return; }
-  if (t.includes('limpar') && (t.includes('historico') || t.includes('histórico'))) { clearHistorico(); return; }
+  if (t.includes('limpar') && (t.includes('historico') || t.includes('histórico'))) { limparHistorico(); return; }
   if (t.includes('limpar') && t.includes('dados')) { clearAllData(); return; }
-
-  // ====== CONTROLE ======
   if ((t.includes('desativar') || t.includes('desligar')) && (t.includes('comando') || t.includes('voz'))) {
     if (recognizer) recognizer.deactivate();
     speak('Assistente de voz desativado');
@@ -1863,12 +1700,11 @@ function processVoice(raw) {
     setTimeout(() => { if (window.close) window.close(); else alert('Feche a aba do navegador.'); }, 1000);
     return;
   }
-
   speak('Não entendi o comando. Tente: "selecionar estabelecimento", "incluir produtos", "fazer pedido" ou "fechar conta".');
   showFeedback('❓ Comando não reconhecido');
 }
 
-// ========== FUNÇÕES DE DADOS (Import/Export) ==========
+// ========== DADOS (Import/Export) ==========
 function exportarDados() {
   try {
     const dadosJSON = JSON.stringify(data, null, 2);
@@ -1887,14 +1723,12 @@ function exportarDados() {
     alert('✅ Dados exportados com sucesso!');
   } catch (e) { alert('❌ Erro ao exportar dados: ' + e.message); }
 }
-
 function importarDados(event) {
   const file = event.target.files[0];
   if (!file) return;
   processarImportacao(file);
   event.target.value = '';
 }
-
 function processarImportacao(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -1944,7 +1778,6 @@ function processarImportacao(file) {
   };
   reader.readAsText(file);
 }
-
 function clearAllData() {
   if (confirm('⚠️ Tem certeza que deseja limpar TODOS os dados?')) {
     if (confirm('Confirmar limpeza total?')) {
@@ -1962,15 +1795,6 @@ function clearAllData() {
       showFeedback('🗑️ Todos os dados foram limpos');
       alert('🗑️ Todos os dados foram limpos!');
     }
-  }
-}
-
-function clearHistorico() {
-  if (confirm('Limpar todo o histórico?')) {
-    data.historico = [];
-    save();
-    renderHistorico();
-    showFeedback('🗑️ Histórico limpo');
   }
 }
 
@@ -2026,7 +1850,6 @@ function showScreen(id) {
   document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('active', x.dataset.screen === id));
   renderAll();
 }
-
 document.querySelectorAll('#nav button').forEach(b => b.onclick = () => showScreen(b.dataset.screen));
 
 // ========== INICIALIZAÇÃO ==========
@@ -2060,7 +1883,6 @@ function verificarUsuario() {
     alert('👤 Antes de começar, faça seu cadastro de usuário.');
   }
 }
-
 renderAll();
 verificarUsuario();
 
@@ -2070,7 +1892,6 @@ if (!recognizer.isSupported()) {
 } else if (isAndroidWebView) {
   document.getElementById('voiceStatus').textContent = '📱 Modo Android WebView';
 }
-
 console.log('✅ App inicializado com sucesso!');
 </script>
 </body>
