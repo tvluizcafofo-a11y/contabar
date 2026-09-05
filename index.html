@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🍺 Conta de Bar - Cardápio por Estabelecimento</title>
-<!-- Biblioteca para gerar QR Code -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
 </script>
 <style>
@@ -207,6 +206,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
   padding: 10px;
   background: white;
   border-radius: 8px;
+  min-height: 220px;
+  align-items: center;
 }
 #qrcode canvas, #qrcode img {
   display: block !important;
@@ -268,6 +269,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="card">
 <h2>📊 Conta atual</h2>
 <div class="note">Estabelecimento ativo: <b id="homeEstabAtivo">Nenhum</b></div>
+<div class="note">Status: <b id="homeStatusConta">Nenhuma conta aberta</b></div>
 <div class="note">Subtotal</div><div class="total" id="homeSubtotal">R$ 0,00</div>
 <div class="note" id="homeItems">Nenhum item no pedido.</div>
 <button onclick="abrirContaManual()">📂 Abrir nova conta</button>
@@ -319,6 +321,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="card">
 <h2>🛒 Fazer Pedido</h2>
 <div class="note">Estabelecimento: <b id="pedidoEstabNome">Nenhum</b></div>
+<div class="note" id="pedidoStatusConta">Status: Nenhuma conta aberta</div>
 <label>Produto</label><select id="pedidoProduto"></select>
 <label>Quantidade</label><input id="pedidoQtd" type="number" min="1" value="1">
 <button onclick="addPedido()">➕ Adicionar ao pedido</button>
@@ -340,6 +343,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div id="contaItens"></div>
 <hr style="border-color:var(--border)">
 <div>Estabelecimento: <b id="contaEstabNome">Nenhum</b></div>
+<div>Status: <b id="contaStatus">Nenhuma conta aberta</b></div>
 <div>Subtotal: <span class="money" id="contaSubtotal">R$ 0,00</span></div>
 <div style="margin-top:10px"><label>Gorjeta</label>
 <select id="gorjeta" onchange="saveGorjetaConfig()">
@@ -481,6 +485,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <p>Produtos no cardápio ativo: <b id="resumoProdutos">0</b></p>
   <p>Itens no pedido: <b id="resumoPedido">0</b></p>
   <p>Contas no histórico: <b id="resumoHistorico">0</b></p>
+  <p>Conta aberta: <b id="resumoContaAtiva">Não</b></p>
 </div>
 
 <button class="danger" onclick="clearAllData()" style="margin-top:10px;">🗑 Limpar todos os dados</button>
@@ -550,6 +555,7 @@ data.historico = data.historico || [];
 data.gorjetaConfig = data.gorjetaConfig || 0;
 data.voicePreference = data.voicePreference || 'default';
 data.usuario = data.usuario || null;
+data.contaAtiva = data.contaAtiva || false; // NOVO: flag para indicar se há conta aberta (mesmo vazia)
 let speechOn = data.speechOn !== false;
 let currentEditId = null;
 let currentEditEstabId = null;
@@ -573,6 +579,15 @@ function money(v) {
 
 function normalize(s) {
   return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+// ========== FUNÇÃO PARA CAPITALIZAR NOMES ==========
+function capitalizarNome(nome) {
+  if (!nome) return '';
+  return nome.split(' ').map(palavra => {
+    if (palavra.length === 0) return palavra;
+    return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
+  }).join(' ');
 }
 
 // ========== FUNÇÕES DE USUÁRIO ==========
@@ -633,7 +648,26 @@ function getProdutosAtivos() {
 function setEstabelecimentoAtivo(id) {
   if (id && data.estabelecimentos[id]) {
     data.estabelecimentoAtivoId = id;
+    // Ao trocar de estabelecimento, se houver conta aberta, perguntar se quer fechar
+    if (data.contaAtiva) {
+      if (confirm('Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?')) {
+        // Fecha a conta atual
+        callbackAposFechar = function() {
+          data.pedido = [];
+          data.contaAtiva = false;
+          save();
+          renderAll();
+          setEstabelecimentoAtivo(id);
+        };
+        showScreen('conta');
+        setTimeout(confirmarFechamento, 300);
+        return;
+      } else {
+        return; // cancela a troca
+      }
+    }
     data.pedido = [];
+    data.contaAtiva = false;
     save();
     renderAll();
     const nome = data.estabelecimentos[id].nome;
@@ -642,6 +676,7 @@ function setEstabelecimentoAtivo(id) {
   } else {
     data.estabelecimentoAtivoId = null;
     data.pedido = [];
+    data.contaAtiva = false;
     save();
     renderAll();
     speak('Nenhum estabelecimento selecionado');
@@ -661,13 +696,12 @@ function editarEstabelecimento(id) {
 }
 
 function salvarEstabelecimento() {
-  const nome = $('barNome').value.trim();
+  const nome = capitalizarNome($('barNome').value.trim());
   const endereco = $('barEndereco').value.trim();
   const pix = $('barPix').value.trim();
   if (!nome) { alert('Informe o nome do estabelecimento.'); return; }
 
   if (currentEditEstabId) {
-    // Atualiza estabelecimento existente
     data.estabelecimentos[currentEditEstabId].nome = nome;
     data.estabelecimentos[currentEditEstabId].endereco = endereco;
     data.estabelecimentos[currentEditEstabId].pix = pix;
@@ -676,7 +710,6 @@ function salvarEstabelecimento() {
     speak('Estabelecimento atualizado');
     showFeedback('✅ Estabelecimento atualizado');
   } else {
-    // Cria novo estabelecimento
     const id = Date.now() + Math.random();
     data.estabelecimentos[id] = {
       nome: nome,
@@ -699,13 +732,16 @@ function salvarEstabelecimento() {
 
 function excluirEstabelecimento(id) {
   if (!confirm('Excluir este estabelecimento e todos os seus produtos?')) return;
+  if (data.contaAtiva) {
+    alert('Não é possível excluir o estabelecimento com uma conta aberta. Feche a conta primeiro.');
+    return;
+  }
   const nome = data.estabelecimentos[id]?.nome || '';
   delete data.estabelecimentos[id];
   if (data.estabelecimentoAtivoId === id) {
     data.estabelecimentoAtivoId = Object.keys(data.estabelecimentos)[0] || null;
     data.pedido = [];
   }
-  // Se estava editando este, cancela edição
   if (currentEditEstabId === id) {
     currentEditEstabId = null;
     document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
@@ -728,6 +764,7 @@ function trocarEstabelecimentoAtivo() {
     data.estabelecimentoAtivoId = id;
   }
   data.pedido = [];
+  data.contaAtiva = false;
   save();
   renderAll();
 }
@@ -763,6 +800,8 @@ function addProduto(nome, preco) {
     return;
   }
   nome = nome || $('produtoNome').value.trim();
+  // Capitalizar nome do produto
+  nome = capitalizarNome(nome);
   preco = preco ?? Number($('produtoPreco').value);
   if (!nome || isNaN(preco) || preco <= 0) {
     alert('Informe nome e preço válido.');
@@ -829,6 +868,10 @@ function addPedido(produtoId, qtd) {
     alert('Nenhum estabelecimento ativo.');
     return;
   }
+  if (!data.contaAtiva) {
+    alert('Não há conta aberta. Abra uma conta primeiro.');
+    return;
+  }
   produtoId = produtoId ?? Number($('pedidoProduto').value);
   qtd = qtd ?? Number($('pedidoQtd').value);
   const p = estab.produtos.find(x => x.id == produtoId);
@@ -862,19 +905,30 @@ function removePedido(i) {
   save();
   renderAll();
   if (item) showFeedback('🗑️ Removido: ' + item.nome);
+  // Se o pedido ficou vazio, ainda mantém a conta ativa
 }
 
 function subtotal() {
   return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0);
 }
 
-// ========== FUNÇÕES DE CONTA E PAGAMENTO ==========
+// ========== FUNÇÕES DE CONTA E PAGAMENTO (com QR Code) ==========
 function confirmarFechamento() {
-  if (!data.pedido.length) {
-    speak('Não há itens para fechar a conta');
-    showFeedback('⚠️ Nenhum item no pedido');
-    alert('Não há itens no pedido.');
+  if (!data.contaAtiva) {
+    speak('Não há conta aberta para fechar.');
+    showFeedback('⚠️ Nenhuma conta aberta');
+    alert('Não há conta aberta para fechar.');
     return;
+  }
+  if (!data.pedido.length) {
+    // Se não há itens, ainda assim pode fechar? Vamos permitir fechar sem itens (conta vazia)
+    if (confirm('A conta está vazia (sem itens). Deseja fechá-la mesmo assim?')) {
+      // Fecha conta vazia
+      fecharContaVazia();
+      return;
+    } else {
+      return;
+    }
   }
   const estab = getEstabelecimentoAtivo();
   if (!estab) {
@@ -902,17 +956,42 @@ function confirmarFechamento() {
     <p><b>Gorjeta (${perc}%):</b> ${money(gor)}</p>
     <p><b>TOTAL:</b> <span style="color:#79e9aa;font-weight:bold;">${money(total)}</span></p>
   `;
-  // Esconde detalhes do PIX inicialmente
   document.getElementById('pixDetalhes').style.display = 'none';
   modal.classList.add('active');
   pagamentoConfirmado = false;
 }
 
+function fecharContaVazia() {
+  const estab = getEstabelecimentoAtivo();
+  if (!estab) return;
+  const conta = {
+    id: Date.now(),
+    data: new Date().toLocaleString('pt-BR'),
+    estabelecimento: estab.nome,
+    cliente: data.cliente?.nome || 'Não informado',
+    itens: [],
+    subtotal: 0,
+    gorjeta: 0,
+    percentual: 0,
+    total: 0
+  };
+  data.historico.unshift(conta);
+  data.pedido = [];
+  data.contaAtiva = false;
+  save();
+  renderAll();
+  speak('Conta vazia fechada.');
+  showFeedback('🧾 Conta fechada (sem itens)');
+  alert('Conta fechada com sucesso! (sem itens)');
+}
+
 function fecharPaymentModal() {
   document.getElementById('paymentModal').classList.remove('active');
-  // Limpa QR Code
   const container = document.getElementById('qrcode');
-  container.innerHTML = '';
+  // Limpeza completa do container
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
   if (qrCodeInstance) {
     qrCodeInstance = null;
   }
@@ -929,18 +1008,13 @@ function pagarPix() {
     alert('Este estabelecimento não possui chave PIX cadastrada.');
     return;
   }
-  // Exibe detalhes PIX
   document.getElementById('pixChaveEstab').textContent = estab.pix;
   document.getElementById('pixValor').textContent = money(contaFechada.total);
-  // Gera código PIX copia e cola
-  const codigo = gerarPixCopiaCola(estab.pix, contaFechada.total, estab.nome);
+  // Gera código PIX com CRC16 (função mais robusta do app PIX Recebimentos)
+  const codigo = gerarPayloadPIX(estab, contaFechada.total);
   document.getElementById('pixCode').textContent = codigo;
-  
-  // Gera QR Code
   gerarQRCode(codigo);
-  
   modal.style.display = 'block';
-  // Verifica se o usuário tem link do banco
   const user = data.usuario;
   const btnBanco = document.getElementById('btnAbrirBanco');
   if (user && user.bancoLink) {
@@ -950,13 +1024,65 @@ function pagarPix() {
   }
 }
 
+// ====== FUNÇÕES DE GERAÇÃO DE PIX (copiadas do app PIX Recebimentos) ======
+function campo(id, tamanho, valor) {
+  const s = String(valor);
+  return id + String(s.length).padStart(2, '0') + s;
+}
+
+function crc16(str) {
+  let crc = 0xFFFF;
+  for (let i = 0; i < str.length; i++) {
+    crc ^= str.charCodeAt(i) << 8;
+    for (let j = 0; j < 8; j++) {
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+
+function limparTexto(s, max) {
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9 .\\-]/g,'').toUpperCase().trim().slice(0,max);
+}
+
+function gerarPayloadPIX(estab, valor) {
+  const nome = limparTexto(estab.nome, 25);
+  const cidade = limparTexto(estab.endereco || 'BRASILIA', 15);
+  const chave = estab.pix;
+  const gui = campo('00', 'br.gov.bcb.pix'.length, 'br.gov.bcb.pix');
+  const chaveField = campo('01', chave.length, chave);
+  let mai = gui + chaveField;
+  const merchant = campo('26', mai.length, mai);
+  const txid = '***';
+  const txidField = campo('05', txid.length, txid);
+  const additional = campo('62', txidField.length, txidField);
+  let payload = '';
+  payload += campo('00', 2, '01');
+  payload += campo('01', 2, '11');
+  payload += merchant;
+  payload += campo('52', 4, '0000');
+  payload += campo('53', 3, '986');
+  if (valor > 0) {
+    const valorStr = valor.toFixed(2);
+    payload += campo('54', valorStr.length, valorStr);
+  }
+  payload += campo('58', 2, 'BR');
+  payload += campo('59', nome.length, nome);
+  payload += campo('60', cidade.length, cidade);
+  payload += additional;
+  const semCRC = payload + '6304';
+  return semCRC + crc16(semCRC);
+}
+
 function gerarQRCode(texto) {
   const container = document.getElementById('qrcode');
-  container.innerHTML = '';
+  // Limpeza completa
+  while (container.firstChild) {
+    container.removeChild(container.firstChild);
+  }
   if (qrCodeInstance) {
     qrCodeInstance = null;
   }
-  // Verifica se a biblioteca QRCode está disponível
   if (typeof QRCode !== 'undefined' && QRCode) {
     try {
       qrCodeInstance = new QRCode(container, {
@@ -967,36 +1093,21 @@ function gerarQRCode(texto) {
         colorLight: "#10131a",
         correctLevel: QRCode.CorrectLevel.H
       });
-      // Força a exibição centralizada
       const canvas = container.querySelector('canvas');
       if (canvas) {
         canvas.style.display = 'block';
         canvas.style.margin = '0 auto';
       }
+      // Remove qualquer elemento img duplicado que possa ter sido adicionado
+      const imgs = container.querySelectorAll('img');
+      imgs.forEach(img => img.remove());
     } catch (e) {
       console.warn('Erro ao gerar QR Code:', e);
-      container.innerHTML = '<p class="note">Erro ao gerar QR Code. Use "Copiar código".</p>';
+      container.innerHTML = '<p class="note">Erro ao gerar QR Code.</p>';
     }
   } else {
-    container.innerHTML = '<p class="note">Biblioteca QR Code não carregada. Use "Copiar código".</p>';
+    container.innerHTML = '<p class="note">Biblioteca QR Code não carregada.</p>';
   }
-}
-
-function gerarPixCopiaCola(chave, valor, nome) {
-  // Payload simplificado (sem CRC16, funcional para testes)
-  const valorFormat = valor.toFixed(2).replace('.', '');
-  const tamanhoValor = (valorFormat.length).toString().padStart(2, '0');
-  let payload = '000201';
-  payload += '26330014BR.GOV.BCB.PIX0111' + chave;
-  payload += '52040000';
-  payload += '5303986';
-  payload += '54' + tamanhoValor + valorFormat;
-  payload += '5802BR';
-  const nomeLimpo = nome.substring(0, 25);
-  payload += '59' + (nomeLimpo.length).toString().padStart(2, '0') + nomeLimpo;
-  payload += '6008BRASILIA';
-  payload += '6304';
-  return payload;
 }
 
 function copiarPix() {
@@ -1046,7 +1157,6 @@ function abrirBanco() {
 
 function finalizarPagamento() {
   if (!contaFechada) return;
-  // Salva a conta no histórico
   const conta = {
     id: Date.now(),
     data: new Date().toLocaleString('pt-BR'),
@@ -1060,6 +1170,7 @@ function finalizarPagamento() {
   };
   data.historico.unshift(conta);
   data.pedido = [];
+  data.contaAtiva = false;
   save();
   renderAll();
   const texto = `Pagamento confirmado. Total: ${money(contaFechada.total)}.`;
@@ -1069,7 +1180,6 @@ function finalizarPagamento() {
   fecharPaymentModal();
   contaFechada = null;
   pagamentoConfirmado = true;
-  
   if (callbackAposFechar) {
     const cb = callbackAposFechar;
     callbackAposFechar = null;
@@ -1093,8 +1203,8 @@ function pagarCartao() {
 
 // ========== FUNÇÕES DE ABERTURA DE CONTA ==========
 function abrirContaManual() {
-  if (data.pedido.length > 0) {
-    if (confirm('Já existe uma conta aberta com itens. Deseja fechá-la antes de abrir uma nova?')) {
+  if (data.contaAtiva) {
+    if (confirm('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?')) {
       callbackAposFechar = function() {
         abrirNovaConta(null);
       };
@@ -1107,8 +1217,8 @@ function abrirContaManual() {
 }
 
 function abrirNovaConta(nomeEstab) {
-  if (data.pedido.length > 0) {
-    const msg = 'Já existe uma conta aberta com itens. Deseja fechá-la antes de abrir uma nova?';
+  if (data.contaAtiva) {
+    const msg = 'Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?';
     if (confirm(msg)) {
       callbackAposFechar = function() {
         abrirNovaConta(nomeEstab);
@@ -1142,7 +1252,7 @@ function abrirNovaConta(nomeEstab) {
       setEstabelecimentoAtivo(found);
     } else {
       const id = Date.now() + Math.random();
-      data.estabelecimentos[id] = { nome: nomeEstab, endereco: '', pix: '', produtos: [] };
+      data.estabelecimentos[id] = { nome: capitalizarNome(nomeEstab), endereco: '', pix: '', produtos: [] };
       data.estabelecimentoAtivoId = id;
       save();
       renderAll();
@@ -1152,6 +1262,7 @@ function abrirNovaConta(nomeEstab) {
   }
   
   data.pedido = [];
+  data.contaAtiva = true;
   save();
   renderAll();
   const estab = getEstabelecimentoAtivo();
@@ -1232,6 +1343,8 @@ function renderCardapio() {
 function renderPedido() {
   const estab = getEstabelecimentoAtivo();
   document.getElementById('pedidoEstabNome').textContent = estab ? estab.nome : 'Nenhum';
+  const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
+  document.getElementById('pedidoStatusConta').textContent = 'Status: ' + statusText;
   const lista = document.getElementById('listaPedido');
   if (data.pedido.length === 0) {
     lista.innerHTML = '<div class="empty">Nenhum item no pedido.</div>';
@@ -1248,11 +1361,15 @@ function renderPedido() {
   const totalItems = data.pedido.reduce((s, x) => s + x.qtd, 0);
   document.getElementById('homeItems').textContent = totalItems ? totalItems + ' item(ns) no pedido.' : 'Nenhum item no pedido.';
   document.getElementById('homeEstabAtivo').textContent = estab ? estab.nome : 'Nenhum';
+  const homeStatus = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
+  document.getElementById('homeStatusConta').textContent = homeStatus;
 }
 
 function renderConta() {
   const estab = getEstabelecimentoAtivo();
   document.getElementById('contaEstabNome').textContent = estab ? estab.nome : 'Nenhum';
+  const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
+  document.getElementById('contaStatus').textContent = statusText;
   const sub = subtotal();
   const perc = Number($('gorjeta').value || 0);
   const gor = sub * perc / 100;
@@ -1298,6 +1415,7 @@ function renderAll() {
   document.getElementById('resumoProdutos').textContent = prods;
   document.getElementById('resumoPedido').textContent = data.pedido.reduce((s, x) => s + x.qtd, 0);
   document.getElementById('resumoHistorico').textContent = data.historico.length;
+  document.getElementById('resumoContaAtiva').textContent = data.contaAtiva ? 'Sim' : 'Não';
   const pref = data.voicePreference || 'default';
   document.getElementById('voiceSelect').value = pref;
   if (window.speechSynthesis && speechSynthesis.getVoices().length > 0) {
@@ -1578,7 +1696,7 @@ function processVoice(raw) {
       $('barNome').value = nome;
       if (!data.estabelecimentos) data.estabelecimentos = {};
       const id = Date.now() + Math.random();
-      data.estabelecimentos[id] = { nome: nome, endereco: '', pix: '', produtos: [] };
+      data.estabelecimentos[id] = { nome: capitalizarNome(nome), endereco: '', pix: '', produtos: [] };
       if (!data.estabelecimentoAtivoId) data.estabelecimentoAtivoId = id;
       save();
       renderAll();
@@ -1611,7 +1729,7 @@ function processVoice(raw) {
       } else {
         speak('Estabelecimento "' + nomeEstab + '" não encontrado. Criando novo...');
         const id = Date.now() + Math.random();
-        data.estabelecimentos[id] = { nome: nomeEstab, endereco: '', pix: '', produtos: [] };
+        data.estabelecimentos[id] = { nome: capitalizarNome(nomeEstab), endereco: '', pix: '', produtos: [] };
         data.estabelecimentoAtivoId = id;
         save();
         renderAll();
@@ -1662,6 +1780,11 @@ function processVoice(raw) {
       showFeedback('⚠️ Nenhum estabelecimento ativo');
       return;
     }
+    if (!data.contaAtiva) {
+      speak('Não há conta aberta. Abra uma conta primeiro.');
+      showFeedback('⚠️ Nenhuma conta aberta');
+      return;
+    }
     let qtd = parseNumberWords(raw);
     if ((t.includes('mais uma') || t.includes('mais um')) && !raw.match(/\b\d+\b/)) qtd = 1;
     const p = findProdutoNoAtivo(raw);
@@ -1695,7 +1818,12 @@ function processVoice(raw) {
 
   // ====== CONTA ======
   if (t.includes('ver') && t.includes('conta') && t.includes('parcial')) {
-    verContaParcial();
+    const sub = subtotal();
+    const texto = `Subtotal atual: ${money(sub)}. ${data.pedido.length} item(ns) no pedido.`;
+    speak(texto);
+    showFeedback('📊 ' + texto);
+    alert(texto);
+    showScreen('conta');
     return;
   }
   if (t.includes('fechar') && t.includes('conta')) {
@@ -1792,6 +1920,7 @@ function processarImportacao(file) {
       data.voicePreference = dados.voicePreference || 'default';
       data.usuario = dados.usuario || null;
       data.cliente = dados.cliente || { nome: '', telefone: '', banco: '' };
+      data.contaAtiva = dados.contaAtiva || false;
       save();
       renderAll();
       const status = document.getElementById('importStatus');
@@ -1826,12 +1955,22 @@ function clearAllData() {
       data.cliente = { nome: '', telefone: '', banco: '' };
       data.usuario = null;
       data.gorjetaConfig = 0;
+      data.contaAtiva = false;
       save();
       renderAll();
       speak('Todos os dados foram limpos');
       showFeedback('🗑️ Todos os dados foram limpos');
       alert('🗑️ Todos os dados foram limpos!');
     }
+  }
+}
+
+function clearHistorico() {
+  if (confirm('Limpar todo o histórico?')) {
+    data.historico = [];
+    save();
+    renderHistorico();
+    showFeedback('🗑️ Histórico limpo');
   }
 }
 
