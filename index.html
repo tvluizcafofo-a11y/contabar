@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🍺 Conta de Bar - Cardápio por Estabelecimento</title>
+<!-- Biblioteca para gerar QR Code -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+</script>
 <style>
 :root{
   --bg:#10131a;--panel:#191e28;--panel2:#222938;--text:#f4f7fb;--muted:#aeb8c8;
@@ -177,6 +180,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
   border: 1px solid var(--border);
   margin: 10px 0;
   color: #8df0b8;
+  max-height: 80px;
+  overflow-y: auto;
 }
 .payment-options {
   display: flex;
@@ -194,6 +199,18 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .payment-options button:hover {
   background: var(--accent);
   color: #092114;
+}
+#qrcode {
+  display: flex;
+  justify-content: center;
+  margin: 15px 0;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+}
+#qrcode canvas, #qrcode img {
+  display: block !important;
+  margin: 0 auto;
 }
 </style>
 </head>
@@ -272,7 +289,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div><label>Endereço</label><input id="barEndereco" placeholder="Endereço completo"></div>
 </div>
 <label>Chave PIX</label><input id="barPix" placeholder="CPF, telefone, e-mail ou chave aleatória">
-<button onclick="salvarEstabelecimento()">➕ Adicionar estabelecimento</button>
+<button id="btnSalvarEstab" onclick="salvarEstabelecimento()">➕ Adicionar estabelecimento</button>
 <p class="note" id="barInfo"></p>
 <hr style="border-color:var(--border);margin:15px 0">
 <h3>📋 Estabelecimentos cadastrados</h3>
@@ -503,6 +520,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <div id="pixDetalhes" style="display:none;margin-top:15px;border-top:1px solid var(--border);padding-top:15px;">
       <p><b>Chave PIX do estabelecimento:</b> <span id="pixChaveEstab"></span></p>
       <p><b>Valor:</b> <span id="pixValor"></span></p>
+      <div id="qrcode"></div>
       <label>Código PIX copia e cola:</label>
       <div class="pix-code" id="pixCode"></div>
       <button onclick="copiarPix()">📋 Copiar código</button>
@@ -534,11 +552,13 @@ data.voicePreference = data.voicePreference || 'default';
 data.usuario = data.usuario || null;
 let speechOn = data.speechOn !== false;
 let currentEditId = null;
+let currentEditEstabId = null;
 let feedbackTimer = null;
 let feedbackDismissed = false;
-let contaFechada = null; // guarda os dados da conta para pagamento
+let contaFechada = null;
 let pagamentoConfirmado = false;
-let callbackAposFechar = null; // callback para após o fechamento da conta (abrir nova)
+let callbackAposFechar = null;
+let qrCodeInstance = null;
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -628,28 +648,53 @@ function setEstabelecimentoAtivo(id) {
   }
 }
 
+function editarEstabelecimento(id) {
+  const e = data.estabelecimentos[id];
+  if (!e) return;
+  currentEditEstabId = id;
+  $('barNome').value = e.nome;
+  $('barEndereco').value = e.endereco;
+  $('barPix').value = e.pix;
+  document.getElementById('btnSalvarEstab').textContent = '💾 Atualizar estabelecimento';
+  showScreen('estabelecimentos');
+  showFeedback('✏️ Editando: ' + e.nome);
+}
+
 function salvarEstabelecimento() {
   const nome = $('barNome').value.trim();
   const endereco = $('barEndereco').value.trim();
   const pix = $('barPix').value.trim();
   if (!nome) { alert('Informe o nome do estabelecimento.'); return; }
-  const id = Date.now() + Math.random();
-  data.estabelecimentos[id] = {
-    nome: nome,
-    endereco: endereco || '',
-    pix: pix || '',
-    produtos: []
-  };
-  if (!data.estabelecimentoAtivoId) {
-    data.estabelecimentoAtivoId = id;
+
+  if (currentEditEstabId) {
+    // Atualiza estabelecimento existente
+    data.estabelecimentos[currentEditEstabId].nome = nome;
+    data.estabelecimentos[currentEditEstabId].endereco = endereco;
+    data.estabelecimentos[currentEditEstabId].pix = pix;
+    currentEditEstabId = null;
+    document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
+    speak('Estabelecimento atualizado');
+    showFeedback('✅ Estabelecimento atualizado');
+  } else {
+    // Cria novo estabelecimento
+    const id = Date.now() + Math.random();
+    data.estabelecimentos[id] = {
+      nome: nome,
+      endereco: endereco || '',
+      pix: pix || '',
+      produtos: []
+    };
+    if (!data.estabelecimentoAtivoId) {
+      data.estabelecimentoAtivoId = id;
+    }
+    speak('Estabelecimento ' + nome + ' adicionado');
+    showFeedback('🏢 ' + nome + ' adicionado!');
   }
   $('barNome').value = '';
   $('barEndereco').value = '';
   $('barPix').value = '';
   save();
   renderAll();
-  speak('Estabelecimento ' + nome + ' adicionado');
-  showFeedback('🏢 ' + nome + ' adicionado!');
 }
 
 function excluirEstabelecimento(id) {
@@ -659,6 +704,14 @@ function excluirEstabelecimento(id) {
   if (data.estabelecimentoAtivoId === id) {
     data.estabelecimentoAtivoId = Object.keys(data.estabelecimentos)[0] || null;
     data.pedido = [];
+  }
+  // Se estava editando este, cancela edição
+  if (currentEditEstabId === id) {
+    currentEditEstabId = null;
+    document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
+    $('barNome').value = '';
+    $('barEndereco').value = '';
+    $('barPix').value = '';
   }
   save();
   renderAll();
@@ -857,7 +910,12 @@ function confirmarFechamento() {
 
 function fecharPaymentModal() {
   document.getElementById('paymentModal').classList.remove('active');
-  // Se havia um callback pendente e o usuário cancelou, limpa o callback
+  // Limpa QR Code
+  const container = document.getElementById('qrcode');
+  container.innerHTML = '';
+  if (qrCodeInstance) {
+    qrCodeInstance = null;
+  }
   if (callbackAposFechar) {
     callbackAposFechar = null;
   }
@@ -877,6 +935,10 @@ function pagarPix() {
   // Gera código PIX copia e cola
   const codigo = gerarPixCopiaCola(estab.pix, contaFechada.total, estab.nome);
   document.getElementById('pixCode').textContent = codigo;
+  
+  // Gera QR Code
+  gerarQRCode(codigo);
+  
   modal.style.display = 'block';
   // Verifica se o usuário tem link do banco
   const user = data.usuario;
@@ -885,6 +947,38 @@ function pagarPix() {
     btnBanco.style.display = 'inline-block';
   } else {
     btnBanco.style.display = 'none';
+  }
+}
+
+function gerarQRCode(texto) {
+  const container = document.getElementById('qrcode');
+  container.innerHTML = '';
+  if (qrCodeInstance) {
+    qrCodeInstance = null;
+  }
+  // Verifica se a biblioteca QRCode está disponível
+  if (typeof QRCode !== 'undefined' && QRCode) {
+    try {
+      qrCodeInstance = new QRCode(container, {
+        text: texto,
+        width: 200,
+        height: 200,
+        colorDark: "#ffffff",
+        colorLight: "#10131a",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      // Força a exibição centralizada
+      const canvas = container.querySelector('canvas');
+      if (canvas) {
+        canvas.style.display = 'block';
+        canvas.style.margin = '0 auto';
+      }
+    } catch (e) {
+      console.warn('Erro ao gerar QR Code:', e);
+      container.innerHTML = '<p class="note">Erro ao gerar QR Code. Use "Copiar código".</p>';
+    }
+  } else {
+    container.innerHTML = '<p class="note">Biblioteca QR Code não carregada. Use "Copiar código".</p>';
   }
 }
 
@@ -976,11 +1070,10 @@ function finalizarPagamento() {
   contaFechada = null;
   pagamentoConfirmado = true;
   
-  // Se houver um callback agendado (abrir nova conta), executa
   if (callbackAposFechar) {
     const cb = callbackAposFechar;
     callbackAposFechar = null;
-    cb(); // executa o callback (abrir nova conta)
+    cb();
   }
 }
 
@@ -998,12 +1091,10 @@ function pagarCartao() {
   }
 }
 
-// ========== FUNÇÕES DE ABERTURA DE CONTA (com verificação) ==========
+// ========== FUNÇÕES DE ABERTURA DE CONTA ==========
 function abrirContaManual() {
-  // Versão manual (botão)
   if (data.pedido.length > 0) {
     if (confirm('Já existe uma conta aberta com itens. Deseja fechá-la antes de abrir uma nova?')) {
-      // Fecha a conta atual e depois abre uma nova
       callbackAposFechar = function() {
         abrirNovaConta(null);
       };
@@ -1016,11 +1107,9 @@ function abrirContaManual() {
 }
 
 function abrirNovaConta(nomeEstab) {
-  // Se houver pedido, pergunta se quer fechar primeiro
   if (data.pedido.length > 0) {
     const msg = 'Já existe uma conta aberta com itens. Deseja fechá-la antes de abrir uma nova?';
     if (confirm(msg)) {
-      // Agenda a abertura após o fechamento
       callbackAposFechar = function() {
         abrirNovaConta(nomeEstab);
       };
@@ -1028,21 +1117,18 @@ function abrirNovaConta(nomeEstab) {
       setTimeout(confirmarFechamento, 300);
       return;
     } else {
-      return; // cancela a abertura
+      return;
     }
   }
   
-  // Se chegou aqui, não há pedido, pode abrir a conta
   const estabAtivo = getEstabelecimentoAtivo();
   if (!estabAtivo) {
-    // Se não há estabelecimento ativo, redireciona para escolher/criar
     speak('Nenhum estabelecimento ativo. Vou abrir a tela de estabelecimentos.');
     showFeedback('🏢 Selecione um estabelecimento');
     showScreen('estabelecimentos');
     return;
   }
   
-  // Se há nome de estabelecimento, tenta selecionar ou criar
   if (nomeEstab) {
     const ids = Object.keys(data.estabelecimentos);
     let found = null;
@@ -1055,7 +1141,6 @@ function abrirNovaConta(nomeEstab) {
     if (found) {
       setEstabelecimentoAtivo(found);
     } else {
-      // Cria o estabelecimento
       const id = Date.now() + Math.random();
       data.estabelecimentos[id] = { nome: nomeEstab, endereco: '', pix: '', produtos: [] };
       data.estabelecimentoAtivoId = id;
@@ -1066,7 +1151,6 @@ function abrirNovaConta(nomeEstab) {
     }
   }
   
-  // Limpa pedido e abre nova conta
   data.pedido = [];
   save();
   renderAll();
@@ -1100,6 +1184,7 @@ function renderEstabelecimentos() {
     const ativo = (id === currentId) ? '⭐ ' : '';
     return `<div class="list-item"><span><b>${ativo}${e.nome}</b><br><span class="note">${e.endereco || ''} ${e.pix ? '| PIX: ' + e.pix : ''}</span><br><span class="note">${e.produtos?.length || 0} produtos</span></span>
       <div class="actions">
+        <button class="secondary small" onclick="editarEstabelecimento('${id}')">✏️</button>
         <button class="secondary small" onclick="setEstabelecimentoAtivo('${id}')">Selecionar</button>
         <button class="danger small" onclick="excluirEstabelecimento('${id}')">🗑</button>
       </div></div>`;
@@ -1454,7 +1539,6 @@ function processVoice(raw) {
   const t = normalize(raw);
 
   // ====== COMANDOS DE ESTABELECIMENTO ======
-  // Selecionar estabelecimento
   if (t.includes('selecionar') && (t.includes('estabelecimento') || t.includes('bar'))) {
     let nome = extractSelecionarEstabelecimento(raw);
     if (nome) {
@@ -1481,7 +1565,6 @@ function processVoice(raw) {
     return;
   }
 
-  // Ver cardápio
   if (t.includes('ver') && t.includes('cardapio')) {
     mostrarMiniCardapio();
     speak('Abrindo cardápio do estabelecimento ativo');
@@ -1489,7 +1572,6 @@ function processVoice(raw) {
     return;
   }
 
-  // Incluir estabelecimento
   if (t.includes('incluir') && (t.includes('estabelecimento') || t.includes('bar'))) {
     let nome = extractEstabelecimentoNome(raw);
     if (nome && nome.length > 0) {
@@ -1510,11 +1592,10 @@ function processVoice(raw) {
     return;
   }
 
-  // ====== ABRIR CONTA COM ESTABELECIMENTO ======
+  // ====== ABRIR CONTA ======
   if (t.includes('abrir') && t.includes('conta')) {
     let nomeEstab = extractAbrirConta(raw);
     if (nomeEstab) {
-      // Tenta encontrar o estabelecimento
       const ids = Object.keys(data.estabelecimentos);
       let found = null;
       const nomeNorm = normalize(nomeEstab);
@@ -1525,11 +1606,10 @@ function processVoice(raw) {
       }
       if (found) {
         setEstabelecimentoAtivo(found);
-        abrirNovaConta(null); // usa o ativo já selecionado
+        abrirNovaConta(null);
         return;
       } else {
         speak('Estabelecimento "' + nomeEstab + '" não encontrado. Criando novo...');
-        // Cria automaticamente
         const id = Date.now() + Math.random();
         data.estabelecimentos[id] = { nome: nomeEstab, endereco: '', pix: '', produtos: [] };
         data.estabelecimentoAtivoId = id;
@@ -1539,13 +1619,12 @@ function processVoice(raw) {
         return;
       }
     } else {
-      // Apenas "abrir conta"
       abrirNovaConta(null);
       return;
     }
   }
 
-  // ====== COMANDOS DE PRODUTOS ======
+  // ====== PRODUTOS ======
   if (t.includes('incluir') && (t.includes('produto') || t.includes('produtos'))) {
     const estab = getEstabelecimentoAtivo();
     if (!estab) {
@@ -1573,7 +1652,7 @@ function processVoice(raw) {
     return;
   }
 
-  // ====== COMANDOS DE PEDIDO ======
+  // ====== PEDIDO ======
   const isPedido = t.includes('pedir') || t.includes('solicitar') || t.includes('adicionar') ||
                    t.includes('pedido') || t.includes('mais uma') || t.includes('mais um');
   if (isPedido) {
@@ -1596,7 +1675,7 @@ function processVoice(raw) {
     return;
   }
 
-  // ====== COMANDOS DE CLIENTE ======
+  // ====== CLIENTE ======
   if (t.includes('incluir') && t.includes('cliente')) {
     let nome = extractClienteNome(raw);
     if (nome) {
@@ -1614,7 +1693,7 @@ function processVoice(raw) {
     return;
   }
 
-  // ====== COMANDOS DE CONTA ======
+  // ====== CONTA ======
   if (t.includes('ver') && t.includes('conta') && t.includes('parcial')) {
     verContaParcial();
     return;
@@ -1631,19 +1710,19 @@ function processVoice(raw) {
     return;
   }
 
-  // ====== COMANDOS DE NAVEGAÇÃO ======
+  // ====== NAVEGAÇÃO ======
   if (t.includes('abrir') && t.includes('cardapio')) { showScreen('cardapio'); speak('Abrindo cardápio'); showFeedback('📦 Abrindo cardápio'); return; }
   if (t.includes('abrir') && (t.includes('estabelecimento') || t.includes('estabelecimentos'))) { showScreen('estabelecimentos'); speak('Abrindo estabelecimentos'); showFeedback('🏢 Abrindo estabelecimentos'); return; }
   if (t.includes('abrir') && (t.includes('pedido') || t.includes('pedidos'))) { showScreen('pedido'); speak('Tela de pedidos aberta'); showFeedback('🛒 Abrindo pedidos'); return; }
   if (t.includes('ver') && t.includes('historico')) { showScreen('historico'); speak('Abrindo histórico'); showFeedback('📜 Abrindo histórico'); return; }
 
-  // ====== COMANDOS DE DADOS ======
+  // ====== DADOS ======
   if (t.includes('exportar') && t.includes('dados')) { exportarDados(); showFeedback('📤 Exportando dados...'); return; }
   if (t.includes('importar') && t.includes('dados')) { showScreen('dados'); speak('Abrindo importação'); showFeedback('📥 Abrindo importação'); return; }
   if (t.includes('limpar') && (t.includes('historico') || t.includes('histórico'))) { clearHistorico(); return; }
   if (t.includes('limpar') && t.includes('dados')) { clearAllData(); return; }
 
-  // ====== COMANDOS DE CONTROLE ======
+  // ====== CONTROLE ======
   if ((t.includes('desativar') || t.includes('desligar')) && (t.includes('comando') || t.includes('voz'))) {
     if (recognizer) recognizer.deactivate();
     speak('Assistente de voz desativado');
@@ -1657,7 +1736,6 @@ function processVoice(raw) {
     return;
   }
 
-  // ====== FALLBACK ======
   speak('Não entendi o comando. Tente: "selecionar estabelecimento", "incluir produtos", "fazer pedido" ou "fechar conta".');
   showFeedback('❓ Comando não reconhecido');
 }
@@ -1821,7 +1899,6 @@ $('speakToggle').onclick = () => {
 };
 $('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
 
-// Drag and Drop para importação
 const dropArea = document.getElementById('dropArea');
 if (dropArea) {
   dropArea.addEventListener('dragover', (e) => { e.preventDefault(); dropArea.classList.add('dragover'); });
@@ -1838,7 +1915,6 @@ if (dropArea) {
   });
 }
 
-// Verifica se o usuário tem cadastro. Se não, direciona para a tela de usuário.
 function verificarUsuario() {
   if (!data.usuario) {
     showScreen('usuario');
