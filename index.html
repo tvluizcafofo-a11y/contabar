@@ -186,34 +186,33 @@ footer{text-align:center;color:var(--muted);padding:25px}
 }
 .payment-options button:hover { background: var(--accent); color: #092114; }
 
-/* QR Code com moldura */
+/* ===== QR CODE COM FUNDO BRANCO E MOLDURA PRETA ===== */
 #qrcode-container {
   display: flex;
   justify-content: center;
-  margin: 15px 0;
-  padding: 10px;
-  background: white;
-  border-radius: 12px;
-  border: 4px solid var(--accent);
-  box-shadow: 0 0 20px rgba(57, 201, 122, 0.3);
+  margin: 15px auto;
+  padding: 12px;
+  background: #ffffff;
+  border-radius: 16px;
+  border: 4px solid #000000;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  max-width: fit-content;
 }
 #qrcode {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 210px;
-  min-width: 210px;
+  background: #ffffff;
+  border-radius: 4px;
+  padding: 0;
 }
 #qrcode canvas, #qrcode img {
   display: block !important;
   margin: 0 auto;
   max-width: 100%;
   height: auto;
+  border-radius: 2px;
 }
-
-/* ===== ITENS DO HISTÓRICO ===== */
-.historico-item .actions .btn-excluir { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 4px 12px; border-radius: 6px; cursor: pointer; }
-.historico-item .actions .btn-excluir:hover { background: var(--danger); color: white; }
 </style>
 </head>
 <body>
@@ -537,7 +536,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 const isAndroidWebView = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 const isWebView = typeof window.Android !== 'undefined' || isAndroidWebView;
 const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-
 console.log('Ambiente:', isAndroidWebView ? 'Android WebView' : isChrome ? 'Chrome' : 'Outro');
 
 // ========== VARIÁVEIS GLOBAIS ==========
@@ -919,32 +917,11 @@ function pagarPix() {
   const btnBanco = document.getElementById('btnAbrirBanco');
   if (user && user.bancoLink) {
     btnBanco.style.display = 'inline-block';
-    // Copia automaticamente e abre o banco
-    copiarPixSilencioso(codigo);
-    setTimeout(() => {
-      abrirBanco();
-    }, 600);
   } else {
     btnBanco.style.display = 'none';
-    // Copia automaticamente mesmo sem banco
-    copiarPixSilencioso(codigo);
   }
-}
-function copiarPixSilencioso(texto) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(texto).then(() => {
-      showFeedback('📋 Código PIX copiado automaticamente!');
-    }).catch(() => {});
-  } else {
-    // fallback silencioso
-    const ta = document.createElement('textarea');
-    ta.value = texto;
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand('copy'); } catch(e) {}
-    ta.remove();
-    showFeedback('📋 Código PIX copiado automaticamente!');
-  }
+  // NÃO copia automaticamente, NÃO abre o banco automaticamente.
+  // O usuário deve clicar nos botões para copiar ou abrir.
 }
 function gerarPayloadPIX(estab, valor) {
   const nome = limparTexto(estab.nome, 25);
@@ -997,16 +974,23 @@ function gerarQRCode(texto) {
   if (qrCodeInstance) qrCodeInstance = null;
   if (typeof QRCode !== 'undefined' && QRCode) {
     try {
+      // Aumentar tamanho para 280x280
       qrCodeInstance = new QRCode(container, {
         text: texto,
-        width: 200,
-        height: 200,
-        colorDark: "#ffffff",
-        colorLight: "#10131a",
+        width: 280,
+        height: 280,
+        colorDark: "#10131a",
+        colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
       });
       const canvas = container.querySelector('canvas');
-      if (canvas) { canvas.style.display = 'block'; canvas.style.margin = '0 auto'; }
+      if (canvas) {
+        canvas.style.display = 'block';
+        canvas.style.margin = '0 auto';
+        canvas.style.borderRadius = '4px';
+        canvas.style.maxWidth = '100%';
+        canvas.style.height = 'auto';
+      }
       const imgs = container.querySelectorAll('img');
       imgs.forEach(img => img.remove());
     } catch (e) {
@@ -1154,7 +1138,7 @@ function excluirContaHistorico(id) {
   showFeedback('🗑️ Conta removida');
 }
 
-// ========== LIMPAR HISTÓRICO (antigo clearHistorico) ==========
+// ========== LIMPAR HISTÓRICO ==========
 function limparHistorico() {
   if (confirm('Limpar todo o histórico?')) {
     data.historico = [];
