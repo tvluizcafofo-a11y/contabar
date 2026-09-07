@@ -558,6 +558,7 @@ let contaFechada = null;
 let pagamentoConfirmado = false;
 let callbackAposFechar = null;
 let qrCodeInstance = null;
+let abrindoBanco = false; // Flag para evitar múltiplas aberturas
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -927,6 +928,8 @@ function fecharPaymentModal() {
   if (qrCodeInstance) qrCodeInstance = null;
   if (callbackAposFechar) { callbackAposFechar = null; }
   contaFechada = null;
+  // Reset flag de abertura do banco
+  abrindoBanco = false;
 }
 function pagarPix() {
   const modal = document.getElementById('pixDetalhes');
@@ -1050,12 +1053,27 @@ function abrirBanco() {
     showFeedback('⚠️ Link do banco não cadastrado.');
     return;
   }
+  // Evitar múltiplas aberturas
+  if (abrindoBanco) {
+    showFeedback('⏳ Abrindo o banco, aguarde...');
+    return;
+  }
+  abrindoBanco = true;
   const link = user.bancoLink;
-  // Tenta abrir o link em uma nova aba para não recarregar a página atual
   try {
-    window.open(link, '_blank');
+    // Abrir em nova janela/aba
+    const win = window.open(link, '_blank');
+    // Se a janela foi bloqueada, tentar com location.href
+    if (!win) {
+      window.location.href = link;
+    }
     showFeedback('🏦 Abrindo app do banco...');
+    // Liberar flag após alguns segundos
+    setTimeout(() => {
+      abrindoBanco = false;
+    }, 5000);
   } catch (e) {
+    abrindoBanco = false;
     showFeedback('⚠️ Não foi possível abrir o app do banco.');
   }
 }
@@ -1098,16 +1116,14 @@ function pagarCartao() {
   }
 }
 
-// ========== ABRIR CONTA (CORRIGIDA) ==========
+// ========== ABRIR CONTA ==========
 function abrirContaManual() {
-  // Se não houver estabelecimento ativo, redireciona para estabelecimentos
   const estabAtivo = getEstabelecimentoAtivo();
   if (!estabAtivo) {
     showFeedback('🏢 Selecione ou crie um estabelecimento primeiro.');
     showScreen('estabelecimentos');
     return;
   }
-  // Se já houver conta ativa, pergunta se quer fechar
   if (data.contaAtiva) {
     if (confirm('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?')) {
       callbackAposFechar = function() { abrirNovaConta(null); };
@@ -1118,9 +1134,7 @@ function abrirContaManual() {
     abrirNovaConta(null);
   }
 }
-
 function abrirNovaConta(nomeEstab) {
-  // Se já houver conta ativa, pergunta se quer fechar
   if (data.contaAtiva) {
     if (confirm('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?')) {
       callbackAposFechar = function() { abrirNovaConta(nomeEstab); };
@@ -1129,10 +1143,8 @@ function abrirNovaConta(nomeEstab) {
       return;
     } else { return; }
   }
-  // Verifica se há estabelecimento ativo
   let estabAtivo = getEstabelecimentoAtivo();
   if (!estabAtivo) {
-    // Se veio com nome, tenta criar
     if (nomeEstab) {
       const id = Date.now() + Math.random();
       data.estabelecimentos[id] = { nome: capitalizarNome(nomeEstab), endereco: '', pix: '', produtos: [] };
@@ -1143,13 +1155,11 @@ function abrirNovaConta(nomeEstab) {
       showFeedback('🏢 ' + nomeEstab + ' criado');
       estabAtivo = getEstabelecimentoAtivo();
     } else {
-      // Sem nome e sem estabelecimento ativo: redireciona
       showFeedback('🏢 Selecione ou crie um estabelecimento.');
       showScreen('estabelecimentos');
       return;
     }
   }
-  // Se tem estabelecimento ativo, abre conta
   data.pedido = [];
   data.contaAtiva = true;
   save();
