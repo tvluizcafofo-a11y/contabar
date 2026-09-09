@@ -213,6 +213,47 @@ footer{text-align:center;color:var(--muted);padding:25px}
   height: auto;
   border-radius: 2px;
 }
+
+/* ===== CHAVES PIX DO USUÁRIO ===== */
+.chave-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--panel2);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  border-left: 3px solid var(--accent);
+}
+.chave-item .chave-info {
+  flex: 1;
+  font-size: 14px;
+}
+.chave-item .chave-info .chave-detalhe {
+  color: var(--muted);
+  font-size: 12px;
+}
+.chave-item .chave-actions button {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 4px 6px;
+  font-size: 16px;
+}
+.chave-item .chave-actions button:hover { color: var(--accent); }
+.chave-item .chave-actions .excluir:hover { color: var(--danger); }
+
+#novaChaveContainer {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--panel2);
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+}
+#novaChaveContainer .row { margin-bottom: 6px; }
+#novaChaveContainer label { font-size: 12px; margin: 0 0 2px; }
+#novaChaveContainer input { padding: 6px 8px; font-size: 14px; margin: 0; }
 </style>
 </head>
 <body>
@@ -348,6 +389,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div id="contaItens"></div>
 <hr style="border-color:var(--border)">
 <div>Estabelecimento: <b id="contaEstabNome">Nenhum</b></div>
+<div>Cliente: <b id="contaClienteNome">Não informado</b></div>
 <div>Status: <b id="contaStatus">Nenhuma conta aberta</b></div>
 <div>Subtotal: <span class="money" id="contaSubtotal">R$ 0,00</span></div>
 <div style="margin-top:10px"><label>Gorjeta</label>
@@ -373,6 +415,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="card">
 <h2>📜 Histórico de Contas</h2>
 <div id="listaHistorico"></div>
+<div id="totalGeralHistorico" style="margin-top:15px; text-align:right; font-weight:bold; font-size:18px; border-top:2px solid var(--accent); padding-top:10px;"></div>
 <button class="danger" style="margin-top:15px" onclick="limparHistorico()">🗑 Limpar histórico</button>
 </div>
 </section>
@@ -387,13 +430,24 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 <div class="row">
 <div><label>Telefone</label><input id="userTelefone" placeholder="(00) 00000-0000"></div>
-<div><label>PIX (chave)</label><input id="userPix" placeholder="CPF, telefone, e-mail ou aleatória"></div>
-</div>
-<div class="row">
-<div><label>Banco</label><input id="userBanco" placeholder="Ex.: Nubank, Itaú, Bradesco"></div>
-<div><label>Link do App do Banco</label><input id="userBancoLink" placeholder="Ex.: nubank:// ou itau://"></div>
-</div>
 <div><label>Endereço</label><input id="userEndereco" placeholder="Rua, número, complemento"></div>
+</div>
+<hr style="border-color:var(--border);margin:12px 0">
+
+<h3>🔑 Chaves PIX</h3>
+<div id="listaChavesUsuario"></div>
+<div id="novaChaveContainer" style="display:none;">
+  <div class="row"><input id="novaChaveChave" placeholder="Chave PIX (CPF, telefone, e-mail...)"></div>
+  <div class="row"><input id="novaChaveBanco" placeholder="Banco (ex: Nubank, Itaú)"></div>
+  <div class="row"><input id="novaChaveLink" placeholder="Link do app do banco (ex: nubank://)"></div>
+  <div style="display:flex;gap:8px;margin-top:6px;">
+    <button class="secondary small" onclick="salvarNovaChave()">💾 Salvar chave</button>
+    <button class="secondary small" onclick="cancelarNovaChave()">❌ Cancelar</button>
+  </div>
+</div>
+<button class="secondary" onclick="mostrarNovaChave()">➕ Adicionar chave PIX</button>
+
+<hr style="border-color:var(--border);margin:12px 0">
 <button onclick="salvarUsuario()">💾 Salvar dados</button>
 <button class="danger" onclick="excluirUsuario()" style="margin-top:10px;">🗑 Excluir meu cadastro</button>
 <p class="note" id="userInfo"></p>
@@ -547,8 +601,9 @@ data.pedido = data.pedido || [];
 data.historico = data.historico || [];
 data.gorjetaConfig = data.gorjetaConfig || 0;
 data.voicePreference = data.voicePreference || 'default';
-data.usuario = data.usuario || null;
+data.usuario = data.usuario || null; // { nome, email, telefone, endereco, chaves: [ { id, chave, banco, bancoLink } ] }
 data.contaAtiva = data.contaAtiva || false;
+data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 let speechOn = data.speechOn !== false;
 let currentEditId = null;
 let currentEditEstabId = null;
@@ -558,7 +613,7 @@ let contaFechada = null;
 let pagamentoConfirmado = false;
 let callbackAposFechar = null;
 let qrCodeInstance = null;
-let abrindoBanco = false; // Flag para evitar múltiplas aberturas
+let abrindoBanco = false;
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -583,25 +638,33 @@ function capitalizarNome(nome) {
   }).join(' ');
 }
 
-// ========== FUNÇÕES DE USUÁRIO ==========
+// ========== FUNÇÕES DE USUÁRIO (COM MÚLTIPLAS CHAVES) ==========
 function salvarUsuario() {
   const nome = $('userNome').value.trim();
   const email = $('userEmail').value.trim();
   const telefone = $('userTelefone').value.trim();
-  const pix = $('userPix').value.trim();
-  const banco = $('userBanco').value.trim();
-  const bancoLink = $('userBancoLink').value.trim();
   const endereco = $('userEndereco').value.trim();
-  if (!nome) { 
+  if (!nome) {
     showFeedback('⚠️ Informe pelo menos o nome.');
-    return; 
+    return;
   }
-  data.usuario = { nome, email, telefone, pix, banco, bancoLink, endereco };
+  // Garantir que as chaves existam
+  if (!data.usuario) data.usuario = { chaves: [] };
+  data.usuario.nome = nome;
+  data.usuario.email = email;
+  data.usuario.telefone = telefone;
+  data.usuario.endereco = endereco;
+  // Se não houver chaves, cria uma vazia para não perder
+  if (!data.usuario.chaves || data.usuario.chaves.length === 0) {
+    data.usuario.chaves = [];
+  }
   save();
   $('userInfo').textContent = 'Dados salvos com sucesso!';
   speak('Dados do usuário salvos');
   showFeedback('👤 Dados salvos');
+  renderUsuario();
 }
+
 function excluirUsuario() {
   if (confirm('Tem certeza que deseja excluir seu cadastro? Esta ação não pode ser desfeita.')) {
     data.usuario = null;
@@ -611,17 +674,89 @@ function excluirUsuario() {
     showFeedback('🗑️ Cadastro removido');
   }
 }
+
 function carregarUsuario() {
   const u = data.usuario;
   if (u) {
     $('userNome').value = u.nome || '';
     $('userEmail').value = u.email || '';
     $('userTelefone').value = u.telefone || '';
-    $('userPix').value = u.pix || '';
-    $('userBanco').value = u.banco || '';
-    $('userBancoLink').value = u.bancoLink || '';
     $('userEndereco').value = u.endereco || '';
   }
+  renderUsuario();
+}
+
+function renderUsuario() {
+  const container = document.getElementById('listaChavesUsuario');
+  const u = data.usuario;
+  if (!u || !u.chaves || u.chaves.length === 0) {
+    container.innerHTML = '<p class="note">Nenhuma chave PIX cadastrada.</p>';
+    return;
+  }
+  container.innerHTML = u.chaves.map((chave, index) => `
+    <div class="chave-item">
+      <div class="chave-info">
+        <strong>${chave.chave}</strong>
+        <div class="chave-detalhe">${chave.banco || 'Banco não informado'} ${chave.bancoLink ? '| Link: '+chave.bancoLink : ''}</div>
+      </div>
+      <div class="chave-actions">
+        <button onclick="editarChaveUsuario(${index})" title="Editar">✏️</button>
+        <button class="excluir" onclick="excluirChaveUsuario(${index})" title="Excluir">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function mostrarNovaChave() {
+  document.getElementById('novaChaveContainer').style.display = 'block';
+  document.getElementById('novaChaveChave').value = '';
+  document.getElementById('novaChaveBanco').value = '';
+  document.getElementById('novaChaveLink').value = '';
+}
+
+function cancelarNovaChave() {
+  document.getElementById('novaChaveContainer').style.display = 'none';
+}
+
+function salvarNovaChave() {
+  const chave = document.getElementById('novaChaveChave').value.trim();
+  const banco = document.getElementById('novaChaveBanco').value.trim();
+  const bancoLink = document.getElementById('novaChaveLink').value.trim();
+  if (!chave) {
+    showFeedback('⚠️ Informe a chave PIX.');
+    return;
+  }
+  if (!data.usuario) data.usuario = { chaves: [] };
+  if (!data.usuario.chaves) data.usuario.chaves = [];
+  data.usuario.chaves.push({ id: Date.now() + Math.random(), chave, banco, bancoLink });
+  cancelarNovaChave();
+  save();
+  renderUsuario();
+  showFeedback('✅ Chave PIX adicionada!');
+}
+
+function editarChaveUsuario(index) {
+  const u = data.usuario;
+  if (!u || !u.chaves || index >= u.chaves.length) return;
+  const chave = u.chaves[index];
+  document.getElementById('novaChaveChave').value = chave.chave;
+  document.getElementById('novaChaveBanco').value = chave.banco || '';
+  document.getElementById('novaChaveLink').value = chave.bancoLink || '';
+  mostrarNovaChave();
+  // Remove a chave antiga, será adicionada novamente com as alterações
+  u.chaves.splice(index, 1);
+  save();
+  renderUsuario();
+}
+
+function excluirChaveUsuario(index) {
+  if (!confirm('Remover esta chave PIX?')) return;
+  const u = data.usuario;
+  if (!u || !u.chaves || index >= u.chaves.length) return;
+  u.chaves.splice(index, 1);
+  save();
+  renderUsuario();
+  showFeedback('🗑️ Chave removida.');
 }
 
 // ========== ESTABELECIMENTOS ==========
@@ -681,9 +816,9 @@ function salvarEstabelecimento() {
   const nome = capitalizarNome($('barNome').value.trim());
   const endereco = $('barEndereco').value.trim();
   const pix = $('barPix').value.trim();
-  if (!nome) { 
+  if (!nome) {
     showFeedback('⚠️ Informe o nome do estabelecimento.');
-    return; 
+    return;
   }
   if (currentEditEstabId) {
     data.estabelecimentos[currentEditEstabId].nome = nome;
@@ -742,9 +877,9 @@ function trocarEstabelecimentoAtivo() {
 }
 function mostrarMiniCardapio() {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) { 
-    showFeedback('⚠️ Nenhum estabelecimento ativo.'); 
-    return; 
+  if (!estab) {
+    showFeedback('⚠️ Nenhum estabelecimento ativo.');
+    return;
   }
   const modal = document.getElementById('miniCardapioModal');
   document.getElementById('modalCardapioNome').textContent = estab.nome;
@@ -765,15 +900,15 @@ function fecharMiniCardapio() {
 // ========== PRODUTOS ==========
 function addProduto(nome, preco) {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) { 
+  if (!estab) {
     showFeedback('⚠️ Nenhum estabelecimento ativo.');
-    return; 
+    return;
   }
   nome = capitalizarNome(nome || $('produtoNome').value.trim());
   preco = preco ?? Number($('produtoPreco').value);
-  if (!nome || isNaN(preco) || preco <= 0) { 
+  if (!nome || isNaN(preco) || preco <= 0) {
     showFeedback('⚠️ Informe nome e preço válido.');
-    return; 
+    return;
   }
   if (currentEditId !== null) {
     const index = estab.produtos.findIndex(p => p.id === currentEditId);
@@ -830,20 +965,20 @@ function deleteProduto(id) {
 // ========== PEDIDO ==========
 function addPedido(produtoId, qtd) {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) { 
+  if (!estab) {
     showFeedback('⚠️ Nenhum estabelecimento ativo.');
-    return; 
+    return;
   }
-  if (!data.contaAtiva) { 
+  if (!data.contaAtiva) {
     showFeedback('⚠️ Não há conta aberta. Abra uma conta primeiro.');
-    return; 
+    return;
   }
   produtoId = produtoId ?? Number($('pedidoProduto').value);
   qtd = qtd ?? Number($('pedidoQtd').value);
   const p = estab.produtos.find(x => x.id == produtoId);
-  if (!p) { 
+  if (!p) {
     showFeedback('⚠️ Produto não encontrado no cardápio atual.');
-    return; 
+    return;
   }
   qtd = Math.max(1, Number(qtd) || 1);
   let item = data.pedido.find(x => x.produtoId == p.id && x.estabId === data.estabelecimentoAtivoId);
@@ -880,9 +1015,9 @@ function confirmarFechamento() {
     } else { return; }
   }
   const estab = getEstabelecimentoAtivo();
-  if (!estab) { 
+  if (!estab) {
     showFeedback('⚠️ Nenhum estabelecimento ativo.');
-    return; 
+    return;
   }
   const sub = subtotal();
   const perc = Number($('gorjeta').value || 0);
@@ -896,6 +1031,7 @@ function confirmarFechamento() {
   const modal = document.getElementById('paymentModal');
   document.getElementById('paymentResumo').innerHTML = `
     <p><b>Estabelecimento:</b> ${estab.nome}</p>
+    <p><b>Cliente:</b> ${contaFechada.cliente}</p>
     <p><b>Subtotal:</b> ${money(sub)}</p>
     <p><b>Gorjeta (${perc}%):</b> ${money(gor)}</p>
     <p><b>TOTAL:</b> <span style="color:#79e9aa;font-weight:bold;">${money(total)}</span></p>
@@ -928,15 +1064,14 @@ function fecharPaymentModal() {
   if (qrCodeInstance) qrCodeInstance = null;
   if (callbackAposFechar) { callbackAposFechar = null; }
   contaFechada = null;
-  // Reset flag de abertura do banco
   abrindoBanco = false;
 }
 function pagarPix() {
   const modal = document.getElementById('pixDetalhes');
   const estab = contaFechada.estab;
-  if (!estab.pix) { 
+  if (!estab.pix) {
     showFeedback('⚠️ Estabelecimento sem chave PIX.');
-    return; 
+    return;
   }
   document.getElementById('pixChaveEstab').textContent = estab.pix;
   document.getElementById('pixValor').textContent = money(contaFechada.total);
@@ -944,14 +1079,18 @@ function pagarPix() {
   document.getElementById('pixCode').textContent = codigo;
   gerarQRCode(codigo);
   modal.style.display = 'block';
+  // Verifica se o usuário tem pelo menos uma chave PIX com bancoLink
   const user = data.usuario;
+  let temLink = false;
+  if (user && user.chaves && user.chaves.length > 0) {
+    temLink = user.chaves.some(c => c.bancoLink && c.bancoLink.trim() !== '');
+  }
   const btnBanco = document.getElementById('btnAbrirBanco');
-  if (user && user.bancoLink) {
+  if (temLink) {
     btnBanco.style.display = 'inline-block';
   } else {
     btnBanco.style.display = 'none';
   }
-  // NÃO copia automaticamente, NÃO abre o banco automaticamente.
 }
 function gerarPayloadPIX(estab, valor) {
   const nome = limparTexto(estab.nome, 25);
@@ -1048,30 +1187,32 @@ function copiarPixFallback(code) {
   ta.remove();
 }
 function abrirBanco() {
+  // Usa a primeira chave do usuário que tem link
   const user = data.usuario;
-  if (!user || !user.bancoLink) {
-    showFeedback('⚠️ Link do banco não cadastrado.');
+  if (!user || !user.chaves || user.chaves.length === 0) {
+    showFeedback('⚠️ Nenhuma chave PIX com link de banco cadastrada.');
     return;
   }
-  // Evitar múltiplas aberturas
+  const chaveComLink = user.chaves.find(c => c.bancoLink && c.bancoLink.trim() !== '');
+  if (!chaveComLink) {
+    showFeedback('⚠️ Nenhuma chave com link de banco cadastrada.');
+    return;
+  }
   if (abrindoBanco) {
-    showFeedback('⏳ Abrindo o banco, aguarde...');
+    showFeedback('⏳ Aguarde...');
     return;
   }
   abrindoBanco = true;
-  const link = user.bancoLink;
+  const link = chaveComLink.bancoLink;
   try {
-    // Abrir em nova janela/aba
+    // Tenta abrir com window.open
     const win = window.open(link, '_blank');
-    // Se a janela foi bloqueada, tentar com location.href
     if (!win) {
+      // Fallback
       window.location.href = link;
     }
     showFeedback('🏦 Abrindo app do banco...');
-    // Liberar flag após alguns segundos
-    setTimeout(() => {
-      abrindoBanco = false;
-    }, 5000);
+    setTimeout(() => { abrindoBanco = false; }, 5000);
   } catch (e) {
     abrindoBanco = false;
     showFeedback('⚠️ Não foi possível abrir o app do banco.');
@@ -1270,6 +1411,8 @@ function renderPedido() {
 function renderConta() {
   const estab = getEstabelecimentoAtivo();
   document.getElementById('contaEstabNome').textContent = estab ? estab.nome : 'Nenhum';
+  const clienteNome = data.cliente?.nome || 'Não informado';
+  document.getElementById('contaClienteNome').textContent = clienteNome;
   const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
   document.getElementById('contaStatus').textContent = statusText;
   const sub = subtotal();
@@ -1296,10 +1439,13 @@ function renderHistorico() {
   const lista = document.getElementById('listaHistorico');
   if (data.historico.length === 0) {
     lista.innerHTML = '<div class="empty">Nenhuma conta no histórico.</div>';
+    document.getElementById('totalGeralHistorico').textContent = '';
     return;
   }
-  lista.innerHTML = data.historico.map(h =>
-    `<div class="card historico-item" style="margin-bottom:12px;">
+  let totalGeral = 0;
+  lista.innerHTML = data.historico.map(h => {
+    totalGeral += h.total || 0;
+    return `<div class="card historico-item" style="margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;">
         <div>
           <b>${h.data}</b><br>
@@ -1311,8 +1457,9 @@ function renderHistorico() {
           <button class="btn-excluir" onclick="excluirContaHistorico(${h.id})">🗑 Excluir</button>
         </div>
       </div>
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
+  document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral de gastos: ${money(totalGeral)}`;
 }
 function renderAll() {
   renderEstabelecimentos();
@@ -1753,22 +1900,31 @@ function exportarDados() {
     speak('Dados exportados com sucesso');
     showFeedback('📤 Dados exportados com sucesso');
     alert('✅ Dados exportados com sucesso!');
-  } catch (e) { alert('❌ Erro ao exportar dados: ' + e.message); }
+  } catch (e) {
+    alert('❌ Erro ao exportar dados: ' + e.message);
+  }
 }
+
 function importarDados(event) {
   const file = event.target.files[0];
-  if (!file) return;
+  if (!file) {
+    showFeedback('⚠️ Nenhum arquivo selecionado.');
+    return;
+  }
   processarImportacao(file);
-  event.target.value = '';
+  event.target.value = ''; // limpa o input para permitir reimportação
 }
+
 function processarImportacao(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
       const dados = JSON.parse(e.target.result);
+      // Validação básica
       if (!dados.estabelecimentos || typeof dados.estabelecimentos !== 'object') throw new Error('Estrutura inválida.');
       if (!dados.pedido || !Array.isArray(dados.pedido)) throw new Error('Pedido inválido.');
       if (!dados.historico || !Array.isArray(dados.historico)) throw new Error('Histórico inválido.');
+      
       const confirmar = confirm(
         '⚠️ Isso irá SUBSTITUIR todos os dados atuais!\n\n' +
         'Estabelecimentos: ' + Object.keys(dados.estabelecimentos).length + '\n' +
@@ -1777,7 +1933,9 @@ function processarImportacao(file) {
         'Deseja continuar?'
       );
       if (!confirmar) return;
-      data.estabelecimentos = dados.estabelecimentos;
+      
+      // Substitui todos os dados
+      data.estabelecimentos = dados.estabelecimentos || {};
       data.pedido = dados.pedido || [];
       data.historico = dados.historico || [];
       data.estabelecimentoAtivoId = dados.estabelecimentoAtivoId || Object.keys(dados.estabelecimentos)[0] || null;
@@ -1787,8 +1945,10 @@ function processarImportacao(file) {
       data.usuario = dados.usuario || null;
       data.cliente = dados.cliente || { nome: '', telefone: '', banco: '' };
       data.contaAtiva = dados.contaAtiva || false;
+      
       save();
       renderAll();
+      
       const status = document.getElementById('importStatus');
       status.style.display = 'block';
       status.style.background = 'rgba(57,201,122,0.1)';
@@ -1810,6 +1970,7 @@ function processarImportacao(file) {
   };
   reader.readAsText(file);
 }
+
 function clearAllData() {
   if (confirm('⚠️ Tem certeza que deseja limpar TODOS os dados?')) {
     if (confirm('Confirmar limpeza total?')) {
