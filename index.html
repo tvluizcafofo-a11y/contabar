@@ -214,8 +214,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
   border-radius: 2px;
 }
 
-/* ===== CHAVES PIX DO USUÁRIO ===== */
-.chave-item {
+/* ===== BANCOS DO USUÁRIO ===== */
+.banco-item {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -225,15 +225,15 @@ footer{text-align:center;color:var(--muted);padding:25px}
   margin-bottom: 6px;
   border-left: 3px solid var(--accent);
 }
-.chave-item .chave-info {
+.banco-item .banco-info {
   flex: 1;
   font-size: 14px;
 }
-.chave-item .chave-info .chave-detalhe {
+.banco-item .banco-info .banco-detalhe {
   color: var(--muted);
   font-size: 12px;
 }
-.chave-item .chave-actions button {
+.banco-item .banco-actions button {
   background: transparent;
   border: none;
   color: var(--text);
@@ -241,19 +241,19 @@ footer{text-align:center;color:var(--muted);padding:25px}
   padding: 4px 6px;
   font-size: 16px;
 }
-.chave-item .chave-actions button:hover { color: var(--accent); }
-.chave-item .chave-actions .excluir:hover { color: var(--danger); }
+.banco-item .banco-actions button:hover { color: var(--accent); }
+.banco-item .banco-actions .excluir:hover { color: var(--danger); }
 
-#novaChaveContainer {
+#novoBancoContainer {
   margin-top: 10px;
   padding: 12px;
   background: var(--panel2);
   border-radius: 8px;
   border: 1px dashed var(--border);
 }
-#novaChaveContainer .row { margin-bottom: 6px; }
-#novaChaveContainer label { font-size: 12px; margin: 0 0 2px; }
-#novaChaveContainer input { padding: 6px 8px; font-size: 14px; margin: 0; }
+#novoBancoContainer .row { margin-bottom: 6px; }
+#novoBancoContainer label { font-size: 12px; margin: 0 0 2px; }
+#novoBancoContainer input { padding: 6px 8px; font-size: 14px; margin: 0; }
 </style>
 </head>
 <body>
@@ -434,18 +434,17 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 <hr style="border-color:var(--border);margin:12px 0">
 
-<h3>🔑 Chaves PIX</h3>
-<div id="listaChavesUsuario"></div>
-<div id="novaChaveContainer" style="display:none;">
-  <div class="row"><input id="novaChaveChave" placeholder="Chave PIX (CPF, telefone, e-mail...)"></div>
-  <div class="row"><input id="novaChaveBanco" placeholder="Banco (ex: Nubank, Itaú)"></div>
-  <div class="row"><input id="novaChaveLink" placeholder="Link do app do banco (ex: nubank://)"></div>
+<h3>🏦 Bancos para pagamento</h3>
+<div id="listaBancosUsuario"></div>
+<div id="novoBancoContainer" style="display:none;">
+  <div class="row"><input id="novoBancoNome" placeholder="Nome do banco (ex: Nubank)"></div>
+  <div class="row"><input id="novoBancoLink" placeholder="Link do app (ex: nubank://)"></div>
   <div style="display:flex;gap:8px;margin-top:6px;">
-    <button class="secondary small" onclick="salvarNovaChave()">💾 Salvar chave</button>
-    <button class="secondary small" onclick="cancelarNovaChave()">❌ Cancelar</button>
+    <button class="secondary small" onclick="salvarNovoBanco()">💾 Salvar banco</button>
+    <button class="secondary small" onclick="cancelarNovoBanco()">❌ Cancelar</button>
   </div>
 </div>
-<button class="secondary" onclick="mostrarNovaChave()">➕ Adicionar chave PIX</button>
+<button class="secondary" onclick="mostrarNovoBanco()">➕ Adicionar banco</button>
 
 <hr style="border-color:var(--border);margin:12px 0">
 <button onclick="salvarUsuario()">💾 Salvar dados</button>
@@ -601,7 +600,7 @@ data.pedido = data.pedido || [];
 data.historico = data.historico || [];
 data.gorjetaConfig = data.gorjetaConfig || 0;
 data.voicePreference = data.voicePreference || 'default';
-data.usuario = data.usuario || null; // { nome, email, telefone, endereco, chaves: [ { id, chave, banco, bancoLink } ] }
+data.usuario = data.usuario || null; // { nome, email, telefone, endereco, bancos: [ { id, nome, link } ], bancoAtivoId: id }
 data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 let speechOn = data.speechOn !== false;
@@ -638,7 +637,7 @@ function capitalizarNome(nome) {
   }).join(' ');
 }
 
-// ========== FUNÇÕES DE USUÁRIO (COM MÚLTIPLAS CHAVES) ==========
+// ========== FUNÇÕES DE USUÁRIO (BANCOS) ==========
 function salvarUsuario() {
   const nome = $('userNome').value.trim();
   const email = $('userEmail').value.trim();
@@ -648,15 +647,14 @@ function salvarUsuario() {
     showFeedback('⚠️ Informe pelo menos o nome.');
     return;
   }
-  // Garantir que as chaves existam
-  if (!data.usuario) data.usuario = { chaves: [] };
+  if (!data.usuario) data.usuario = { bancos: [] };
   data.usuario.nome = nome;
   data.usuario.email = email;
   data.usuario.telefone = telefone;
   data.usuario.endereco = endereco;
-  // Se não houver chaves, cria uma vazia para não perder
-  if (!data.usuario.chaves || data.usuario.chaves.length === 0) {
-    data.usuario.chaves = [];
+  if (!data.usuario.bancos) data.usuario.bancos = [];
+  if (data.usuario.bancos.length > 0 && !data.usuario.bancoAtivoId) {
+    data.usuario.bancoAtivoId = data.usuario.bancos[0].id;
   }
   save();
   $('userInfo').textContent = 'Dados salvos com sucesso!';
@@ -687,76 +685,95 @@ function carregarUsuario() {
 }
 
 function renderUsuario() {
-  const container = document.getElementById('listaChavesUsuario');
+  const container = document.getElementById('listaBancosUsuario');
   const u = data.usuario;
-  if (!u || !u.chaves || u.chaves.length === 0) {
-    container.innerHTML = '<p class="note">Nenhuma chave PIX cadastrada.</p>';
+  if (!u || !u.bancos || u.bancos.length === 0) {
+    container.innerHTML = '<p class="note">Nenhum banco cadastrado para pagamento.</p>';
     return;
   }
-  container.innerHTML = u.chaves.map((chave, index) => `
-    <div class="chave-item">
-      <div class="chave-info">
-        <strong>${chave.chave}</strong>
-        <div class="chave-detalhe">${chave.banco || 'Banco não informado'} ${chave.bancoLink ? '| Link: '+chave.bancoLink : ''}</div>
+  container.innerHTML = u.bancos.map((banco, index) => {
+    const isAtivo = (u.bancoAtivoId === banco.id);
+    return `<div class="banco-item">
+      <div class="banco-info">
+        <strong>${banco.nome}</strong>
+        <span style="font-size:12px;color:var(--accent);margin-left:8px;">${isAtivo ? '⭐ ATIVO' : ''}</span>
+        <div class="banco-detalhe">Link: ${banco.link || 'Não informado'}</div>
       </div>
-      <div class="chave-actions">
-        <button onclick="editarChaveUsuario(${index})" title="Editar">✏️</button>
-        <button class="excluir" onclick="excluirChaveUsuario(${index})" title="Excluir">🗑</button>
+      <div class="banco-actions">
+        <button onclick="setBancoAtivo(${index})" title="Tornar ativo" style="color:var(--accent);">⭐</button>
+        <button onclick="editarBancoUsuario(${index})" title="Editar">✏️</button>
+        <button class="excluir" onclick="excluirBancoUsuario(${index})" title="Excluir">🗑</button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
-function mostrarNovaChave() {
-  document.getElementById('novaChaveContainer').style.display = 'block';
-  document.getElementById('novaChaveChave').value = '';
-  document.getElementById('novaChaveBanco').value = '';
-  document.getElementById('novaChaveLink').value = '';
+function setBancoAtivo(index) {
+  const u = data.usuario;
+  if (!u || !u.bancos || index >= u.bancos.length) return;
+  u.bancoAtivoId = u.bancos[index].id;
+  save();
+  renderUsuario();
+  showFeedback('✅ Banco ativo alterado.');
 }
 
-function cancelarNovaChave() {
-  document.getElementById('novaChaveContainer').style.display = 'none';
+function mostrarNovoBanco() {
+  document.getElementById('novoBancoContainer').style.display = 'block';
+  document.getElementById('novoBancoNome').value = '';
+  document.getElementById('novoBancoLink').value = '';
 }
 
-function salvarNovaChave() {
-  const chave = document.getElementById('novaChaveChave').value.trim();
-  const banco = document.getElementById('novaChaveBanco').value.trim();
-  const bancoLink = document.getElementById('novaChaveLink').value.trim();
-  if (!chave) {
-    showFeedback('⚠️ Informe a chave PIX.');
+function cancelarNovoBanco() {
+  document.getElementById('novoBancoContainer').style.display = 'none';
+}
+
+function salvarNovoBanco() {
+  const nome = document.getElementById('novoBancoNome').value.trim();
+  const link = document.getElementById('novoBancoLink').value.trim();
+  if (!nome) {
+    showFeedback('⚠️ Informe o nome do banco.');
     return;
   }
-  if (!data.usuario) data.usuario = { chaves: [] };
-  if (!data.usuario.chaves) data.usuario.chaves = [];
-  data.usuario.chaves.push({ id: Date.now() + Math.random(), chave, banco, bancoLink });
-  cancelarNovaChave();
+  if (!data.usuario) data.usuario = { bancos: [] };
+  if (!data.usuario.bancos) data.usuario.bancos = [];
+  const newId = Date.now() + Math.random();
+  data.usuario.bancos.push({ id: newId, nome, link });
+  if (!data.usuario.bancoAtivoId) {
+    data.usuario.bancoAtivoId = newId;
+  }
+  cancelarNovoBanco();
   save();
   renderUsuario();
-  showFeedback('✅ Chave PIX adicionada!');
+  showFeedback('✅ Banco adicionado!');
 }
 
-function editarChaveUsuario(index) {
+function editarBancoUsuario(index) {
   const u = data.usuario;
-  if (!u || !u.chaves || index >= u.chaves.length) return;
-  const chave = u.chaves[index];
-  document.getElementById('novaChaveChave').value = chave.chave;
-  document.getElementById('novaChaveBanco').value = chave.banco || '';
-  document.getElementById('novaChaveLink').value = chave.bancoLink || '';
-  mostrarNovaChave();
-  // Remove a chave antiga, será adicionada novamente com as alterações
-  u.chaves.splice(index, 1);
+  if (!u || !u.bancos || index >= u.bancos.length) return;
+  const banco = u.bancos[index];
+  document.getElementById('novoBancoNome').value = banco.nome;
+  document.getElementById('novoBancoLink').value = banco.link || '';
+  mostrarNovoBanco();
+  u.bancos.splice(index, 1);
+  if (u.bancoAtivoId === banco.id) {
+    u.bancoAtivoId = u.bancos.length > 0 ? u.bancos[0].id : null;
+  }
   save();
   renderUsuario();
 }
 
-function excluirChaveUsuario(index) {
-  if (!confirm('Remover esta chave PIX?')) return;
+function excluirBancoUsuario(index) {
+  if (!confirm('Remover este banco?')) return;
   const u = data.usuario;
-  if (!u || !u.chaves || index >= u.chaves.length) return;
-  u.chaves.splice(index, 1);
+  if (!u || !u.bancos || index >= u.bancos.length) return;
+  const removido = u.bancos[index];
+  u.bancos.splice(index, 1);
+  if (u.bancoAtivoId === removido.id) {
+    u.bancoAtivoId = u.bancos.length > 0 ? u.bancos[0].id : null;
+  }
   save();
   renderUsuario();
-  showFeedback('🗑️ Chave removida.');
+  showFeedback('🗑️ Banco removido.');
 }
 
 // ========== ESTABELECIMENTOS ==========
@@ -1079,11 +1096,11 @@ function pagarPix() {
   document.getElementById('pixCode').textContent = codigo;
   gerarQRCode(codigo);
   modal.style.display = 'block';
-  // Verifica se o usuário tem pelo menos uma chave PIX com bancoLink
+  // Verifica se o usuário tem pelo menos um banco com link
   const user = data.usuario;
   let temLink = false;
-  if (user && user.chaves && user.chaves.length > 0) {
-    temLink = user.chaves.some(c => c.bancoLink && c.bancoLink.trim() !== '');
+  if (user && user.bancos && user.bancos.length > 0) {
+    temLink = user.bancos.some(b => b.link && b.link.trim() !== '');
   }
   const btnBanco = document.getElementById('btnAbrirBanco');
   if (temLink) {
@@ -1187,15 +1204,21 @@ function copiarPixFallback(code) {
   ta.remove();
 }
 function abrirBanco() {
-  // Usa a primeira chave do usuário que tem link
+  // Usa o banco ativo do usuário
   const user = data.usuario;
-  if (!user || !user.chaves || user.chaves.length === 0) {
-    showFeedback('⚠️ Nenhuma chave PIX com link de banco cadastrada.');
+  if (!user || !user.bancos || user.bancos.length === 0) {
+    showFeedback('⚠️ Nenhum banco cadastrado.');
     return;
   }
-  const chaveComLink = user.chaves.find(c => c.bancoLink && c.bancoLink.trim() !== '');
-  if (!chaveComLink) {
-    showFeedback('⚠️ Nenhuma chave com link de banco cadastrada.');
+  let bancoSelecionado = null;
+  if (user.bancoAtivoId) {
+    bancoSelecionado = user.bancos.find(b => b.id === user.bancoAtivoId);
+  }
+  if (!bancoSelecionado) {
+    bancoSelecionado = user.bancos[0];
+  }
+  if (!bancoSelecionado.link || bancoSelecionado.link.trim() === '') {
+    showFeedback('⚠️ O banco selecionado não possui link.');
     return;
   }
   if (abrindoBanco) {
@@ -1203,12 +1226,10 @@ function abrirBanco() {
     return;
   }
   abrindoBanco = true;
-  const link = chaveComLink.bancoLink;
+  const link = bancoSelecionado.link;
   try {
-    // Tenta abrir com window.open
     const win = window.open(link, '_blank');
     if (!win) {
-      // Fallback
       window.location.href = link;
     }
     showFeedback('🏦 Abrindo app do banco...');
@@ -1912,7 +1933,7 @@ function importarDados(event) {
     return;
   }
   processarImportacao(file);
-  event.target.value = ''; // limpa o input para permitir reimportação
+  event.target.value = '';
 }
 
 function processarImportacao(file) {
@@ -1920,7 +1941,6 @@ function processarImportacao(file) {
   reader.onload = function(e) {
     try {
       const dados = JSON.parse(e.target.result);
-      // Validação básica
       if (!dados.estabelecimentos || typeof dados.estabelecimentos !== 'object') throw new Error('Estrutura inválida.');
       if (!dados.pedido || !Array.isArray(dados.pedido)) throw new Error('Pedido inválido.');
       if (!dados.historico || !Array.isArray(dados.historico)) throw new Error('Histórico inválido.');
@@ -1934,7 +1954,6 @@ function processarImportacao(file) {
       );
       if (!confirmar) return;
       
-      // Substitui todos os dados
       data.estabelecimentos = dados.estabelecimentos || {};
       data.pedido = dados.pedido || [];
       data.historico = dados.historico || [];
