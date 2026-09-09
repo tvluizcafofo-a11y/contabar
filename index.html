@@ -254,6 +254,16 @@ footer{text-align:center;color:var(--muted);padding:25px}
 #novoBancoContainer .row { margin-bottom: 6px; }
 #novoBancoContainer label { font-size: 12px; margin: 0 0 2px; }
 #novoBancoContainer input { padding: 6px 8px; font-size: 14px; margin: 0; }
+
+/* Desconto */
+.desconto-container {
+  background: var(--panel2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 10px;
+  border-left: 3px solid var(--accent);
+}
+.desconto-container .row { margin-bottom: 6px; }
 </style>
 </head>
 <body>
@@ -392,8 +402,18 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div>Cliente: <b id="contaClienteNome">Não informado</b></div>
 <div>Status: <b id="contaStatus">Nenhuma conta aberta</b></div>
 <div>Subtotal: <span class="money" id="contaSubtotal">R$ 0,00</span></div>
+
+<!-- Desconto -->
+<div class="desconto-container">
+  <div class="row">
+    <div><label>Desconto (R$)</label><input id="descontoValor" type="number" step="0.01" min="0" placeholder="0,00" oninput="calcularTotaisConta()"></div>
+    <div><label>Descrição do desconto</label><input id="descontoDescricao" placeholder="Ex.: Cupom, cortesia" maxlength="50"></div>
+  </div>
+</div>
+
+<div>Subtotal com desconto: <span class="money" id="contaSubtotalDesconto">R$ 0,00</span></div>
 <div style="margin-top:10px"><label>Gorjeta</label>
-<select id="gorjeta" onchange="saveGorjetaConfig()">
+<select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
 <option value="0">Sem gorjeta</option>
 <option value="10">10% - Serviço</option>
 <option value="15">15%</option>
@@ -425,12 +445,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="card">
 <h2>👤 Meu Cadastro</h2>
 <div class="row">
-<div><label>Nome</label><input id="userNome" placeholder="Seu nome completo"></div>
-<div><label>E-mail</label><input id="userEmail" placeholder="seu@email.com"></div>
+<div><label>Nome</label><input id="userNome" placeholder="Seu nome completo" onchange="salvarUsuarioAutomatico()"></div>
+<div><label>E-mail</label><input id="userEmail" placeholder="seu@email.com" onchange="salvarUsuarioAutomatico()"></div>
 </div>
 <div class="row">
-<div><label>Telefone</label><input id="userTelefone" placeholder="(00) 00000-0000"></div>
-<div><label>Endereço</label><input id="userEndereco" placeholder="Rua, número, complemento"></div>
+<div><label>Telefone</label><input id="userTelefone" placeholder="(00) 00000-0000" onchange="salvarUsuarioAutomatico()"></div>
+<div><label>Endereço</label><input id="userEndereco" placeholder="Rua, número, complemento" onchange="salvarUsuarioAutomatico()"></div>
 </div>
 <hr style="border-color:var(--border);margin:12px 0">
 
@@ -444,11 +464,10 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <button class="secondary small" onclick="cancelarNovoBanco()">❌ Cancelar</button>
   </div>
 </div>
-<button class="secondary" onclick="mostrarNovoBanco()">➕ Adicionar banco</button>
+<button id="btnAdicionarBanco" class="secondary" onclick="mostrarNovoBanco()">➕ Adicionar banco</button>
 
 <hr style="border-color:var(--border);margin:12px 0">
-<button onclick="salvarUsuario()">💾 Salvar dados</button>
-<button class="danger" onclick="excluirUsuario()" style="margin-top:10px;">🗑 Excluir meu cadastro</button>
+<button class="danger" onclick="excluirUsuario()">🗑 Excluir meu cadastro</button>
 <p class="note" id="userInfo"></p>
 </div>
 </section>
@@ -638,13 +657,13 @@ function capitalizarNome(nome) {
 }
 
 // ========== FUNÇÕES DE USUÁRIO (BANCOS) ==========
-function salvarUsuario() {
+function salvarUsuarioAutomatico() {
   const nome = $('userNome').value.trim();
   const email = $('userEmail').value.trim();
   const telefone = $('userTelefone').value.trim();
   const endereco = $('userEndereco').value.trim();
   if (!nome) {
-    showFeedback('⚠️ Informe pelo menos o nome.');
+    // Não salva se não tiver nome
     return;
   }
   if (!data.usuario) data.usuario = { bancos: [] };
@@ -657,10 +676,8 @@ function salvarUsuario() {
     data.usuario.bancoAtivoId = data.usuario.bancos[0].id;
   }
   save();
-  $('userInfo').textContent = 'Dados salvos com sucesso!';
-  speak('Dados do usuário salvos');
-  showFeedback('👤 Dados salvos');
-  renderUsuario();
+  $('userInfo').textContent = 'Dados salvos automaticamente.';
+  setTimeout(() => { $('userInfo').textContent = ''; }, 3000);
 }
 
 function excluirUsuario() {
@@ -719,12 +736,14 @@ function setBancoAtivo(index) {
 
 function mostrarNovoBanco() {
   document.getElementById('novoBancoContainer').style.display = 'block';
+  document.getElementById('btnAdicionarBanco').style.display = 'none';
   document.getElementById('novoBancoNome').value = '';
   document.getElementById('novoBancoLink').value = '';
 }
 
 function cancelarNovoBanco() {
   document.getElementById('novoBancoContainer').style.display = 'none';
+  document.getElementById('btnAdicionarBanco').style.display = 'inline-block';
 }
 
 function salvarNovoBanco() {
@@ -751,15 +770,20 @@ function editarBancoUsuario(index) {
   const u = data.usuario;
   if (!u || !u.bancos || index >= u.bancos.length) return;
   const banco = u.bancos[index];
+  // Preenche os campos e exibe o container de edição
   document.getElementById('novoBancoNome').value = banco.nome;
   document.getElementById('novoBancoLink').value = banco.link || '';
-  mostrarNovoBanco();
+  document.getElementById('novoBancoContainer').style.display = 'block';
+  document.getElementById('btnAdicionarBanco').style.display = 'none';
+  // Remove o banco da lista para ser substituído após edição
   u.bancos.splice(index, 1);
   if (u.bancoAtivoId === banco.id) {
     u.bancoAtivoId = u.bancos.length > 0 ? u.bancos[0].id : null;
   }
   save();
   renderUsuario();
+  // Marca que está editando
+  document.getElementById('novoBancoContainer').dataset.editando = 'true';
 }
 
 function excluirBancoUsuario(index) {
@@ -1018,6 +1042,19 @@ function subtotal() {
   return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0);
 }
 
+// ===== CÁLCULO DA CONTA COM DESCONTO =====
+function calcularTotaisConta() {
+  const sub = subtotal();
+  const desconto = Number($('descontoValor').value) || 0;
+  const subComDesconto = Math.max(0, sub - desconto);
+  const perc = Number($('gorjeta').value || 0);
+  const gor = subComDesconto * perc / 100;
+  const total = subComDesconto + gor;
+  document.getElementById('contaSubtotalDesconto').textContent = money(subComDesconto);
+  document.getElementById('contaGorjeta').textContent = money(gor);
+  document.getElementById('contaTotal').textContent = money(total);
+}
+
 // ========== CONTA E PAGAMENTO ==========
 function confirmarFechamento() {
   if (!data.contaAtiva) {
@@ -1037,11 +1074,21 @@ function confirmarFechamento() {
     return;
   }
   const sub = subtotal();
+  const desconto = Number($('descontoValor').value) || 0;
+  const descricaoDesconto = $('descontoDescricao').value.trim() || 'Sem descrição';
+  const subComDesconto = Math.max(0, sub - desconto);
   const perc = Number($('gorjeta').value || 0);
-  const gor = sub * perc / 100;
-  const total = sub + gor;
+  const gor = subComDesconto * perc / 100;
+  const total = subComDesconto + gor;
   contaFechada = {
-    estab, sub, gor, perc, total,
+    estab,
+    sub,
+    desconto,
+    descricaoDesconto,
+    subComDesconto,
+    gor,
+    perc,
+    total,
     itens: JSON.parse(JSON.stringify(data.pedido)),
     cliente: data.cliente?.nome || 'Não informado'
   };
@@ -1050,6 +1097,8 @@ function confirmarFechamento() {
     <p><b>Estabelecimento:</b> ${estab.nome}</p>
     <p><b>Cliente:</b> ${contaFechada.cliente}</p>
     <p><b>Subtotal:</b> ${money(sub)}</p>
+    ${desconto > 0 ? `<p><b>Desconto (${descricaoDesconto}):</b> -${money(desconto)}</p>` : ''}
+    <p><b>Subtotal c/ desconto:</b> ${money(subComDesconto)}</p>
     <p><b>Gorjeta (${perc}%):</b> ${money(gor)}</p>
     <p><b>TOTAL:</b> <span style="color:#79e9aa;font-weight:bold;">${money(total)}</span></p>
   `;
@@ -1064,7 +1113,7 @@ function fecharContaVazia() {
     id: Date.now(), data: new Date().toLocaleString('pt-BR'),
     estabelecimento: estab.nome,
     cliente: data.cliente?.nome || 'Não informado',
-    itens: [], subtotal: 0, gorjeta: 0, percentual: 0, total: 0
+    itens: [], subtotal: 0, desconto: 0, descricaoDesconto: '', subComDesconto: 0, gorjeta: 0, percentual: 0, total: 0
   };
   data.historico.unshift(conta);
   data.pedido = [];
@@ -1242,11 +1291,15 @@ function abrirBanco() {
 function finalizarPagamento() {
   if (!contaFechada) return;
   const conta = {
-    id: Date.now(), data: new Date().toLocaleString('pt-BR'),
+    id: Date.now(),
+    data: new Date().toLocaleString('pt-BR'),
     estabelecimento: contaFechada.estab.nome,
     cliente: contaFechada.cliente,
     itens: contaFechada.itens,
     subtotal: contaFechada.sub,
+    desconto: contaFechada.desconto,
+    descricaoDesconto: contaFechada.descricaoDesconto,
+    subComDesconto: contaFechada.subComDesconto,
     gorjeta: contaFechada.gor,
     percentual: contaFechada.perc,
     total: contaFechada.total
@@ -1254,6 +1307,9 @@ function finalizarPagamento() {
   data.historico.unshift(conta);
   data.pedido = [];
   data.contaAtiva = false;
+  // Resetar campos de desconto
+  $('descontoValor').value = '';
+  $('descontoDescricao').value = '';
   save();
   renderAll();
   const texto = `Pagamento confirmado. Total: ${money(contaFechada.total)}.`;
@@ -1324,6 +1380,9 @@ function abrirNovaConta(nomeEstab) {
   }
   data.pedido = [];
   data.contaAtiva = true;
+  // Resetar campos de desconto ao abrir nova conta
+  $('descontoValor').value = '';
+  $('descontoDescricao').value = '';
   save();
   renderAll();
   speak('Nova conta aberta em ' + estabAtivo.nome);
@@ -1437,20 +1496,9 @@ function renderConta() {
   const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
   document.getElementById('contaStatus').textContent = statusText;
   const sub = subtotal();
-  const perc = Number($('gorjeta').value || 0);
-  const gor = sub * perc / 100;
-  const total = sub + gor;
-  const itensDiv = document.getElementById('contaItens');
-  if (data.pedido.length === 0) {
-    itensDiv.innerHTML = '<div class="empty">Nenhum pedido aberto.</div>';
-  } else {
-    itensDiv.innerHTML = data.pedido.map(x =>
-      `<div class="list-item"><span>${x.qtd}× ${x.nome}</span><span>${money(x.preco * x.qtd)}</span></div>`
-    ).join('');
-  }
   document.getElementById('contaSubtotal').textContent = money(sub);
-  document.getElementById('contaGorjeta').textContent = money(gor);
-  document.getElementById('contaTotal').textContent = money(total);
+  // Calcular totais com desconto
+  calcularTotaisConta();
   const e = estab || {};
   document.getElementById('pixInfo').innerHTML = e.nome ?
     `<b>${e.nome}</b><br>${e.endereco || ''}<br><br><b>Chave PIX:</b><br>${e.pix || 'Não informada'}` :
@@ -1466,12 +1514,17 @@ function renderHistorico() {
   let totalGeral = 0;
   lista.innerHTML = data.historico.map(h => {
     totalGeral += h.total || 0;
+    let descontoStr = '';
+    if (h.desconto && h.desconto > 0) {
+      descontoStr = `<span style="color:var(--danger);">Desconto: -${money(h.desconto)} (${h.descricaoDesconto || 'sem descrição'})</span><br>`;
+    }
     return `<div class="card historico-item" style="margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;">
         <div>
           <b>${h.data}</b><br>
           <span class="note">Estabelecimento: ${h.estabelecimento} | Cliente: ${h.cliente}</span><br>
           ${h.itens.map(x => `${x.qtd}× ${x.nome}`).join(', ')}<br>
+          ${descontoStr}
           <b>Total: ${money(h.total)}</b>
         </div>
         <div class="actions">
