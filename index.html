@@ -7,10 +7,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
 </script>
 <style>
-/* ===== ESTILOS GERAIS ===== */
 :root{
   --bg:#10131a;--panel:#191e28;--panel2:#222938;--text:#f4f7fb;--muted:#aeb8c8;
   --accent:#39c97a;--accent2:#2da967;--danger:#ef5d67;--border:#30394a;
+  --info:#4fc3f7;
 }
 *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#0d1016,#171d29);color:var(--text)}
 header{padding:18px 22px;background:#121722;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
@@ -76,7 +76,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   flex:1;
   min-width:150px;
 }
-/* ===== MODAL DE FEEDBACK ===== */
 .feedback-modal {
   position: fixed;
   top: 20px;
@@ -135,7 +134,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .feedback-modal .dismiss-check label { cursor: pointer; color: #092114; opacity: 0.8; }
 .feedback-modal .dismiss-check label:hover { opacity: 1; }
 
-/* ===== MODAL DE PAGAMENTO ===== */
 .payment-modal {
   display: none;
   position: fixed;
@@ -186,7 +184,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 }
 .payment-options button:hover { background: var(--accent); color: #092114; }
 
-/* ===== QR CODE ===== */
 #qrcode-container {
   display: flex;
   justify-content: center;
@@ -214,7 +211,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   border-radius: 2px;
 }
 
-/* ===== BANCOS DO USUÁRIO ===== */
 .banco-item {
   display: flex;
   align-items: center;
@@ -255,7 +251,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 #novoBancoContainer label { font-size: 12px; margin: 0 0 2px; }
 #novoBancoContainer input { padding: 6px 8px; font-size: 14px; margin: 0; }
 
-/* Desconto */
 .desconto-container {
   background: var(--panel2);
   border-radius: 8px;
@@ -301,15 +296,14 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button data-screen="dados">💾 Dados</button>
 </nav>
 
-<!-- ===== INÍCIO ===== -->
 <section id="inicio" class="screen active">
 <div class="grid">
 <div class="card">
 <h2>🎤 Comandos de voz</h2>
 <p>Use o botão <b>Ouvir comando</b> e fale naturalmente.</p>
 <ul class="note">
-<li><b>"Abrir conta"</b> - Cria nova conta no estabelecimento ativo (se não houver, mostra estabelecimentos)</li>
-<li><b>"Abrir conta [nome]"</b> - Ex: "abrir conta Bar do Zé" (seleciona e abre, com a mesma verificação)</li>
+<li><b>"Abrir conta"</b> - Cria nova conta no estabelecimento ativo</li>
+<li><b>"Abrir conta [nome]"</b> - Ex: "abrir conta Bar do Zé"</li>
 <li><b>"Selecionar [nome]"</b> - Ex: "selecionar Bar do Zé"</li>
 <li><b>"Incluir produtos [nome] [valor]"</b> - Ex: "incluir produtos cerveja 10 reais"</li>
 <li><b>"Ver cardápio"</b> - Mostra o mini cardápio do estabelecimento ativo</li>
@@ -329,7 +323,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== ESTABELECIMENTOS ===== -->
 <section id="estabelecimentos" class="screen">
 <div class="card">
 <h2>🏢 Gerenciar Estabelecimentos</h2>
@@ -352,7 +345,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== CARDÁPIO ===== -->
 <section id="cardapio" class="screen">
 <div class="grid">
 <div class="card">
@@ -370,7 +362,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== PEDIDO ===== -->
 <section id="pedido" class="screen">
 <div class="grid">
 <div class="card">
@@ -391,7 +382,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== CONTA ===== -->
 <section id="conta" class="screen">
 <div class="grid">
 <div class="card">
@@ -399,11 +389,10 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div id="contaItens"></div>
 <hr style="border-color:var(--border)">
 <div>Estabelecimento: <b id="contaEstabNome">Nenhum</b></div>
-<div>Cliente: <b id="contaClienteNome">Não informado</b></div>
+<div>Cliente/Usuário: <b id="contaClienteNome">Não informado</b></div>
 <div>Status: <b id="contaStatus">Nenhuma conta aberta</b></div>
 <div>Subtotal: <span class="money" id="contaSubtotal">R$ 0,00</span></div>
 
-<!-- Desconto -->
 <div class="desconto-container">
   <div class="row">
     <div><label>Desconto (R$)</label><input id="descontoValor" type="number" step="0.01" min="0" placeholder="0,00" oninput="calcularTotaisConta()"></div>
@@ -430,7 +419,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== HISTÓRICO ===== -->
 <section id="historico" class="screen">
 <div class="card">
 <h2>📜 Histórico de Contas</h2>
@@ -440,7 +428,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== USUÁRIO ===== -->
 <section id="usuario" class="screen">
 <div class="card">
 <h2>👤 Meu Cadastro</h2>
@@ -472,7 +459,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== COMANDOS ===== -->
 <section id="comandos" class="screen">
 <div class="card">
 <h2>🎯 Lista Completa de Comandos de Voz</h2>
@@ -499,8 +485,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </ul>
 <h3>💰 Conta</h3>
 <ul class="command-list">
-  <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Nova conta no estabelecimento ativo (ou redireciona para escolher)</span></li>
-  <li><span class="cmd">"Abrir conta [nome]"</span><br><span class="desc">Seleciona o estabelecimento e abre a conta (com a mesma verificação)</span></li>
+  <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Nova conta no estabelecimento ativo</span></li>
+  <li><span class="cmd">"Abrir conta [nome]"</span><br><span class="desc">Seleciona o estabelecimento e abre a conta</span></li>
   <li><span class="cmd">"Ver conta parcial"</span><br><span class="desc">Mostra o subtotal atual</span></li>
   <li><span class="cmd">"Mostrar conta"</span><br><span class="desc">Abre a tela da conta</span></li>
   <li><span class="cmd">"Fechar conta"</span><br><span class="desc">Finaliza a conta</span></li>
@@ -527,7 +513,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== DADOS ===== -->
 <section id="dados" class="screen">
 <div class="card">
 <h2>💾 Importar / Exportar Dados</h2>
@@ -559,7 +544,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 <footer>🍺 Conta de Bar - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
 
-<!-- ===== MODAL DE FEEDBACK ===== -->
 <div id="feedbackModal" class="feedback-modal">
   <button class="close-btn" onclick="fecharFeedback()">×</button>
   <div id="feedbackMessage">✅ Comando executado!</div>
@@ -569,14 +553,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<!-- ===== MODAL MINI CARDÁPIO ===== -->
 <div id="miniCardapioModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;z-index:10000;max-width:90%;max-height:80%;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.8);min-width:300px;">
   <h3 style="margin-top:0;">📋 Cardápio de <span id="modalCardapioNome"></span></h3>
   <div id="modalCardapioLista" style="margin:15px 0;"></div>
   <button onclick="fecharMiniCardapio()" style="width:100%;">Fechar</button>
 </div>
 
-<!-- ===== MODAL DE PAGAMENTO ===== -->
 <div id="paymentModal" class="payment-modal">
   <div class="payment-content">
     <h2>💳 Opções de Pagamento</h2>
@@ -619,7 +601,7 @@ data.pedido = data.pedido || [];
 data.historico = data.historico || [];
 data.gorjetaConfig = data.gorjetaConfig || 0;
 data.voicePreference = data.voicePreference || 'default';
-data.usuario = data.usuario || null; // { nome, email, telefone, endereco, bancos: [ { id, nome, link } ], bancoAtivoId: id }
+data.usuario = data.usuario || null;
 data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 let speechOn = data.speechOn !== false;
@@ -632,6 +614,7 @@ let pagamentoConfirmado = false;
 let callbackAposFechar = null;
 let qrCodeInstance = null;
 let abrindoBanco = false;
+let editandoBancoId = null; // Flag de edição de banco (FIX)
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -645,6 +628,18 @@ function money(v) {
 }
 function normalize(s) {
   return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+// ========== HELPER PARA NOME DO CLIENTE ==========
+function getNomeCliente() {
+  // Prioriza o nome do usuário cadastrado; caso não exista, usa o cliente antigo; senão, 'Não informado'
+  if (data.usuario && data.usuario.nome && data.usuario.nome.trim() !== '') {
+    return data.usuario.nome;
+  }
+  if (data.cliente && data.cliente.nome && data.cliente.nome.trim() !== '') {
+    return data.cliente.nome;
+  }
+  return 'Não informado';
 }
 
 // ========== CAPITALIZAR NOMES ==========
@@ -662,10 +657,7 @@ function salvarUsuarioAutomatico() {
   const email = $('userEmail').value.trim();
   const telefone = $('userTelefone').value.trim();
   const endereco = $('userEndereco').value.trim();
-  if (!nome) {
-    // Não salva se não tiver nome
-    return;
-  }
+  if (!nome) return;
   if (!data.usuario) data.usuario = { bancos: [] };
   data.usuario.nome = nome;
   data.usuario.email = email;
@@ -735,6 +727,8 @@ function setBancoAtivo(index) {
 }
 
 function mostrarNovoBanco() {
+  // NOVO BANCO: garante que não está em modo de edição
+  editandoBancoId = null;
   document.getElementById('novoBancoContainer').style.display = 'block';
   document.getElementById('btnAdicionarBanco').style.display = 'none';
   document.getElementById('novoBancoNome').value = '';
@@ -742,8 +736,11 @@ function mostrarNovoBanco() {
 }
 
 function cancelarNovoBanco() {
+  editandoBancoId = null;
   document.getElementById('novoBancoContainer').style.display = 'none';
   document.getElementById('btnAdicionarBanco').style.display = 'inline-block';
+  document.getElementById('novoBancoNome').value = '';
+  document.getElementById('novoBancoLink').value = '';
 }
 
 function salvarNovoBanco() {
@@ -755,35 +752,45 @@ function salvarNovoBanco() {
   }
   if (!data.usuario) data.usuario = { bancos: [] };
   if (!data.usuario.bancos) data.usuario.bancos = [];
-  const newId = Date.now() + Math.random();
-  data.usuario.bancos.push({ id: newId, nome, link });
-  if (!data.usuario.bancoAtivoId) {
-    data.usuario.bancoAtivoId = newId;
+
+  if (editandoBancoId) {
+    // MODO EDIÇÃO: atualizar banco existente
+    const banco = data.usuario.bancos.find(b => b.id === editandoBancoId);
+    if (banco) {
+      banco.nome = nome;
+      banco.link = link;
+    }
+    showFeedback('✅ Banco atualizado!');
+  } else {
+    // MODO NOVO: adicionar banco
+    const newId = Date.now() + Math.random();
+    data.usuario.bancos.push({ id: newId, nome, link });
+    if (!data.usuario.bancoAtivoId) {
+      data.usuario.bancoAtivoId = newId;
+    }
+    showFeedback('✅ Banco adicionado!');
   }
-  cancelarNovoBanco();
+
+  // Reseta o formulário
+  editandoBancoId = null;
+  document.getElementById('novoBancoContainer').style.display = 'none';
+  document.getElementById('btnAdicionarBanco').style.display = 'inline-block';
+  document.getElementById('novoBancoNome').value = '';
+  document.getElementById('novoBancoLink').value = '';
   save();
   renderUsuario();
-  showFeedback('✅ Banco adicionado!');
 }
 
 function editarBancoUsuario(index) {
   const u = data.usuario;
   if (!u || !u.bancos || index >= u.bancos.length) return;
   const banco = u.bancos[index];
-  // Preenche os campos e exibe o container de edição
+  // FIX: apenas guarda o ID em edição; NÃO remove o banco
+  editandoBancoId = banco.id;
   document.getElementById('novoBancoNome').value = banco.nome;
   document.getElementById('novoBancoLink').value = banco.link || '';
   document.getElementById('novoBancoContainer').style.display = 'block';
   document.getElementById('btnAdicionarBanco').style.display = 'none';
-  // Remove o banco da lista para ser substituído após edição
-  u.bancos.splice(index, 1);
-  if (u.bancoAtivoId === banco.id) {
-    u.bancoAtivoId = u.bancos.length > 0 ? u.bancos[0].id : null;
-  }
-  save();
-  renderUsuario();
-  // Marca que está editando
-  document.getElementById('novoBancoContainer').dataset.editando = 'true';
 }
 
 function excluirBancoUsuario(index) {
@@ -1042,7 +1049,6 @@ function subtotal() {
   return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0);
 }
 
-// ===== CÁLCULO DA CONTA COM DESCONTO =====
 function calcularTotaisConta() {
   const sub = subtotal();
   const desconto = Number($('descontoValor').value) || 0;
@@ -1090,7 +1096,7 @@ function confirmarFechamento() {
     perc,
     total,
     itens: JSON.parse(JSON.stringify(data.pedido)),
-    cliente: data.cliente?.nome || 'Não informado'
+    cliente: getNomeCliente()
   };
   const modal = document.getElementById('paymentModal');
   document.getElementById('paymentResumo').innerHTML = `
@@ -1112,7 +1118,7 @@ function fecharContaVazia() {
   const conta = {
     id: Date.now(), data: new Date().toLocaleString('pt-BR'),
     estabelecimento: estab.nome,
-    cliente: data.cliente?.nome || 'Não informado',
+    cliente: getNomeCliente(),
     itens: [], subtotal: 0, desconto: 0, descricaoDesconto: '', subComDesconto: 0, gorjeta: 0, percentual: 0, total: 0
   };
   data.historico.unshift(conta);
@@ -1145,7 +1151,6 @@ function pagarPix() {
   document.getElementById('pixCode').textContent = codigo;
   gerarQRCode(codigo);
   modal.style.display = 'block';
-  // Verifica se o usuário tem pelo menos um banco com link
   const user = data.usuario;
   let temLink = false;
   if (user && user.bancos && user.bancos.length > 0) {
@@ -1253,7 +1258,6 @@ function copiarPixFallback(code) {
   ta.remove();
 }
 function abrirBanco() {
-  // Usa o banco ativo do usuário
   const user = data.usuario;
   if (!user || !user.bancos || user.bancos.length === 0) {
     showFeedback('⚠️ Nenhum banco cadastrado.');
@@ -1307,7 +1311,6 @@ function finalizarPagamento() {
   data.historico.unshift(conta);
   data.pedido = [];
   data.contaAtiva = false;
-  // Resetar campos de desconto
   $('descontoValor').value = '';
   $('descontoDescricao').value = '';
   save();
@@ -1380,7 +1383,6 @@ function abrirNovaConta(nomeEstab) {
   }
   data.pedido = [];
   data.contaAtiva = true;
-  // Resetar campos de desconto ao abrir nova conta
   $('descontoValor').value = '';
   $('descontoDescricao').value = '';
   save();
@@ -1390,7 +1392,6 @@ function abrirNovaConta(nomeEstab) {
   showScreen('pedido');
 }
 
-// ========== EXCLUIR ITEM DO HISTÓRICO ==========
 function excluirContaHistorico(id) {
   if (!confirm('Tem certeza que deseja excluir esta conta do histórico?')) return;
   data.historico = data.historico.filter(item => item.id !== id);
@@ -1401,7 +1402,6 @@ function excluirContaHistorico(id) {
   showFeedback('🗑️ Conta removida');
 }
 
-// ========== LIMPAR HISTÓRICO ==========
 function limparHistorico() {
   if (confirm('Limpar todo o histórico?')) {
     data.historico = [];
@@ -1491,13 +1491,12 @@ function renderPedido() {
 function renderConta() {
   const estab = getEstabelecimentoAtivo();
   document.getElementById('contaEstabNome').textContent = estab ? estab.nome : 'Nenhum';
-  const clienteNome = data.cliente?.nome || 'Não informado';
-  document.getElementById('contaClienteNome').textContent = clienteNome;
+  // FIX: mostra nome do usuário/cliente
+  document.getElementById('contaClienteNome').textContent = getNomeCliente();
   const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
   document.getElementById('contaStatus').textContent = statusText;
   const sub = subtotal();
   document.getElementById('contaSubtotal').textContent = money(sub);
-  // Calcular totais com desconto
   calcularTotaisConta();
   const e = estab || {};
   document.getElementById('pixInfo').innerHTML = e.nome ?
@@ -1514,15 +1513,16 @@ function renderHistorico() {
   let totalGeral = 0;
   lista.innerHTML = data.historico.map(h => {
     totalGeral += h.total || 0;
+    // FIX: linha do desconto em azul legível
     let descontoStr = '';
     if (h.desconto && h.desconto > 0) {
-      descontoStr = `<span style="color:var(--danger);">Desconto: -${money(h.desconto)} (${h.descricaoDesconto || 'sem descrição'})</span><br>`;
+      descontoStr = `<span style="color:#5dade2;"><b>Desconto:</b> -${money(h.desconto)} (${h.descricaoDesconto || 'sem descrição'})</span><br>`;
     }
     return `<div class="card historico-item" style="margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;">
         <div>
           <b>${h.data}</b><br>
-          <span class="note">Estabelecimento: ${h.estabelecimento} | Cliente: ${h.cliente}</span><br>
+          <span class="note">Estabelecimento: ${h.estabelecimento} | Cliente: ${h.cliente || 'Não informado'}</span><br>
           ${h.itens.map(x => `${x.qtd}× ${x.nome}`).join(', ')}<br>
           ${descontoStr}
           <b>Total: ${money(h.total)}</b>
@@ -1554,9 +1554,7 @@ function renderAll() {
     selectVoiceByPreference(pref);
   }
 }
-function atualizarResumoDados() {
-  // já é feito no renderAll
-}
+function atualizarResumoDados() { /* feito no renderAll */ }
 
 // ========== FEEDBACK E VOZ ==========
 function showFeedback(mensagem) {
