@@ -4,8 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🍺 Conta de Bar - Cardápio por Estabelecimento</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
   --bg:#10131a;--panel:#191e28;--panel2:#222938;--text:#f4f7fb;--muted:#aeb8c8;
@@ -48,217 +47,42 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .import-area:hover{border-color:var(--accent);background:rgba(57,201,122,0.05);}
 .import-area.dragover{border-color:var(--accent);background:rgba(57,201,122,0.1);}
 @media(max-width:650px){.command-list{columns:1;}}
-.menu-mini{
-  background:var(--panel2);
-  border-radius:12px;
-  padding:12px;
-  margin:10px 0;
-  max-height:200px;
-  overflow-y:auto;
-  border:1px solid var(--border);
-}
-.menu-mini-item{
-  display:flex;
-  justify-content:space-between;
-  padding:4px 0;
-  border-bottom:1px solid var(--border);
-  font-size:14px;
-}
+.menu-mini{background:var(--panel2);border-radius:12px;padding:12px;margin:10px 0;max-height:200px;overflow-y:auto;border:1px solid var(--border);}
+.menu-mini-item{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border);font-size:14px;}
 .menu-mini-item:last-child{border-bottom:none;}
-.estab-selector{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-  margin-bottom:10px;
-}
-.estab-selector select{
-  flex:1;
-  min-width:150px;
-}
-.feedback-modal {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(57, 201, 122, 0.95);
-  color: #092114;
-  padding: 16px 24px;
-  border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-  z-index: 9999;
-  max-width: 90%;
-  min-width: 280px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 16px;
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.2);
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  opacity: 0;
-  transform: translateX(-50%) translateY(-20px);
-  pointer-events: none;
-}
-.feedback-modal.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-  pointer-events: auto;
-}
-.feedback-modal .close-btn {
-  position: absolute;
-  top: 6px;
-  right: 12px;
-  background: none;
-  border: none;
-  color: #092114;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0 4px;
-  font-weight: bold;
-  opacity: 0.7;
-}
-.feedback-modal .close-btn:hover { opacity: 1; }
-.feedback-modal .dismiss-check {
-  margin-top: 10px;
-  font-size: 13px;
-  font-weight: normal;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-}
-.feedback-modal .dismiss-check input[type="checkbox"] {
-  width: 18px; height: 18px; margin: 0; accent-color: #092114; cursor: pointer;
-}
-.feedback-modal .dismiss-check label { cursor: pointer; color: #092114; opacity: 0.8; }
-.feedback-modal .dismiss-check label:hover { opacity: 1; }
-
-.payment-modal {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0,0,0,0.7);
-  z-index: 10001;
-  justify-content: center;
-  align-items: center;
-}
-.payment-modal.active { display: flex; }
-.payment-content {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-  max-width: 500px;
-  width: 95%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-}
-.payment-content h2 { margin-top: 0; }
-.payment-content .pix-code {
-  background: #0a0e14;
-  padding: 12px;
-  border-radius: 8px;
-  word-break: break-all;
-  font-family: monospace;
-  font-size: 14px;
-  border: 1px solid var(--border);
-  margin: 10px 0;
-  color: #8df0b8;
-  max-height: 80px;
-  overflow-y: auto;
-}
-.payment-options {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin: 15px 0;
-}
-.payment-options button {
-  flex: 1;
-  min-width: 100px;
-  background: var(--panel2);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-.payment-options button:hover { background: var(--accent); color: #092114; }
-
-#qrcode-container {
-  display: flex;
-  justify-content: center;
-  margin: 15px auto;
-  padding: 12px;
-  background: #ffffff;
-  border-radius: 16px;
-  border: 4px solid #000000;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-  max-width: fit-content;
-}
-#qrcode {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #ffffff;
-  border-radius: 4px;
-  padding: 0;
-}
-#qrcode canvas, #qrcode img {
-  display: block !important;
-  margin: 0 auto;
-  max-width: 100%;
-  height: auto;
-  border-radius: 2px;
-}
-
-.banco-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--panel2);
-  border-radius: 8px;
-  margin-bottom: 6px;
-  border-left: 3px solid var(--accent);
-}
-.banco-item .banco-info {
-  flex: 1;
-  font-size: 14px;
-}
-.banco-item .banco-info .banco-detalhe {
-  color: var(--muted);
-  font-size: 12px;
-}
-.banco-item .banco-actions button {
-  background: transparent;
-  border: none;
-  color: var(--text);
-  cursor: pointer;
-  padding: 4px 6px;
-  font-size: 16px;
-}
-.banco-item .banco-actions button:hover { color: var(--accent); }
-.banco-item .banco-actions .excluir:hover { color: var(--danger); }
-
-#novoBancoContainer {
-  margin-top: 10px;
-  padding: 12px;
-  background: var(--panel2);
-  border-radius: 8px;
-  border: 1px dashed var(--border);
-}
-#novoBancoContainer .row { margin-bottom: 6px; }
-#novoBancoContainer label { font-size: 12px; margin: 0 0 2px; }
-#novoBancoContainer input { padding: 6px 8px; font-size: 14px; margin: 0; }
-
-.desconto-container {
-  background: var(--panel2);
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 10px;
-  border-left: 3px solid var(--accent);
-}
-.desconto-container .row { margin-bottom: 6px; }
+.estab-selector{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.estab-selector select{flex:1;min-width:150px;}
+.feedback-modal{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(57,201,122,0.95);color:#092114;padding:16px 24px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.6);z-index:9999;max-width:90%;min-width:280px;text-align:center;font-weight:bold;font-size:16px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.2);transition:opacity 0.3s ease,transform 0.3s ease;opacity:0;transform:translateX(-50%) translateY(-20px);pointer-events:none;}
+.feedback-modal.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;}
+.feedback-modal .close-btn{position:absolute;top:6px;right:12px;background:none;border:none;color:#092114;font-size:20px;cursor:pointer;padding:0 4px;font-weight:bold;opacity:0.7;}
+.feedback-modal .close-btn:hover{opacity:1;}
+.feedback-modal .dismiss-check{margin-top:10px;font-size:13px;font-weight:normal;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;}
+.feedback-modal .dismiss-check input[type="checkbox"]{width:18px;height:18px;margin:0;accent-color:#092114;cursor:pointer;}
+.feedback-modal .dismiss-check label{cursor:pointer;color:#092114;opacity:0.8;}
+.feedback-modal .dismiss-check label:hover{opacity:1;}
+.payment-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:10001;justify-content:center;align-items:center;}
+.payment-modal.active{display:flex;}
+.payment-content{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:500px;width:95%;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.8);}
+.payment-content h2{margin-top:0;}
+.payment-content .pix-code{background:#0a0e14;padding:12px;border-radius:8px;word-break:break-all;font-family:monospace;font-size:14px;border:1px solid var(--border);margin:10px 0;color:#8df0b8;max-height:80px;overflow-y:auto;}
+.payment-options{display:flex;gap:12px;flex-wrap:wrap;margin:15px 0;}
+.payment-options button{flex:1;min-width:100px;background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+.payment-options button:hover{background:var(--accent);color:#092114;}
+#qrcode-container{display:flex;justify-content:center;margin:15px auto;padding:12px;background:#ffffff;border-radius:16px;border:4px solid #000000;box-shadow:0 4px 20px rgba(0,0,0,0.5);max-width:fit-content;}
+#qrcode{display:flex;justify-content:center;align-items:center;background:#ffffff;border-radius:4px;padding:0;}
+#qrcode canvas,#qrcode img{display:block !important;margin:0 auto;max-width:100%;height:auto;border-radius:2px;}
+.banco-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--panel2);border-radius:8px;margin-bottom:6px;border-left:3px solid var(--accent);}
+.banco-item .banco-info{flex:1;font-size:14px;}
+.banco-item .banco-info .banco-detalhe{color:var(--muted);font-size:12px;}
+.banco-item .banco-actions button{background:transparent;border:none;color:var(--text);cursor:pointer;padding:4px 6px;font-size:16px;}
+.banco-item .banco-actions button:hover{color:var(--accent);}
+.banco-item .banco-actions .excluir:hover{color:var(--danger);}
+#novoBancoContainer{margin-top:10px;padding:12px;background:var(--panel2);border-radius:8px;border:1px dashed var(--border);}
+#novoBancoContainer .row{margin-bottom:6px;}
+#novoBancoContainer label{font-size:12px;margin:0 0 2px;}
+#novoBancoContainer input{padding:6px 8px;font-size:14px;margin:0;}
+.desconto-container{background:var(--panel2);border-radius:8px;padding:12px;margin-top:10px;border-left:3px solid var(--accent);}
+.desconto-container .row{margin-bottom:6px;}
 </style>
 </head>
 <body>
@@ -521,7 +345,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
   <button onclick="exportarDados()" style="flex:1;">📤 Exportar Dados (JSON)</button>
   <button onclick="document.getElementById('fileInput').click()" style="flex:1;background:var(--panel2);color:var(--text);">📥 Importar Dados</button>
-  <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="importarDados(event)">
+  <input type="file" id="fileInput" accept=".json,application/json" style="display:none;" onchange="importarDados(event)">
 </div>
 <div class="import-area" id="dropArea">
   <p style="font-size:48px;margin:0;">📂</p>
@@ -544,6 +368,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 <footer>🍺 Conta de Bar - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
 
+<!-- ===== MODAL DE FEEDBACK ===== -->
 <div id="feedbackModal" class="feedback-modal">
   <button class="close-btn" onclick="fecharFeedback()">×</button>
   <div id="feedbackMessage">✅ Comando executado!</div>
@@ -553,12 +378,14 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
+<!-- ===== MODAL MINI CARDÁPIO ===== -->
 <div id="miniCardapioModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;z-index:10000;max-width:90%;max-height:80%;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.8);min-width:300px;">
   <h3 style="margin-top:0;">📋 Cardápio de <span id="modalCardapioNome"></span></h3>
   <div id="modalCardapioLista" style="margin:15px 0;"></div>
   <button onclick="fecharMiniCardapio()" style="width:100%;">Fechar</button>
 </div>
 
+<!-- ===== MODAL DE PAGAMENTO ===== -->
 <div id="paymentModal" class="payment-modal">
   <div class="payment-content">
     <h2>💳 Opções de Pagamento</h2>
@@ -581,6 +408,23 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <button id="btnAbrirBanco" onclick="abrirBanco()" style="margin-left:10px;">🏦 Abrir app do banco</button>
       <p style="margin-top:10px;font-size:13px;" class="note">Após o pagamento, clique em "Confirmar pagamento" para finalizar.</p>
       <button onclick="finalizarPagamento()" style="margin-top:10px;">✅ Confirmar pagamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL DE EXPORTAÇÃO ===== -->
+<div id="exportModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:10005;justify-content:center;align-items:center;padding:20px;">
+  <div style="background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:480px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.8);">
+    <h2 style="margin-top:0;color:var(--accent);">✅ Dados exportados com sucesso!</h2>
+    <div style="background:var(--panel2);padding:14px;border-radius:10px;margin:12px 0;border-left:4px solid var(--accent);">
+      <p style="margin:6px 0;"><b>📄 Nome do arquivo:</b><br><span id="exportNomeArquivo" style="color:#8df0b8;font-family:monospace;font-size:13px;word-break:break-all;"></span></p>
+      <p style="margin:6px 0;"><b>📂 Local de salvamento:</b><br><span id="exportLocal" style="color:var(--info);font-size:13px;"></span></p>
+      <p style="margin:6px 0;"><b>📊 Tamanho:</b> <span id="exportTamanho" style="color:var(--muted);font-size:13px;"></span></p>
+    </div>
+    <p class="note" id="exportDica" style="font-size:13px;"></p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+      <button class="secondary small" onclick="copiarConteudoExportado()">📋 Copiar conteúdo</button>
+      <button class="secondary small" onclick="fecharModalExportacao()">Fechar</button>
     </div>
   </div>
 </div>
@@ -614,7 +458,9 @@ let pagamentoConfirmado = false;
 let callbackAposFechar = null;
 let qrCodeInstance = null;
 let abrindoBanco = false;
-let editandoBancoId = null; // Flag de edição de banco (FIX)
+let editandoBancoId = null;
+let ultimoConteudoExportado = '';
+let ultimoNomeArquivoExportado = '';
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -630,9 +476,8 @@ function normalize(s) {
   return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-// ========== HELPER PARA NOME DO CLIENTE ==========
+// ========== HELPER NOME CLIENTE ==========
 function getNomeCliente() {
-  // Prioriza o nome do usuário cadastrado; caso não exista, usa o cliente antigo; senão, 'Não informado'
   if (data.usuario && data.usuario.nome && data.usuario.nome.trim() !== '') {
     return data.usuario.nome;
   }
@@ -642,16 +487,13 @@ function getNomeCliente() {
   return 'Não informado';
 }
 
-// ========== CAPITALIZAR NOMES ==========
+// ========== CAPITALIZAR ==========
 function capitalizarNome(nome) {
   if (!nome) return '';
-  return nome.split(' ').map(palavra => {
-    if (palavra.length === 0) return palavra;
-    return palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase();
-  }).join(' ');
+  return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
 }
 
-// ========== FUNÇÕES DE USUÁRIO (BANCOS) ==========
+// ========== USUÁRIO / BANCOS ==========
 function salvarUsuarioAutomatico() {
   const nome = $('userNome').value.trim();
   const email = $('userEmail').value.trim();
@@ -727,7 +569,6 @@ function setBancoAtivo(index) {
 }
 
 function mostrarNovoBanco() {
-  // NOVO BANCO: garante que não está em modo de edição
   editandoBancoId = null;
   document.getElementById('novoBancoContainer').style.display = 'block';
   document.getElementById('btnAdicionarBanco').style.display = 'none';
@@ -746,32 +587,21 @@ function cancelarNovoBanco() {
 function salvarNovoBanco() {
   const nome = document.getElementById('novoBancoNome').value.trim();
   const link = document.getElementById('novoBancoLink').value.trim();
-  if (!nome) {
-    showFeedback('⚠️ Informe o nome do banco.');
-    return;
-  }
+  if (!nome) { showFeedback('⚠️ Informe o nome do banco.'); return; }
   if (!data.usuario) data.usuario = { bancos: [] };
   if (!data.usuario.bancos) data.usuario.bancos = [];
 
   if (editandoBancoId) {
-    // MODO EDIÇÃO: atualizar banco existente
     const banco = data.usuario.bancos.find(b => b.id === editandoBancoId);
-    if (banco) {
-      banco.nome = nome;
-      banco.link = link;
-    }
+    if (banco) { banco.nome = nome; banco.link = link; }
     showFeedback('✅ Banco atualizado!');
   } else {
-    // MODO NOVO: adicionar banco
     const newId = Date.now() + Math.random();
     data.usuario.bancos.push({ id: newId, nome, link });
-    if (!data.usuario.bancoAtivoId) {
-      data.usuario.bancoAtivoId = newId;
-    }
+    if (!data.usuario.bancoAtivoId) data.usuario.bancoAtivoId = newId;
     showFeedback('✅ Banco adicionado!');
   }
 
-  // Reseta o formulário
   editandoBancoId = null;
   document.getElementById('novoBancoContainer').style.display = 'none';
   document.getElementById('btnAdicionarBanco').style.display = 'inline-block';
@@ -785,7 +615,6 @@ function editarBancoUsuario(index) {
   const u = data.usuario;
   if (!u || !u.bancos || index >= u.bancos.length) return;
   const banco = u.bancos[index];
-  // FIX: apenas guarda o ID em edição; NÃO remove o banco
   editandoBancoId = banco.id;
   document.getElementById('novoBancoNome').value = banco.nome;
   document.getElementById('novoBancoLink').value = banco.link || '';
@@ -822,30 +651,23 @@ function setEstabelecimentoAtivo(id) {
     if (data.contaAtiva) {
       if (confirm('Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?')) {
         callbackAposFechar = function() {
-          data.pedido = [];
-          data.contaAtiva = false;
-          save();
-          renderAll();
-          setEstabelecimentoAtivo(id);
+          data.pedido = []; data.contaAtiva = false;
+          save(); renderAll(); setEstabelecimentoAtivo(id);
         };
         showScreen('conta');
         setTimeout(confirmarFechamento, 300);
         return;
       } else { return; }
     }
-    data.pedido = [];
-    data.contaAtiva = false;
-    save();
-    renderAll();
+    data.pedido = []; data.contaAtiva = false;
+    save(); renderAll();
     const nome = data.estabelecimentos[id].nome;
     speak('Estabelecimento selecionado: ' + nome);
     showFeedback('🏢 Estabelecimento ativo: ' + nome);
   } else {
     data.estabelecimentoAtivoId = null;
-    data.pedido = [];
-    data.contaAtiva = false;
-    save();
-    renderAll();
+    data.pedido = []; data.contaAtiva = false;
+    save(); renderAll();
     speak('Nenhum estabelecimento selecionado');
   }
 }
@@ -864,10 +686,7 @@ function salvarEstabelecimento() {
   const nome = capitalizarNome($('barNome').value.trim());
   const endereco = $('barEndereco').value.trim();
   const pix = $('barPix').value.trim();
-  if (!nome) {
-    showFeedback('⚠️ Informe o nome do estabelecimento.');
-    return;
-  }
+  if (!nome) { showFeedback('⚠️ Informe o nome do estabelecimento.'); return; }
   if (currentEditEstabId) {
     data.estabelecimentos[currentEditEstabId].nome = nome;
     data.estabelecimentos[currentEditEstabId].endereco = endereco;
@@ -883,18 +702,12 @@ function salvarEstabelecimento() {
     speak('Estabelecimento ' + nome + ' adicionado');
     showFeedback('🏢 ' + nome + ' adicionado!');
   }
-  $('barNome').value = '';
-  $('barEndereco').value = '';
-  $('barPix').value = '';
-  save();
-  renderAll();
+  $('barNome').value = ''; $('barEndereco').value = ''; $('barPix').value = '';
+  save(); renderAll();
 }
 function excluirEstabelecimento(id) {
   if (!confirm('Excluir este estabelecimento e todos os seus produtos?')) return;
-  if (data.contaAtiva) {
-    showFeedback('⚠️ Não é possível excluir com uma conta aberta. Feche primeiro.');
-    return;
-  }
+  if (data.contaAtiva) { showFeedback('⚠️ Não é possível excluir com uma conta aberta.'); return; }
   const nome = data.estabelecimentos[id]?.nome || '';
   delete data.estabelecimentos[id];
   if (data.estabelecimentoAtivoId === id) {
@@ -904,12 +717,9 @@ function excluirEstabelecimento(id) {
   if (currentEditEstabId === id) {
     currentEditEstabId = null;
     document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
-    $('barNome').value = '';
-    $('barEndereco').value = '';
-    $('barPix').value = '';
+    $('barNome').value = ''; $('barEndereco').value = ''; $('barPix').value = '';
   }
-  save();
-  renderAll();
+  save(); renderAll();
   speak('Estabelecimento ' + nome + ' excluído');
   showFeedback('🗑️ ' + nome + ' removido');
 }
@@ -918,17 +728,12 @@ function trocarEstabelecimentoAtivo() {
   const id = select.value;
   if (id === '') data.estabelecimentoAtivoId = null;
   else data.estabelecimentoAtivoId = id;
-  data.pedido = [];
-  data.contaAtiva = false;
-  save();
-  renderAll();
+  data.pedido = []; data.contaAtiva = false;
+  save(); renderAll();
 }
 function mostrarMiniCardapio() {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) {
-    showFeedback('⚠️ Nenhum estabelecimento ativo.');
-    return;
-  }
+  if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
   const modal = document.getElementById('miniCardapioModal');
   document.getElementById('modalCardapioNome').textContent = estab.nome;
   const lista = document.getElementById('modalCardapioLista');
@@ -948,16 +753,10 @@ function fecharMiniCardapio() {
 // ========== PRODUTOS ==========
 function addProduto(nome, preco) {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) {
-    showFeedback('⚠️ Nenhum estabelecimento ativo.');
-    return;
-  }
+  if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
   nome = capitalizarNome(nome || $('produtoNome').value.trim());
   preco = preco ?? Number($('produtoPreco').value);
-  if (!nome || isNaN(preco) || preco <= 0) {
-    showFeedback('⚠️ Informe nome e preço válido.');
-    return;
-  }
+  if (!nome || isNaN(preco) || preco <= 0) { showFeedback('⚠️ Informe nome e preço válido.'); return; }
   if (currentEditId !== null) {
     const index = estab.produtos.findIndex(p => p.id === currentEditId);
     if (index !== -1) {
@@ -974,10 +773,8 @@ function addProduto(nome, preco) {
     speak(nome + ' cadastrado por ' + money(preco));
     showFeedback('✅ Produto cadastrado: ' + nome + ' - ' + money(preco));
   }
-  $('produtoNome').value = '';
-  $('produtoPreco').value = '';
-  save();
-  renderAll();
+  $('produtoNome').value = ''; $('produtoPreco').value = '';
+  save(); renderAll();
 }
 function editProduto(id) {
   const estab = getEstabelecimentoAtivo();
@@ -1004,8 +801,7 @@ function deleteProduto(id) {
       document.querySelector('#cardapio .card h2').textContent = '🍺 Cardápio de ' + estab.nome;
       document.querySelector('#cardapio .card button').textContent = '➕ Cadastrar produto';
     }
-    save();
-    renderAll();
+    save(); renderAll();
     if (p) showFeedback('🗑️ Produto excluído: ' + p.nome);
   }
 }
@@ -1013,27 +809,17 @@ function deleteProduto(id) {
 // ========== PEDIDO ==========
 function addPedido(produtoId, qtd) {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) {
-    showFeedback('⚠️ Nenhum estabelecimento ativo.');
-    return;
-  }
-  if (!data.contaAtiva) {
-    showFeedback('⚠️ Não há conta aberta. Abra uma conta primeiro.');
-    return;
-  }
+  if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
+  if (!data.contaAtiva) { showFeedback('⚠️ Não há conta aberta. Abra uma conta primeiro.'); return; }
   produtoId = produtoId ?? Number($('pedidoProduto').value);
   qtd = qtd ?? Number($('pedidoQtd').value);
   const p = estab.produtos.find(x => x.id == produtoId);
-  if (!p) {
-    showFeedback('⚠️ Produto não encontrado no cardápio atual.');
-    return;
-  }
+  if (!p) { showFeedback('⚠️ Produto não encontrado no cardápio atual.'); return; }
   qtd = Math.max(1, Number(qtd) || 1);
   let item = data.pedido.find(x => x.produtoId == p.id && x.estabId === data.estabelecimentoAtivoId);
   if (item) item.qtd += qtd;
   else data.pedido.push({ produtoId: p.id, estabId: data.estabelecimentoAtivoId, nome: p.nome, preco: p.preco, qtd });
-  save();
-  renderAll();
+  save(); renderAll();
   const msg = qtd + 'x ' + p.nome + ' adicionado ao pedido';
   speak(msg);
   showFeedback('🛒 ' + msg);
@@ -1041,14 +827,12 @@ function addPedido(produtoId, qtd) {
 function removePedido(i) {
   const item = data.pedido[i];
   data.pedido.splice(i, 1);
-  save();
-  renderAll();
+  save(); renderAll();
   if (item) showFeedback('🗑️ Removido: ' + item.nome);
 }
 function subtotal() {
   return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0);
 }
-
 function calcularTotaisConta() {
   const sub = subtotal();
   const desconto = Number($('descontoValor').value) || 0;
@@ -1061,7 +845,7 @@ function calcularTotaisConta() {
   document.getElementById('contaTotal').textContent = money(total);
 }
 
-// ========== CONTA E PAGAMENTO ==========
+// ========== CONTA / PAGAMENTO ==========
 function confirmarFechamento() {
   if (!data.contaAtiva) {
     speak('Não há conta aberta para fechar.');
@@ -1075,10 +859,7 @@ function confirmarFechamento() {
     } else { return; }
   }
   const estab = getEstabelecimentoAtivo();
-  if (!estab) {
-    showFeedback('⚠️ Nenhum estabelecimento ativo.');
-    return;
-  }
+  if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
   const sub = subtotal();
   const desconto = Number($('descontoValor').value) || 0;
   const descricaoDesconto = $('descontoDescricao').value.trim() || 'Sem descrição';
@@ -1087,14 +868,7 @@ function confirmarFechamento() {
   const gor = subComDesconto * perc / 100;
   const total = subComDesconto + gor;
   contaFechada = {
-    estab,
-    sub,
-    desconto,
-    descricaoDesconto,
-    subComDesconto,
-    gor,
-    perc,
-    total,
+    estab, sub, desconto, descricaoDesconto, subComDesconto, gor, perc, total,
     itens: JSON.parse(JSON.stringify(data.pedido)),
     cliente: getNomeCliente()
   };
@@ -1119,13 +893,12 @@ function fecharContaVazia() {
     id: Date.now(), data: new Date().toLocaleString('pt-BR'),
     estabelecimento: estab.nome,
     cliente: getNomeCliente(),
-    itens: [], subtotal: 0, desconto: 0, descricaoDesconto: '', subComDesconto: 0, gorjeta: 0, percentual: 0, total: 0
+    itens: [], subtotal: 0, desconto: 0, descricaoDesconto: '', subComDesconto: 0,
+    gorjeta: 0, percentual: 0, total: 0
   };
   data.historico.unshift(conta);
-  data.pedido = [];
-  data.contaAtiva = false;
-  save();
-  renderAll();
+  data.pedido = []; data.contaAtiva = false;
+  save(); renderAll();
   speak('Conta vazia fechada.');
   showFeedback('🧾 Conta fechada (sem itens)');
 }
@@ -1141,10 +914,7 @@ function fecharPaymentModal() {
 function pagarPix() {
   const modal = document.getElementById('pixDetalhes');
   const estab = contaFechada.estab;
-  if (!estab.pix) {
-    showFeedback('⚠️ Estabelecimento sem chave PIX.');
-    return;
-  }
+  if (!estab.pix) { showFeedback('⚠️ Estabelecimento sem chave PIX.'); return; }
   document.getElementById('pixChaveEstab').textContent = estab.pix;
   document.getElementById('pixValor').textContent = money(contaFechada.total);
   const codigo = gerarPayloadPIX(estab, contaFechada.total);
@@ -1156,12 +926,7 @@ function pagarPix() {
   if (user && user.bancos && user.bancos.length > 0) {
     temLink = user.bancos.some(b => b.link && b.link.trim() !== '');
   }
-  const btnBanco = document.getElementById('btnAbrirBanco');
-  if (temLink) {
-    btnBanco.style.display = 'inline-block';
-  } else {
-    btnBanco.style.display = 'none';
-  }
+  document.getElementById('btnAbrirBanco').style.display = temLink ? 'inline-block' : 'none';
 }
 function gerarPayloadPIX(estab, valor) {
   const nome = limparTexto(estab.nome, 25);
@@ -1215,11 +980,8 @@ function gerarQRCode(texto) {
   if (typeof QRCode !== 'undefined' && QRCode) {
     try {
       qrCodeInstance = new QRCode(container, {
-        text: texto,
-        width: 280,
-        height: 280,
-        colorDark: "#10131a",
-        colorLight: "#ffffff",
+        text: texto, width: 280, height: 280,
+        colorDark: "#10131a", colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
       });
       const canvas = container.querySelector('canvas');
@@ -1267,24 +1029,17 @@ function abrirBanco() {
   if (user.bancoAtivoId) {
     bancoSelecionado = user.bancos.find(b => b.id === user.bancoAtivoId);
   }
-  if (!bancoSelecionado) {
-    bancoSelecionado = user.bancos[0];
-  }
+  if (!bancoSelecionado) bancoSelecionado = user.bancos[0];
   if (!bancoSelecionado.link || bancoSelecionado.link.trim() === '') {
     showFeedback('⚠️ O banco selecionado não possui link.');
     return;
   }
-  if (abrindoBanco) {
-    showFeedback('⏳ Aguarde...');
-    return;
-  }
+  if (abrindoBanco) { showFeedback('⏳ Aguarde...'); return; }
   abrindoBanco = true;
   const link = bancoSelecionado.link;
   try {
     const win = window.open(link, '_blank');
-    if (!win) {
-      window.location.href = link;
-    }
+    if (!win) window.location.href = link;
     showFeedback('🏦 Abrindo app do banco...');
     setTimeout(() => { abrindoBanco = false; }, 5000);
   } catch (e) {
@@ -1309,12 +1064,9 @@ function finalizarPagamento() {
     total: contaFechada.total
   };
   data.historico.unshift(conta);
-  data.pedido = [];
-  data.contaAtiva = false;
-  $('descontoValor').value = '';
-  $('descontoDescricao').value = '';
-  save();
-  renderAll();
+  data.pedido = []; data.contaAtiva = false;
+  $('descontoValor').value = ''; $('descontoDescricao').value = '';
+  save(); renderAll();
   const texto = `Pagamento confirmado. Total: ${money(contaFechada.total)}.`;
   speak(texto);
   showFeedback('✅ ' + texto);
@@ -1326,15 +1078,11 @@ function finalizarPagamento() {
 }
 function pagarDinheiro() {
   if (!contaFechada) return;
-  if (confirm(`Confirmar pagamento em DINHEIRO no valor de ${money(contaFechada.total)}?`)) {
-    finalizarPagamento();
-  }
+  if (confirm(`Confirmar pagamento em DINHEIRO no valor de ${money(contaFechada.total)}?`)) finalizarPagamento();
 }
 function pagarCartao() {
   if (!contaFechada) return;
-  if (confirm(`Confirmar pagamento em CARTÃO no valor de ${money(contaFechada.total)}?`)) {
-    finalizarPagamento();
-  }
+  if (confirm(`Confirmar pagamento em CARTÃO no valor de ${money(contaFechada.total)}?`)) finalizarPagamento();
 }
 
 // ========== ABRIR CONTA ==========
@@ -1351,9 +1099,7 @@ function abrirContaManual() {
       showScreen('conta');
       setTimeout(confirmarFechamento, 300);
     }
-  } else {
-    abrirNovaConta(null);
-  }
+  } else { abrirNovaConta(null); }
 }
 function abrirNovaConta(nomeEstab) {
   if (data.contaAtiva) {
@@ -1370,8 +1116,7 @@ function abrirNovaConta(nomeEstab) {
       const id = Date.now() + Math.random();
       data.estabelecimentos[id] = { nome: capitalizarNome(nomeEstab), endereco: '', pix: '', produtos: [] };
       data.estabelecimentoAtivoId = id;
-      save();
-      renderAll();
+      save(); renderAll();
       speak('Novo estabelecimento ' + nomeEstab + ' criado.');
       showFeedback('🏢 ' + nomeEstab + ' criado');
       estabAtivo = getEstabelecimentoAtivo();
@@ -1381,12 +1126,9 @@ function abrirNovaConta(nomeEstab) {
       return;
     }
   }
-  data.pedido = [];
-  data.contaAtiva = true;
-  $('descontoValor').value = '';
-  $('descontoDescricao').value = '';
-  save();
-  renderAll();
+  data.pedido = []; data.contaAtiva = true;
+  $('descontoValor').value = ''; $('descontoDescricao').value = '';
+  save(); renderAll();
   speak('Nova conta aberta em ' + estabAtivo.nome);
   showFeedback('✅ Nova conta aberta!');
   showScreen('pedido');
@@ -1395,19 +1137,14 @@ function abrirNovaConta(nomeEstab) {
 function excluirContaHistorico(id) {
   if (!confirm('Tem certeza que deseja excluir esta conta do histórico?')) return;
   data.historico = data.historico.filter(item => item.id !== id);
-  save();
-  renderHistorico();
-  atualizarResumoDados();
+  save(); renderHistorico(); atualizarResumoDados();
   speak('Conta removida do histórico');
   showFeedback('🗑️ Conta removida');
 }
-
 function limparHistorico() {
   if (confirm('Limpar todo o histórico?')) {
     data.historico = [];
-    save();
-    renderHistorico();
-    atualizarResumoDados();
+    save(); renderHistorico(); atualizarResumoDados();
     showFeedback('🗑️ Histórico limpo');
   }
 }
@@ -1491,7 +1228,6 @@ function renderPedido() {
 function renderConta() {
   const estab = getEstabelecimentoAtivo();
   document.getElementById('contaEstabNome').textContent = estab ? estab.nome : 'Nenhum';
-  // FIX: mostra nome do usuário/cliente
   document.getElementById('contaClienteNome').textContent = getNomeCliente();
   const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
   document.getElementById('contaStatus').textContent = statusText;
@@ -1513,7 +1249,6 @@ function renderHistorico() {
   let totalGeral = 0;
   lista.innerHTML = data.historico.map(h => {
     totalGeral += h.total || 0;
-    // FIX: linha do desconto em azul legível
     let descontoStr = '';
     if (h.desconto && h.desconto > 0) {
       descontoStr = `<span style="color:#5dade2;"><b>Desconto:</b> -${money(h.desconto)} (${h.descricaoDesconto || 'sem descrição'})</span><br>`;
@@ -1542,8 +1277,7 @@ function renderAll() {
   renderConta();
   renderHistorico();
   carregarUsuario();
-  const estabs = Object.keys(data.estabelecimentos).length;
-  document.getElementById('resumoEstabs').textContent = estabs;
+  document.getElementById('resumoEstabs').textContent = Object.keys(data.estabelecimentos).length;
   document.getElementById('resumoProdutos').textContent = getProdutosAtivos().length;
   document.getElementById('resumoPedido').textContent = data.pedido.reduce((s, x) => s + x.qtd, 0);
   document.getElementById('resumoHistorico').textContent = data.historico.length;
@@ -1556,7 +1290,7 @@ function renderAll() {
 }
 function atualizarResumoDados() { /* feito no renderAll */ }
 
-// ========== FEEDBACK E VOZ ==========
+// ========== FEEDBACK / VOZ ==========
 function showFeedback(mensagem) {
   if (feedbackDismissed) return;
   const modal = document.getElementById('feedbackModal');
@@ -1573,7 +1307,6 @@ function toggleFeedbackDismiss() {
   feedbackDismissed = document.getElementById('dismissFeedback').checked;
   if (feedbackDismissed) fecharFeedback();
 }
-
 let selectedVoice = null;
 function loadVoices() {
   if (!window.speechSynthesis) return;
@@ -1654,9 +1387,7 @@ class VoiceRecognizer {
       this.recognition.interimResults = false;
       this.recognition.continuous = false;
       this.recognition.maxAlternatives = 1;
-    } else {
-      this.recognitionMethod = 'none';
-    }
+    } else { this.recognitionMethod = 'none'; }
     this.setupListeners();
   }
   setupListeners() {
@@ -1785,9 +1516,7 @@ function processVoice(raw) {
       const ids = Object.keys(data.estabelecimentos);
       let found = null;
       const nomeNorm = normalize(nome);
-      for (let id of ids) {
-        if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) { found = id; break; }
-      }
+      for (let id of ids) if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) { found = id; break; }
       if (found) { setEstabelecimentoAtivo(found); showScreen('inicio'); return; }
       else { speak('Estabelecimento "' + nome + '" não encontrado.'); showFeedback('❌ Estabelecimento não encontrado'); return; }
     }
@@ -1796,29 +1525,23 @@ function processVoice(raw) {
     return;
   }
   if (t.includes('ver') && t.includes('cardapio')) {
-    mostrarMiniCardapio();
-    speak('Abrindo cardápio do estabelecimento ativo');
-    showFeedback('📋 Mostrando cardápio');
-    return;
+    mostrarMiniCardapio(); speak('Abrindo cardápio do estabelecimento ativo');
+    showFeedback('📋 Mostrando cardápio'); return;
   }
   if (t.includes('incluir') && (t.includes('estabelecimento') || t.includes('bar'))) {
     let nome = extractEstabelecimentoNome(raw);
     if (nome && nome.length > 0) {
       $('barNome').value = nome;
-      if (!data.estabelecimentos) data.estabelecimentos = {};
       const id = Date.now() + Math.random();
       data.estabelecimentos[id] = { nome: capitalizarNome(nome), endereco: '', pix: '', produtos: [] };
       if (!data.estabelecimentoAtivoId) data.estabelecimentoAtivoId = id;
-      save();
-      renderAll();
+      save(); renderAll();
       speak('Estabelecimento ' + nome + ' incluído com sucesso');
       showFeedback('🏢 ' + nome + ' adicionado!');
-      showScreen('estabelecimentos');
-      return;
+      showScreen('estabelecimentos'); return;
     }
     speak('Não consegui identificar o nome do estabelecimento.');
-    showFeedback('❌ Estabelecimento não identificado');
-    return;
+    showFeedback('❌ Estabelecimento não identificado'); return;
   }
   if (t.includes('abrir') && t.includes('conta')) {
     let nomeEstab = extractAbrirConta(raw);
@@ -1826,74 +1549,44 @@ function processVoice(raw) {
       const ids = Object.keys(data.estabelecimentos);
       let found = null;
       const nomeNorm = normalize(nomeEstab);
-      for (let id of ids) {
-        if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) { found = id; break; }
-      }
-      if (found) {
-        setEstabelecimentoAtivo(found);
-        abrirNovaConta(null);
-        return;
-      } else {
+      for (let id of ids) if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) { found = id; break; }
+      if (found) { setEstabelecimentoAtivo(found); abrirNovaConta(null); return; }
+      else {
         speak('Estabelecimento "' + nomeEstab + '" não encontrado. Criando novo...');
         const id = Date.now() + Math.random();
         data.estabelecimentos[id] = { nome: capitalizarNome(nomeEstab), endereco: '', pix: '', produtos: [] };
         data.estabelecimentoAtivoId = id;
-        save();
-        renderAll();
-        abrirNovaConta(null);
-        return;
+        save(); renderAll();
+        abrirNovaConta(null); return;
       }
-    } else {
-      abrirNovaConta(null);
-      return;
-    }
+    } else { abrirNovaConta(null); return; }
   }
   if (t.includes('incluir') && (t.includes('produto') || t.includes('produtos'))) {
     const estab = getEstabelecimentoAtivo();
-    if (!estab) {
-      speak('Nenhum estabelecimento ativo. Selecione ou crie um primeiro.');
-      showFeedback('⚠️ Nenhum estabelecimento ativo');
-      return;
-    }
+    if (!estab) { speak('Nenhum estabelecimento ativo.'); showFeedback('⚠️ Nenhum estabelecimento ativo'); return; }
     let result = extractProdutoNomeValor(raw);
     if (result.nome && result.nome.length > 0) {
-      if (result.valor !== null && result.valor > 0) {
-        addProduto(result.nome, result.valor);
-        showScreen('cardapio');
-        return;
-      } else {
+      if (result.valor !== null && result.valor > 0) { addProduto(result.nome, result.valor); showScreen('cardapio'); return; }
+      else {
         $('produtoNome').value = result.nome;
         setTimeout(() => { $('produtoPreco').focus(); $('produtoPreco').select(); }, 300);
         speak('Vou abrir o cardápio para ' + result.nome + '. Informe o preço.');
         showFeedback('📝 Abrindo cadastro para: ' + result.nome);
-        showScreen('cardapio');
-        return;
+        showScreen('cardapio'); return;
       }
     }
-    speak('Não consegui identificar o nome do produto.');
-    showFeedback('❌ Produto não identificado');
-    return;
+    speak('Não consegui identificar o nome do produto.'); showFeedback('❌ Produto não identificado'); return;
   }
   const isPedido = t.includes('pedir') || t.includes('solicitar') || t.includes('adicionar') || t.includes('pedido') || t.includes('mais uma') || t.includes('mais um');
   if (isPedido) {
     const estab = getEstabelecimentoAtivo();
-    if (!estab) {
-      speak('Nenhum estabelecimento ativo. Selecione um primeiro.');
-      showFeedback('⚠️ Nenhum estabelecimento ativo');
-      return;
-    }
-    if (!data.contaAtiva) {
-      speak('Não há conta aberta. Abra uma conta primeiro.');
-      showFeedback('⚠️ Nenhuma conta aberta');
-      return;
-    }
+    if (!estab) { speak('Nenhum estabelecimento ativo.'); showFeedback('⚠️ Nenhum estabelecimento ativo'); return; }
+    if (!data.contaAtiva) { speak('Não há conta aberta.'); showFeedback('⚠️ Nenhuma conta aberta'); return; }
     let qtd = parseNumberWords(raw);
     if ((t.includes('mais uma') || t.includes('mais um')) && !raw.match(/\b\d+\b/)) qtd = 1;
     const p = findProdutoNoAtivo(raw);
     if (p) { addPedido(p.id, qtd); showScreen('pedido'); return; }
-    speak('Não encontrei esse produto no cardápio atual.');
-    showFeedback('❌ Produto não encontrado');
-    return;
+    speak('Não encontrei esse produto no cardápio atual.'); showFeedback('❌ Produto não encontrado'); return;
   }
   if (t.includes('incluir') && t.includes('cliente')) {
     let nome = extractClienteNome(raw);
@@ -1904,89 +1597,166 @@ function processVoice(raw) {
       save();
       speak('Cliente ' + nome + ' incluído com sucesso');
       showFeedback('👤 Cliente salvo: ' + nome);
-      showScreen('cliente');
-      return;
+      showScreen('cliente'); return;
     }
-    speak('Não consegui identificar o nome do cliente.');
-    showFeedback('❌ Cliente não identificado');
-    return;
+    speak('Não consegui identificar o nome do cliente.'); showFeedback('❌ Cliente não identificado'); return;
   }
   if (t.includes('ver') && t.includes('conta') && t.includes('parcial')) {
     const sub = subtotal();
     const texto = `Subtotal atual: ${money(sub)}. ${data.pedido.length} item(ns) no pedido.`;
-    speak(texto);
-    showFeedback('📊 ' + texto);
-    alert(texto);
-    showScreen('conta');
-    return;
+    speak(texto); showFeedback('📊 ' + texto); alert(texto); showScreen('conta'); return;
   }
-  if (t.includes('fechar') && t.includes('conta')) {
-    showScreen('conta');
-    setTimeout(confirmarFechamento, 100);
-    return;
-  }
-  if (t.includes('mostrar') && (t.includes('conta') || t.includes('pedido'))) {
-    showScreen('conta');
-    speak('O subtotal atual é ' + money(subtotal()));
-    showFeedback('🧾 Mostrando conta');
-    return;
-  }
+  if (t.includes('fechar') && t.includes('conta')) { showScreen('conta'); setTimeout(confirmarFechamento, 100); return; }
+  if (t.includes('mostrar') && (t.includes('conta') || t.includes('pedido'))) { showScreen('conta'); speak('O subtotal atual é ' + money(subtotal())); showFeedback('🧾 Mostrando conta'); return; }
   if (t.includes('abrir') && t.includes('cardapio')) { showScreen('cardapio'); speak('Abrindo cardápio'); showFeedback('📦 Abrindo cardápio'); return; }
   if (t.includes('abrir') && (t.includes('estabelecimento') || t.includes('estabelecimentos'))) { showScreen('estabelecimentos'); speak('Abrindo estabelecimentos'); showFeedback('🏢 Abrindo estabelecimentos'); return; }
   if (t.includes('abrir') && (t.includes('pedido') || t.includes('pedidos'))) { showScreen('pedido'); speak('Tela de pedidos aberta'); showFeedback('🛒 Abrindo pedidos'); return; }
   if (t.includes('ver') && t.includes('historico')) { showScreen('historico'); speak('Abrindo histórico'); showFeedback('📜 Abrindo histórico'); return; }
-  if (t.includes('exportar') && t.includes('dados')) { exportarDados(); showFeedback('📤 Exportando dados...'); return; }
+  if (t.includes('exportar') && t.includes('dados')) { exportarDados(); return; }
   if (t.includes('importar') && t.includes('dados')) { showScreen('dados'); speak('Abrindo importação'); showFeedback('📥 Abrindo importação'); return; }
   if (t.includes('limpar') && (t.includes('historico') || t.includes('histórico'))) { limparHistorico(); return; }
   if (t.includes('limpar') && t.includes('dados')) { clearAllData(); return; }
   if ((t.includes('desativar') || t.includes('desligar')) && (t.includes('comando') || t.includes('voz'))) {
     if (recognizer) recognizer.deactivate();
-    speak('Assistente de voz desativado');
-    showFeedback('🔇 Assistente desativado');
-    return;
+    speak('Assistente de voz desativado'); showFeedback('🔇 Assistente desativado'); return;
   }
   if (t.includes('desligar') && (t.includes('app') || t.includes('aplicativo') || t.includes('sistema'))) {
-    speak('Desligando aplicativo...');
-    showFeedback('⏻ Desligando...');
+    speak('Desligando aplicativo...'); showFeedback('⏻ Desligando...');
     setTimeout(() => { if (window.close) window.close(); else alert('Feche a aba do navegador.'); }, 1000);
     return;
   }
-  speak('Não entendi o comando. Tente: "selecionar estabelecimento", "incluir produtos", "fazer pedido" ou "fechar conta".');
+  speak('Não entendi o comando.');
   showFeedback('❓ Comando não reconhecido');
 }
 
-// ========== DADOS (Import/Export) ==========
+// ========== EXPORTAÇÃO ROBUSTA COM FALLBACKS ==========
 function exportarDados() {
   try {
     const dadosJSON = JSON.stringify(data, null, 2);
-    const blob = new Blob([dadosJSON], { type: 'application/json' });
+    ultimoConteudoExportado = dadosJSON;
+
+    const agora = new Date();
+    const dataStr = agora.toISOString().slice(0,19).replace(/[:T]/g, '-');
+    const nomeArquivo = `conta_bar_dados_${dataStr}.json`;
+    ultimoNomeArquivoExportado = nomeArquivo;
+
+    const bytes = new Blob([dadosJSON]).size;
+    const tamanho = bytes < 1024
+      ? bytes + ' bytes'
+      : bytes < 1048576
+        ? (bytes / 1024).toFixed(1) + ' KB'
+        : (bytes / 1048576).toFixed(2) + ' MB';
+
+    const blob = new Blob([dadosJSON], { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const dataAtual = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-    a.download = `conta_bar_dados_${dataAtual}.json`;
+    a.download = nomeArquivo;
+    a.style.display = 'none';
     document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    speak('Dados exportados com sucesso');
-    showFeedback('📤 Dados exportados com sucesso');
-    alert('✅ Dados exportados com sucesso!');
+
+    let downloadDisparado = false;
+    try {
+      a.click();
+      downloadDisparado = true;
+    } catch (e) {
+      console.warn('Falha no click do link:', e);
+    }
+
+    if (isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.salvarArquivo) {
+      try {
+        window.Android.salvarArquivo(nomeArquivo, dadosJSON);
+        downloadDisparado = true;
+      } catch (e) {
+        console.warn('Falha no bridge nativo:', e);
+      }
+    }
+
+    setTimeout(() => {
+      try {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (e) {}
+    }, 1500);
+
+    mostrarModalExportacao(nomeArquivo, tamanho, downloadDisparado);
+    speak('Dados exportados com sucesso. Arquivo: ' + nomeArquivo);
+
   } catch (e) {
+    console.error('Erro na exportação:', e);
     alert('❌ Erro ao exportar dados: ' + e.message);
+    showFeedback('❌ Erro ao exportar dados');
   }
 }
 
+function mostrarModalExportacao(nomeArquivo, tamanho, disparado) {
+  const modal = document.getElementById('exportModal');
+  document.getElementById('exportNomeArquivo').textContent = nomeArquivo;
+  document.getElementById('exportTamanho').textContent = tamanho;
+
+  let local = '';
+  let dica = '';
+
+  if (isAndroidWebView) {
+    local = '📱 Pasta "Downloads" do seu dispositivo (acessível pelo app "Arquivos" ou "Gerenciador de Arquivos")';
+    dica = 'Caso o arquivo não apareça em Downloads, use "Copiar conteúdo" e cole em um arquivo .json manualmente.';
+  } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    local = '📱 App "Arquivos" do iOS → pasta "Downloads" ou "No meu iPhone"';
+    dica = 'Caso o arquivo não apareça, use "Copiar conteúdo" e cole em um arquivo .json no app Arquivos.';
+  } else if (isChrome || /Firefox|Edge/i.test(navigator.userAgent)) {
+    local = '💻 Pasta padrão de Downloads do navegador (geralmente ~/Downloads)';
+    dica = 'Você também pode escolher o local: clique no ícone de seta ⬇ na barra do navegador e selecione "Salvar como".';
+  } else {
+    local = 'Pasta padrão de downloads do seu navegador';
+    dica = 'Se o download não iniciou automaticamente, use "Copiar conteúdo" abaixo.';
+  }
+
+  if (!disparado) {
+    dica = '⚠️ Não foi possível disparar o download automaticamente. Use o botão "Copiar conteúdo" abaixo e salve em um arquivo .json.';
+  }
+
+  document.getElementById('exportLocal').textContent = local;
+  document.getElementById('exportDica').textContent = dica;
+  modal.style.display = 'flex';
+  showFeedback('📤 Exportação concluída!');
+}
+
+function fecharModalExportacao() {
+  document.getElementById('exportModal').style.display = 'none';
+}
+
+function copiarConteudoExportado() {
+  const texto = ultimoConteudoExportado;
+  if (!texto) { showFeedback('⚠️ Nada para copiar.'); return; }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(texto)
+      .then(() => showFeedback('📋 Conteúdo copiado! Cole em um arquivo .json'))
+      .catch(() => copiarFallback(texto));
+  } else { copiarFallback(texto); }
+}
+function copiarFallback(texto) {
+  const ta = document.createElement('textarea');
+  ta.value = texto;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showFeedback('📋 Conteúdo copiado!');
+  } catch (e) {
+    alert('Não foi possível copiar automaticamente.');
+  }
+  document.body.removeChild(ta);
+}
+
+// ========== IMPORTAÇÃO ==========
 function importarDados(event) {
   const file = event.target.files[0];
-  if (!file) {
-    showFeedback('⚠️ Nenhum arquivo selecionado.');
-    return;
-  }
+  if (!file) { showFeedback('⚠️ Nenhum arquivo selecionado.'); return; }
   processarImportacao(file);
   event.target.value = '';
 }
-
 function processarImportacao(file) {
   const reader = new FileReader();
   reader.onload = function(e) {
@@ -1995,7 +1765,6 @@ function processarImportacao(file) {
       if (!dados.estabelecimentos || typeof dados.estabelecimentos !== 'object') throw new Error('Estrutura inválida.');
       if (!dados.pedido || !Array.isArray(dados.pedido)) throw new Error('Pedido inválido.');
       if (!dados.historico || !Array.isArray(dados.historico)) throw new Error('Histórico inválido.');
-      
       const confirmar = confirm(
         '⚠️ Isso irá SUBSTITUIR todos os dados atuais!\n\n' +
         'Estabelecimentos: ' + Object.keys(dados.estabelecimentos).length + '\n' +
@@ -2004,7 +1773,6 @@ function processarImportacao(file) {
         'Deseja continuar?'
       );
       if (!confirmar) return;
-      
       data.estabelecimentos = dados.estabelecimentos || {};
       data.pedido = dados.pedido || [];
       data.historico = dados.historico || [];
@@ -2015,10 +1783,7 @@ function processarImportacao(file) {
       data.usuario = dados.usuario || null;
       data.cliente = dados.cliente || { nome: '', telefone: '', banco: '' };
       data.contaAtiva = dados.contaAtiva || false;
-      
-      save();
-      renderAll();
-      
+      save(); renderAll();
       const status = document.getElementById('importStatus');
       status.style.display = 'block';
       status.style.background = 'rgba(57,201,122,0.1)';
@@ -2040,7 +1805,6 @@ function processarImportacao(file) {
   };
   reader.readAsText(file);
 }
-
 function clearAllData() {
   if (confirm('⚠️ Tem certeza que deseja limpar TODOS os dados?')) {
     if (confirm('Confirmar limpeza total?')) {
@@ -2052,8 +1816,7 @@ function clearAllData() {
       data.usuario = null;
       data.gorjetaConfig = 0;
       data.contaAtiva = false;
-      save();
-      renderAll();
+      save(); renderAll();
       speak('Todos os dados foram limpos');
       showFeedback('🗑️ Todos os dados foram limpos');
       alert('🗑️ Todos os dados foram limpos!');
@@ -2082,7 +1845,7 @@ function keepScreenOn(keepOn) {
   window._wakeLock = wakeLock;
 }
 
-// ========== BOTÃO DE ATIVAÇÃO ==========
+// ========== ATIVAÇÃO ==========
 document.getElementById('voiceBtn').onclick = async () => {
   if (recognizer.isActive) { recognizer.deactivate(); return; }
   if (!recognizer.isSupported()) {
@@ -2106,7 +1869,7 @@ document.getElementById('voiceBtn').onclick = async () => {
   showFeedback('🎤 Assistente de voz ativado');
 };
 
-// ========== FUNÇÕES DE TELA ==========
+// ========== TELAS ==========
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -2139,6 +1902,11 @@ if (dropArea) {
     }
   });
 }
+
+// Fecha modal de exportação ao clicar fora
+document.getElementById('exportModal').addEventListener('click', function(e) {
+  if (e.target === this) fecharModalExportacao();
+});
 
 function verificarUsuario() {
   if (!data.usuario) {
