@@ -86,6 +86,14 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .desconto-container{background:var(--panel2);border-radius:8px;padding:12px;margin-top:10px;border-left:3px solid var(--accent);}
 .desconto-container .row{margin-bottom:6px;}
 </style>
+
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#10131a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
 </head>
 <body>
 <header>
@@ -1955,5 +1963,18 @@ if (!recognizer.isSupported()) {
 }
 console.log('✅ App inicializado com sucesso!');
 </script>
+
+<script>
+(function () {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js', {scope: './'})
+        .then(function () { console.log('PWA: Service Worker ativo.'); })
+        .catch(function (err) { console.warn('PWA: falha ao registrar Service Worker:', err); });
+    });
+  }
+})();
+</script>
+
 </body>
 </html>

@@ -1,0 +1,13 @@
+VERIFICAÇÃO DO PACOTE PWABUILDER - CONTA DE BAR
+
+OK - index.html
+OK - manifest.json
+OK - sw.js
+OK - icon-192.png
+OK - icon-512.png
+OK - manifest link
+OK - service worker registration
+
+Arquivos: index.html, manifest.json, sw.js, icon-192.png, icon-512.png, icon.svg
+Publicação recomendada: GitHub Pages com HTTPS.
+URL esperada após publicação: https://tvluizcafofo-a11y.github.io/contabar/

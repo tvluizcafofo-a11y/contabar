@@ -1,0 +1,46 @@
+{
+  "name": "Conta de Bar - Cardápio por Estabelecimento",
+  "short_name": "Conta de Bar",
+  "description": "Aplicativo de conta de bar com estabelecimentos, cardápio, pedidos, conta, gorjeta, PIX, histórico, cadastro e comandos de voz.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#10131a",
+  "theme_color": "#10131a",
+  "orientation": "portrait",
+  "categories": [
+    "food",
+    "shopping",
+    "business",
+    "utilities"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
