@@ -1,3 +1,5 @@
+// Conta Bar 16.09.2026
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -461,6 +463,7 @@ let abrindoBanco = false;
 let editandoBancoId = null;
 let ultimoConteudoExportado = '';
 let ultimoNomeArquivoExportado = '';
+let metodoPagamento = null; // NOVO: guarda método escolhido
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -881,10 +884,12 @@ function confirmarFechamento() {
     <p><b>Subtotal c/ desconto:</b> ${money(subComDesconto)}</p>
     <p><b>Gorjeta (${perc}%):</b> ${money(gor)}</p>
     <p><b>TOTAL:</b> <span style="color:#79e9aa;font-weight:bold;">${money(total)}</span></p>
+    <p class="note" style="margin-top:10px;">Escolha a forma de pagamento abaixo ⬇️</p>
   `;
   document.getElementById('pixDetalhes').style.display = 'none';
   modal.classList.add('active');
   pagamentoConfirmado = false;
+  metodoPagamento = null; // NOVO: limpa método anterior
 }
 function fecharContaVazia() {
   const estab = getEstabelecimentoAtivo();
@@ -894,7 +899,8 @@ function fecharContaVazia() {
     estabelecimento: estab.nome,
     cliente: getNomeCliente(),
     itens: [], subtotal: 0, desconto: 0, descricaoDesconto: '', subComDesconto: 0,
-    gorjeta: 0, percentual: 0, total: 0
+    gorjeta: 0, percentual: 0, total: 0,
+    metodoPagamento: 'Sem itens' // NOVO
   };
   data.historico.unshift(conta);
   data.pedido = []; data.contaAtiva = false;
@@ -910,11 +916,13 @@ function fecharPaymentModal() {
   if (callbackAposFechar) { callbackAposFechar = null; }
   contaFechada = null;
   abrindoBanco = false;
+  metodoPagamento = null; // NOVO
 }
 function pagarPix() {
   const modal = document.getElementById('pixDetalhes');
   const estab = contaFechada.estab;
   if (!estab.pix) { showFeedback('⚠️ Estabelecimento sem chave PIX.'); return; }
+  metodoPagamento = 'PIX'; // NOVO
   document.getElementById('pixChaveEstab').textContent = estab.pix;
   document.getElementById('pixValor').textContent = money(contaFechada.total);
   const codigo = gerarPayloadPIX(estab, contaFechada.total);
@@ -1061,16 +1069,17 @@ function finalizarPagamento() {
     subComDesconto: contaFechada.subComDesconto,
     gorjeta: contaFechada.gor,
     percentual: contaFechada.perc,
-    total: contaFechada.total
+    total: contaFechada.total,
+    metodoPagamento: metodoPagamento || 'Não informado' // NOVO
   };
   data.historico.unshift(conta);
   data.pedido = []; data.contaAtiva = false;
   $('descontoValor').value = ''; $('descontoDescricao').value = '';
   save(); renderAll();
-  const texto = `Pagamento confirmado. Total: ${money(contaFechada.total)}.`;
+  const texto = `Pagamento confirmado em ${metodoPagamento || 'dinheiro'}. Total: ${money(contaFechada.total)}.`;
   speak(texto);
   showFeedback('✅ ' + texto);
-  alert('Pagamento realizado com sucesso!');
+  alert('Pagamento realizado com sucesso!\nForma de pagamento: ' + (metodoPagamento || 'Não informado'));
   fecharPaymentModal();
   contaFechada = null;
   pagamentoConfirmado = true;
@@ -1078,10 +1087,12 @@ function finalizarPagamento() {
 }
 function pagarDinheiro() {
   if (!contaFechada) return;
+  metodoPagamento = 'Dinheiro'; // NOVO
   if (confirm(`Confirmar pagamento em DINHEIRO no valor de ${money(contaFechada.total)}?`)) finalizarPagamento();
 }
 function pagarCartao() {
   if (!contaFechada) return;
+  metodoPagamento = 'Cartão'; // NOVO
   if (confirm(`Confirmar pagamento em CARTÃO no valor de ${money(contaFechada.total)}?`)) finalizarPagamento();
 }
 
@@ -1246,19 +1257,37 @@ function renderHistorico() {
     document.getElementById('totalGeralHistorico').textContent = '';
     return;
   }
+
+  // Ícones e cores por método de pagamento
+  const estiloMP = {
+    'PIX':      { icone: '📱', cor: '#4fc3f7', bg: 'rgba(79,195,247,0.15)' },
+    'Dinheiro': { icone: '💰', cor: '#79e9aa', bg: 'rgba(121,233,170,0.15)' },
+    'Cartão':   { icone: '💳', cor: '#ffb74d', bg: 'rgba(255,183,77,0.15)' },
+    'Sem itens':{ icone: '📭', cor: '#aeb8c8', bg: 'rgba(174,184,200,0.12)' },
+    'Não informado': { icone: '❓', cor: '#aeb8c8', bg: 'rgba(174,184,200,0.12)' }
+  };
+
   let totalGeral = 0;
   lista.innerHTML = data.historico.map(h => {
     totalGeral += h.total || 0;
+
     let descontoStr = '';
     if (h.desconto && h.desconto > 0) {
       descontoStr = `<span style="color:#5dade2;"><b>Desconto:</b> -${money(h.desconto)} (${h.descricaoDesconto || 'sem descrição'})</span><br>`;
     }
-    return `<div class="card historico-item" style="margin-bottom:12px;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;">
-        <div>
+
+    const mp = h.metodoPagamento || 'Não informado';
+    const est = estiloMP[mp] || estiloMP['Não informado'];
+
+    return `<div class="card historico-item" style="margin-bottom:12px;border-left:4px solid ${est.cor};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+        <div style="flex:1;min-width:200px;">
           <b>${h.data}</b><br>
           <span class="note">Estabelecimento: ${h.estabelecimento} | Cliente: ${h.cliente || 'Não informado'}</span><br>
-          ${h.itens.map(x => `${x.qtd}× ${x.nome}`).join(', ')}<br>
+          <span style="display:inline-block;margin:6px 0;padding:4px 10px;border-radius:20px;background:${est.bg};color:${est.cor};font-size:13px;font-weight:bold;">
+            ${est.icone} ${mp}
+          </span><br>
+          <span class="note">${h.itens.map(x => `${x.qtd}× ${x.nome}`).join(', ') || 'Sem itens'}</span><br>
           ${descontoStr}
           <b>Total: ${money(h.total)}</b>
         </div>
@@ -1268,6 +1297,7 @@ function renderHistorico() {
       </div>
     </div>`;
   }).join('');
+
   document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral de gastos: ${money(totalGeral)}`;
 }
 function renderAll() {
