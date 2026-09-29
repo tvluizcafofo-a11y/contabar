@@ -1,5 +1,4 @@
-// Conta Bar 16.09.2026
-
+<!-- Conta Bar 16.09.2026 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -104,8 +103,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="container">
 <section class="voice">
 <div class="voice-row">
-<button id="voiceBtn" style="font-size:18px;padding:16px 24px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
-<button class="secondary" id="speakToggle">🔊 Voz: ATIVADA</button>
+<button id="voiceBtn" onclick="toggleVoiceAssistant()" style="font-size:18px;padding:16px 24px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
+<button class="secondary" id="speakToggle" onclick="toggleSpeak()">🔊 Voz: ATIVADA</button>
 <span class="status" id="voiceStatus">Assistente desligado.</span>
 <button class="secondary" onclick="showScreen('comandos')">📋 Ver Comandos</button>
 <select id="voiceSelect" onchange="changeVoice()">
@@ -119,15 +118,15 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </section>
 
 <nav id="nav">
-<button data-screen="inicio" class="active">🏠 Início</button>
-<button data-screen="estabelecimentos">🏢 Estabelecimentos</button>
-<button data-screen="cardapio">🍺 Cardápio</button>
-<button data-screen="pedido">🛒 Pedido</button>
-<button data-screen="conta">🧾 Conta</button>
-<button data-screen="historico">📜 Histórico</button>
-<button data-screen="usuario">👤 Usuário</button>
-<button data-screen="comandos">🎯 Comandos</button>
-<button data-screen="dados">💾 Dados</button>
+<button data-screen="inicio" onclick="showScreen('inicio')" class="active">🏠 Início</button>
+<button data-screen="estabelecimentos" onclick="showScreen('estabelecimentos')">🏢 Estabelecimentos</button>
+<button data-screen="cardapio" onclick="showScreen('cardapio')">🍺 Cardápio</button>
+<button data-screen="pedido" onclick="showScreen('pedido')">🛒 Pedido</button>
+<button data-screen="conta" onclick="showScreen('conta')">🧾 Conta</button>
+<button data-screen="historico" onclick="showScreen('historico')">📜 Histórico</button>
+<button data-screen="usuario" onclick="showScreen('usuario')">👤 Usuário</button>
+<button data-screen="comandos" onclick="showScreen('comandos')">🎯 Comandos</button>
+<button data-screen="dados" onclick="showScreen('dados')">💾 Dados</button>
 </nav>
 
 <section id="inicio" class="screen active">
@@ -444,7 +443,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 const isAndroidWebView = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 const isWebView = typeof window.Android !== 'undefined' || isAndroidWebView;
 const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-console.log('Ambiente:', isAndroidWebView ? 'Android WebView' : isChrome ? 'Chrome' : 'Outro');
 
 // ========== VARIÁVEIS GLOBAIS ==========
 const KEY='contaBarVoz_v1';
@@ -471,7 +469,7 @@ let abrindoBanco = false;
 let editandoBancoId = null;
 let ultimoConteudoExportado = '';
 let ultimoNomeArquivoExportado = '';
-let metodoPagamento = null; // NOVO: guarda método escolhido
+let metodoPagamento = null;
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -487,7 +485,15 @@ function normalize(s) {
   return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
-// ========== HELPER NOME CLIENTE ==========
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  const target = document.getElementById(screenId);
+  if (target) target.classList.add('active');
+  const btn = document.querySelector(`nav button[data-screen="${screenId}"]`);
+  if (btn) btn.classList.add('active');
+}
+
 function getNomeCliente() {
   if (data.usuario && data.usuario.nome && data.usuario.nome.trim() !== '') {
     return data.usuario.nome;
@@ -498,7 +504,6 @@ function getNomeCliente() {
   return 'Não informado';
 }
 
-// ========== CAPITALIZAR ==========
 function capitalizarNome(nome) {
   if (!nome) return '';
   return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
@@ -821,7 +826,7 @@ function deleteProduto(id) {
 function addPedido(produtoId, qtd) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
-  if (!data.contaAtiva) { showFeedback('⚠️ Não há conta aberta. Abra uma conta primeiro.'); return; }
+  if (!data.contaAtiva) { showFeedback('⚠️️ Não há conta aberta. Abra uma conta primeiro.'); return; }
   produtoId = produtoId ?? Number($('pedidoProduto').value);
   qtd = qtd ?? Number($('pedidoQtd').value);
   const p = estab.produtos.find(x => x.id == produtoId);
@@ -843,6 +848,10 @@ function removePedido(i) {
 }
 function subtotal() {
   return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0);
+}
+function saveGorjetaConfig() {
+  data.gorjetaConfig = Number($('gorjeta').value || 0);
+  save();
 }
 function calcularTotaisConta() {
   const sub = subtotal();
@@ -897,7 +906,7 @@ function confirmarFechamento() {
   document.getElementById('pixDetalhes').style.display = 'none';
   modal.classList.add('active');
   pagamentoConfirmado = false;
-  metodoPagamento = null; // NOVO: limpa método anterior
+  metodoPagamento = null;
 }
 function fecharContaVazia() {
   const estab = getEstabelecimentoAtivo();
@@ -908,7 +917,7 @@ function fecharContaVazia() {
     cliente: getNomeCliente(),
     itens: [], subtotal: 0, desconto: 0, descricaoDesconto: '', subComDesconto: 0,
     gorjeta: 0, percentual: 0, total: 0,
-    metodoPagamento: 'Sem itens' // NOVO
+    metodoPagamento: 'Sem itens'
   };
   data.historico.unshift(conta);
   data.pedido = []; data.contaAtiva = false;
@@ -924,13 +933,13 @@ function fecharPaymentModal() {
   if (callbackAposFechar) { callbackAposFechar = null; }
   contaFechada = null;
   abrindoBanco = false;
-  metodoPagamento = null; // NOVO
+  metodoPagamento = null;
 }
 function pagarPix() {
   const modal = document.getElementById('pixDetalhes');
   const estab = contaFechada.estab;
   if (!estab.pix) { showFeedback('⚠️ Estabelecimento sem chave PIX.'); return; }
-  metodoPagamento = 'PIX'; // NOVO
+  metodoPagamento = 'PIX';
   document.getElementById('pixChaveEstab').textContent = estab.pix;
   document.getElementById('pixValor').textContent = money(contaFechada.total);
   const codigo = gerarPayloadPIX(estab, contaFechada.total);
@@ -1078,7 +1087,7 @@ function finalizarPagamento() {
     gorjeta: contaFechada.gor,
     percentual: contaFechada.perc,
     total: contaFechada.total,
-    metodoPagamento: metodoPagamento || 'Não informado' // NOVO
+    metodoPagamento: metodoPagamento || 'Não informado'
   };
   data.historico.unshift(conta);
   data.pedido = []; data.contaAtiva = false;
@@ -1095,12 +1104,12 @@ function finalizarPagamento() {
 }
 function pagarDinheiro() {
   if (!contaFechada) return;
-  metodoPagamento = 'Dinheiro'; // NOVO
+  metodoPagamento = 'Dinheiro';
   if (confirm(`Confirmar pagamento em DINHEIRO no valor de ${money(contaFechada.total)}?`)) finalizarPagamento();
 }
 function pagarCartao() {
   if (!contaFechada) return;
-  metodoPagamento = 'Cartão'; // NOVO
+  metodoPagamento = 'Cartão';
   if (confirm(`Confirmar pagamento em CARTÃO no valor de ${money(contaFechada.total)}?`)) finalizarPagamento();
 }
 
@@ -1146,7 +1155,7 @@ function abrirNovaConta(nomeEstab) {
     }
   }
   data.pedido = []; data.contaAtiva = true;
-  $('descontoValor').value = ''; $('descontoDescricao').value = '';
+  $('descontoValor').value = '';$('descontoDescricao').value = '';
   save(); renderAll();
   speak('Nova conta aberta em ' + estabAtivo.nome);
   showFeedback('✅ Nova conta aberta!');
@@ -1156,14 +1165,14 @@ function abrirNovaConta(nomeEstab) {
 function excluirContaHistorico(id) {
   if (!confirm('Tem certeza que deseja excluir esta conta do histórico?')) return;
   data.historico = data.historico.filter(item => item.id !== id);
-  save(); renderHistorico(); atualizarResumoDados();
+  save(); renderHistorico();
   speak('Conta removida do histórico');
   showFeedback('🗑️ Conta removida');
 }
 function limparHistorico() {
   if (confirm('Limpar todo o histórico?')) {
     data.historico = [];
-    save(); renderHistorico(); atualizarResumoDados();
+    save(); renderHistorico();
     showFeedback('🗑️ Histórico limpo');
   }
 }
@@ -1252,6 +1261,7 @@ function renderConta() {
   document.getElementById('contaStatus').textContent = statusText;
   const sub = subtotal();
   document.getElementById('contaSubtotal').textContent = money(sub);
+  if (data.gorjetaConfig) $('gorjeta').value = data.gorjetaConfig;
   calcularTotaisConta();
   const e = estab || {};
   document.getElementById('pixInfo').innerHTML = e.nome ?
@@ -1266,7 +1276,6 @@ function renderHistorico() {
     return;
   }
 
-  // Ícones e cores por método de pagamento
   const estiloMP = {
     'PIX':      { icone: '📱', cor: '#4fc3f7', bg: 'rgba(79,195,247,0.15)' },
     'Dinheiro': { icone: '💰', cor: '#79e9aa', bg: 'rgba(121,233,170,0.15)' },
@@ -1295,12 +1304,12 @@ function renderHistorico() {
           <span style="display:inline-block;margin:6px 0;padding:4px 10px;border-radius:20px;background:${est.bg};color:${est.cor};font-size:13px;font-weight:bold;">
             ${est.icone} ${mp}
           </span><br>
-          <span class="note">${h.itens.map(x => `${x.qtd}× ${x.nome}`).join(', ') || 'Sem itens'}</span><br>
+          <span class="note">${(h.itens || []).map(x => `${x.qtd}×${x.nome}`).join(', ') || 'Sem itens'}</span><br>
           ${descontoStr}
           <b>Total: ${money(h.total)}</b>
         </div>
         <div class="actions">
-          <button class="btn-excluir" onclick="excluirContaHistorico(${h.id})">🗑 Excluir</button>
+          <button class="danger small" onclick="excluirContaHistorico(${h.id})">🗑 Excluir</button>
         </div>
       </div>
     </div>`;
@@ -1326,7 +1335,6 @@ function renderAll() {
     selectVoiceByPreference(pref);
   }
 }
-function atualizarResumoDados() { /* feito no renderAll */ }
 
 // ========== FEEDBACK / VOZ ==========
 function showFeedback(mensagem) {
@@ -1345,6 +1353,12 @@ function toggleFeedbackDismiss() {
   feedbackDismissed = document.getElementById('dismissFeedback').checked;
   if (feedbackDismissed) fecharFeedback();
 }
+function toggleSpeak() {
+  speechOn = !speechOn;
+  document.getElementById('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
+  save();
+}
+
 let selectedVoice = null;
 function loadVoices() {
   if (!window.speechSynthesis) return;
@@ -1396,18 +1410,16 @@ function speak(text) {
   if (isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.ttsSpeak) {
     try { window.Android.ttsSpeak(text); return; } catch (e) {}
   }
-  const lastCmd = document.getElementById('lastCommand');
-  if (lastCmd) {
-    lastCmd.innerHTML = '🔊 ' + text;
-    lastCmd.style.background = 'rgba(57,201,122,0.2)';
-    lastCmd.style.padding = '8px';
-    lastCmd.style.borderRadius = '8px';
-    setTimeout(() => { lastCmd.style.background = 'transparent'; lastCmd.style.padding = '0'; }, 3000);
-  }
 }
 if (window.speechSynthesis) {
   if (speechSynthesis.getVoices().length > 0) loadVoices();
   else speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function keepScreenOn(active) {
+  if ('wakeLock' in navigator) {
+    if (active) navigator.wakeLock.request('screen').catch(e => console.warn(e));
+  }
 }
 
 // ========== RECONHECIMENTO DE VOZ ==========
@@ -1486,277 +1498,116 @@ class VoiceRecognizer {
     if (this.isActive) { btn.textContent = '🔴 DESLIGAR ASSISTENTE DE VOZ'; btn.classList.add('danger'); keepScreenOn(true); }
     else { btn.textContent = '🎤 ATIVAR ASSISTENTE DE VOZ'; btn.classList.remove('danger'); keepScreenOn(false); }
   }
-  isSupported() { return this.recognitionMethod !== 'none'; }
   processNativeResult(text) { processVoice(text); if (this.isActive && !this.permissionDenied) setTimeout(() => this.startListening(), 500); }
 }
 let recognizer = new VoiceRecognizer();
-if (isAndroidWebView) {
-  window.processVoiceResult = function(text) { if (recognizer) recognizer.processNativeResult(text); };
+
+function toggleVoiceAssistant() {
+  if (recognizer.isActive) recognizer.deactivate();
+  else recognizer.activate();
 }
 
-// ========== COMANDOS DE VOZ ==========
+// ========== COMANDOS DE VOZ PARSER ==========
 function parseNumberWords(s) {
   const words = { um: 1, uma: 1, dois: 2, duas: 2, tres: 3, 'três': 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, dez: 10 };
   let m = s.match(/\b(\d+)\b/);
-  if (m) return Number(m[1]);
-  for (const [w, n] of Object.entries(words)) if (normalize(s).includes(normalize(w))) return n;
+  if (m) return parseInt(m[1], 10);
+  for (let w in words) {
+    if (new RegExp('\\b' + w + '\\b', 'i').test(s)) return words[w];
+  }
   return 1;
 }
-function findProdutoNoAtivo(text) {
-  const prods = getProdutosAtivos();
-  const t = normalize(text);
-  let best = null, score = 0;
-  prods.forEach(p => {
-    let words = normalize(p.nome).split(/\s+/);
-    let sc = words.filter(w => w.length > 2 && t.includes(w)).length;
-    if (sc > score) { score = sc; best = p; }
-  });
-  return best;
-}
-function extractClienteNome(text) {
-  let cleaned = text.replace(/incluir\s+cliente\s*/i, '').trim();
-  if (cleaned.length > 0 && !cleaned.match(/^(produtos?|estabelecimento|bar|conta)/i)) return cleaned;
-  return null;
-}
-function extractEstabelecimentoNome(text) {
-  let cleaned = text.replace(/incluir\s+(estabelecimento|bar)\s*/i, '').trim();
-  if (cleaned.length > 0 && !cleaned.match(/^(produtos?|cliente|conta)/i)) return cleaned;
-  return null;
-}
-function extractSelecionarEstabelecimento(text) {
-  let cleaned = text.replace(/selecionar\s+estabelecimento\s*/i, '').trim();
-  if (!cleaned) cleaned = text.replace(/selecionar\s+bar\s*/i, '').trim();
-  if (cleaned.length > 0) return cleaned;
-  return null;
-}
-function extractAbrirConta(text) {
-  let cleaned = text.replace(/abrir\s+conta\s*/i, '').trim();
-  if (cleaned.length > 0 && !cleaned.match(/^(produtos?|cliente|estabelecimento|bar|pedido|conta)/i)) return cleaned;
-  return null;
-}
-function extractProdutoNomeValor(text) {
-  let cleaned = text.replace(/incluir\s+produtos?\s*/i, '').trim();
-  let match = cleaned.match(/^(.+?)\s+(?:a|por|de|r\$|R\$)?\s*([\d,.]+)/i);
-  if (match) {
-    let nome = match[1].trim();
-    let valor = parseFloat(match[2].replace('.', '').replace(',', '.'));
-    if (!isNaN(valor) && valor > 0) return { nome, valor };
-  }
-  return { nome: cleaned, valor: null };
-}
-function processVoice(raw) {
-  document.getElementById('lastCommand').textContent = '🎤 Você disse: "' + raw + '"';
-  const t = normalize(raw);
 
-  if (t.includes('selecionar') && (t.includes('estabelecimento') || t.includes('bar'))) {
-    let nome = extractSelecionarEstabelecimento(raw);
-    if (nome) {
-      const ids = Object.keys(data.estabelecimentos);
-      let found = null;
-      const nomeNorm = normalize(nome);
-      for (let id of ids) if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) { found = id; break; }
-      if (found) { setEstabelecimentoAtivo(found); showScreen('inicio'); return; }
-      else { speak('Estabelecimento "' + nome + '" não encontrado.'); showFeedback('❌ Estabelecimento não encontrado'); return; }
-    }
-    speak('Não consegui identificar o nome do estabelecimento.');
-    showFeedback('❌ Nome não identificado');
+function processVoice(text) {
+  if (!text) return;
+  document.getElementById('lastCommand').textContent = 'Você disse: "' + text + '"';
+  const norm = normalize(text);
+
+  if (norm.includes('desativar comando') || norm.includes('desligar assistente') || norm.includes('desligar app')) {
+    recognizer.deactivate();
+    speak('Assistente desligado');
     return;
   }
-  if (t.includes('ver') && t.includes('cardapio')) {
-    mostrarMiniCardapio(); speak('Abrindo cardápio do estabelecimento ativo');
-    showFeedback('📋 Mostrando cardápio'); return;
-  }
-  if (t.includes('incluir') && (t.includes('estabelecimento') || t.includes('bar'))) {
-    let nome = extractEstabelecimentoNome(raw);
-    if (nome && nome.length > 0) {
-      $('barNome').value = nome;
-      const id = Date.now() + Math.random();
-      data.estabelecimentos[id] = { nome: capitalizarNome(nome), endereco: '', pix: '', produtos: [] };
-      if (!data.estabelecimentoAtivoId) data.estabelecimentoAtivoId = id;
-      save(); renderAll();
-      speak('Estabelecimento ' + nome + ' incluído com sucesso');
-      showFeedback('🏢 ' + nome + ' adicionado!');
-      showScreen('estabelecimentos'); return;
-    }
-    speak('Não consegui identificar o nome do estabelecimento.');
-    showFeedback('❌ Estabelecimento não identificado'); return;
-  }
-  if (t.includes('abrir') && t.includes('conta')) {
-    let nomeEstab = extractAbrirConta(raw);
-    if (nomeEstab) {
-      const ids = Object.keys(data.estabelecimentos);
-      let found = null;
-      const nomeNorm = normalize(nomeEstab);
-      for (let id of ids) if (normalize(data.estabelecimentos[id].nome).includes(nomeNorm)) { found = id; break; }
-      if (found) { setEstabelecimentoAtivo(found); abrirNovaConta(null); return; }
-      else {
-        speak('Estabelecimento "' + nomeEstab + '" não encontrado. Criando novo...');
-        const id = Date.now() + Math.random();
-        data.estabelecimentos[id] = { nome: capitalizarNome(nomeEstab), endereco: '', pix: '', produtos: [] };
-        data.estabelecimentoAtivoId = id;
-        save(); renderAll();
-        abrirNovaConta(null); return;
-      }
-    } else { abrirNovaConta(null); return; }
-  }
-  if (t.includes('incluir') && (t.includes('produto') || t.includes('produtos'))) {
-    const estab = getEstabelecimentoAtivo();
-    if (!estab) { speak('Nenhum estabelecimento ativo.'); showFeedback('⚠️ Nenhum estabelecimento ativo'); return; }
-    let result = extractProdutoNomeValor(raw);
-    if (result.nome && result.nome.length > 0) {
-      if (result.valor !== null && result.valor > 0) { addProduto(result.nome, result.valor); showScreen('cardapio'); return; }
-      else {
-        $('produtoNome').value = result.nome;
-        setTimeout(() => { $('produtoPreco').focus(); $('produtoPreco').select(); }, 300);
-        speak('Vou abrir o cardápio para ' + result.nome + '. Informe o preço.');
-        showFeedback('📝 Abrindo cadastro para: ' + result.nome);
-        showScreen('cardapio'); return;
-      }
-    }
-    speak('Não consegui identificar o nome do produto.'); showFeedback('❌ Produto não identificado'); return;
-  }
-  const isPedido = t.includes('pedir') || t.includes('solicitar') || t.includes('adicionar') || t.includes('pedido') || t.includes('mais uma') || t.includes('mais um');
-  if (isPedido) {
-    const estab = getEstabelecimentoAtivo();
-    if (!estab) { speak('Nenhum estabelecimento ativo.'); showFeedback('⚠️ Nenhum estabelecimento ativo'); return; }
-    if (!data.contaAtiva) { speak('Não há conta aberta.'); showFeedback('⚠️ Nenhuma conta aberta'); return; }
-    let qtd = parseNumberWords(raw);
-    if ((t.includes('mais uma') || t.includes('mais um')) && !raw.match(/\b\d+\b/)) qtd = 1;
-    const p = findProdutoNoAtivo(raw);
-    if (p) { addPedido(p.id, qtd); showScreen('pedido'); return; }
-    speak('Não encontrei esse produto no cardápio atual.'); showFeedback('❌ Produto não encontrado'); return;
-  }
-  if (t.includes('incluir') && t.includes('cliente')) {
-    let nome = extractClienteNome(raw);
+
+  if (norm.includes('abrir conta')) {
+    const nome = norm.replace('abrir conta', '').trim();
     if (nome) {
-      data.cliente = data.cliente || {};
-      data.cliente.nome = nome;
-      $('clienteNome').value = nome;
-      save();
-      speak('Cliente ' + nome + ' incluído com sucesso');
-      showFeedback('👤 Cliente salvo: ' + nome);
-      showScreen('cliente'); return;
+      const estabs = Object.values(data.estabelecimentos);
+      const match = estabs.find(e => normalize(e.nome).includes(nome));
+      if (match) setEstabelecimentoAtivo(Object.keys(data.estabelecimentos).find(k => data.estabelecimentos[k] === match));
+      else abrirNovaConta(nome);
+    } else {
+      abrirContaManual();
     }
-    speak('Não consegui identificar o nome do cliente.'); showFeedback('❌ Cliente não identificado'); return;
-  }
-  if (t.includes('ver') && t.includes('conta') && t.includes('parcial')) {
-    const sub = subtotal();
-    const texto = `Subtotal atual: ${money(sub)}. ${data.pedido.length} item(ns) no pedido.`;
-    speak(texto); showFeedback('📊 ' + texto); alert(texto); showScreen('conta'); return;
-  }
-  if (t.includes('fechar') && t.includes('conta')) { showScreen('conta'); setTimeout(confirmarFechamento, 100); return; }
-  if (t.includes('mostrar') && (t.includes('conta') || t.includes('pedido'))) { showScreen('conta'); speak('O subtotal atual é ' + money(subtotal())); showFeedback('🧾 Mostrando conta'); return; }
-  if (t.includes('abrir') && t.includes('cardapio')) { showScreen('cardapio'); speak('Abrindo cardápio'); showFeedback('📦 Abrindo cardápio'); return; }
-  if (t.includes('abrir') && (t.includes('estabelecimento') || t.includes('estabelecimentos'))) { showScreen('estabelecimentos'); speak('Abrindo estabelecimentos'); showFeedback('🏢 Abrindo estabelecimentos'); return; }
-  if (t.includes('abrir') && (t.includes('pedido') || t.includes('pedidos'))) { showScreen('pedido'); speak('Tela de pedidos aberta'); showFeedback('🛒 Abrindo pedidos'); return; }
-  if (t.includes('ver') && t.includes('historico')) { showScreen('historico'); speak('Abrindo histórico'); showFeedback('📜 Abrindo histórico'); return; }
-  if (t.includes('exportar') && t.includes('dados')) { exportarDados(); return; }
-  if (t.includes('importar') && t.includes('dados')) { showScreen('dados'); speak('Abrindo importação'); showFeedback('📥 Abrindo importação'); return; }
-  if (t.includes('limpar') && (t.includes('historico') || t.includes('histórico'))) { limparHistorico(); return; }
-  if (t.includes('limpar') && t.includes('dados')) { clearAllData(); return; }
-  if ((t.includes('desativar') || t.includes('desligar')) && (t.includes('comando') || t.includes('voz'))) {
-    if (recognizer) recognizer.deactivate();
-    speak('Assistente de voz desativado'); showFeedback('🔇 Assistente desativado'); return;
-  }
-  if (t.includes('desligar') && (t.includes('app') || t.includes('aplicativo') || t.includes('sistema'))) {
-    speak('Desligando aplicativo...'); showFeedback('⏻ Desligando...');
-    setTimeout(() => { if (window.close) window.close(); else alert('Feche a aba do navegador.'); }, 1000);
     return;
   }
-  speak('Não entendi o comando.');
-  showFeedback('❓ Comando não reconhecido');
+
+  if (norm.includes('selecionar')) {
+    const nome = norm.replace('selecionar', '').trim();
+    const estabs = Object.entries(data.estabelecimentos);
+    const match = estabs.find(([id, e]) => normalize(e.nome).includes(nome));
+    if (match) setEstabelecimentoAtivo(match[0]);
+    else showFeedback('⚠️ Estabelecimento não encontrado.');
+    return;
+  }
+
+  if (norm.includes('incluir produtos') || norm.includes('incluir produto')) {
+    let rest = norm.replace('incluir produtos', '').replace('incluir produto', '').trim();
+    let m = rest.match(/(.*?)\s+(\d+(?:[.,]\d+)?)\s*(?:reais|real)?$/);
+    if (m) {
+      let pNome = m[1].trim();
+      let pPreco = parseFloat(m[2].replace(',', '.'));
+      addProduto(pNome, pPreco);
+    } else {
+      showScreen('cardapio');
+      $('produtoNome').value = rest;
+      $('produtoNome').focus();
+    }
+    return;
+  }
+
+  if (norm.includes('fazer pedido') || norm.includes('pedir') || norm.includes('solicitar') || norm.includes('mais um') || norm.includes('mais uma')) {
+    let qtd = parseNumberWords(norm);
+    let prods = getProdutosAtivos();
+    let match = prods.find(p => norm.includes(normalize(p.nome)));
+    if (match) {
+      addPedido(match.id, qtd);
+    } else {
+      showFeedback('⚠️ Produto não identificado no cardápio.');
+    }
+    return;
+  }
+
+  if (norm.includes('ver cardapio')) { mostrarMiniCardapio(); return; }
+  if (norm.includes('fechar conta')) { showScreen('conta'); confirmarFechamento(); return; }
+  if (norm.includes('ver conta') || norm.includes('mostrar conta')) { showScreen('conta'); return; }
+  if (norm.includes('ver historico')) { showScreen('historico'); return; }
+  if (norm.includes('exportar dados')) { exportarDados(); return; }
+  if (norm.includes('importar dados')) { showScreen('dados'); return; }
+  if (norm.includes('limpar historico')) { limparHistorico(); return; }
+
+  showFeedback('❓ Comando não reconhecido.');
 }
 
-// ========== EXPORTAÇÃO ROBUSTA COM FALLBACKS ==========
+// ========== DADOS / IMPORT & EXPORT ==========
 function exportarDados() {
-  try {
-    const dadosJSON = JSON.stringify(data, null, 2);
-    ultimoConteudoExportado = dadosJSON;
+  const jsonStr = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const filename = `conta_bar_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 
-    const agora = new Date();
-    const dataStr = agora.toISOString().slice(0,19).replace(/[:T]/g, '-');
-    const nomeArquivo = `conta_bar_dados_${dataStr}.json`;
-    ultimoNomeArquivoExportado = nomeArquivo;
-
-    const bytes = new Blob([dadosJSON]).size;
-    const tamanho = bytes < 1024
-      ? bytes + ' bytes'
-      : bytes < 1048576
-        ? (bytes / 1024).toFixed(1) + ' KB'
-        : (bytes / 1048576).toFixed(2) + ' MB';
-
-    const blob = new Blob([dadosJSON], { type: 'application/json;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = nomeArquivo;
-    a.style.display = 'none';
-    document.body.appendChild(a);
-
-    let downloadDisparado = false;
-    try {
-      a.click();
-      downloadDisparado = true;
-    } catch (e) {
-      console.warn('Falha no click do link:', e);
-    }
-
-    if (isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.salvarArquivo) {
-      try {
-        window.Android.salvarArquivo(nomeArquivo, dadosJSON);
-        downloadDisparado = true;
-      } catch (e) {
-        console.warn('Falha no bridge nativo:', e);
-      }
-    }
-
-    setTimeout(() => {
-      try {
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      } catch (e) {}
-    }, 1500);
-
-    mostrarModalExportacao(nomeArquivo, tamanho, downloadDisparado);
-    speak('Dados exportados com sucesso. Arquivo: ' + nomeArquivo);
-
-  } catch (e) {
-    console.error('Erro na exportação:', e);
-    alert('❌ Erro ao exportar dados: ' + e.message);
-    showFeedback('❌ Erro ao exportar dados');
-  }
-}
-
-function mostrarModalExportacao(nomeArquivo, tamanho, disparado) {
-  const modal = document.getElementById('exportModal');
-  document.getElementById('exportNomeArquivo').textContent = nomeArquivo;
-  document.getElementById('exportTamanho').textContent = tamanho;
-
-  let local = '';
-  let dica = '';
-
-  if (isAndroidWebView) {
-    local = '📱 Pasta "Downloads" do seu dispositivo (acessível pelo app "Arquivos" ou "Gerenciador de Arquivos")';
-    dica = 'Caso o arquivo não apareça em Downloads, use "Copiar conteúdo" e cole em um arquivo .json manualmente.';
-  } else if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-    local = '📱 App "Arquivos" do iOS → pasta "Downloads" ou "No meu iPhone"';
-    dica = 'Caso o arquivo não apareça, use "Copiar conteúdo" e cole em um arquivo .json no app Arquivos.';
-  } else if (isChrome || /Firefox|Edge/i.test(navigator.userAgent)) {
-    local = '💻 Pasta padrão de Downloads do navegador (geralmente ~/Downloads)';
-    dica = 'Você também pode escolher o local: clique no ícone de seta ⬇ na barra do navegador e selecione "Salvar como".';
-  } else {
-    local = 'Pasta padrão de downloads do seu navegador';
-    dica = 'Se o download não iniciou automaticamente, use "Copiar conteúdo" abaixo.';
-  }
-
-  if (!disparado) {
-    dica = '⚠️ Não foi possível disparar o download automaticamente. Use o botão "Copiar conteúdo" abaixo e salve em um arquivo .json.';
-  }
-
-  document.getElementById('exportLocal').textContent = local;
-  document.getElementById('exportDica').textContent = dica;
-  modal.style.display = 'flex';
-  showFeedback('📤 Exportação concluída!');
+  ultimoConteudoExportado = jsonStr;
+  document.getElementById('exportNomeArquivo').textContent = filename;
+  document.getElementById('exportLocal').textContent = 'Pasta de Downloads padrão';
+  document.getElementById('exportTamanho').textContent = (blob.size / 1024).toFixed(2) + ' KB';
+  document.getElementById('exportModal').style.display = 'flex';
 }
 
 function fecharModalExportacao() {
@@ -1764,217 +1615,68 @@ function fecharModalExportacao() {
 }
 
 function copiarConteudoExportado() {
-  const texto = ultimoConteudoExportado;
-  if (!texto) { showFeedback('⚠️ Nada para copiar.'); return; }
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(texto)
-      .then(() => showFeedback('📋 Conteúdo copiado! Cole em um arquivo .json'))
-      .catch(() => copiarFallback(texto));
-  } else { copiarFallback(texto); }
-}
-function copiarFallback(texto) {
-  const ta = document.createElement('textarea');
-  ta.value = texto;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
-  try {
-    document.execCommand('copy');
-    showFeedback('📋 Conteúdo copiado!');
-  } catch (e) {
-    alert('Não foi possível copiar automaticamente.');
+  if (ultimoConteudoExportado) {
+    copiarPixFallback(ultimoConteudoExportado);
+    showFeedback('📋 Dados copiados para a área de transferência!');
   }
-  document.body.removeChild(ta);
 }
 
-// ========== IMPORTAÇÃO ==========
-function importarDados(event) {
-  const file = event.target.files[0];
-  if (!file) { showFeedback('⚠️ Nenhum arquivo selecionado.'); return; }
-  processarImportacao(file);
-  event.target.value = '';
-}
-function processarImportacao(file) {
+function importarDados(e) {
+  const file = e.target.files[0];
+  if (!file) return;
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = function(evt) {
     try {
-      const dados = JSON.parse(e.target.result);
-      if (!dados.estabelecimentos || typeof dados.estabelecimentos !== 'object') throw new Error('Estrutura inválida.');
-      if (!dados.pedido || !Array.isArray(dados.pedido)) throw new Error('Pedido inválido.');
-      if (!dados.historico || !Array.isArray(dados.historico)) throw new Error('Histórico inválido.');
-      const confirmar = confirm(
-        '⚠️ Isso irá SUBSTITUIR todos os dados atuais!\n\n' +
-        'Estabelecimentos: ' + Object.keys(dados.estabelecimentos).length + '\n' +
-        'Itens no pedido: ' + dados.pedido.length + '\n' +
-        'Contas no histórico: ' + dados.historico.length + '\n\n' +
-        'Deseja continuar?'
-      );
-      if (!confirmar) return;
-      data.estabelecimentos = dados.estabelecimentos || {};
-      data.pedido = dados.pedido || [];
-      data.historico = dados.historico || [];
-      data.estabelecimentoAtivoId = dados.estabelecimentoAtivoId || Object.keys(dados.estabelecimentos)[0] || null;
-      data.gorjetaConfig = dados.gorjetaConfig || 0;
-      data.speechOn = dados.speechOn !== undefined ? dados.speechOn : true;
-      data.voicePreference = dados.voicePreference || 'default';
-      data.usuario = dados.usuario || null;
-      data.cliente = dados.cliente || { nome: '', telefone: '', banco: '' };
-      data.contaAtiva = dados.contaAtiva || false;
-      save(); renderAll();
-      const status = document.getElementById('importStatus');
-      status.style.display = 'block';
-      status.style.background = 'rgba(57,201,122,0.1)';
-      status.style.border = '1px solid var(--accent)';
-      status.style.color = '#79e9aa';
-      status.innerHTML = '✅ <b>Dados importados com sucesso!</b>';
-      speak('Dados importados com sucesso');
-      showFeedback('✅ Dados importados com sucesso');
-      alert('✅ Dados importados com sucesso!');
+      const imported = JSON.parse(evt.target.result);
+      if (typeof imported === 'object' && imported !== null) {
+        data = imported;
+        save();
+        renderAll();
+        showFeedback('✅ Dados importados com sucesso!');
+      } else {
+        showFeedback('⚠️ Arquivo JSON inválido.');
+      }
     } catch (err) {
-      const status = document.getElementById('importStatus');
-      status.style.display = 'block';
-      status.style.background = 'rgba(239,93,103,0.1)';
-      status.style.border = '1px solid var(--danger)';
-      status.style.color = '#ef5d67';
-      status.innerHTML = '❌ <b>Erro ao importar dados:</b><br>' + err.message;
-      alert('❌ Erro ao importar dados: ' + err.message);
+      showFeedback('⚠️ Erro ao ler o arquivo JSON.');
     }
   };
   reader.readAsText(file);
 }
+
 function clearAllData() {
-  if (confirm('⚠️ Tem certeza que deseja limpar TODOS os dados?')) {
-    if (confirm('Confirmar limpeza total?')) {
-      data.estabelecimentos = {};
-      data.estabelecimentoAtivoId = null;
-      data.pedido = [];
-      data.historico = [];
-      data.cliente = { nome: '', telefone: '', banco: '' };
-      data.usuario = null;
-      data.gorjetaConfig = 0;
-      data.contaAtiva = false;
-      save(); renderAll();
-      speak('Todos os dados foram limpos');
-      showFeedback('🗑️ Todos os dados foram limpos');
-      alert('🗑️ Todos os dados foram limpos!');
-    }
+  if (confirm('ATENÇÃO: Deseja apagar TODOS os dados do aplicativo?')) {
+    localStorage.removeItem(KEY);
+    data = { estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false };
+    renderAll();
+    showFeedback('🗑️ Todos os dados foram apagados.');
   }
 }
-
-// ========== WAKE LOCK ==========
-function keepScreenOn(keepOn) {
-  if (!navigator.wakeLock) return;
-  let wakeLock = null;
-  if (keepOn) {
-    navigator.wakeLock.request('screen').then(lock => {
-      wakeLock = lock;
-      lock.addEventListener('release', () => {
-        if (recognizer && recognizer.isActive) {
-          setTimeout(() => {
-            navigator.wakeLock.request('screen').then(newLock => { wakeLock = newLock; }).catch(() => {});
-          }, 1000);
-        }
-      });
-    }).catch(() => {});
-  } else {
-    if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
-  }
-  window._wakeLock = wakeLock;
-}
-
-// ========== ATIVAÇÃO ==========
-document.getElementById('voiceBtn').onclick = async () => {
-  if (recognizer.isActive) { recognizer.deactivate(); return; }
-  if (!recognizer.isSupported()) {
-    alert('Reconhecimento de voz não disponível neste navegador.');
-    return;
-  }
-  try {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      document.getElementById('voiceStatus').textContent = 'Solicitando acesso ao microfone...';
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
-    }
-  } catch (err) {
-    document.getElementById('voiceStatus').textContent = '🚫 Microfone não autorizado.';
-    document.getElementById('permissionHelp').innerHTML = 'Permita o microfone nas configurações do dispositivo.';
-    return;
-  }
-  recognizer.activate();
-  document.getElementById('permissionHelp').textContent = 'Assistente ativado. Pode falar comandos.';
-  speak('Assistente de voz ativado.');
-  showFeedback('🎤 Assistente de voz ativado');
-};
-
-// ========== TELAS ==========
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(x => x.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.querySelectorAll('#nav button').forEach(x => x.classList.toggle('active', x.dataset.screen === id));
-  renderAll();
-}
-document.querySelectorAll('#nav button').forEach(b => b.onclick = () => showScreen(b.dataset.screen));
 
 // ========== INICIALIZAÇÃO ==========
-$('speakToggle').onclick = () => {
-  speechOn = !speechOn;
-  $('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
-  save();
-  if (speechOn) speak('Respostas por voz ativadas');
-};
-$('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
-
-const dropArea = document.getElementById('dropArea');
-if (dropArea) {
-  dropArea.addEventListener('dragover', (e) => { e.preventDefault(); dropArea.classList.add('dragover'); });
-  dropArea.addEventListener('dragleave', () => { dropArea.classList.remove('dragover'); });
-  dropArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropArea.classList.remove('dragover');
-    const files = e.dataTransfer.files;
-    if (files.length > 0 && files[0].type === 'application/json') {
-      processarImportacao(files[0]);
-    } else {
-      alert('Selecione um arquivo JSON válido.');
-    }
-  });
-}
-
-// Fecha modal de exportação ao clicar fora
-document.getElementById('exportModal').addEventListener('click', function(e) {
-  if (e.target === this) fecharModalExportacao();
-});
-
-function verificarUsuario() {
-  if (!data.usuario) {
-    showScreen('usuario');
-    alert('👤 Antes de começar, faça seu cadastro de usuário.');
-  }
-}
-renderAll();
-verificarUsuario();
-
-if (!recognizer.isSupported()) {
-  document.getElementById('voiceStatus').textContent = '⚠️ Voz não disponível.';
-  document.getElementById('voiceBtn').disabled = true;
-} else if (isAndroidWebView) {
-  document.getElementById('voiceStatus').textContent = '📱 Modo Android WebView';
-}
-console.log('✅ App inicializado com sucesso!');
-</script>
-
-<script>
-(function () {
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('./sw.js', {scope: './'})
-        .then(function () { console.log('PWA: Service Worker ativo.'); })
-        .catch(function (err) { console.warn('PWA: falha ao registrar Service Worker:', err); });
+window.onload = function() {
+  renderAll();
+  
+  const dropArea = document.getElementById('dropArea');
+  if (dropArea) {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false);
     });
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
+    });
+    dropArea.addEventListener('drop', e => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files.length > 0) {
+        document.getElementById('fileInput').files = files;
+        importarDados({ target: { files: files } });
+      }
+    }, false);
   }
-})();
+};
 </script>
-
 </body>
 </html>
