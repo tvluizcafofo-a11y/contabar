@@ -35,6 +35,7 @@ header{
   flex-shrink:0;
   display:block;
 }
+.header-icon.hidden{display:none;}
 header h1{
   margin:0;
   font-family:'Anton','Impact','Arial Black',sans-serif;
@@ -136,6 +137,29 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .hist-filters-row {display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
 .hist-filters-row select, .hist-filters-row input {margin:0;border-radius:8px;padding:8px 12px;font-size:14px;}
 .estab-group-header {background:var(--panel2);padding:10px 14px;border-radius:8px;margin:16px 0 10px;border-left:4px solid var(--accent);display:flex;justify-content:space-between;align-items:center;}
+
+/* ====== SINÔNIMOS DE VOZ ====== */
+.sinonimo-group{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid var(--accent);}
+.sinonimo-group h3{margin:0 0 4px 0;font-size:15px;color:var(--text);}
+.sinonimo-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;}
+.sinonimo-chip{display:inline-flex;align-items:center;gap:6px;background:#10151f;border:1px solid var(--border);color:var(--text);padding:5px 6px 5px 12px;border-radius:20px;font-size:13px;}
+.sinonimo-chip button{background:transparent;border:0;color:var(--danger);cursor:pointer;font-size:16px;padding:0 4px;line-height:1;font-weight:bold;border-radius:50%;}
+.sinonimo-chip button:hover{background:rgba(239,93,103,0.15);}
+.sinonimo-add{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.sinonimo-add input{flex:1;min-width:150px;margin:0;padding:8px 12px;border-radius:8px;}
+
+/* ====== CONFIRMAÇÃO VOZ-AMIGÁVEL ====== */
+.confirm-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.78);z-index:10010;justify-content:center;align-items:center;padding:20px;}
+.confirm-modal.active{display:flex;}
+.confirm-content{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;max-width:440px;width:100%;box-shadow:0 12px 44px rgba(0,0,0,0.85);animation:confirmIn .2s ease;}
+@keyframes confirmIn{from{transform:scale(0.92);opacity:0;}to{transform:scale(1);opacity:1;}}
+.confirm-content .confirm-icon{font-size:52px;text-align:center;margin-bottom:8px;line-height:1;}
+.confirm-content h3{text-align:center;margin:0 0 10px 0;color:#79e9aa;}
+.confirm-content .confirm-msg{text-align:center;font-size:15px;color:var(--text);margin:0 0 12px 0;line-height:1.45;}
+.confirm-content .confirm-dica{text-align:center;font-size:12px;color:var(--muted);background:#0a0e14;border:1px dashed var(--border);border-radius:8px;padding:8px;margin:0 0 14px 0;}
+.confirm-content .confirm-actions{display:flex;gap:12px;}
+.confirm-content .confirm-actions button{flex:1;padding:14px;font-size:16px;}
+.confirm-content .confirm-actions .btn-nao{background:#344057;color:white;}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -148,7 +172,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </head>
 <body>
 <header>
-  <img src="./chope.png" alt="" class="header-icon" aria-hidden="true">
+  <img src="./chope.png" alt="" class="header-icon" aria-hidden="true" onerror="this.classList.add('hidden');">
   <h1>FECHA A CONTA</h1>
 </header>
 
@@ -173,13 +197,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- TELA PRINCIPAL DE CONFIGURAÇÕES -->
 <section id="configuracoes" class="screen">
 <div class="card">
 <h2>⚙ Configurações</h2>
 <p class="note">Gerencie as rotinas e parâmetros do seu aplicativo.</p>
 
-<!-- ASSISTENTE DE VOZ (PRIMEIRO ITEM DE CONFIGURAÇÕES) -->
 <div class="voice" style="margin-top:15px;">
   <h3 style="margin-top:0; color:#79e9aa;">🎤 Assistente de Voz</h3>
   <div class="voice-row">
@@ -205,6 +227,10 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <h3>👤 Usuário</h3>
     <p>Gerencie seus dados pessoais e bancos para efetuar pagamentos.</p>
   </div>
+  <div class="config-card" onclick="showScreen('sinonimos')">
+    <h3>🎤 Sinônimos de Voz</h3>
+    <p>Escolha as palavras que você usa para cada comando (ex.: "desce", "me dá", "traz").</p>
+  </div>
   <div class="config-card" onclick="showScreen('comandos')">
     <h3>🎯 Comandos</h3>
     <p>Consulte a lista completa de comandos de voz aceitos pelo assistente.</p>
@@ -214,6 +240,20 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <p>Faça backup, exporte/importe informações ou limpe o banco local.</p>
   </div>
 </div>
+</div>
+</section>
+
+<!-- ====== TELA DE SINÔNIMOS DE VOZ ====== -->
+<section id="sinonimos" class="screen">
+<button class="back-config-btn" onclick="showScreen('configuracoes')">⬅️ Voltar para Configurações</button>
+<div class="card">
+<h2>🎤 Sinônimos de Voz</h2>
+<p class="note">Personalize as palavras que você fala para cada comando. Digite um sinônimo e clique em <b>➕ Adicionar</b>. Clique no <b>×</b> vermelho para remover.</p>
+<p class="note">💡 Exemplo: para o comando <b>Pedir</b>, adicione <b>"desce"</b>, <b>"me dá"</b>, <b>"traz"</b> — e depois fale <i>"desce uma cerveja"</i> normalmente.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
+  <button class="secondary" onclick="restaurarTodosSinonimos()">🔄 Restaurar todos os padrões</button>
+</div>
+<div id="listaSinonimos"></div>
 </div>
 </section>
 
@@ -269,10 +309,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- TELA UNIFICADA DE CONTA (PEDIDOS + FECHAMENTO) -->
 <section id="conta" class="screen">
 <div class="grid">
-  <!-- COLUNA 1: PEDIDO & ITENS DA CONTA -->
   <div class="card">
     <h2>🛒 Fazer Pedido</h2>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -300,7 +338,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <div id="contaItens"></div>
   </div>
 
-  <!-- COLUNA 2: VALORES, DESCONTOS, GORJETA E FECHAMENTO -->
   <div class="card">
     <h2>📊 Resumo da Conta</h2>
     <div class="note" style="margin-bottom:10px;">Cliente/Usuário: <b id="contaClienteNome">Não informado</b></div>
@@ -341,7 +378,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- SEÇÃO HISTÓRICO ATUALIZADA -->
 <section id="historico" class="screen">
 <div class="card">
 <h2>📜 Histórico de Contas</h2>
@@ -419,6 +455,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button class="back-config-btn" onclick="showScreen('configuracoes')">⬅ Voltar para Configurações</button>
 <div class="card">
 <h2>🎯 Lista Completa de Comandos de Voz</h2>
+<div style="background:rgba(79,195,247,0.1);border:1px solid var(--info);border-radius:10px;padding:12px;margin:12px 0;">
+  <p style="margin:0;color:var(--text);">💡 <b>Dica:</b> Todos os comandos abaixo são personalizáveis! Vá em <b>⚙ Configurações → 🎤 Sinônimos de Voz</b> para adicionar ou remover palavras.</p>
+</div>
 <p class="note">Todos os comandos disponíveis para controle por voz do sistema.</p>
 <hr style="border-color:var(--border);margin:15px 0">
 <h3>🏢 Estabelecimentos</h3>
@@ -434,17 +473,13 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </ul>
 <h3>🛒 Pedidos & Conta</h3>
 <ul class="command-list">
-  <li><span class="cmd">"Fazer pedido de [qtd] [produto]"</span><br><span class="desc">Ex: "fazer pedido de 2 cervejas"</span></li>
-  <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Sinônimo</span></li>
-  <li><span class="cmd">"Solicitar [qtd] [produto]"</span><br><span class="desc">Sinônimo</span></li>
+  <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Sinônimos: pedir, pega, me dá, desce, traz, quero, mais um...</span></li>
   <li><span class="cmd">"Mais uma [produto]"</span><br><span class="desc">Adiciona 1 unidade</span></li>
-  <li><span class="cmd">"Mais um [produto]"</span><br><span class="desc">Adiciona 1 unidade</span></li>
 </ul>
 <h3>💰 Conta</h3>
 <ul class="command-list">
   <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Nova conta no estabelecimento ativo</span></li>
   <li><span class="cmd">"Abrir conta [nome]"</span><br><span class="desc">Seleciona o estabelecimento e abre a conta</span></li>
-  <li><span class="cmd">"Ver conta parcial"</span><br><span class="desc">Mostra o subtotal atual</span></li>
   <li><span class="cmd">"Mostrar conta"</span><br><span class="desc">Abre a tela da conta</span></li>
   <li><span class="cmd">"Fechar conta"</span><br><span class="desc">Finaliza a conta</span></li>
 </ul>
@@ -463,6 +498,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <ul class="command-list">
   <li><span class="cmd">"Desativar comando por voz"</span><br><span class="desc">Desliga o assistente</span></li>
   <li><span class="cmd">"Desligar app"</span><br><span class="desc">Fecha o aplicativo</span></li>
+</ul>
+<h3>✅ Confirmação por Voz</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Sim" / "Confirmo" / "Claro" / "Pode"</span><br><span class="desc">Confirma uma ação solicitada pelo app</span></li>
+  <li><span class="cmd">"Não" / "Cancela" / "Negativo"</span><br><span class="desc">Recusa uma ação solicitada pelo app</span></li>
 </ul>
 <div style="margin-top:20px;padding:15px;background:rgba(57,201,122,0.1);border-radius:10px;border:1px solid var(--accent);">
   <p style="margin:0;color:var(--text);">💡 <b>Dica:</b> Números falados: "um", "dois", "três" ou "2", "3", "10".</p>
@@ -509,6 +549,20 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <div class="dismiss-check">
     <input type="checkbox" id="dismissFeedback" onchange="toggleFeedbackDismiss()">
     <label for="dismissFeedback">Não mostrar mais durante esta sessão</label>
+  </div>
+</div>
+
+<!-- ===== MODAL CONFIRMAÇÃO VOZ-AMIGÁVEL ===== -->
+<div id="confirmModal" class="confirm-modal">
+  <div class="confirm-content">
+    <div class="confirm-icon" id="confirmIcon">❓</div>
+    <h3 id="confirmTitulo">Confirmação</h3>
+    <p class="confirm-msg" id="confirmMensagem">Tem certeza?</p>
+    <p class="confirm-dica" id="confirmDicaVoz">Diga <b>"sim"</b> ou <b>"não"</b> ou clique em um botão.</p>
+    <div class="confirm-actions">
+      <button id="confirmBtnSim" onclick="resolverConfirmacao(true)">✅ Sim</button>
+      <button id="confirmBtnNao" class="btn-nao" onclick="resolverConfirmacao(false)">❌ Não</button>
+    </div>
   </div>
 </div>
 
@@ -569,6 +623,37 @@ const isAndroidWebView = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Ope
 const isWebView = typeof window.Android !== 'undefined' || isAndroidWebView;
 const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
 
+// ========== SINÔNIMOS PADRÃO ==========
+const SINONIMOS_PADRAO = {
+  pedir: ['pedir','pede','fazer pedido','solicitar','solicita','mais um','mais uma'],
+  abrirConta: ['abrir conta','nova conta','iniciar conta','começar conta'],
+  fecharConta: ['fechar conta','encerrar conta','finalizar conta'],
+  verConta: ['ver conta','mostrar conta','conta atual','ver a conta'],
+  verHistorico: ['ver historico','historico','abrir historico'],
+  verCardapio: ['ver cardapio','cardapio','mostrar cardapio'],
+  incluirProduto: ['incluir produto','incluir produtos','adicionar produto','adicionar produtos','cadastrar produto'],
+  selecionar: ['selecionar','escolher','mudar para'],
+  limparHistorico: ['limpar historico','apagar historico','excluir historico'],
+  exportarDados: ['exportar dados','exportar'],
+  importarDados: ['importar dados','importar'],
+  desativarVoz: ['desativar comando','desligar assistente','desligar app','desligar voz']
+};
+
+const COMANDOS_INFO = [
+  { key:'pedir',           titulo:'🛒 Pedir / Adicionar Item à Conta',  desc:'Adiciona produtos à conta atual quando há uma conta aberta.' },
+  { key:'abrirConta',      titulo:'📂 Abrir Conta',                     desc:'Inicia uma nova conta no estabelecimento ativo.' },
+  { key:'fecharConta',     titulo:'✅ Fechar Conta',                    desc:'Finaliza e solicita o fechamento da conta atual.' },
+  { key:'verConta',        titulo:'🧾 Ver Conta',                       desc:'Abre a tela da conta.' },
+  { key:'verHistorico',    titulo:'📜 Ver Histórico',                   desc:'Mostra o histórico de contas.' },
+  { key:'verCardapio',     titulo:'🍺 Ver Cardápio',                    desc:'Exibe o cardápio do estabelecimento ativo.' },
+  { key:'incluirProduto',  titulo:'➕ Incluir Produto no Cardápio',     desc:'Cadastra um novo produto. Ex: "incluir produtos cerveja 10 reais".' },
+  { key:'selecionar',      titulo:'🏢 Selecionar Estabelecimento',      desc:'Muda o estabelecimento ativo. Ex: "selecionar Bar do Zé".' },
+  { key:'limparHistorico', titulo:'🗑 Limpar Histórico',                desc:'Apaga todo o histórico de contas.' },
+  { key:'exportarDados',   titulo:'📤 Exportar Dados',                  desc:'Exporta todos os dados para arquivo JSON.' },
+  { key:'importarDados',   titulo:'📥 Importar Dados',                  desc:'Abre a tela de importação de dados.' },
+  { key:'desativarVoz',    titulo:'🔴 Desativar Assistente',            desc:'Desliga o assistente de voz.' }
+];
+
 // ========== VARIÁVEIS GLOBAIS ==========
 const KEY='contaBarVoz_v1';
 let data=JSON.parse(localStorage.getItem(KEY)||'{}');
@@ -582,7 +667,14 @@ data.usuario = data.usuario || null;
 data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 
-// PADRÃO ATIVADO PARA O ASSISTENTE DE VOZ
+// Merge de sinônimos: garante que todas as chaves existam
+data.sinonimos = data.sinonimos || {};
+Object.keys(SINONIMOS_PADRAO).forEach(k => {
+  if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) {
+    data.sinonimos[k] = [...SINONIMOS_PADRAO[k]];
+  }
+});
+
 if (typeof data.speechOn === 'undefined') {
   data.speechOn = true;
 }
@@ -601,11 +693,13 @@ let editandoBancoId = null;
 let ultimoConteudoExportado = '';
 let ultimoNomeArquivoExportado = '';
 let metodoPagamento = null;
+let confirmacaoPendente = null; // { resolve }
 const $ = id => document.getElementById(id);
 
 function save() {
   data.speechOn = speechOn;
-  data.voicePreference = document.getElementById('voiceSelect').value;
+  const vs = document.getElementById('voiceSelect');
+  if (vs) data.voicePreference = vs.value;
   localStorage.setItem(KEY, JSON.stringify(data));
 }
 
@@ -623,6 +717,7 @@ function showScreen(screenId) {
   if (target) target.classList.add('active');
   const btn = document.querySelector(`nav button[data-screen="${screenId}"]`);
   if (btn) btn.classList.add('active');
+  if (screenId === 'sinonimos') renderSinonimos();
 }
 
 function getNomeCliente() {
@@ -638,6 +733,147 @@ function getNomeCliente() {
 function capitalizarNome(nome) {
   if (!nome) return '';
   return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+}
+
+// ========== MATCHER DE SINÔNIMOS ==========
+function matchSinonimo(textoNorm, comandoKey) {
+  const lista = (data.sinonimos && data.sinonimos[comandoKey]) || SINONIMOS_PADRAO[comandoKey] || [];
+  const ordenada = [...lista].sort((a,b) => b.length - a.length);
+  for (const s of ordenada) {
+    const sn = normalize(s);
+    if (!sn) continue;
+    const escaped = sn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(?:^|\\s)' + escaped + '(?=\\s|$)', 'i');
+    if (re.test(textoNorm)) return s;
+  }
+  return null;
+}
+
+function extrairResto(textoNorm, sinonimo) {
+  const sn = normalize(sinonimo);
+  const escaped = sn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('(?:^|\\s)' + escaped + '(?=\\s|$)', 'i');
+  return textoNorm.replace(re, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// ========== CONFIRMAÇÃO VOZ-AMIGÁVEL ==========
+function confirmar(mensagem, opcoes = {}) {
+  return new Promise((resolve) => {
+    confirmacaoPendente = { resolve };
+    document.getElementById('confirmMensagem').textContent = mensagem;
+    document.getElementById('confirmTitulo').textContent = opcoes.titulo || 'Confirmação';
+    document.getElementById('confirmIcon').textContent = opcoes.icone || '❓';
+    document.getElementById('confirmBtnSim').textContent = '✅ ' + (opcoes.textoSim || 'Sim');
+    document.getElementById('confirmBtnNao').textContent = '❌ ' + (opcoes.textoNao || 'Não');
+    const dica = document.getElementById('confirmDicaVoz');
+    if (recognizer && recognizer.isActive) {
+      dica.innerHTML = 'Diga <b>"sim"</b> ou <b>"não"</b>, ou clique em um botão.';
+    } else {
+      dica.innerHTML = 'Clique em <b>Sim</b> ou <b>Não</b>. (Ative o assistente de voz para responder falando)';
+    }
+    document.getElementById('confirmModal').classList.add('active');
+    if (speechOn) speak(mensagem + ' Diga sim ou não.');
+  });
+}
+
+function resolverConfirmacao(resposta) {
+  if (!confirmacaoPendente) return;
+  const cb = confirmacaoPendente.resolve;
+  confirmacaoPendente = null;
+  document.getElementById('confirmModal').classList.remove('active');
+  if (speechOn) {
+    try { speechSynthesis.cancel(); } catch(e){}
+  }
+  cb(resposta);
+}
+
+// ========== SINÔNIMOS: RENDER / ADD / REMOVE / RESTORE ==========
+function renderSinonimos() {
+  const container = document.getElementById('listaSinonimos');
+  if (!container) return;
+  container.innerHTML = COMANDOS_INFO.map(cmd => {
+    const lista = data.sinonimos[cmd.key] || [];
+    const chips = lista.length
+      ? lista.map((s, i) =>
+          `<span class="sinonimo-chip">${escapeHtml(s)}<button onclick="removerSinonimo('${cmd.key}',${i})" title="Remover">×</button></span>`
+        ).join('')
+      : '<span class="note">Nenhum sinônimo. Restaure os padrões.</span>';
+    return `<div class="sinonimo-group">
+      <h3>${cmd.titulo}</h3>
+      <p class="note" style="margin:0 0 8px;">${cmd.desc}</p>
+      <div class="sinonimo-chips">${chips}</div>
+      <div class="sinonimo-add">
+        <input id="novoSin_${cmd.key}" placeholder="Digite um sinônimo (ex: desce)" maxlength="40"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarSinonimo('${cmd.key}');}">
+        <button class="small" onclick="adicionarSinonimo('${cmd.key}')">➕ Adicionar</button>
+        <button class="secondary small" onclick="restaurarSinonimosComando('${cmd.key}')">↩️ Padrões</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function adicionarSinonimo(key) {
+  const input = document.getElementById('novoSin_' + key);
+  if (!input) return;
+  const valor = input.value.trim();
+  if (!valor) { showFeedback('⚠️ Digite um sinônimo.'); input.focus(); return; }
+  if (valor.length > 40) { showFeedback('⚠️ Sinônimo muito longo (máx. 40).'); return; }
+  if (!data.sinonimos[key]) data.sinonimos[key] = [];
+  const normV = normalize(valor);
+  if (data.sinonimos[key].some(s => normalize(s) === normV)) {
+    showFeedback('⚠️ Esse sinônimo já existe.');
+    input.value = '';
+    input.focus();
+    return;
+  }
+  data.sinonimos[key].push(valor);
+  save();
+  renderSinonimos();
+  const inp2 = document.getElementById('novoSin_' + key);
+  if (inp2) inp2.focus();
+  showFeedback('✅ Sinônimo adicionado: ' + valor);
+  speak('Sinônimo ' + valor + ' adicionado');
+}
+
+async function removerSinonimo(key, index) {
+  const lista = data.sinonimos[key] || [];
+  const valor = lista[index];
+  if (valor === undefined) return;
+  const ok = await confirmar(`Remover o sinônimo "${valor}"?`, {
+    icone: '🗑️', titulo: 'Remover sinônimo', textoSim: 'Remover', textoNao: 'Cancelar'
+  });
+  if (!ok) return;
+  data.sinonimos[key].splice(index, 1);
+  save();
+  renderSinonimos();
+  showFeedback('🗑️ Sinônimo removido: ' + valor);
+}
+
+async function restaurarSinonimosComando(key) {
+  const ok = await confirmar('Restaurar os sinônimos padrão deste comando? Os personalizados serão perdidos.', {
+    icone: '↩️', titulo: 'Restaurar padrões', textoSim: 'Restaurar', textoNao: 'Cancelar'
+  });
+  if (!ok) return;
+  data.sinonimos[key] = [...SINONIMOS_PADRAO[key]];
+  save();
+  renderSinonimos();
+  showFeedback('↩️ Sinônimos restaurados.');
+}
+
+async function restaurarTodosSinonimos() {
+  const ok = await confirmar('Restaurar TODOS os sinônimos padrão? Os personalizados serão perdidos.', {
+    icone: '🔄', titulo: 'Restaurar todos', textoSim: 'Restaurar tudo', textoNao: 'Cancelar'
+  });
+  if (!ok) return;
+  data.sinonimos = JSON.parse(JSON.stringify(SINONIMOS_PADRAO));
+  save();
+  renderSinonimos();
+  showFeedback('🔄 Todos os sinônimos foram restaurados.');
+  speak('Sinônimos restaurados');
 }
 
 // ========== DYNAMIC BUTTON HANDLER ==========
@@ -671,14 +907,16 @@ function salvarUsuarioAutomatico() {
   setTimeout(() => { $('userInfo').textContent = ''; }, 3000);
 }
 
-function excluirUsuario() {
-  if (confirm('Tem certeza que deseja excluir seu cadastro? Esta ação não pode ser desfeita.')) {
-    data.usuario = null;
-    save();
-    renderAll();
-    speak('Cadastro excluído');
-    showFeedback('🗑️ Cadastro removido');
-  }
+async function excluirUsuario() {
+  const ok = await confirmar('Tem certeza que deseja excluir seu cadastro? Esta ação não pode ser desfeita.', {
+    icone: '🗑️', titulo: 'Excluir cadastro', textoSim: 'Excluir', textoNao: 'Cancelar'
+  });
+  if (!ok) return;
+  data.usuario = null;
+  save();
+  renderAll();
+  speak('Cadastro excluído');
+  showFeedback('🗑️ Cadastro removido');
 }
 
 function carregarUsuario() {
@@ -779,8 +1017,9 @@ function editarBancoUsuario(index) {
   document.getElementById('btnAdicionarBanco').style.display = 'none';
 }
 
-function excluirBancoUsuario(index) {
-  if (!confirm('Remover este banco?')) return;
+async function excluirBancoUsuario(index) {
+  const ok = await confirmar('Remover este banco?', { icone:'🗑️', titulo:'Remover banco', textoSim:'Remover', textoNao:'Cancelar' });
+  if (!ok) return;
   const u = data.usuario;
   if (!u || !u.bancos || index >= u.bancos.length) return;
   const removido = u.bancos[index];
@@ -802,11 +1041,14 @@ function getProdutosAtivos() {
   const estab = getEstabelecimentoAtivo();
   return estab ? estab.produtos || [] : [];
 }
-function setEstabelecimentoAtivo(id) {
+async function setEstabelecimentoAtivo(id) {
   if (id && data.estabelecimentos[id]) {
     data.estabelecimentoAtivoId = id;
     if (data.contaAtiva) {
-      if (confirm('Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?')) {
+      const ok = await confirmar('Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?', {
+        icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar'
+      });
+      if (ok) {
         callbackAposFechar = function() {
           data.pedido = []; data.contaAtiva = false;
           save(); renderAll(); setEstabelecimentoAtivo(id);
@@ -886,10 +1128,13 @@ function salvarEstabelecimento() {
   save(); renderAll();
 }
 
-function excluirEstabelecimento(id) {
-  if (!confirm('Excluir este estabelecimento e todos os seus produtos?')) return;
-  if (data.contaAtiva) { showFeedback('⚠️ Não é possível excluir com uma conta aberta.'); return; }
+async function excluirEstabelecimento(id) {
   const nome = data.estabelecimentos[id]?.nome || '';
+  const ok = await confirmar(`Excluir o estabelecimento "${nome}" e todos os seus produtos?`, {
+    icone: '🗑️', titulo: 'Excluir estabelecimento', textoSim: 'Excluir', textoNao: 'Cancelar'
+  });
+  if (!ok) return;
+  if (data.contaAtiva) { showFeedback('⚠️ Não é possível excluir com uma conta aberta.'); return; }
   delete data.estabelecimentos[id];
   if (data.estabelecimentoAtivoId === id) {
     data.estabelecimentoAtivoId = Object.keys(data.estabelecimentos)[0] || null;
@@ -970,20 +1215,23 @@ function editProduto(id) {
   $('produtoNome').focus();
   showFeedback('✏️ Editando: ' + p.nome);
 }
-function deleteProduto(id) {
+async function deleteProduto(id) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
-  if (confirm('Excluir este produto?')) {
-    const p = estab.produtos.find(x => x.id === id);
-    estab.produtos = estab.produtos.filter(p => p.id !== id);
-    if (currentEditId === id) {
-      currentEditId = null;
-      document.querySelector('#cardapio .card h2').textContent = '🍺 Cardápio de ' + estab.nome;
-      document.querySelector('#cardapio .card button').textContent = '➕ Cadastrar produto';
-    }
-    save(); renderAll();
-    if (p) showFeedback('🗑️ Produto excluído: ' + p.nome);
+  const p = estab.produtos.find(x => x.id === id);
+  if (!p) return;
+  const ok = await confirmar(`Excluir o produto "${p.nome}"?`, {
+    icone: '🗑️', titulo: 'Excluir produto', textoSim: 'Excluir', textoNao: 'Cancelar'
+  });
+  if (!ok) return;
+  estab.produtos = estab.produtos.filter(x => x.id !== id);
+  if (currentEditId === id) {
+    currentEditId = null;
+    document.querySelector('#cardapio .card h2').textContent = '🍺 Cardápio de ' + estab.nome;
+    document.querySelector('#cardapio .card button').textContent = '➕ Cadastrar produto';
   }
+  save(); renderAll();
+  showFeedback('🗑️ Produto excluído: ' + p.nome);
 }
 
 // ========== PEDIDO & CONTA ==========
@@ -1030,17 +1278,18 @@ function calcularTotaisConta() {
 }
 
 // ========== FECHAMENTO / PAGAMENTO ==========
-function confirmarFechamento() {
+async function confirmarFechamento() {
   if (!data.contaAtiva) {
     speak('Não há conta aberta para fechar.');
     showFeedback('⚠️ Nenhuma conta aberta');
     return;
   }
   if (!data.pedido.length) {
-    if (confirm('A conta está vazia (sem itens). Deseja fechá-la mesmo assim?')) {
-      fecharContaVazia();
-      return;
-    } else { return; }
+    const ok = await confirmar('A conta está vazia (sem itens). Deseja fechá-la mesmo assim?', {
+      icone: '⚠️', titulo: 'Conta vazia', textoSim: 'Fechar', textoNao: 'Cancelar'
+    });
+    if (ok) fecharContaVazia();
+    return;
   }
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠ Nenhum estabelecimento ativo.'); return; }
@@ -1260,25 +1509,30 @@ function finalizarPagamento() {
   const texto = `Pagamento confirmado em ${metodoPagamento || 'dinheiro'}. Total: ${money(contaFechada.total)}.`;
   speak(texto);
   showFeedback('✅ ' + texto);
-  alert('Pagamento realizado com sucesso!\nForma de pagamento: ' + (metodoPagamento || 'Não informado'));
   fecharPaymentModal();
   contaFechada = null;
   pagamentoConfirmado = true;
   if (callbackAposFechar) { const cb = callbackAposFechar; callbackAposFechar = null; cb(); }
 }
-function pagarDinheiro() {
+async function pagarDinheiro() {
   if (!contaFechada) return;
   metodoPagamento = 'Dinheiro';
-  if (confirm(`Confirmar pagamento em DINHEIRO no valor de ${money(contaFechada.total)}?`)) finalizarPagamento();
+  const ok = await confirmar(`Confirmar pagamento em DINHEIRO no valor de ${money(contaFechada.total)}?`, {
+    icone: '💰', titulo: 'Pagamento em dinheiro', textoSim: 'Confirmar', textoNao: 'Cancelar'
+  });
+  if (ok) finalizarPagamento();
 }
-function pagarCartao() {
+async function pagarCartao() {
   if (!contaFechada) return;
   metodoPagamento = 'Cartão';
-  if (confirm(`Confirmar pagamento em CARTÃO no valor de ${money(contaFechada.total)}?`)) finalizarPagamento();
+  const ok = await confirmar(`Confirmar pagamento em CARTÃO no valor de ${money(contaFechada.total)}?`, {
+    icone: '💳', titulo: 'Pagamento em cartão', textoSim: 'Confirmar', textoNao: 'Cancelar'
+  });
+  if (ok) finalizarPagamento();
 }
 
 // ========== ABRIR CONTA ==========
-function abrirContaManual() {
+async function abrirContaManual() {
   const estabAtivo = getEstabelecimentoAtivo();
   if (!estabAtivo) {
     showFeedback('🏢 Selecione ou crie um estabelecimento primeiro.');
@@ -1286,7 +1540,10 @@ function abrirContaManual() {
     return;
   }
   if (data.contaAtiva) {
-    if (confirm('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?')) {
+    const ok = await confirmar('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?', {
+      icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar'
+    });
+    if (ok) {
       callbackAposFechar = function() { abrirNovaConta(null); };
       showScreen('conta');
       setTimeout(confirmarFechamento, 300);
@@ -1295,14 +1552,17 @@ function abrirContaManual() {
     }
   } else { abrirNovaConta(null); }
 }
-function abrirNovaConta(nomeEstab) {
+async function abrirNovaConta(nomeEstab) {
   if (data.contaAtiva) {
-    if (confirm('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?')) {
+    const ok = await confirmar('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?', {
+      icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar'
+    });
+    if (ok) {
       callbackAposFechar = function() { abrirNovaConta(nomeEstab); };
       showScreen('conta');
       setTimeout(confirmarFechamento, 300);
-      return;
-    } else { return; }
+    }
+    return;
   }
   let estabAtivo = getEstabelecimentoAtivo();
   if (!estabAtivo) {
@@ -1328,19 +1588,24 @@ function abrirNovaConta(nomeEstab) {
   showScreen('conta');
 }
 
-function excluirContaHistorico(id) {
-  if (!confirm('Tem certeza que deseja excluir esta conta do histórico?')) return;
+async function excluirContaHistorico(id) {
+  const ok = await confirmar('Tem certeza que deseja excluir esta conta do histórico?', {
+    icone: '🗑️', titulo: 'Excluir conta', textoSim: 'Excluir', textoNao: 'Cancelar'
+  });
+  if (!ok) return;
   data.historico = data.historico.filter(item => item.id !== id);
   save(); renderHistorico();
   speak('Conta removida do histórico');
   showFeedback('🗑️ Conta removida');
 }
-function limparHistorico() {
-  if (confirm('Limpar todo o histórico?')) {
-    data.historico = [];
-    save(); renderHistorico();
-    showFeedback('🗑️ Histórico limpo');
-  }
+async function limparHistorico() {
+  const ok = await confirmar('Limpar TODO o histórico? Esta ação não pode ser desfeita.', {
+    icone: '⚠️', titulo: 'Limpar histórico', textoSim: 'Limpar', textoNao: 'Cancelar'
+  });
+  if (!ok) return;
+  data.historico = [];
+  save(); renderHistorico();
+  showFeedback('🗑️ Histórico limpo');
 }
 
 // ========== RENDERIZAÇÃO ==========
@@ -1405,30 +1670,16 @@ function renderConta() {
   const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
   document.getElementById('contaStatus').textContent = statusText;
 
-  // Renderizar Botões Dinâmicos da Conta (Home & Tela de Conta)
   const btnHome = document.getElementById('btnAcaoContaHome');
   const btnResumo = document.getElementById('btnAcaoContaResumo');
   if (data.contaAtiva) {
-    if (btnHome) {
-      btnHome.textContent = '✅ Solicitar fechamento da conta';
-      btnHome.className = '';
-    }
-    if (btnResumo) {
-      btnResumo.textContent = '✅ Solicitar fechamento da conta';
-      btnResumo.className = '';
-    }
+    if (btnHome) { btnHome.textContent = '✅ Solicitar fechamento da conta'; btnHome.className = ''; }
+    if (btnResumo) { btnResumo.textContent = '✅ Solicitar fechamento da conta'; btnResumo.className = ''; }
   } else {
-    if (btnHome) {
-      btnHome.textContent = '📂 Abrir conta';
-      btnHome.className = '';
-    }
-    if (btnResumo) {
-      btnResumo.textContent = '📂 Abrir conta';
-      btnResumo.className = '';
-    }
+    if (btnHome) { btnHome.textContent = '📂 Abrir conta'; btnHome.className = ''; }
+    if (btnResumo) { btnResumo.textContent = '📂 Abrir conta'; btnResumo.className = ''; }
   }
 
-  // Renderizar Itens da Conta
   const contaItensDiv = document.getElementById('contaItens');
   if (data.pedido.length === 0) {
     contaItensDiv.innerHTML = '<div class="empty">Nenhum item consumido na conta.</div>';
@@ -1458,7 +1709,7 @@ function renderConta() {
     'Selecione um estabelecimento para ver os dados PIX.';
 }
 
-// ========== LÓGICA DO HISTÓRICO COM FILTROS DE PERÍODO E AGRUPAMENTO ==========
+// ========== HISTÓRICO ==========
 function onChangeHistPeriodo() {
   const p = $('histPeriodo').value;
   $('histDatasPersonalizadas').style.display = (p === 'personalizado') ? 'flex' : 'none';
@@ -1484,7 +1735,6 @@ function renderHistorico() {
     return;
   }
 
-  // 1. Filtrar por Período
   const modoPeriodo = $('histPeriodo').value;
   const agora = new Date();
   let dataInicioFilter = null;
@@ -1568,7 +1818,6 @@ function renderHistorico() {
     });
     lista.innerHTML = html;
   } else {
-    // Agrupamento Por Estabelecimento
     const grupos = {};
     historicoFiltrado.forEach(h => {
       totalGeral += h.total || 0;
@@ -1601,13 +1850,13 @@ function renderAll() {
   renderConta();
   renderHistorico();
   carregarUsuario();
+  renderSinonimos();
   document.getElementById('resumoEstabs').textContent = Object.keys(data.estabelecimentos).length;
   document.getElementById('resumoProdutos').textContent = getProdutosAtivos().length;
   document.getElementById('resumoPedido').textContent = data.pedido.reduce((s, x) => s + x.qtd, 0);
   document.getElementById('resumoHistorico').textContent = data.historico.length;
   document.getElementById('resumoContaAtiva').textContent = data.contaAtiva ? 'Sim' : 'Não';
   
-  // Atualizar Estado dos botões de voz
   document.getElementById('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
   
   const pref = data.voicePreference || 'default';
@@ -1790,7 +2039,7 @@ function toggleVoiceAssistant() {
 
 // ========== COMANDOS DE VOZ PARSER ==========
 function parseNumberWords(s) {
-  const words = { um: 1, uma: 1, dois: 2, duas: 2, tres: 3, 'três': 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, dez: 10 };
+  const words = { um: 1, uma: 1, dois: 2, duas: 2, tres: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, dez: 10 };
   let m = s.match(/\b(\d+)\b/);
   if (m) return parseInt(m[1], 10);
   for (let w in words) {
@@ -1804,36 +2053,61 @@ function processVoice(text) {
   document.getElementById('lastCommand').textContent = 'Você disse: "' + text + '"';
   const norm = normalize(text);
 
-  if (norm.includes('desativar comando') || norm.includes('desligar assistente') || norm.includes('desligar app')) {
+  // 1. Confirmação pendente?
+  if (confirmacaoPendente) {
+    if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar)([\s.,!?]|$)/.test(norm)) {
+      resolverConfirmacao(true);
+      return;
+    }
+    if (/(^|\s)(nao|cancela|cancelar|negativo|no|recusar|recuso)([\s.,!?]|$)/.test(norm)) {
+      resolverConfirmacao(false);
+      return;
+    }
+    showFeedback('⚠️ Diga "sim" ou "não".');
+    return;
+  }
+
+  // 2. Desativar voz (primeiro, para sempre funcionar)
+  if (matchSinonimo(norm, 'desativarVoz')) {
     recognizer.deactivate();
     speak('Assistente desligado');
     return;
   }
 
-  if (norm.includes('abrir conta')) {
-    const nome = norm.replace('abrir conta', '').trim();
-    if (nome) {
-      const estabs = Object.values(data.estabelecimentos);
-      const match = estabs.find(e => normalize(e.nome).includes(nome));
-      if (match) setEstabelecimentoAtivo(Object.keys(data.estabelecimentos).find(k => data.estabelecimentos[k] === match));
-      else abrirNovaConta(nome);
+  // 3. Abrir conta (com possibilidade de nome)
+  const sinAbrir = matchSinonimo(norm, 'abrirConta');
+  if (sinAbrir) {
+    const resto = extrairResto(norm, sinAbrir);
+    if (resto) {
+      const estabs = Object.entries(data.estabelecimentos);
+      const matchEstab = estabs.find(([id, e]) => normalize(e.nome).includes(resto));
+      if (matchEstab) {
+        setEstabelecimentoAtivo(matchEstab[0]);
+        abrirContaManual();
+      } else {
+        abrirNovaConta(resto);
+      }
     } else {
       abrirContaManual();
     }
     return;
   }
 
-  if (norm.includes('selecionar')) {
-    const nome = norm.replace('selecionar', '').trim();
+  // 4. Selecionar estabelecimento
+  const sinSel = matchSinonimo(norm, 'selecionar');
+  if (sinSel) {
+    const nome = extrairResto(norm, sinSel);
     const estabs = Object.entries(data.estabelecimentos);
-    const match = estabs.find(([id, e]) => normalize(e.nome).includes(nome));
-    if (match) setEstabelecimentoAtivo(match[0]);
+    const matchEstab = estabs.find(([id, e]) => normalize(e.nome).includes(nome));
+    if (matchEstab) setEstabelecimentoAtivo(matchEstab[0]);
     else showFeedback('⚠️ Estabelecimento não encontrado.');
     return;
   }
 
-  if (norm.includes('incluir produtos') || norm.includes('incluir produto')) {
-    let rest = norm.replace('incluir produtos', '').replace('incluir produto', '').trim();
+  // 5. Incluir produto no cardápio
+  const sinInc = matchSinonimo(norm, 'incluirProduto');
+  if (sinInc) {
+    let rest = extrairResto(norm, sinInc);
     let m = rest.match(/(.*?)\s+(\d+(?:[.,]\d+)?)\s*(?:reais|real)?$/);
     if (m) {
       let pNome = m[1].trim();
@@ -1847,25 +2121,62 @@ function processVoice(text) {
     return;
   }
 
-  if (norm.includes('fazer pedido') || norm.includes('pedir') || norm.includes('solicitar') || norm.includes('mais um') || norm.includes('mais uma')) {
+  // 6. Fechar conta
+  if (matchSinonimo(norm, 'fecharConta')) {
+    showScreen('conta');
+    confirmarFechamento();
+    return;
+  }
+
+  // 7. Ver conta
+  if (matchSinonimo(norm, 'verConta')) {
+    showScreen('conta');
+    return;
+  }
+
+  // 8. Ver histórico
+  if (matchSinonimo(norm, 'verHistorico')) {
+    showScreen('historico');
+    return;
+  }
+
+  // 9. Ver cardápio
+  if (matchSinonimo(norm, 'verCardapio')) {
+    mostrarMiniCardapio();
+    return;
+  }
+
+  // 10. Exportar dados
+  if (matchSinonimo(norm, 'exportarDados')) {
+    exportarDados();
+    return;
+  }
+
+  // 11. Importar dados
+  if (matchSinonimo(norm, 'importarDados')) {
+    showScreen('dados');
+    return;
+  }
+
+  // 12. Limpar histórico
+  if (matchSinonimo(norm, 'limparHistorico')) {
+    limparHistorico();
+    return;
+  }
+
+  // 13. Pedir (mais genérico — deixar por último)
+  const sinPedir = matchSinonimo(norm, 'pedir');
+  if (sinPedir) {
     let qtd = parseNumberWords(norm);
     let prods = getProdutosAtivos();
-    let match = prods.find(p => norm.includes(normalize(p.nome)));
-    if (match) {
-      addPedido(match.id, qtd);
+    let matchProd = prods.find(p => norm.includes(normalize(p.nome)));
+    if (matchProd) {
+      addPedido(matchProd.id, qtd);
     } else {
       showFeedback('⚠️ Produto não identificado no cardápio.');
     }
     return;
   }
-
-  if (norm.includes('ver cardapio')) { mostrarMiniCardapio(); return; }
-  if (norm.includes('fechar conta')) { showScreen('conta'); confirmarFechamento(); return; }
-  if (norm.includes('ver conta') || norm.includes('mostrar conta')) { showScreen('conta'); return; }
-  if (norm.includes('ver historico')) { showScreen('historico'); return; }
-  if (norm.includes('exportar dados')) { exportarDados(); return; }
-  if (norm.includes('importar dados')) { showScreen('dados'); return; }
-  if (norm.includes('limpar historico')) { limparHistorico(); return; }
 
   showFeedback('❓ Comando não reconhecido.');
 }
@@ -1911,6 +2222,13 @@ function importarDados(e) {
       const imported = JSON.parse(evt.target.result);
       if (typeof imported === 'object' && imported !== null) {
         data = imported;
+        // garantir estrutura de sinônimos
+        data.sinonimos = data.sinonimos || {};
+        Object.keys(SINONIMOS_PADRAO).forEach(k => {
+          if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) {
+            data.sinonimos[k] = [...SINONIMOS_PADRAO[k]];
+          }
+        });
         save();
         renderAll();
         showFeedback('✅ Dados importados com sucesso!');
@@ -1924,13 +2242,18 @@ function importarDados(e) {
   reader.readAsText(file);
 }
 
-function clearAllData() {
-  if (confirm('ATENÇÃO: Deseja apagar TODOS os dados do aplicativo?')) {
-    localStorage.removeItem(KEY);
-    data = { estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true };
-    renderAll();
-    showFeedback('🗑 Todos os dados foram apagados.');
-  }
+async function clearAllData() {
+  const ok = await confirmar('ATENÇÃO: Deseja apagar TODOS os dados do aplicativo? Esta ação não pode ser desfeita.', {
+    icone: '⚠️', titulo: 'Apagar tudo', textoSim: 'Apagar tudo', textoNao: 'Cancelar'
+  });
+  if (!ok) return;
+  localStorage.removeItem(KEY);
+  data = {
+    estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true,
+    sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO))
+  };
+  renderAll();
+  showFeedback('🗑 Todos os dados foram apagados.');
 }
 
 // ========== INICIALIZAÇÃO ==========
