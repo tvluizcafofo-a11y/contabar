@@ -132,13 +132,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .config-card p {margin:0;color:var(--muted);font-size:13px;line-height:1.4;}
 .back-config-btn {margin-bottom:15px;background:var(--panel2);color:var(--text);border:1px solid var(--border);}
 
-/* ESTILOS ADICIONADOS PARA OS FILTROS DO HISTÓRICO */
 .hist-filters {background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;}
 .hist-filters-row {display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
 .hist-filters-row select, .hist-filters-row input {margin:0;border-radius:8px;padding:8px 12px;font-size:14px;}
 .estab-group-header {background:var(--panel2);padding:10px 14px;border-radius:8px;margin:16px 0 10px;border-left:4px solid var(--accent);display:flex;justify-content:space-between;align-items:center;}
 
-/* ====== SINÔNIMOS DE VOZ ====== */
 .sinonimo-group{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid var(--accent);}
 .sinonimo-group h3{margin:0 0 4px 0;font-size:15px;color:var(--text);}
 .sinonimo-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;}
@@ -148,7 +146,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sinonimo-add{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
 .sinonimo-add input{flex:1;min-width:150px;margin:0;padding:8px 12px;border-radius:8px;}
 
-/* ====== CONFIRMAÇÃO VOZ-AMIGÁVEL ====== */
 .confirm-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.78);z-index:10010;justify-content:center;align-items:center;padding:20px;}
 .confirm-modal.active{display:flex;}
 .confirm-content{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;max-width:440px;width:100%;box-shadow:0 12px 44px rgba(0,0,0,0.85);animation:confirmIn .2s ease;}
@@ -160,6 +157,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .confirm-content .confirm-actions{display:flex;gap:12px;}
 .confirm-content .confirm-actions button{flex:1;padding:14px;font-size:16px;}
 .confirm-content .confirm-actions .btn-nao{background:#344057;color:white;}
+
+.tip-box{background:rgba(79,195,247,0.1);border:1px solid var(--info);border-radius:10px;padding:12px;margin:12px 0;}
+.tip-box p{margin:0;color:var(--text);font-size:13px;}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -243,7 +243,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ====== TELA DE SINÔNIMOS DE VOZ ====== -->
 <section id="sinonimos" class="screen">
 <button class="back-config-btn" onclick="showScreen('configuracoes')">⬅️ Voltar para Configurações</button>
 <div class="card">
@@ -301,6 +300,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <label>Preço</label><input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10.00">
 <button onclick="addProduto()">➕ Cadastrar produto</button>
 <p class="note">Por voz: "incluir produtos cerveja 10 reais" - adiciona ao cardápio atual.</p>
+<div class="tip-box">
+  <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo. Se o cardápio tem <b>"Cerveja Império"</b>, basta dizer <i>"desce uma império"</i> ou <i>"me dá uma cerveja"</i> (se só houver uma cerveja).</p>
+</div>
 </div>
 <div class="card">
 <h2>📦 Produtos do cardápio</h2>
@@ -455,8 +457,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button class="back-config-btn" onclick="showScreen('configuracoes')">⬅ Voltar para Configurações</button>
 <div class="card">
 <h2>🎯 Lista Completa de Comandos de Voz</h2>
-<div style="background:rgba(79,195,247,0.1);border:1px solid var(--info);border-radius:10px;padding:12px;margin:12px 0;">
-  <p style="margin:0;color:var(--text);">💡 <b>Dica:</b> Todos os comandos abaixo são personalizáveis! Vá em <b>⚙ Configurações → 🎤 Sinônimos de Voz</b> para adicionar ou remover palavras.</p>
+<div class="tip-box">
+  <p>💡 <b>Dica:</b> Todos os comandos abaixo são personalizáveis! Vá em <b>⚙ Configurações → 🎤 Sinônimos de Voz</b> para adicionar ou remover palavras.</p>
+</div>
+<div class="tip-box">
+  <p>🧠 <b>Nome parcial de produto:</b> ao fazer um pedido, você pode falar só parte do nome. Se o cardápio tem <b>"Cerveja Império"</b>, basta dizer <i>"desce uma império"</i>. O app resolve automaticamente — desde que só exista UM produto que combine.</p>
 </div>
 <p class="note">Todos os comandos disponíveis para controle por voz do sistema.</p>
 <hr style="border-color:var(--border);margin:15px 0">
@@ -474,6 +479,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <h3>🛒 Pedidos & Conta</h3>
 <ul class="command-list">
   <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Sinônimos: pedir, pega, me dá, desce, traz, quero, mais um...</span></li>
+  <li><span class="cmd">"Pedir [qtd] [parte do produto]"</span><br><span class="desc">Ex: "desce uma império" → acha "Cerveja Império"</span></li>
   <li><span class="cmd">"Mais uma [produto]"</span><br><span class="desc">Adiciona 1 unidade</span></li>
 </ul>
 <h3>💰 Conta</h3>
@@ -542,7 +548,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 <footer>🍺 FECHA A CONTA - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
 
-<!-- ===== MODAL DE FEEDBACK ===== -->
 <div id="feedbackModal" class="feedback-modal">
   <button class="close-btn" onclick="fecharFeedback()">×</button>
   <div id="feedbackMessage">✅ Comando executado!</div>
@@ -552,7 +557,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<!-- ===== MODAL CONFIRMAÇÃO VOZ-AMIGÁVEL ===== -->
 <div id="confirmModal" class="confirm-modal">
   <div class="confirm-content">
     <div class="confirm-icon" id="confirmIcon">❓</div>
@@ -566,14 +570,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<!-- ===== MODAL MINI CARDÁPIO ===== -->
 <div id="miniCardapioModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;z-index:10000;max-width:90%;max-height:80%;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.8);min-width:300px;">
   <h3 style="margin-top:0;">📋 Cardápio de <span id="modalCardapioNome"></span></h3>
   <div id="modalCardapioLista" style="margin:15px 0;"></div>
   <button onclick="fecharMiniCardapio()" style="width:100%;">Fechar</button>
 </div>
 
-<!-- ===== MODAL DE PAGAMENTO ===== -->
 <div id="paymentModal" class="payment-modal">
   <div class="payment-content">
     <h2>💳 Opções de Pagamento</h2>
@@ -600,7 +602,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<!-- ===== MODAL DE EXPORTAÇÃO ===== -->
 <div id="exportModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:10005;justify-content:center;align-items:center;padding:20px;">
   <div style="background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:480px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.8);">
     <h2 style="margin-top:0;color:var(--accent);">✅ Dados exportados com sucesso!</h2>
@@ -667,7 +668,6 @@ data.usuario = data.usuario || null;
 data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 
-// Merge de sinônimos: garante que todas as chaves existam
 data.sinonimos = data.sinonimos || {};
 Object.keys(SINONIMOS_PADRAO).forEach(k => {
   if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) {
@@ -675,9 +675,7 @@ Object.keys(SINONIMOS_PADRAO).forEach(k => {
   }
 });
 
-if (typeof data.speechOn === 'undefined') {
-  data.speechOn = true;
-}
+if (typeof data.speechOn === 'undefined') { data.speechOn = true; }
 let speechOn = data.speechOn;
 
 let currentEditId = null;
@@ -693,7 +691,7 @@ let editandoBancoId = null;
 let ultimoConteudoExportado = '';
 let ultimoNomeArquivoExportado = '';
 let metodoPagamento = null;
-let confirmacaoPendente = null; // { resolve }
+let confirmacaoPendente = null;
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -721,12 +719,8 @@ function showScreen(screenId) {
 }
 
 function getNomeCliente() {
-  if (data.usuario && data.usuario.nome && data.usuario.nome.trim() !== '') {
-    return data.usuario.nome;
-  }
-  if (data.cliente && data.cliente.nome && data.cliente.nome.trim() !== '') {
-    return data.cliente.nome;
-  }
+  if (data.usuario && data.usuario.nome && data.usuario.nome.trim() !== '') return data.usuario.nome;
+  if (data.cliente && data.cliente.nome && data.cliente.nome.trim() !== '') return data.cliente.nome;
   return 'Não informado';
 }
 
@@ -756,6 +750,70 @@ function extrairResto(textoNorm, sinonimo) {
   return textoNorm.replace(re, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// ========== MATCHING PARCIAL DE PRODUTOS ==========
+// Palavras ignoradas quando procuramos por nome de produto no que foi dito.
+const PALAVRAS_IGNORAR = new Set([
+  'o','a','os','as','um','uma','uns','umas',
+  'de','da','do','das','dos','em','no','na','nos','nas','por','para','pra','pro',
+  'com','sem','ao','aos','sobre','entre','ate','até',
+  'e','ou','que','mas','porem','porém',
+  'mais','menos','bem','ja','já','la','lá','aqui','ali','entao','então','tipo','so','só',
+  'me','te','se','lhe','vos','lhes',
+  'dois','duas','tres','três','quatro','cinco','seis','sete','oito','nove','dez',
+  'real','reais','centavo','centavos'
+]);
+
+function construirPalavrasComando() {
+  const palavras = new Set();
+  const sinonimos = data.sinonimos || {};
+  Object.keys(sinonimos).forEach(k => {
+    (sinonimos[k] || []).forEach(s => {
+      normalize(s).split(/\s+/).forEach(w => { if (w) palavras.add(w); });
+    });
+  });
+  return palavras;
+}
+
+// Retorna { produto } em caso de match único ou claro;
+// { ambiguo: [...] } se houver empate; null se nada encontrado.
+function encontrarProdutoPorNome(textoNorm, produtos) {
+  if (!produtos || !produtos.length) return null;
+
+  // 1) Match exato — nome completo do produto está contido no texto
+  const exato = produtos.find(p => textoNorm.includes(normalize(p.nome)));
+  if (exato) return { produto: exato };
+
+  // 2) Coletar palavras que são comandos (não devem ser tratadas como nome)
+  const palavrasComando = construirPalavrasComando();
+
+  // 3) Extrair palavras-chave significativas do que foi dito
+  const palavrasChave = textoNorm.split(/\s+/)
+    .filter(w => w.length >= 3)
+    .filter(w => !PALAVRAS_IGNORAR.has(w) && !palavrasComando.has(w));
+
+  if (!palavrasChave.length) return null;
+
+  // 4) Buscar produtos que contenham ao menos uma palavra-chave
+  const candidatos = produtos.filter(p => {
+    const nomeNorm = normalize(p.nome);
+    return palavrasChave.some(kw => nomeNorm.includes(kw));
+  });
+
+  if (!candidatos.length) return null;
+  if (candidatos.length === 1) return { produto: candidatos[0] };
+
+  // 5) Múltiplos candidatos: pontuar por número de palavras-chave encontradas
+  const pontuados = candidatos.map(p => {
+    const nomeNorm = normalize(p.nome);
+    const score = palavrasChave.filter(kw => nomeNorm.includes(kw)).length;
+    return { p, score };
+  }).sort((a,b) => b.score - a.score);
+
+  if (pontuados[0].score > pontuados[1].score) return { produto: pontuados[0].p };
+
+  return { ambiguo: candidatos };
+}
+
 // ========== CONFIRMAÇÃO VOZ-AMIGÁVEL ==========
 function confirmar(mensagem, opcoes = {}) {
   return new Promise((resolve) => {
@@ -781,9 +839,7 @@ function resolverConfirmacao(resposta) {
   const cb = confirmacaoPendente.resolve;
   confirmacaoPendente = null;
   document.getElementById('confirmModal').classList.remove('active');
-  if (speechOn) {
-    try { speechSynthesis.cancel(); } catch(e){}
-  }
+  if (speechOn) { try { speechSynthesis.cancel(); } catch(e){} }
   cb(resposta);
 }
 
@@ -826,8 +882,7 @@ async function adicionarSinonimo(key) {
   const normV = normalize(valor);
   if (data.sinonimos[key].some(s => normalize(s) === normV)) {
     showFeedback('⚠️ Esse sinônimo já existe.');
-    input.value = '';
-    input.focus();
+    input.value = ''; input.focus();
     return;
   }
   data.sinonimos[key].push(valor);
@@ -1835,7 +1890,7 @@ function renderHistorico() {
         <span class="money" style="font-size:16px;">Subtotal: ${money(g.subtotal)}</span>
       </div>`;
       g.itens.forEach(h => {
-        html += criarCardConta(h);
+        html += criarConta(h);
       });
     });
     lista.innerHTML = html;
@@ -2056,18 +2111,16 @@ function processVoice(text) {
   // 1. Confirmação pendente?
   if (confirmacaoPendente) {
     if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar)([\s.,!?]|$)/.test(norm)) {
-      resolverConfirmacao(true);
-      return;
+      resolverConfirmacao(true); return;
     }
     if (/(^|\s)(nao|cancela|cancelar|negativo|no|recusar|recuso)([\s.,!?]|$)/.test(norm)) {
-      resolverConfirmacao(false);
-      return;
+      resolverConfirmacao(false); return;
     }
     showFeedback('⚠️ Diga "sim" ou "não".');
     return;
   }
 
-  // 2. Desativar voz (primeiro, para sempre funcionar)
+  // 2. Desativar voz
   if (matchSinonimo(norm, 'desativarVoz')) {
     recognizer.deactivate();
     speak('Assistente desligado');
@@ -2122,56 +2175,38 @@ function processVoice(text) {
   }
 
   // 6. Fechar conta
-  if (matchSinonimo(norm, 'fecharConta')) {
-    showScreen('conta');
-    confirmarFechamento();
-    return;
-  }
+  if (matchSinonimo(norm, 'fecharConta')) { showScreen('conta'); confirmarFechamento(); return; }
 
   // 7. Ver conta
-  if (matchSinonimo(norm, 'verConta')) {
-    showScreen('conta');
-    return;
-  }
+  if (matchSinonimo(norm, 'verConta')) { showScreen('conta'); return; }
 
   // 8. Ver histórico
-  if (matchSinonimo(norm, 'verHistorico')) {
-    showScreen('historico');
-    return;
-  }
+  if (matchSinonimo(norm, 'verHistorico')) { showScreen('historico'); return; }
 
   // 9. Ver cardápio
-  if (matchSinonimo(norm, 'verCardapio')) {
-    mostrarMiniCardapio();
-    return;
-  }
+  if (matchSinonimo(norm, 'verCardapio')) { mostrarMiniCardapio(); return; }
 
   // 10. Exportar dados
-  if (matchSinonimo(norm, 'exportarDados')) {
-    exportarDados();
-    return;
-  }
+  if (matchSinonimo(norm, 'exportarDados')) { exportarDados(); return; }
 
   // 11. Importar dados
-  if (matchSinonimo(norm, 'importarDados')) {
-    showScreen('dados');
-    return;
-  }
+  if (matchSinonimo(norm, 'importarDados')) { showScreen('dados'); return; }
 
   // 12. Limpar histórico
-  if (matchSinonimo(norm, 'limparHistorico')) {
-    limparHistorico();
-    return;
-  }
+  if (matchSinonimo(norm, 'limparHistorico')) { limparHistorico(); return; }
 
-  // 13. Pedir (mais genérico — deixar por último)
+  // 13. Pedir (mais genérico — por último)
   const sinPedir = matchSinonimo(norm, 'pedir');
   if (sinPedir) {
     let qtd = parseNumberWords(norm);
     let prods = getProdutosAtivos();
-    let matchProd = prods.find(p => norm.includes(normalize(p.nome)));
-    if (matchProd) {
-      addPedido(matchProd.id, qtd);
+    const resultado = encontrarProdutoPorNome(norm, prods);
+    if (resultado && resultado.produto) {
+      addPedido(resultado.produto.id, qtd);
+    } else if (resultado && resultado.ambiguo) {
+      const nomes = resultado.ambiguo.map(p => p.nome).join(', ');
+      showFeedback('⚠️ Encontrei vários produtos: ' + nomes + '. Seja mais específico.');
+      speak('Encontrei vários produtos. Seja mais específico.');
     } else {
       showFeedback('⚠️ Produto não identificado no cardápio.');
     }
@@ -2222,7 +2257,6 @@ function importarDados(e) {
       const imported = JSON.parse(evt.target.result);
       if (typeof imported === 'object' && imported !== null) {
         data = imported;
-        // garantir estrutura de sinônimos
         data.sinonimos = data.sinonimos || {};
         Object.keys(SINONIMOS_PADRAO).forEach(k => {
           if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) {
