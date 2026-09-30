@@ -1,4 +1,4 @@
-<!-- Conta Bar 16.09.2026 -->
+<!-- Conta Bar 30.09.2026 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -93,6 +93,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .config-card h3 {margin:0 0 8px 0;color:var(--text);display:flex;align-items:center;gap:10px;}
 .config-card p {margin:0;color:var(--muted);font-size:13px;line-height:1.4;}
 .back-config-btn {margin-bottom:15px;background:var(--panel2);color:var(--text);border:1px solid var(--border);}
+
+/* ESTILOS ADICIONADOS PARA OS FILTROS DO HISTÓRICO */
+.hist-filters {background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;}
+.hist-filters-row {display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.hist-filters-row select, .hist-filters-row input {margin:0;border-radius:8px;padding:8px 12px;font-size:14px;}
+.estab-group-header {background:var(--panel2);padding:10px 14px;border-radius:8px;margin:16px 0 10px;border-left:4px solid var(--accent);display:flex;justify-content:space-between;align-items:center;}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -285,9 +291,42 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
+<!-- SEÇÃO HISTÓRICO ATUALIZADA -->
 <section id="historico" class="screen">
 <div class="card">
 <h2>📜 Histórico de Contas</h2>
+
+<div class="hist-filters">
+  <div class="hist-filters-row" style="margin-bottom:10px;">
+    <div style="flex:1; min-width:140px;">
+      <label>📅 Período:</label>
+      <select id="histPeriodo" onchange="onChangeHistPeriodo()">
+        <option value="mes">No mês</option>
+        <option value="mesAnterior">Mês anterior</option>
+        <option value="personalizado">Personalizado</option>
+      </select>
+    </div>
+    <div style="flex:1; min-width:140px;">
+      <label>🗂 Visualização / Agrupamento:</label>
+      <select id="histOrdem" onchange="renderHistorico()">
+        <option value="data">Por Data (Cronológica)</option>
+        <option value="estabelecimento">Por Estabelecimento</option>
+      </select>
+    </div>
+  </div>
+  
+  <div id="histDatasPersonalizadas" class="hist-filters-row" style="display:none; margin-top:10px;">
+    <div style="flex:1;">
+      <label>Data Inicial:</label>
+      <input type="date" id="histDataInicio" onchange="renderHistorico()">
+    </div>
+    <div style="flex:1;">
+      <label>Data Final:</label>
+      <input type="date" id="histDataFim" onchange="renderHistorico()">
+    </div>
+  </div>
+</div>
+
 <div id="listaHistorico"></div>
 <div id="totalGeralHistorico" style="margin-top:15px; text-align:right; font-weight:bold; font-size:18px; border-top:2px solid var(--accent); padding-top:10px;"></div>
 <button class="danger" style="margin-top:15px" onclick="limparHistorico()">🗑 Limpar histórico</button>
@@ -655,7 +694,7 @@ function cancelarNovoBanco() {
 function salvarNovoBanco() {
   const nome = document.getElementById('novoBancoNome').value.trim();
   const link = document.getElementById('novoBancoLink').value.trim();
-  if (!nome) { showFeedback('⚠️ Informe o nome do banco.'); return; }
+  if (!nome) { showFeedback('⚠️️ Informe o nome do banco.'); return; }
   if (!data.usuario) data.usuario = { bancos: [] };
   if (!data.usuario.bancos) data.usuario.bancos = [];
 
@@ -748,13 +787,13 @@ function editarEstabelecimento(id) {
   $('barPix').value = e.pix;
   document.getElementById('btnSalvarEstab').textContent = '💾 Atualizar estabelecimento';
   showScreen('estabelecimentos');
-  showFeedback('✏️ Editando: ' + e.nome);
+  showFeedback('✏️️ Editando: ' + e.nome);
 }
 function salvarEstabelecimento() {
   const nome = capitalizarNome($('barNome').value.trim());
   const endereco = $('barEndereco').value.trim();
   const pix = $('barPix').value.trim();
-  if (!nome) { showFeedback('⚠️ Informe o nome do estabelecimento.'); return; }
+  if (!nome) { showFeedback('⚠️️ Informe o nome do estabelecimento.'); return; }
   if (currentEditEstabId) {
     data.estabelecimentos[currentEditEstabId].nome = nome;
     data.estabelecimentos[currentEditEstabId].endereco = endereco;
@@ -1346,11 +1385,67 @@ function renderConta() {
     'Selecione um estabelecimento para ver os dados PIX.';
 }
 
+// ========== LÓGICA DO HISTÓRICO COM FILTROS DE PERÍODO E AGRUPAMENTO ==========
+function onChangeHistPeriodo() {
+  const p = $('histPeriodo').value;
+  $('histDatasPersonalizadas').style.display = (p === 'personalizado') ? 'flex' : 'none';
+  renderHistorico();
+}
+
+function parseDataConta(dataStr, idFallback) {
+  if (!dataStr) return new Date(idFallback || Date.now());
+  const [d, t] = dataStr.split(', ');
+  if (d && t) {
+    const [dia, mes, ano] = d.split('/');
+    const [hora, min, seg] = t.split(':');
+    return new Date(ano, mes - 1, dia, hora || 0, min || 0, seg || 0);
+  }
+  return new Date(idFallback || Date.now());
+}
+
 function renderHistorico() {
   const lista = document.getElementById('listaHistorico');
-  if (data.historico.length === 0) {
+  if (!data.historico || data.historico.length === 0) {
     lista.innerHTML = '<div class="empty">Nenhuma conta no histórico.</div>';
     document.getElementById('totalGeralHistorico').textContent = '';
+    return;
+  }
+
+  // 1. Filtrar por Período
+  const modoPeriodo = $('histPeriodo').value;
+  const agora = new Date();
+  let dataInicioFilter = null;
+  let dataFimFilter = null;
+
+  if (modoPeriodo === 'mes') {
+    dataInicioFilter = new Date(agora.getFullYear(), agora.getMonth(), 1, 0, 0, 0);
+    dataFimFilter = new Date(agora.getFullYear(), agora.getMonth() + 1, 0, 23, 59, 59);
+  } else if (modoPeriodo === 'mesAnterior') {
+    dataInicioFilter = new Date(agora.getFullYear(), agora.getMonth() - 1, 1, 0, 0, 0);
+    dataFimFilter = new Date(agora.getFullYear(), agora.getMonth(), 0, 23, 59, 59);
+  } else if (modoPeriodo === 'personalizado') {
+    const iniVal = $('histDataInicio').value;
+    const fimVal = $('histDataFim').value;
+    if (iniVal) {
+      const [y, m, d] = iniVal.split('-');
+      dataInicioFilter = new Date(y, m - 1, d, 0, 0, 0);
+    }
+    if (fimVal) {
+      const [y, m, d] = fimVal.split('-');
+      dataFimFilter = new Date(y, m - 1, d, 23, 59, 59);
+    }
+  }
+
+  const historicoFiltrado = data.historico.filter(h => {
+    const dt = parseDataConta(h.data, h.id);
+    if (dataInicioFilter && dt < dataInicioFilter) return false;
+    if (dataFimFilter && dt > dataFimFilter) return false;
+    return true;
+  });
+
+  if (historicoFiltrado.length === 0) {
+    lista.innerHTML = '<div class="empty">Nenhuma conta encontrada para o período selecionado.</div>';
+    document.getElementById('totalGeralHistorico').textContent = '💰 Total geral do período: ' + money(0);
     return;
   }
 
@@ -1362,15 +1457,11 @@ function renderHistorico() {
     'Não informado': { icone: '❓', cor: '#aeb8c8', bg: 'rgba(174,184,200,0.12)' }
   };
 
-  let totalGeral = 0;
-  lista.innerHTML = data.historico.map(h => {
-    totalGeral += h.total || 0;
-
+  function criarCardConta(h) {
     let descontoStr = '';
     if (h.desconto && h.desconto > 0) {
       descontoStr = `<span style="color:#5dade2;"><b>Desconto:</b> -${money(h.desconto)} (${h.descricaoDesconto || 'sem descrição'})</span><br>`;
     }
-
     const mp = h.metodoPagamento || 'Não informado';
     const est = estiloMP[mp] || estiloMP['Não informado'];
 
@@ -1391,9 +1482,44 @@ function renderHistorico() {
         </div>
       </div>
     </div>`;
-  }).join('');
+  }
 
-  document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral de gastos: ${money(totalGeral)}`;
+  let totalGeral = 0;
+  const modoOrdem = $('histOrdem').value;
+
+  if (modoOrdem === 'data') {
+    let html = '';
+    historicoFiltrado.forEach(h => {
+      totalGeral += h.total || 0;
+      html += criarCardConta(h);
+    });
+    lista.innerHTML = html;
+  } else {
+    // Agrupamento Por Estabelecimento
+    const grupos = {};
+    historicoFiltrado.forEach(h => {
+      totalGeral += h.total || 0;
+      const nomeEstab = h.estabelecimento || 'Não informado';
+      if (!grupos[nomeEstab]) grupos[nomeEstab] = { itens: [], subtotal: 0 };
+      grupos[nomeEstab].itens.push(h);
+      grupos[nomeEstab].subtotal += (h.total || 0);
+    });
+
+    let html = '';
+    Object.keys(grupos).sort().forEach(nomeEstab => {
+      const g = grupos[nomeEstab];
+      html += `<div class="estab-group-header">
+        <h3 style="margin:0; font-size:16px;">🏢 ${nomeEstab}</h3>
+        <span class="money" style="font-size:16px;">Subtotal: ${money(g.subtotal)}</span>
+      </div>`;
+      g.itens.forEach(h => {
+        html += criarCardConta(h);
+      });
+    });
+    lista.innerHTML = html;
+  }
+
+  document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral de gastos no período: ${money(totalGeral)}`;
 }
 
 function renderAll() {
