@@ -6,6 +6,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🍺 FECHA A CONTA - Cardápio por Estabelecimento</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#10131a;--panel:#191e28;--panel2:#222938;--text:#f4f7fb;--muted:#aeb8c8;
@@ -13,8 +16,37 @@
   --info:#4fc3f7;
 }
 *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#0d1016,#171d29);color:var(--text)}
-header{padding:18px 22px;background:#121722;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;display:flex;justify-content:center;align-items:center;text-align:center;}
-header h1{margin:0;font-size:28px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--text);text-align:center;} header p{margin:5px 0 0;color:var(--muted)}
+
+header{
+  padding:20px 22px;
+  background:linear-gradient(180deg,#161d2b 0%,#0d1016 100%);
+  border-bottom:2px solid var(--accent);
+  position:sticky;top:0;z-index:10;
+  display:flex;justify-content:center;align-items:center;
+  text-align:center;gap:22px;
+  box-shadow:0 6px 22px rgba(0,0,0,0.55);
+}
+.header-icon{
+  width:120px;height:120px;border-radius:20px;
+  border:3px solid rgba(57,201,122,0.65);
+  box-shadow:0 6px 28px rgba(57,201,122,0.5), inset 0 0 14px rgba(57,201,122,0.18);
+  background:#0a0e14;
+  object-fit:cover;
+  flex-shrink:0;
+  display:block;
+}
+header h1{
+  margin:0;
+  font-family:'Anton','Impact','Arial Black',sans-serif;
+  font-size:52px;
+  font-weight:900;
+  letter-spacing:5px;
+  text-transform:uppercase;
+  color:#79e9aa;
+  text-shadow:0 0 22px rgba(57,201,122,0.55), 0 2px 6px rgba(0,0,0,0.9);
+  line-height:1;
+}
+header p{margin:5px 0 0;color:var(--muted)}
 .btn-config-top {background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .btn-config-top:hover {background:var(--border);}
 .container{max-width:1200px;margin:auto;padding:18px}
@@ -41,7 +73,12 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .note{color:var(--muted);font-size:13px}.empty{text-align:center;color:var(--muted);padding:25px}
 .badge{background:#263247;padding:4px 8px;border-radius:20px;font-size:12px}
 footer{text-align:center;color:var(--muted);padding:25px}
-@media(max-width:650px){header h1{font-size:22px}.container{padding:12px}.row{flex-direction:column}.row>*{width:100%}table{font-size:13px}th,td{padding:7px}}
+@media(max-width:650px){
+  header{padding:14px 16px;gap:14px;}
+  header h1{font-size:30px;letter-spacing:2px}
+  .header-icon{width:78px;height:78px;border-radius:14px;border-width:2px;}
+  .container{padding:12px}.row{flex-direction:column}.row>*{width:100%}table{font-size:13px}th,td{padding:7px}
+}
 .command-list{columns:2;column-gap:30px;}
 .command-list li{break-inside:avoid;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;}
 .command-list .cmd{color:#79e9aa;font-weight:bold;}
@@ -111,6 +148,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </head>
 <body>
 <header>
+  <img src="./chope.png" alt="" class="header-icon" aria-hidden="true">
   <h1>FECHA A CONTA</h1>
 </header>
 
@@ -189,13 +227,25 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button class="secondary" onclick="mostrarMiniCardapio()">📋 Ver cardápio</button>
 </div>
 <hr style="border-color:var(--border);margin:15px 0">
-<div class="row">
-<div><label>Nome</label><input id="barNome" placeholder="Nome do bar"></div>
-<div><label>Endereço</label><input id="barEndereco" placeholder="Endereço completo"></div>
+
+<div style="margin-bottom:15px;">
+  <button onclick="mostrarFormEstabelecimento()">➕ Adicionar estabelecimento</button>
 </div>
-<label>Chave PIX</label><input id="barPix" placeholder="CPF, telefone, e-mail ou chave aleatória">
-<button id="btnSalvarEstab" onclick="salvarEstabelecimento()">➕ Adicionar estabelecimento</button>
-<p class="note" id="barInfo"></p>
+
+<div id="formEstabelecimento" style="display:none; padding:16px; background:var(--panel2); border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
+  <h3 id="formEstabTitulo" style="margin-top:0; color:#79e9aa;">➕ Novo estabelecimento</h3>
+  <div class="row">
+    <div><label>Nome</label><input id="barNome" placeholder="Nome do bar"></div>
+    <div><label>Endereço</label><input id="barEndereco" placeholder="Endereço completo"></div>
+  </div>
+  <label>Chave PIX</label><input id="barPix" placeholder="CPF, telefone, e-mail ou chave aleatória">
+  <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+    <button id="btnSalvarEstab" onclick="salvarEstabelecimento()">➕ Adicionar estabelecimento</button>
+    <button class="secondary" onclick="fecharFormEstabelecimento()">❌ Cancelar</button>
+  </div>
+  <p class="note" id="barInfo" style="margin-top:8px;"></p>
+</div>
+
 <hr style="border-color:var(--border);margin:15px 0">
 <h3>📋 Estabelecimentos cadastrados</h3>
 <div id="listaEstabelecimentos"></div>
@@ -783,12 +833,37 @@ function editarEstabelecimento(id) {
   if (!e) return;
   currentEditEstabId = id;
   $('barNome').value = e.nome;
-  $('barEndereco').value = e.endereco;
-  $('barPix').value = e.pix;
+  $('barEndereco').value = e.endereco || '';
+  $('barPix').value = e.pix || '';
   document.getElementById('btnSalvarEstab').textContent = '💾 Atualizar estabelecimento';
+  document.getElementById('formEstabTitulo').textContent = '✏️ Editar estabelecimento';
+  document.getElementById('formEstabelecimento').style.display = 'block';
   showScreen('estabelecimentos');
+  setTimeout(() => { document.getElementById('barNome').focus(); }, 100);
   showFeedback('✏️️ Editando: ' + e.nome);
 }
+
+function mostrarFormEstabelecimento() {
+  currentEditEstabId = null;
+  $('barNome').value = '';
+  $('barEndereco').value = '';
+  $('barPix').value = '';
+  document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
+  document.getElementById('formEstabTitulo').textContent = '➕ Novo estabelecimento';
+  document.getElementById('formEstabelecimento').style.display = 'block';
+  setTimeout(() => { document.getElementById('barNome').focus(); }, 100);
+}
+
+function fecharFormEstabelecimento() {
+  currentEditEstabId = null;
+  $('barNome').value = '';
+  $('barEndereco').value = '';
+  $('barPix').value = '';
+  document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
+  document.getElementById('formEstabTitulo').textContent = '➕ Novo estabelecimento';
+  document.getElementById('formEstabelecimento').style.display = 'none';
+}
+
 function salvarEstabelecimento() {
   const nome = capitalizarNome($('barNome').value.trim());
   const endereco = $('barEndereco').value.trim();
@@ -798,8 +873,6 @@ function salvarEstabelecimento() {
     data.estabelecimentos[currentEditEstabId].nome = nome;
     data.estabelecimentos[currentEditEstabId].endereco = endereco;
     data.estabelecimentos[currentEditEstabId].pix = pix;
-    currentEditEstabId = null;
-    document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
     speak('Estabelecimento atualizado');
     showFeedback('✅ Estabelecimento atualizado');
   } else {
@@ -809,9 +882,10 @@ function salvarEstabelecimento() {
     speak('Estabelecimento ' + nome + ' adicionado');
     showFeedback('🏢 ' + nome + ' adicionado!');
   }
-  $('barNome').value = ''; $('barEndereco').value = ''; $('barPix').value = '';
+  fecharFormEstabelecimento();
   save(); renderAll();
 }
+
 function excluirEstabelecimento(id) {
   if (!confirm('Excluir este estabelecimento e todos os seus produtos?')) return;
   if (data.contaAtiva) { showFeedback('⚠️ Não é possível excluir com uma conta aberta.'); return; }
@@ -822,14 +896,13 @@ function excluirEstabelecimento(id) {
     data.pedido = [];
   }
   if (currentEditEstabId === id) {
-    currentEditEstabId = null;
-    document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
-    $('barNome').value = ''; $('barEndereco').value = ''; $('barPix').value = '';
+    fecharFormEstabelecimento();
   }
   save(); renderAll();
   speak('Estabelecimento ' + nome + ' excluído');
   showFeedback('🗑️ ' + nome + ' removido');
 }
+
 function trocarEstabelecimentoAtivo() {
   const select = $('estabAtivoSelect');
   const id = select.value;
