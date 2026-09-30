@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>🍺 Conta de Bar - Cardápio por Estabelecimento</title>
+<title>🍺 FECHA A CONTA - Cardápio por Estabelecimento</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
@@ -13,9 +13,9 @@
   --info:#4fc3f7;
 }
 *{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#0d1016,#171d29);color:var(--text)}
-header{padding:18px 22px;background:#121722;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;}
-header h1{margin:0;font-size:24px} header p{margin:5px 0 0;color:var(--muted)}
-.btn-config-top {background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+header{padding:18px 22px;background:#121722;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10;display:flex;justify-content:center;align-items:center;text-align:center;}
+header h1{margin:0;font-size:28px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--text);text-align:center;} header p{margin:5px 0 0;color:var(--muted)}
+.btn-config-top {background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .btn-config-top:hover {background:var(--border);}
 .container{max-width:1200px;margin:auto;padding:18px}
 .voice{background:linear-gradient(135deg,#1d4937,#19382e);border:1px solid #367a5a;border-radius:16px;padding:18px;margin-bottom:18px}
@@ -41,7 +41,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .note{color:var(--muted);font-size:13px}.empty{text-align:center;color:var(--muted);padding:25px}
 .badge{background:#263247;padding:4px 8px;border-radius:20px;font-size:12px}
 footer{text-align:center;color:var(--muted);padding:25px}
-@media(max-width:650px){header h1{font-size:19px}.container{padding:12px}.row{flex-direction:column}.row>*{width:100%}table{font-size:13px}th,td{padding:7px}}
+@media(max-width:650px){header h1{font-size:22px}.container{padding:12px}.row{flex-direction:column}.row>*{width:100%}table{font-size:13px}th,td{padding:7px}}
 .command-list{columns:2;column-gap:30px;}
 .command-list li{break-inside:avoid;margin-bottom:10px;padding:8px;background:rgba(255,255,255,0.05);border-radius:8px;}
 .command-list .cmd{color:#79e9aa;font-weight:bold;}
@@ -105,56 +105,20 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </head>
 <body>
 <header>
-  <div>
-    <h1>🍺 Conta de Bar</h1>
-    <p>Cadastros • Conta & Pedidos • Gorjeta • PIX • Histórico</p>
-  </div>
-  <button class="btn-config-top" onclick="showScreen('configuracoes')">
-    ⚙️ Configurações
-  </button>
+  <h1>FECHA A CONTA</h1>
 </header>
 
 <div class="container">
-<section class="voice">
-<div class="voice-row">
-<button id="voiceBtn" onclick="toggleVoiceAssistant()" style="font-size:18px;padding:16px 24px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
-<button class="secondary" id="speakToggle" onclick="toggleSpeak()">🔊 Voz: ATIVADA</button>
-<span class="status" id="voiceStatus">Assistente desligado.</span>
-<button class="secondary" onclick="showScreen('comandos')">📋 Ver Comandos</button>
-<select id="voiceSelect" onchange="changeVoice()">
-<option value="default">🎙️ Voz Padrão</option>
-<option value="feminina">👩 Voz Feminina</option>
-<option value="masculina">👨 Voz Masculina</option>
-</select>
-</div>
-<div class="command" id="lastCommand">Exemplos: "selecionar Bar do Zé", "incluir produtos cerveja 10 reais", "fechar conta".</div>
-<div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone.</div>
-</section>
 
 <nav id="nav">
 <button data-screen="inicio" onclick="showScreen('inicio')" class="active">🏠 Início</button>
 <button data-screen="cardapio" onclick="showScreen('cardapio')">🍺 Cardápio</button>
 <button data-screen="conta" onclick="showScreen('conta')">🧾 Conta</button>
 <button data-screen="historico" onclick="showScreen('historico')">📜 Histórico</button>
-<button data-screen="configuracoes" onclick="showScreen('configuracoes')">⚙️ Configurações</button>
+<button data-screen="configuracoes" onclick="showScreen('configuracoes')" title="Configurações">⚙️</button>
 </nav>
 
 <section id="inicio" class="screen active">
-<div class="grid">
-<div class="card">
-<h2>🎤 Comandos de voz</h2>
-<p>Use o botão <b>Ouvir comando</b> e fale naturally.</p>
-<ul class="note">
-<li><b>"Abrir conta"</b> - Cria nova conta no estabelecimento ativo</li>
-<li><b>"Abrir conta [nome]"</b> - Ex: "abrir conta Bar do Zé"</li>
-<li><b>"Selecionar [nome]"</b> - Ex: "selecionar Bar do Zé"</li>
-<li><b>"Incluir produtos [nome] [valor]"</b> - Ex: "incluir produtos cerveja 10 reais"</li>
-<li><b>"Ver cardápio"</b> - Mostra o mini cardápio do estabelecimento ativo</li>
-<li><b>"Fazer pedido de [qtd] [produto]"</b> - Ex: "fazer pedido de 2 cervejas"</li>
-<li><b>"Fechar conta"</b> - Finaliza a conta atual</li>
-</ul>
-<button onclick="showScreen('comandos')" style="margin-top:10px">📋 Ver todos os comandos</button>
-</div>
 <div class="card">
 <h2>📊 Conta atual</h2>
 <div class="note">Estabelecimento ativo: <b id="homeEstabAtivo">Nenhum</b></div>
@@ -163,14 +127,31 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="note" id="homeItems">Nenhum item no pedido.</div>
 <button id="btnAcaoContaHome" onclick="acaoPrincipalConta()" style="margin-top:10px; width:100%;">📂 Abrir conta</button>
 </div>
-</div>
 </section>
 
 <!-- TELA PRINCIPAL DE CONFIGURAÇÕES -->
 <section id="configuracoes" class="screen">
 <div class="card">
-<h2>⚙️ Configurações</h2>
+<h2>⚙ Configurações</h2>
 <p class="note">Gerencie as rotinas e parâmetros do seu aplicativo.</p>
+
+<!-- ASSISTENTE DE VOZ (PRIMEIRO ITEM DE CONFIGURAÇÕES) -->
+<div class="voice" style="margin-top:15px;">
+  <h3 style="margin-top:0; color:#79e9aa;">🎤 Assistente de Voz</h3>
+  <div class="voice-row">
+    <button id="voiceBtn" onclick="toggleVoiceAssistant()" style="font-size:16px;padding:12px 20px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
+    <button class="secondary" id="speakToggle" onclick="toggleSpeak()">🔊 Voz: ATIVADA</button>
+    <span class="status" id="voiceStatus">Assistente desligado.</span>
+    <select id="voiceSelect" onchange="changeVoice()">
+      <option value="default">🎙️ Voz Padrão</option>
+      <option value="feminina">👩 Voz Feminina</option>
+      <option value="masculina">👨 Voz Masculina</option>
+    </select>
+  </div>
+  <div class="command" id="lastCommand">Exemplos: "selecionar Bar do Zé", "incluir produtos cerveja 10 reais", "fechar conta".</div>
+  <div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone.</div>
+</div>
+
 <div class="config-grid">
   <div class="config-card" onclick="showScreen('estabelecimentos')">
     <h3>🏢 Estabelecimentos</h3>
@@ -430,7 +411,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 </div>
-<footer>🍺 Conta de Bar - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
+<footer>🍺 FECHA A CONTA - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
 
 <!-- ===== MODAL DE FEEDBACK ===== -->
 <div id="feedbackModal" class="feedback-modal">
@@ -511,7 +492,13 @@ data.voicePreference = data.voicePreference || 'default';
 data.usuario = data.usuario || null;
 data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
-let speechOn = data.speechOn !== false;
+
+// PADRÃO ATIVADO PARA O ASSISTENTE DE VOZ
+if (typeof data.speechOn === 'undefined') {
+  data.speechOn = true;
+}
+let speechOn = data.speechOn;
+
 let currentEditId = null;
 let currentEditEstabId = null;
 let feedbackTimer = null;
@@ -814,7 +801,7 @@ function trocarEstabelecimentoAtivo() {
 }
 function mostrarMiniCardapio() {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) { showFeedback('⚠️️ Nenhum estabelecimento ativo.'); return; }
+  if (!estab) { showFeedback('⚠ Nenhum estabelecimento ativo.'); return; }
   const modal = document.getElementById('miniCardapioModal');
   document.getElementById('modalCardapioNome').textContent = estab.nome;
   const lista = document.getElementById('modalCardapioLista');
@@ -909,7 +896,7 @@ function removePedido(i) {
   const item = data.pedido[i];
   data.pedido.splice(i, 1);
   save(); renderAll();
-  if (item) showFeedback('🗑️ Removido: ' + item.nome);
+  if (item) showFeedback('🗑 Removido: ' + item.nome);
 }
 function subtotal() {
   return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0);
@@ -1106,13 +1093,13 @@ function copiarPixFallback(code) {
   ta.value = code;
   document.body.appendChild(ta);
   ta.select();
-  try { document.execCommand('copy'); showFeedback('📋 Código PIX copiado!'); } catch(e) { showFeedback('⚠️ Copie manualmente o código abaixo.'); }
+  try { document.execCommand('copy'); showFeedback('📋 Código PIX copiado!'); } catch(e) { showFeedback('⚠ Copie manualmente o código abaixo.'); }
   ta.remove();
 }
 function abrirBanco() {
   const user = data.usuario;
   if (!user || !user.bancos || user.bancos.length === 0) {
-    showFeedback('⚠️️ Nenhum banco cadastrado.');
+    showFeedback('⚠ Nenhum banco cadastrado.');
     return;
   }
   let bancoSelecionado = null;
@@ -1134,7 +1121,7 @@ function abrirBanco() {
     setTimeout(() => { abrindoBanco = false; }, 5000);
   } catch (e) {
     abrindoBanco = false;
-    showFeedback('⚠️ Não foi possível abrir o app do banco.');
+    showFeedback('⚠ Não foi possível abrir o app do banco.');
   }
 }
 function finalizarPagamento() {
@@ -1289,7 +1276,7 @@ function renderCardapio() {
   lista.innerHTML = prods.length ? prods.map(p =>
     `<div class="list-item"><span>${p.nome}<br><b>${money(p.preco)}</b></span>
     <div class="actions">
-      <button class="secondary small" onclick="editProduto(${p.id})">✏️</button>
+      <button class="secondary small" onclick="editProduto(${p.id})">✏</button>
       <button class="danger small" onclick="deleteProduto(${p.id})">🗑</button>
     </div></div>`
   ).join('') : '<div class="empty">Nenhum produto cadastrado.</div>';
@@ -1408,6 +1395,7 @@ function renderHistorico() {
 
   document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral de gastos: ${money(totalGeral)}`;
 }
+
 function renderAll() {
   renderEstabelecimentos();
   renderCardapio();
@@ -1419,6 +1407,10 @@ function renderAll() {
   document.getElementById('resumoPedido').textContent = data.pedido.reduce((s, x) => s + x.qtd, 0);
   document.getElementById('resumoHistorico').textContent = data.historico.length;
   document.getElementById('resumoContaAtiva').textContent = data.contaAtiva ? 'Sim' : 'Não';
+  
+  // Atualizar Estado dos botões de voz
+  document.getElementById('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
+  
   const pref = data.voicePreference || 'default';
   document.getElementById('voiceSelect').value = pref;
   if (window.speechSynthesis && speechSynthesis.getVoices().length > 0) {
@@ -1736,7 +1728,7 @@ function importarDados(e) {
 function clearAllData() {
   if (confirm('ATENÇÃO: Deseja apagar TODOS os dados do aplicativo?')) {
     localStorage.removeItem(KEY);
-    data = { estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false };
+    data = { estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true };
     renderAll();
     showFeedback('🗑 Todos os dados foram apagados.');
   }
