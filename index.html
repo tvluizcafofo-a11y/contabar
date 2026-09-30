@@ -87,7 +87,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .desconto-container{background:var(--panel2);border-radius:8px;padding:12px;margin-top:10px;border-left:3px solid var(--accent);}
 .desconto-container .row{margin-bottom:6px;}
 
-/* Estilos dos Cards da Tela de Configurações */
 .config-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:15px;}
 .config-card {background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:transform 0.2s, border-color 0.2s;}
 .config-card:hover {transform:translateY(-3px);border-color:var(--accent);}
@@ -108,7 +107,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <header>
   <div>
     <h1>🍺 Conta de Bar</h1>
-    <p>Cadastros • Pedidos • Gorjeta • PIX • Histórico</p>
+    <p>Cadastros • Conta & Pedidos • Gorjeta • PIX • Histórico</p>
   </div>
   <button class="btn-config-top" onclick="showScreen('configuracoes')">
     ⚙️ Configurações
@@ -135,7 +134,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <nav id="nav">
 <button data-screen="inicio" onclick="showScreen('inicio')" class="active">🏠 Início</button>
 <button data-screen="cardapio" onclick="showScreen('cardapio')">🍺 Cardápio</button>
-<button data-screen="pedido" onclick="showScreen('pedido')">🛒 Pedido</button>
 <button data-screen="conta" onclick="showScreen('conta')">🧾 Conta</button>
 <button data-screen="historico" onclick="showScreen('historico')">📜 Histórico</button>
 <button data-screen="configuracoes" onclick="showScreen('configuracoes')">⚙️ Configurações</button>
@@ -163,7 +161,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="note">Status: <b id="homeStatusConta">Nenhuma conta aberta</b></div>
 <div class="note">Subtotal</div><div class="total" id="homeSubtotal">R$ 0,00</div>
 <div class="note" id="homeItems">Nenhum item no pedido.</div>
-<button onclick="abrirContaManual()">📂 Abrir nova conta</button>
+<button id="btnAcaoContaHome" onclick="acaoPrincipalConta()" style="margin-top:10px; width:100%;">📂 Abrir conta</button>
 </div>
 </div>
 </section>
@@ -234,60 +232,75 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<section id="pedido" class="screen">
-<div class="grid">
-<div class="card">
-<h2>🛒 Fazer Pedido</h2>
-<div class="note">Estabelecimento: <b id="pedidoEstabNome">Nenhum</b></div>
-<div class="note" id="pedidoStatusConta">Status: Nenhuma conta aberta</div>
-<label>Produto</label><select id="pedidoProduto"></select>
-<label>Quantidade</label><input id="pedidoQtd" type="number" min="1" value="1">
-<button onclick="addPedido()">➕ Adicionar ao pedido</button>
-<p class="note">Por voz: "Fazer pedido de 3 cervejas".</p>
-</div>
-<div class="card">
-<h2>🧾 Pedido atual</h2>
-<div id="listaPedido"></div>
-<div style="margin-top:15px">Subtotal: <span class="money" id="pedidoSubtotal">R$ 0,00</span></div>
-<button style="margin-top:12px" onclick="showScreen('conta')">Ver conta</button>
-</div>
-</div>
-</section>
-
+<!-- TELA UNIFICADA DE CONTA (PEDIDOS + FECHAMENTO) -->
 <section id="conta" class="screen">
 <div class="grid">
-<div class="card">
-<h2>🧾 Fechar Conta</h2>
-<div id="contaItens"></div>
-<hr style="border-color:var(--border)">
-<div>Estabelecimento: <b id="contaEstabNome">Nenhum</b></div>
-<div>Cliente/Usuário: <b id="contaClienteNome">Não informado</b></div>
-<div>Status: <b id="contaStatus">Nenhuma conta aberta</b></div>
-<div>Subtotal: <span class="money" id="contaSubtotal">R$ 0,00</span></div>
+  <!-- COLUNA 1: PEDIDO & ITENS DA CONTA -->
+  <div class="card">
+    <h2>🛒 Fazer Pedido</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <div class="note">Estabelecimento: <b id="contaEstabNome">Nenhum</b></div>
+      <div class="note" id="contaStatus">Status: Nenhuma conta aberta</div>
+    </div>
+    
+    <label>Selecione o produto do cardápio</label>
+    <select id="pedidoProduto"></select>
+    
+    <div class="row">
+      <div>
+        <label>Quantidade</label>
+        <input id="pedidoQtd" type="number" min="1" value="1">
+      </div>
+      <div style="display:flex; align-items:flex-end;">
+        <button onclick="addPedido()" style="width:100%; margin-bottom:12px;">➕ Adicionar Item</button>
+      </div>
+    </div>
+    <p class="note" style="margin-top:-6px;">Ou use a voz: "Fazer pedido de 2 cervejas".</p>
 
-<div class="desconto-container">
-  <div class="row">
-    <div><label>Desconto (R$)</label><input id="descontoValor" type="number" step="0.01" min="0" placeholder="0,00" oninput="calcularTotaisConta()"></div>
-    <div><label>Descrição do desconto</label><input id="descontoDescricao" placeholder="Ex.: Cupom, cortesia" maxlength="50"></div>
+    <hr style="border-color:var(--border); margin:18px 0">
+
+    <h3>🧾 Itens Consumidos na Conta</h3>
+    <div id="contaItens"></div>
   </div>
-</div>
 
-<div>Subtotal com desconto: <span class="money" id="contaSubtotalDesconto">R$ 0,00</span></div>
-<div style="margin-top:10px"><label>Gorjeta</label>
-<select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
-<option value="0">Sem gorjeta</option>
-<option value="10">10% - Serviço</option>
-<option value="15">15%</option>
-<option value="20">20%</option>
-</select></div>
-<div>Gorjeta: <span class="money" id="contaGorjeta">R$ 0,00</span></div>
-<div style="margin-top:12px">TOTAL</div><div class="total" id="contaTotal">R$ 0,00</div>
-<button onclick="confirmarFechamento()">✅ Confirmar fechamento</button>
-</div>
-<div class="card">
-<h2>💳 Pagamento PIX</h2>
-<div id="pixInfo" class="note">Selecione um estabelecimento para ver os dados PIX.</div>
-</div>
+  <!-- COLUNA 2: VALORES, DESCONTOS, GORJETA E FECHAMENTO -->
+  <div class="card">
+    <h2>📊 Resumo da Conta</h2>
+    <div class="note" style="margin-bottom:10px;">Cliente/Usuário: <b id="contaClienteNome">Não informado</b></div>
+
+    <div style="font-size:16px;">Subtotal: <span class="money" id="contaSubtotal">R$ 0,00</span></div>
+
+    <div class="desconto-container">
+      <div class="row">
+        <div><label>Desconto (R$)</label><input id="descontoValor" type="number" step="0.01" min="0" placeholder="0,00" oninput="calcularTotaisConta()"></div>
+        <div><label>Descrição do desconto</label><input id="descontoDescricao" placeholder="Ex.: Cupom, cortesia" maxlength="50"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:10px;">Subtotal com desconto: <span class="money" id="contaSubtotalDesconto">R$ 0,00</span></div>
+    
+    <div style="margin-top:10px;">
+      <label>Gorjeta / Serviço</label>
+      <select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
+        <option value="0">Sem gorjeta</option>
+        <option value="10">10% - Serviço</option>
+        <option value="15">15%</option>
+        <option value="20">20%</option>
+      </select>
+    </div>
+    
+    <div>Gorjeta: <span class="money" id="contaGorjeta">R$ 0,00</span></div>
+    
+    <hr style="border-color:var(--border); margin:15px 0">
+    <div>VALOR TOTAL ATUAL</div>
+    <div class="total" id="contaTotal">R$ 0,00</div>
+    
+    <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()" style="width:100%; margin-top:15px; padding:14px; font-size:16px;">📂 Abrir conta</button>
+
+    <hr style="border-color:var(--border); margin:20px 0">
+    <h3>💳 Dados PIX para Pagamento</h3>
+    <div id="pixInfo" class="note">Selecione um estabelecimento para ver os dados PIX.</div>
+  </div>
 </div>
 </section>
 
@@ -333,7 +346,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </section>
 
 <section id="comandos" class="screen">
-<button class="back-config-btn" onclick="showScreen('configuracoes')">⬅️ Voltar para Configurações</button>
+<button class="back-config-btn" onclick="showScreen('configuracoes')">⬅ Voltar para Configurações</button>
 <div class="card">
 <h2>🎯 Lista Completa de Comandos de Voz</h2>
 <p class="note">Todos os comandos disponíveis para controle por voz do sistema.</p>
@@ -349,7 +362,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <li><span class="cmd">"Incluir produtos [nome] [valor]"</span><br><span class="desc">Ex: "incluir produtos cerveja 10 reais"</span></li>
   <li><span class="cmd">"Incluir produtos [nome]"</span><br><span class="desc">Abre o cadastro com o nome preenchido</span></li>
 </ul>
-<h3>🛒 Pedidos</h3>
+<h3>🛒 Pedidos & Conta</h3>
 <ul class="command-list">
   <li><span class="cmd">"Fazer pedido de [qtd] [produto]"</span><br><span class="desc">Ex: "fazer pedido de 2 cervejas"</span></li>
   <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Sinônimo</span></li>
@@ -376,7 +389,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <li><span class="cmd">"Importar dados"</span><br><span class="desc">Abre a tela de importação</span></li>
   <li><span class="cmd">"Limpar dados"</span><br><span class="desc">Remove TODOS os dados</span></li>
 </ul>
-<h3>⚙️️ Controle</h3>
+<h3>⚙ Controle</h3>
 <ul class="command-list">
   <li><span class="cmd">"Desativar comando por voz"</span><br><span class="desc">Desliga o assistente</span></li>
   <li><span class="cmd">"Desligar app"</span><br><span class="desc">Fecha o aplicativo</span></li>
@@ -551,6 +564,16 @@ function capitalizarNome(nome) {
   return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
 }
 
+// ========== DYNAMIC BUTTON HANDLER ==========
+function acaoPrincipalConta() {
+  if (data.contaAtiva) {
+    showScreen('conta');
+    confirmarFechamento();
+  } else {
+    abrirContaManual();
+  }
+}
+
 // ========== USUÁRIO / BANCOS ==========
 function salvarUsuarioAutomatico() {
   const nome = $('userNome').value.trim();
@@ -610,7 +633,7 @@ function renderUsuario() {
       </div>
       <div class="banco-actions">
         <button onclick="setBancoAtivo(${index})" title="Tornar ativo" style="color:var(--accent);">⭐</button>
-        <button onclick="editarBancoUsuario(${index})" title="Editar">✏️</button>
+        <button onclick="editarBancoUsuario(${index})" title="Editar">✏</button>
         <button class="excluir" onclick="excluirBancoUsuario(${index})" title="Excluir">🗑</button>
       </div>
     </div>`;
@@ -791,7 +814,7 @@ function trocarEstabelecimentoAtivo() {
 }
 function mostrarMiniCardapio() {
   const estab = getEstabelecimentoAtivo();
-  if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
+  if (!estab) { showFeedback('⚠️️ Nenhum estabelecimento ativo.'); return; }
   const modal = document.getElementById('miniCardapioModal');
   document.getElementById('modalCardapioNome').textContent = estab.nome;
   const lista = document.getElementById('modalCardapioLista');
@@ -864,7 +887,7 @@ function deleteProduto(id) {
   }
 }
 
-// ========== PEDIDO ==========
+// ========== PEDIDO & CONTA ==========
 function addPedido(produtoId, qtd) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
@@ -878,7 +901,7 @@ function addPedido(produtoId, qtd) {
   if (item) item.qtd += qtd;
   else data.pedido.push({ produtoId: p.id, estabId: data.estabelecimentoAtivoId, nome: p.nome, preco: p.preco, qtd });
   save(); renderAll();
-  const msg = qtd + 'x ' + p.nome + ' adicionado ao pedido';
+  const msg = qtd + 'x ' + p.nome + ' adicionado à conta';
   speak(msg);
   showFeedback('🛒 ' + msg);
 }
@@ -907,7 +930,7 @@ function calcularTotaisConta() {
   document.getElementById('contaTotal').textContent = money(total);
 }
 
-// ========== CONTA / PAGAMENTO ==========
+// ========== FECHAMENTO / PAGAMENTO ==========
 function confirmarFechamento() {
   if (!data.contaAtiva) {
     speak('Não há conta aberta para fechar.');
@@ -921,7 +944,7 @@ function confirmarFechamento() {
     } else { return; }
   }
   const estab = getEstabelecimentoAtivo();
-  if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
+  if (!estab) { showFeedback('⚠ Nenhum estabelecimento ativo.'); return; }
   const sub = subtotal();
   const desconto = Number($('descontoValor').value) || 0;
   const descricaoDesconto = $('descontoDescricao').value.trim() || 'Sem descrição';
@@ -1089,7 +1112,7 @@ function copiarPixFallback(code) {
 function abrirBanco() {
   const user = data.usuario;
   if (!user || !user.bancos || user.bancos.length === 0) {
-    showFeedback('⚠️ Nenhum banco cadastrado.');
+    showFeedback('⚠️️ Nenhum banco cadastrado.');
     return;
   }
   let bancoSelecionado = null;
@@ -1168,6 +1191,8 @@ function abrirContaManual() {
       callbackAposFechar = function() { abrirNovaConta(null); };
       showScreen('conta');
       setTimeout(confirmarFechamento, 300);
+    } else {
+      showScreen('conta');
     }
   } else { abrirNovaConta(null); }
 }
@@ -1201,7 +1226,7 @@ function abrirNovaConta(nomeEstab) {
   save(); renderAll();
   speak('Nova conta aberta em ' + estabAtivo.nome);
   showFeedback('✅ Nova conta aberta!');
-  showScreen('pedido');
+  showScreen('conta');
 }
 
 function excluirContaHistorico(id) {
@@ -1268,48 +1293,72 @@ function renderCardapio() {
       <button class="danger small" onclick="deleteProduto(${p.id})">🗑</button>
     </div></div>`
   ).join('') : '<div class="empty">Nenhum produto cadastrado.</div>';
+
   const pedSelect = document.getElementById('pedidoProduto');
   pedSelect.innerHTML = prods.map(p => `<option value="${p.id}">${p.nome} — ${money(p.preco)}</option>`).join('');
-  if (!prods.length) pedSelect.innerHTML = '<option value="">Nenhum produto</option>';
+  if (!prods.length) pedSelect.innerHTML = '<option value="">Nenhum produto no cardápio</option>';
 }
-function renderPedido() {
-  const estab = getEstabelecimentoAtivo();
-  document.getElementById('pedidoEstabNome').textContent = estab ? estab.nome : 'Nenhum';
-  const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
-  document.getElementById('pedidoStatusConta').textContent = 'Status: ' + statusText;
-  const lista = document.getElementById('listaPedido');
-  if (data.pedido.length === 0) {
-    lista.innerHTML = '<div class="empty">Nenhum item no pedido.</div>';
-  } else {
-    lista.innerHTML = `<table><tr><th>Produto</th><th>Qtd.</th><th>Total</th><th></th></tr>${
-      data.pedido.map((x, i) =>
-        `<tr><td>${x.nome}</td><td>${x.qtd}</td><td>${money(x.preco * x.qtd)}</td><td><button class="danger small" onclick="removePedido(${i})">×</button></td></tr>`
-      ).join('')
-    }</table>`;
-  }
-  const sub = subtotal();
-  document.getElementById('pedidoSubtotal').textContent = money(sub);
-  document.getElementById('homeSubtotal').textContent = money(sub);
-  const totalItems = data.pedido.reduce((s, x) => s + x.qtd, 0);
-  document.getElementById('homeItems').textContent = totalItems ? totalItems + ' item(ns) no pedido.' : 'Nenhum item no pedido.';
-  document.getElementById('homeEstabAtivo').textContent = estab ? estab.nome : 'Nenhum';
-  document.getElementById('homeStatusConta').textContent = statusText;
-}
+
 function renderConta() {
   const estab = getEstabelecimentoAtivo();
   document.getElementById('contaEstabNome').textContent = estab ? estab.nome : 'Nenhum';
   document.getElementById('contaClienteNome').textContent = getNomeCliente();
   const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
   document.getElementById('contaStatus').textContent = statusText;
+
+  // Renderizar Botões Dinâmicos da Conta (Home & Tela de Conta)
+  const btnHome = document.getElementById('btnAcaoContaHome');
+  const btnResumo = document.getElementById('btnAcaoContaResumo');
+  if (data.contaAtiva) {
+    if (btnHome) {
+      btnHome.textContent = '✅ Solicitar fechamento da conta';
+      btnHome.className = '';
+    }
+    if (btnResumo) {
+      btnResumo.textContent = '✅ Solicitar fechamento da conta';
+      btnResumo.className = '';
+    }
+  } else {
+    if (btnHome) {
+      btnHome.textContent = '📂 Abrir conta';
+      btnHome.className = '';
+    }
+    if (btnResumo) {
+      btnResumo.textContent = '📂 Abrir conta';
+      btnResumo.className = '';
+    }
+  }
+
+  // Renderizar Itens da Conta
+  const contaItensDiv = document.getElementById('contaItens');
+  if (data.pedido.length === 0) {
+    contaItensDiv.innerHTML = '<div class="empty">Nenhum item consumido na conta.</div>';
+  } else {
+    contaItensDiv.innerHTML = `<table><tr><th>Produto</th><th>Qtd.</th><th>Total</th><th></th></tr>${
+      data.pedido.map((x, i) =>
+        `<tr><td>${x.nome}</td><td>${x.qtd}</td><td>${money(x.preco * x.qtd)}</td><td><button class="danger small" onclick="removePedido(${i})">×</button></td></tr>`
+      ).join('')
+    }</table>`;
+  }
+
   const sub = subtotal();
   document.getElementById('contaSubtotal').textContent = money(sub);
+  document.getElementById('homeSubtotal').textContent = money(sub);
+
+  const totalItems = data.pedido.reduce((s, x) => s + x.qtd, 0);
+  document.getElementById('homeItems').textContent = totalItems ? totalItems + ' item(ns) na conta.' : 'Nenhum item na conta.';
+  document.getElementById('homeEstabAtivo').textContent = estab ? estab.nome : 'Nenhum';
+  document.getElementById('homeStatusConta').textContent = statusText;
+
   if (data.gorjetaConfig) $('gorjeta').value = data.gorjetaConfig;
   calcularTotaisConta();
+
   const e = estab || {};
   document.getElementById('pixInfo').innerHTML = e.nome ?
     `<b>${e.nome}</b><br>${e.endereco || ''}<br><br><b>Chave PIX:</b><br>${e.pix || 'Não informada'}` :
     'Selecione um estabelecimento para ver os dados PIX.';
 }
+
 function renderHistorico() {
   const lista = document.getElementById('listaHistorico');
   if (data.historico.length === 0) {
@@ -1362,7 +1411,6 @@ function renderHistorico() {
 function renderAll() {
   renderEstabelecimentos();
   renderCardapio();
-  renderPedido();
   renderConta();
   renderHistorico();
   carregarUsuario();
@@ -1690,7 +1738,7 @@ function clearAllData() {
     localStorage.removeItem(KEY);
     data = { estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false };
     renderAll();
-    showFeedback('🗑️ Todos os dados foram apagados.');
+    showFeedback('🗑 Todos os dados foram apagados.');
   }
 }
 
