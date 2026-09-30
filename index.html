@@ -48,8 +48,6 @@ header h1{
   line-height:1;
 }
 header p{margin:5px 0 0;color:var(--muted)}
-.btn-config-top {background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.btn-config-top:hover {background:var(--border);}
 .container{max-width:1200px;margin:auto;padding:18px}
 .voice{background:linear-gradient(135deg,#1d4937,#19382e);border:1px solid #367a5a;border-radius:16px;padding:18px;margin-bottom:18px}
 .voice-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
@@ -72,7 +70,6 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .list-item{padding:10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:10px;align-items:center}
 .list-item .actions{display:flex;gap:6px;flex-wrap:wrap;}
 .note{color:var(--muted);font-size:13px}.empty{text-align:center;color:var(--muted);padding:25px}
-.badge{background:#263247;padding:4px 8px;border-radius:20px;font-size:12px}
 footer{text-align:center;color:var(--muted);padding:25px}
 @media(max-width:650px){
   header{padding:14px 16px;gap:14px;}
@@ -160,6 +157,23 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
 .tip-box{background:rgba(79,195,247,0.1);border:1px solid var(--info);border-radius:10px;padding:12px;margin:12px 0;}
 .tip-box p{margin:0;color:var(--text);font-size:13px;}
+
+/* ====== IMPORT / EXPORT DE SINÔNIMOS ====== */
+.sync-box{
+  background:linear-gradient(135deg,#1a2d40,#152233);
+  border:1px solid #2d5a7a;
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:18px;
+}
+.sync-box h3{margin:0 0 6px 0;color:#7ec8f0;font-size:16px;}
+.sync-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.sync-actions button{flex:1;min-width:150px;padding:12px;}
+.sync-actions .btn-export{background:#4fc3f7;color:#08202b;}
+.sync-actions .btn-import{background:#2d5a7a;color:white;}
+.sync-status{margin-top:10px;font-size:13px;color:#aed8f5;min-height:18px;}
+.sync-status.ok{color:#79e9aa;}
+.sync-status.err{color:#ef8b93;}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -229,7 +243,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
   <div class="config-card" onclick="showScreen('sinonimos')">
     <h3>🎤 Sinônimos de Voz</h3>
-    <p>Escolha as palavras que você usa para cada comando (ex.: "desce", "me dá", "traz").</p>
+    <p>Escolha as palavras que você usa para cada comando e faça backup em arquivo.</p>
   </div>
   <div class="config-card" onclick="showScreen('comandos')">
     <h3>🎯 Comandos</h3>
@@ -252,6 +266,19 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
   <button class="secondary" onclick="restaurarTodosSinonimos()">🔄 Restaurar todos os padrões</button>
 </div>
+
+<!-- ===== IMPORTAR / EXPORTAR SINÔNIMOS ===== -->
+<div class="sync-box">
+  <h3>📦 Backup dos Sinônimos</h3>
+  <p class="note" style="color:#aed8f5;">Salve seus sinônimos em um arquivo e restaure quando quiser — útil para manter vários dispositivos atualizados manualmente.</p>
+  <div class="sync-actions">
+    <button class="btn-export" onclick="exportarSinonimos()">📤 Exportar Sinônimos</button>
+    <button class="btn-import" onclick="document.getElementById('fileInputSinonimos').click()">📥 Importar Sinônimos</button>
+    <input type="file" id="fileInputSinonimos" accept=".json,application/json" style="display:none;" onchange="importarSinonimos(event)">
+  </div>
+  <div class="sync-status" id="syncStatus"></div>
+</div>
+
 <div id="listaSinonimos"></div>
 </div>
 </section>
@@ -751,7 +778,6 @@ function extrairResto(textoNorm, sinonimo) {
 }
 
 // ========== MATCHING PARCIAL DE PRODUTOS ==========
-// Palavras ignoradas quando procuramos por nome de produto no que foi dito.
 const PALAVRAS_IGNORAR = new Set([
   'o','a','os','as','um','uma','uns','umas',
   'de','da','do','das','dos','em','no','na','nos','nas','por','para','pra','pro',
@@ -774,26 +800,18 @@ function construirPalavrasComando() {
   return palavras;
 }
 
-// Retorna { produto } em caso de match único ou claro;
-// { ambiguo: [...] } se houver empate; null se nada encontrado.
 function encontrarProdutoPorNome(textoNorm, produtos) {
   if (!produtos || !produtos.length) return null;
-
-  // 1) Match exato — nome completo do produto está contido no texto
   const exato = produtos.find(p => textoNorm.includes(normalize(p.nome)));
   if (exato) return { produto: exato };
 
-  // 2) Coletar palavras que são comandos (não devem ser tratadas como nome)
   const palavrasComando = construirPalavrasComando();
-
-  // 3) Extrair palavras-chave significativas do que foi dito
   const palavrasChave = textoNorm.split(/\s+/)
     .filter(w => w.length >= 3)
     .filter(w => !PALAVRAS_IGNORAR.has(w) && !palavrasComando.has(w));
 
   if (!palavrasChave.length) return null;
 
-  // 4) Buscar produtos que contenham ao menos uma palavra-chave
   const candidatos = produtos.filter(p => {
     const nomeNorm = normalize(p.nome);
     return palavrasChave.some(kw => nomeNorm.includes(kw));
@@ -802,7 +820,6 @@ function encontrarProdutoPorNome(textoNorm, produtos) {
   if (!candidatos.length) return null;
   if (candidatos.length === 1) return { produto: candidatos[0] };
 
-  // 5) Múltiplos candidatos: pontuar por número de palavras-chave encontradas
   const pontuados = candidatos.map(p => {
     const nomeNorm = normalize(p.nome);
     const score = palavrasChave.filter(kw => nomeNorm.includes(kw)).length;
@@ -929,6 +946,101 @@ async function restaurarTodosSinonimos() {
   renderSinonimos();
   showFeedback('🔄 Todos os sinônimos foram restaurados.');
   speak('Sinônimos restaurados');
+}
+
+// ========== IMPORTAR / EXPORTAR SINÔNIMOS ==========
+function setSyncStatus(msg, tipo) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  el.className = 'sync-status' + (tipo ? ' ' + tipo : '');
+  el.textContent = msg;
+}
+
+function exportarSinonimos() {
+  try {
+    const payload = {
+      app: 'FECHA A CONTA - Sinônimos de Voz',
+      versao: 1,
+      exportadoEm: new Date().toISOString(),
+      sinonimos: data.sinonimos
+    };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const filename = `sinonimos_voz_${new Date().toISOString().slice(0,10)}.json`;
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    let total = 0;
+    Object.values(data.sinonimos).forEach(v => { if (Array.isArray(v)) total += v.length; });
+    setSyncStatus(`✅ Exportado: ${filename} (${total} sinônimos)`, 'ok');
+    showFeedback('📤 Sinônimos exportados!');
+    speak('Sinônimos exportados');
+  } catch(e) {
+    console.error(e);
+    setSyncStatus('❌ Erro ao exportar: ' + e.message, 'err');
+    showFeedback('❌ Erro ao exportar.');
+  }
+}
+
+function importarSinonimos(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(evt) {
+    try {
+      const parsed = JSON.parse(evt.target.result);
+      if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo inválido.');
+      // Aceita tanto o formato completo { sinonimos: {...} } quanto o objeto direto
+      const importados = parsed.sinonimos || parsed;
+      if (!importados || typeof importados !== 'object') throw new Error('Campo "sinonimos" ausente.');
+
+      let totalComandos = 0, totalSinonimos = 0;
+      Object.keys(importados).forEach(k => {
+        if (Array.isArray(importados[k]) && importados[k].length > 0) {
+          totalComandos++;
+          totalSinonimos += importados[k].length;
+        }
+      });
+      if (totalSinonimos === 0) throw new Error('Nenhum sinônimo encontrado no arquivo.');
+
+      const quando = parsed.exportadoEm ? new Date(parsed.exportadoEm).toLocaleString('pt-BR') : 'data desconhecida';
+      const ok = await confirmar(
+        `Aplicar ${totalSinonimos} sinônimos em ${totalComandos} comandos? (Exportado em ${quando}) Os sinônimos atuais serão substituídos.`,
+        { icone: '📥', titulo: 'Importar sinônimos', textoSim: 'Aplicar', textoNao: 'Cancelar' }
+      );
+      if (!ok) {
+        setSyncStatus('ℹ️ Importação cancelada.', '');
+        event.target.value = '';
+        return;
+      }
+
+      Object.keys(SINONIMOS_PADRAO).forEach(k => {
+        if (Array.isArray(importados[k]) && importados[k].length > 0) {
+          data.sinonimos[k] = importados[k];
+        }
+      });
+
+      save();
+      renderSinonimos();
+      const dataHora = new Date().toLocaleString('pt-BR');
+      setSyncStatus(`✅ Importado em ${dataHora} (${totalSinonimos} sinônimos)`, 'ok');
+      showFeedback('📥 Sinônimos importados!');
+      speak('Sinônimos importados');
+    } catch(err) {
+      console.error(err);
+      setSyncStatus('❌ Erro ao importar: ' + err.message, 'err');
+      showFeedback('❌ Erro: ' + err.message);
+    } finally {
+      event.target.value = '';
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ========== DYNAMIC BUTTON HANDLER ==========
@@ -1890,7 +2002,7 @@ function renderHistorico() {
         <span class="money" style="font-size:16px;">Subtotal: ${money(g.subtotal)}</span>
       </div>`;
       g.itens.forEach(h => {
-        html += criarConta(h);
+        html += criarCardConta(h);
       });
     });
     lista.innerHTML = html;
@@ -2108,7 +2220,6 @@ function processVoice(text) {
   document.getElementById('lastCommand').textContent = 'Você disse: "' + text + '"';
   const norm = normalize(text);
 
-  // 1. Confirmação pendente?
   if (confirmacaoPendente) {
     if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar)([\s.,!?]|$)/.test(norm)) {
       resolverConfirmacao(true); return;
@@ -2120,14 +2231,12 @@ function processVoice(text) {
     return;
   }
 
-  // 2. Desativar voz
   if (matchSinonimo(norm, 'desativarVoz')) {
     recognizer.deactivate();
     speak('Assistente desligado');
     return;
   }
 
-  // 3. Abrir conta (com possibilidade de nome)
   const sinAbrir = matchSinonimo(norm, 'abrirConta');
   if (sinAbrir) {
     const resto = extrairResto(norm, sinAbrir);
@@ -2146,7 +2255,6 @@ function processVoice(text) {
     return;
   }
 
-  // 4. Selecionar estabelecimento
   const sinSel = matchSinonimo(norm, 'selecionar');
   if (sinSel) {
     const nome = extrairResto(norm, sinSel);
@@ -2157,7 +2265,6 @@ function processVoice(text) {
     return;
   }
 
-  // 5. Incluir produto no cardápio
   const sinInc = matchSinonimo(norm, 'incluirProduto');
   if (sinInc) {
     let rest = extrairResto(norm, sinInc);
@@ -2174,28 +2281,14 @@ function processVoice(text) {
     return;
   }
 
-  // 6. Fechar conta
   if (matchSinonimo(norm, 'fecharConta')) { showScreen('conta'); confirmarFechamento(); return; }
-
-  // 7. Ver conta
   if (matchSinonimo(norm, 'verConta')) { showScreen('conta'); return; }
-
-  // 8. Ver histórico
   if (matchSinonimo(norm, 'verHistorico')) { showScreen('historico'); return; }
-
-  // 9. Ver cardápio
   if (matchSinonimo(norm, 'verCardapio')) { mostrarMiniCardapio(); return; }
-
-  // 10. Exportar dados
   if (matchSinonimo(norm, 'exportarDados')) { exportarDados(); return; }
-
-  // 11. Importar dados
   if (matchSinonimo(norm, 'importarDados')) { showScreen('dados'); return; }
-
-  // 12. Limpar histórico
   if (matchSinonimo(norm, 'limparHistorico')) { limparHistorico(); return; }
 
-  // 13. Pedir (mais genérico — por último)
   const sinPedir = matchSinonimo(norm, 'pedir');
   if (sinPedir) {
     let qtd = parseNumberWords(norm);
