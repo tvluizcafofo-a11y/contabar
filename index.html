@@ -1,4 +1,4 @@
-<!-- Conta Bar 08.10.2026 -->
+<!-- Conta Bar 30.09.2026 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -221,6 +221,29 @@ footer{text-align:center;color:var(--muted);padding:25px}
 #reciboBody .recibo-item .nome { flex:1; }
 #reciboBody .recibo-item .qtd { color:var(--muted); margin-right:8px; }
 #reciboBody .recibo-item .preco { color:#8df0b8; }
+
+/* Modal de escolha de app para compartilhar (fallback) */
+.share-option {
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px;
+  border-radius:12px;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:all .15s;
+  color:var(--text);
+  text-align:left;
+  font-weight:normal;
+  width:100%;
+}
+.share-option:hover { background:#2c3547; border-color:var(--accent); }
+.share-option .share-icon { font-size:26px; width:34px; text-align:center; flex-shrink:0; }
+.share-option .share-info { flex:1; }
+.share-option .share-info .share-title { font-weight:bold; font-size:15px; }
+.share-option .share-info .share-desc { font-size:12px; color:var(--muted); margin-top:2px; }
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -684,6 +707,16 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
+<!-- ===== MODAL DE COMPARTILHAR (fallback quando não há share nativo) ===== -->
+<div id="shareModal" class="payment-modal">
+  <div class="payment-content" style="max-width:420px;">
+    <h2 style="margin-top:0; text-align:center;">📤 Compartilhar recibo</h2>
+    <p class="note" style="text-align:center; margin-bottom:16px;">Escolha um aplicativo:</p>
+    <div id="shareOptions"></div>
+    <button class="secondary" onclick="fecharShareModal()" style="width:100%; margin-top:8px;">❌ Cancelar</button>
+  </div>
+</div>
+
 <div id="exportModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:10005;justify-content:center;align-items:center;padding:20px;">
   <div style="background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:480px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.8);">
     <h2 style="margin-top:0;color:var(--accent);">✅ Dados exportados com sucesso!</h2>
@@ -776,6 +809,7 @@ let ultimoNomeArquivoExportado = '';
 let metodoPagamento = null;
 let confirmacaoPendente = null;
 let contaReciboAtual = null;
+let textoReciboParaCompartilhar = '';
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -2402,22 +2436,127 @@ function gerarTextoRecibo(h) {
   return linhas.join('\n');
 }
 
-function compartilharRecibo() {
+// ========== COMPARTILHAR RECIBO (share nativo) ==========
+async function compartilharRecibo() {
   if (!contaReciboAtual) return;
   const texto = gerarTextoRecibo(contaReciboAtual);
+  const titulo = 'Recibo - ' + (contaReciboAtual.estabelecimento || 'FECHA A CONTA');
+  textoReciboParaCompartilhar = texto;
 
-  // 1) Copia o texto do recibo para a área de transferência
-  copiarPixFallback(texto);
+  // 1) Tenta usar a API NATIVA de compartilhamento — mostra todos os apps instalados
+  //    (WhatsApp, E-mail, Telegram, SMS, etc.) e o usuário escolhe o destinatário
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: titulo, text: texto });
+      return;
+    } catch (err) {
+      // Se o usuário cancelou, não faz nada
+      if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) return;
+      // Se der outro erro, cai no fallback
+      console.warn('navigator.share falhou:', err);
+    }
+  }
 
-  // 2) Abre o WhatsApp com o texto já colado — o usuário só escolhe o destinatário
-  const url = 'https://wa.me/?text=' + encodeURIComponent(texto);
+  // 2) Fallback para navegadores sem suporte nativo (desktop antigo, etc.)
+  //    Mostra um modal com os apps disponíveis via URL scheme / intent
+  mostrarModalCompartilhar(texto, titulo);
+}
+
+function mostrarModalCompartilhar(texto, titulo) {
+  const container = document.getElementById('shareOptions');
+  const encoded = encodeURIComponent(texto);
+  const encodedTitle = encodeURIComponent(titulo);
+  const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
+
+  // Detecta plataforma para montar links que abrem apps específicos
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  const opcoes = [];
+
+  // WhatsApp — funciona em qualquer plataforma via wa.me
+  opcoes.push({
+    icone: '💬',
+    titulo: 'WhatsApp',
+    desc: 'Enviar recibo pelo WhatsApp',
+    url: 'https://wa.me/?text=' + encoded,
+    copiarAntes: false
+  });
+
+  // E-mail — mailto
+  opcoes.push({
+    icone: '✉️',
+    titulo: 'E-mail',
+    desc: 'Enviar por e-mail',
+    url: 'mailto:?subject=' + encodedTitle + '&body=' + encoded,
+    copiarAntes: false
+  });
+
+  // Telegram
+  opcoes.push({
+    icone: '✈️',
+    titulo: 'Telegram',
+    desc: 'Enviar pelo Telegram',
+    url: 'https://t.me/share/url?url=' + encoded + '&text=' + encodedTitle,
+    copiarAntes: false
+  });
+
+  // SMS (mobile apenas)
+  if (isMobile) {
+    const sep = isIOS ? '&' : '?';
+    opcoes.push({
+      icone: '💬',
+      titulo: 'SMS',
+      desc: 'Enviar por mensagem de texto',
+      url: 'sms:' + (isIOS ? '&' : '?') + 'body=' + encoded,
+      copiarAntes: false
+    });
+  }
+
+  // Copiar texto
+  opcoes.push({
+    icone: '📋',
+    titulo: 'Copiar texto',
+    desc: 'Copiar o recibo para colar em qualquer app',
+    url: null,
+    copiarAntes: true
+  });
+
+  container.innerHTML = opcoes.map((op, i) =>
+    `<button class="share-option" onclick="executarCompartilhar(${i}, '${op.url ? op.url.replace(/'/g, "\\'") : ''}', ${op.copiarAntes})">
+      <span class="share-icon">${op.icone}</span>
+      <span class="share-info">
+        <div class="share-title">${op.titulo}</div>
+        <div class="share-desc">${op.desc}</div>
+      </span>
+    </button>`
+  ).join('');
+
+  window._opcoesCompartilhar = opcoes;
+  document.getElementById('shareModal').classList.add('active');
+}
+
+function executarCompartilhar(index, url, copiarAntes) {
+  const texto = textoReciboParaCompartilhar;
+  if (copiarAntes || !url) {
+    copiarPixFallback(texto);
+    showFeedback('📋 Recibo copiado!');
+    fecharShareModal();
+    return;
+  }
+  // Abre o app escolhido
   try {
     window.open(url, '_blank');
   } catch (e) {
     window.location.href = url;
   }
+  fecharShareModal();
+}
 
-  showFeedback('📋 Recibo copiado e WhatsApp aberto. Escolha o destinatário.');
+function fecharShareModal() {
+  document.getElementById('shareModal').classList.remove('active');
+  textoReciboParaCompartilhar = '';
+  window._opcoesCompartilhar = null;
 }
 
 // ========== COMANDOS DE VOZ PARSER ==========
