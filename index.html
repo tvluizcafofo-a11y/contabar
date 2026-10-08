@@ -174,6 +174,51 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sync-status{margin-top:10px;font-size:13px;color:#aed8f5;min-height:18px;}
 .sync-status.ok{color:#79e9aa;}
 .sync-status.err{color:#ef8b93;}
+
+/* ===== ÍCONE DISCRETO DE STATUS DO ASSISTENTE DE VOZ (tela inicial) ===== */
+.voice-status-icon {
+  position: fixed;
+  top: 148px;
+  right: 14px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(34,41,56,0.75);
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  padding: 0;
+  z-index: 60;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  cursor: pointer;
+  opacity: 0.5;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.voice-status-icon:hover { opacity: 1; transform: scale(1.06); }
+.voice-status-icon.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  opacity: 1;
+  animation: voicePulse 2s infinite;
+}
+.voice-status-icon.active #voiceStatusIconEmoji { color: #092114; }
+@keyframes voicePulse {
+  0%, 100% { box-shadow: 0 4px 14px rgba(57,201,122,0.4); }
+  50%      { box-shadow: 0 4px 24px rgba(57,201,122,0.95); }
+}
+@media(max-width:650px){
+  .voice-status-icon { top: 96px; right: 10px; width: 38px; height: 38px; font-size: 18px; }
+}
+
+/* ===== RECIBO ===== */
+#reciboModal .payment-content { max-width: 520px; }
+#reciboBody table { font-size: 13px; }
+#reciboBody table th { text-align: left; padding: 6px; }
+#reciboBody table td { padding: 6px; }
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -201,6 +246,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </nav>
 
 <section id="inicio" class="screen active">
+<button id="voiceStatusIcon" class="voice-status-icon" onclick="toggleVoiceAssistant()" title="Ativar / Desativar assistente de voz" aria-label="Assistente de voz">
+  <span id="voiceStatusIconEmoji">🎙️</span>
+</button>
 <div class="card">
 <h2>📊 Conta atual</h2>
 <div class="note">Estabelecimento ativo: <b id="homeEstabAtivo">Nenhum</b></div>
@@ -629,6 +677,13 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
+<!-- ===== MODAL DE RECIBO ===== -->
+<div id="reciboModal" class="payment-modal">
+  <div class="payment-content">
+    <div id="reciboBody"></div>
+  </div>
+</div>
+
 <div id="exportModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:10005;justify-content:center;align-items:center;padding:20px;">
   <div style="background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:480px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.8);">
     <h2 style="margin-top:0;color:var(--accent);">✅ Dados exportados com sucesso!</h2>
@@ -703,6 +758,7 @@ Object.keys(SINONIMOS_PADRAO).forEach(k => {
 });
 
 if (typeof data.speechOn === 'undefined') { data.speechOn = true; }
+if (typeof data.voiceAssistantOn === 'undefined') { data.voiceAssistantOn = false; }
 let speechOn = data.speechOn;
 
 let currentEditId = null;
@@ -996,7 +1052,6 @@ function importarSinonimos(event) {
     try {
       const parsed = JSON.parse(evt.target.result);
       if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo inválido.');
-      // Aceita tanto o formato completo { sinonimos: {...} } quanto o objeto direto
       const importados = parsed.sinonimos || parsed;
       if (!importados || typeof importados !== 'object') throw new Error('Campo "sinonimos" ausente.');
 
@@ -1955,7 +2010,7 @@ function renderHistorico() {
     const mp = h.metodoPagamento || 'Não informado';
     const est = estiloMP[mp] || estiloMP['Não informado'];
 
-    return `<div class="card historico-item" style="margin-bottom:12px;border-left:4px solid ${est.cor};">
+    return `<div class="card historico-item" style="margin-bottom:12px;border-left:4px solid ${est.cor};cursor:pointer;transition:transform .15s;" onclick="abrirRecibo(${h.id})" title="Toque para ver o recibo completo">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
         <div style="flex:1;min-width:200px;">
           <b>${h.data}</b><br>
@@ -1966,8 +2021,9 @@ function renderHistorico() {
           <span class="note">${(h.itens || []).map(x => `${x.qtd}×${x.nome}`).join(', ') || 'Sem itens'}</span><br>
           ${descontoStr}
           <b>Total: ${money(h.total)}</b>
+          <span class="note" style="margin-left:8px;color:#79e9aa;">🧾 toque para ver o recibo</span>
         </div>
-        <div class="actions">
+        <div class="actions" onclick="event.stopPropagation();">
           <button class="danger small" onclick="excluirContaHistorico(${h.id})">🗑 Excluir</button>
         </div>
       </div>
@@ -2031,6 +2087,8 @@ function renderAll() {
   if (window.speechSynthesis && speechSynthesis.getVoices().length > 0) {
     selectVoiceByPreference(pref);
   }
+  // Atualiza ícone de voz na tela inicial
+  if (typeof atualizarIconeVoz === 'function') atualizarIconeVoz();
 }
 
 // ========== FEEDBACK / VOZ ==========
@@ -2192,16 +2250,221 @@ class VoiceRecognizer {
   }
   updateUI() {
     const btn = document.getElementById('voiceBtn');
-    if (this.isActive) { btn.textContent = '🔴 DESLIGAR ASSISTENTE DE VOZ'; btn.classList.add('danger'); keepScreenOn(true); }
-    else { btn.textContent = '🎤 ATIVAR ASSISTENTE DE VOZ'; btn.classList.remove('danger'); keepScreenOn(false); }
+    if (this.isActive) {
+      btn.textContent = '🔴 DESLIGAR ASSISTENTE DE VOZ';
+      btn.classList.add('danger');
+      keepScreenOn(true);
+    } else {
+      btn.textContent = '🎤 ATIVAR ASSISTENTE DE VOZ';
+      btn.classList.remove('danger');
+      keepScreenOn(false);
+    }
+    // Atualiza o ícone discreto na tela inicial
+    atualizarIconeVoz();
+    // Salva a escolha do usuário
+    data.voiceAssistantOn = this.isActive;
+    try { save(); } catch(e) {}
   }
   processNativeResult(text) { processVoice(text); if (this.isActive && !this.permissionDenied) setTimeout(() => this.startListening(), 500); }
 }
 let recognizer = new VoiceRecognizer();
 
-function toggleVoiceAssistant() {
-  if (recognizer.isActive) recognizer.deactivate();
-  else recognizer.activate();
+async function toggleVoiceAssistant() {
+  if (recognizer.isActive) {
+    recognizer.deactivate();
+    return;
+  }
+  if (!recognizer.isSupported && !recognizer.isSupported()) {
+    showFeedback('⚠️ Reconhecimento de voz não disponível.');
+    return;
+  }
+  try {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(t => t.stop());
+    }
+  } catch (e) {
+    showFeedback('🚫 Permissão de microfone negada.');
+    return;
+  }
+  recognizer.activate();
+  if (speechOn) speak('Assistente de voz ativado.');
+  showFeedback('🎤 Assistente de voz ativado');
+}
+
+// Compatibilidade: garante que métodos antigos continuem funcionando
+if (typeof recognizer.isSupported !== 'function') {
+  recognizer.isSupported = function() { return this.recognitionMethod !== 'none'; };
+}
+
+// ========== ÍCONE DISCRETO DE VOZ (TELA INICIAL) ==========
+function atualizarIconeVoz() {
+  const icon = document.getElementById('voiceStatusIcon');
+  const emoji = document.getElementById('voiceStatusIconEmoji');
+  if (!icon || !emoji) return;
+  if (recognizer && recognizer.isActive) {
+    icon.classList.add('active');
+    emoji.textContent = '🎤';
+    icon.title = 'Assistente de voz ATIVO — clique para desativar';
+  } else {
+    icon.classList.remove('active');
+    emoji.textContent = '🎙️';
+    icon.title = 'Assistente de voz INATIVO — clique para ativar';
+  }
+}
+
+// ========== RECIBO ==========
+let contaReciboAtual = null;
+
+function abrirRecibo(id) {
+  const h = data.historico.find(c => c.id === id);
+  if (!h) return;
+  contaReciboAtual = h;
+  renderRecibo(h);
+  document.getElementById('reciboModal').classList.add('active');
+}
+
+function fecharRecibo() {
+  document.getElementById('reciboModal').classList.remove('active');
+  contaReciboAtual = null;
+}
+
+function renderRecibo(h) {
+  const desconto  = h.desconto || 0;
+  const perc      = h.percentual || 0;
+  const subComDesc = (h.subComDesconto !== undefined && h.subComDesconto !== null)
+    ? h.subComDesconto
+    : Math.max(0, (h.subtotal || 0) - desconto);
+
+  const itensHTML = (h.itens && h.itens.length)
+    ? h.itens.map(it => `
+        <tr>
+          <td>${it.qtd}× ${it.nome}</td>
+          <td style="text-align:right;">${money(it.preco)}</td>
+          <td style="text-align:right;">${money(it.qtd * it.preco)}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="3" style="text-align:center;color:var(--muted);">Sem itens</td></tr>';
+
+  document.getElementById('reciboBody').innerHTML = `
+    <div style="text-align:center; margin-bottom:16px;">
+      <div style="font-size:36px; line-height:1;">🧾</div>
+      <h2 style="margin:6px 0; color:#79e9aa; letter-spacing:1px;">RECIBO</h2>
+      <div class="note">${h.data}</div>
+    </div>
+
+    <div style="background:var(--panel2);border-radius:10px;padding:14px;margin-bottom:14px;">
+      <div style="margin-bottom:6px;"><b>🏢 Estabelecimento:</b> ${h.estabelecimento || 'Não informado'}</div>
+      <div><b>👤 Cliente:</b> ${h.cliente || 'Não informado'}</div>
+    </div>
+
+    <h3 style="margin:10px 0 6px; font-size:15px;">Itens consumidos</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th style="text-align:right;">Unit.</th>
+          <th style="text-align:right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>${itensHTML}</tbody>
+    </table>
+
+    <hr style="border-color:var(--border);margin:14px 0;">
+
+    <div style="font-size:14px;">
+      <div style="display:flex;justify-content:space-between;padding:4px 0;">
+        <span>Subtotal:</span><span>${money(h.subtotal || 0)}</span>
+      </div>
+      ${desconto > 0 ? `
+        <div style="display:flex;justify-content:space-between;padding:4px 0;color:#5dade2;">
+          <span>Desconto${h.descricaoDesconto ? ' ('+h.descricaoDesconto+')' : ''}:</span>
+          <span>-${money(desconto)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;">
+          <span>Subtotal c/ desconto:</span><span>${money(subComDesc)}</span>
+        </div>
+      ` : ''}
+      <div style="display:flex;justify-content:space-between;padding:4px 0;">
+        <span>Gorjeta (${perc}%):</span><span>${money(h.gorjeta || 0)}</span>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;padding:12px 0;border-top:2px solid var(--accent);margin-top:8px;font-size:20px;font-weight:bold;color:#79e9aa;">
+      <span>TOTAL:</span><span>${money(h.total || 0)}</span>
+    </div>
+
+    <div style="text-align:center;margin:12px 0;padding:8px;background:var(--panel2);border-radius:8px;font-size:13px;">
+      <b>💳 Pagamento:</b> ${h.metodoPagamento || 'Não informado'}
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+      <button onclick="compartilharWhatsApp()" style="flex:1;background:#25D366;color:#fff;min-width:130px;">📱 WhatsApp</button>
+      <button onclick="compartilharRecibo()" class="secondary" style="flex:1;min-width:130px;">🔗 Compartilhar</button>
+      <button onclick="copiarRecibo()" class="secondary" style="flex:1;min-width:130px;">📋 Copiar</button>
+    </div>
+
+    <button class="secondary" onclick="fecharRecibo()" style="width:100%;margin-top:10px;">❌ Fechar</button>
+  `;
+}
+
+function gerarTextoRecibo(h) {
+  if (!h) return '';
+  const desconto   = h.desconto || 0;
+  const perc       = h.percentual || 0;
+  const subComDesc = (h.subComDesconto !== undefined && h.subComDesconto !== null)
+    ? h.subComDesconto
+    : Math.max(0, (h.subtotal || 0) - desconto);
+
+  const L = [];
+  L.push('🧾 *RECIBO - FECHA A CONTA*');
+  L.push('━━━━━━━━━━━━━━━━━━');
+  L.push('🏢 *' + (h.estabelecimento || 'Estabelecimento') + '*');
+  L.push('📅 ' + h.data);
+  L.push('👤 Cliente: ' + (h.cliente || 'Não informado'));
+  L.push('━━━━━━━━━━━━━━━━━━');
+  L.push('*ITENS:*');
+  (h.itens || []).forEach(it => {
+    L.push('• ' + it.qtd + '× ' + it.nome + ' — ' + money(it.qtd * it.preco));
+  });
+  L.push('━━━━━━━━━━━━━━━━━━');
+  L.push('Subtotal: ' + money(h.subtotal || 0));
+  if (desconto > 0) {
+    L.push('Desconto' + (h.descricaoDesconto ? ' (' + h.descricaoDesconto + ')' : '') + ': -' + money(desconto));
+    L.push('Subtotal c/ desconto: ' + money(subComDesc));
+  }
+  L.push('Gorjeta (' + perc + '%): ' + money(h.gorjeta || 0));
+  L.push('━━━━━━━━━━━━━━━━━━');
+  L.push('💰 *TOTAL: ' + money(h.total || 0) + '*');
+  L.push('💳 Pagamento: ' + (h.metodoPagamento || 'Não informado'));
+  L.push('━━━━━━━━━━━━━━━━━━');
+  L.push('Gerado por *FECHA A CONTA* 🍺');
+  return L.join('\n');
+}
+
+function compartilharWhatsApp() {
+  if (!contaReciboAtual) return;
+  const texto = gerarTextoRecibo(contaReciboAtual);
+  const url = 'https://wa.me/?text=' + encodeURIComponent(texto);
+  window.open(url, '_blank');
+}
+
+function compartilharRecibo() {
+  if (!contaReciboAtual) return;
+  const texto = gerarTextoRecibo(contaReciboAtual);
+  if (navigator.share) {
+    navigator.share({ title: 'Recibo - Fecha a Conta', text: texto }).catch(err => {
+      if (err && err.name !== 'AbortError') copiarRecibo();
+    });
+  } else {
+    copiarRecibo();
+  }
+}
+
+function copiarRecibo() {
+  if (!contaReciboAtual) return;
+  const texto = gerarTextoRecibo(contaReciboAtual);
+  copiarPixFallback(texto);
+  showFeedback('📋 Recibo copiado!');
 }
 
 // ========== COMANDOS DE VOZ PARSER ==========
@@ -2406,6 +2669,16 @@ window.onload = function() {
         importarDados({ target: { files: files } });
       }
     }, false);
+  }
+
+  // Restaura o ícone de voz e tenta reativar se estava ativo na última sessão
+  atualizarIconeVoz();
+  if (data.voiceAssistantOn === true && recognizer.isSupported()) {
+    setTimeout(() => {
+      if (!recognizer.isActive) {
+        try { recognizer.activate(); } catch(e) { console.warn('Reativação automática falhou:', e); }
+      }
+    }, 1500);
   }
 };
 </script>
