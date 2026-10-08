@@ -1,4 +1,4 @@
-<!-- Conta Bar 30.09.2026 -->
+<!-- Conta Bar 08.10.2026 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -158,7 +158,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .tip-box{background:rgba(79,195,247,0.1);border:1px solid var(--info);border-radius:10px;padding:12px;margin:12px 0;}
 .tip-box p{margin:0;color:var(--text);font-size:13px;}
 
-/* ====== IMPORT / EXPORT DE SINÔNIMOS ====== */
 .sync-box{
   background:linear-gradient(135deg,#1a2d40,#152233);
   border:1px solid #2d5a7a;
@@ -175,7 +174,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sync-status.ok{color:#79e9aa;}
 .sync-status.err{color:#ef8b93;}
 
-/* ===== ÍCONE DISCRETO DE STATUS DO ASSISTENTE DE VOZ (tela inicial) ===== */
 .voice-status-icon {
   position: fixed;
   top: 148px;
@@ -214,11 +212,15 @@ footer{text-align:center;color:var(--muted);padding:25px}
   .voice-status-icon { top: 96px; right: 10px; width: 38px; height: 38px; font-size: 18px; }
 }
 
-/* ===== RECIBO ===== */
-#reciboModal .payment-content { max-width: 520px; }
-#reciboBody table { font-size: 13px; }
-#reciboBody table th { text-align: left; padding: 6px; }
-#reciboBody table td { padding: 6px; }
+#reciboModal .payment-content { max-width: 460px; }
+#reciboBody .recibo-bloco { padding:8px 0; border-bottom:1px dashed var(--border); }
+#reciboBody .recibo-linha { display:flex; justify-content:space-between; padding:3px 0; font-size:14px; }
+#reciboBody .recibo-titulo { font-size:15px; font-weight:bold; margin:14px 0 4px; color:#79e9aa; }
+#reciboBody .recibo-total { display:flex; justify-content:space-between; padding:12px 0; margin-top:8px; font-size:22px; font-weight:bold; color:#79e9aa; border-top:2px solid var(--accent); }
+#reciboBody .recibo-item { display:flex; justify-content:space-between; padding:3px 0; font-size:13px; }
+#reciboBody .recibo-item .nome { flex:1; }
+#reciboBody .recibo-item .qtd { color:var(--muted); margin-right:8px; }
+#reciboBody .recibo-item .preco { color:#8df0b8; }
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -227,7 +229,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="./icon-192.png">
-
 </head>
 <body>
 <header>
@@ -315,10 +316,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <button class="secondary" onclick="restaurarTodosSinonimos()">🔄 Restaurar todos os padrões</button>
 </div>
 
-<!-- ===== IMPORTAR / EXPORTAR SINÔNIMOS ===== -->
 <div class="sync-box">
   <h3>📦 Backup dos Sinônimos</h3>
-  <p class="note" style="color:#aed8f5;">Salve seus sinônimos em um arquivo e restaure quando quiser — útil para manter vários dispositivos atualizados manualmente.</p>
+  <p class="note" style="color:#aed8f5;">Salve seus sinônimos em um arquivo e restaure quando quiser.</p>
   <div class="sync-actions">
     <button class="btn-export" onclick="exportarSinonimos()">📤 Exportar Sinônimos</button>
     <button class="btn-import" onclick="document.getElementById('fileInputSinonimos').click()">📥 Importar Sinônimos</button>
@@ -536,7 +536,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <p>💡 <b>Dica:</b> Todos os comandos abaixo são personalizáveis! Vá em <b>⚙ Configurações → 🎤 Sinônimos de Voz</b> para adicionar ou remover palavras.</p>
 </div>
 <div class="tip-box">
-  <p>🧠 <b>Nome parcial de produto:</b> ao fazer um pedido, você pode falar só parte do nome. Se o cardápio tem <b>"Cerveja Império"</b>, basta dizer <i>"desce uma império"</i>. O app resolve automaticamente — desde que só exista UM produto que combine.</p>
+  <p>🧠 <b>Nome parcial de produto:</b> ao fazer um pedido, você pode falar só parte do nome. Se o cardápio tem <b>"Cerveja Império"</b>, basta dizer <i>"desce uma império"</i>.</p>
 </div>
 <p class="note">Todos os comandos disponíveis para controle por voz do sistema.</p>
 <hr style="border-color:var(--border);margin:15px 0">
@@ -775,6 +775,7 @@ let ultimoConteudoExportado = '';
 let ultimoNomeArquivoExportado = '';
 let metodoPagamento = null;
 let confirmacaoPendente = null;
+let contaReciboAtual = null;
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -916,7 +917,7 @@ function resolverConfirmacao(resposta) {
   cb(resposta);
 }
 
-// ========== SINÔNIMOS: RENDER / ADD / REMOVE / RESTORE ==========
+// ========== SINÔNIMOS ==========
 function renderSinonimos() {
   const container = document.getElementById('listaSinonimos');
   if (!container) return;
@@ -1098,7 +1099,7 @@ function importarSinonimos(event) {
   reader.readAsText(file);
 }
 
-// ========== DYNAMIC BUTTON HANDLER ==========
+// ========== AÇÃO PRINCIPAL DA CONTA ==========
 function acaoPrincipalConta() {
   if (data.contaAtiva) {
     showScreen('conta');
@@ -1204,7 +1205,7 @@ function cancelarNovoBanco() {
 function salvarNovoBanco() {
   const nome = document.getElementById('novoBancoNome').value.trim();
   const link = document.getElementById('novoBancoLink').value.trim();
-  if (!nome) { showFeedback('⚠️️ Informe o nome do banco.'); return; }
+  if (!nome) { showFeedback('⚠️ Informe o nome do banco.'); return; }
   if (!data.usuario) data.usuario = { bancos: [] };
   if (!data.usuario.bancos) data.usuario.bancos = [];
 
@@ -1304,7 +1305,7 @@ function editarEstabelecimento(id) {
   document.getElementById('formEstabelecimento').style.display = 'block';
   showScreen('estabelecimentos');
   setTimeout(() => { document.getElementById('barNome').focus(); }, 100);
-  showFeedback('✏️️ Editando: ' + e.nome);
+  showFeedback('✏️ Editando: ' + e.nome);
 }
 
 function mostrarFormEstabelecimento() {
@@ -1332,7 +1333,7 @@ function salvarEstabelecimento() {
   const nome = capitalizarNome($('barNome').value.trim());
   const endereco = $('barEndereco').value.trim();
   const pix = $('barPix').value.trim();
-  if (!nome) { showFeedback('⚠️️ Informe o nome do estabelecimento.'); return; }
+  if (!nome) { showFeedback('⚠️ Informe o nome do estabelecimento.'); return; }
   if (currentEditEstabId) {
     data.estabelecimentos[currentEditEstabId].nome = nome;
     data.estabelecimentos[currentEditEstabId].endereco = endereco;
@@ -1895,11 +1896,11 @@ function renderConta() {
   const btnHome = document.getElementById('btnAcaoContaHome');
   const btnResumo = document.getElementById('btnAcaoContaResumo');
   if (data.contaAtiva) {
-    if (btnHome) { btnHome.textContent = '✅ Solicitar fechamento da conta'; btnHome.className = ''; }
-    if (btnResumo) { btnResumo.textContent = '✅ Solicitar fechamento da conta'; btnResumo.className = ''; }
+    if (btnHome) { btnHome.textContent = '✅ Solicitar fechamento da conta'; }
+    if (btnResumo) { btnResumo.textContent = '✅ Solicitar fechamento da conta'; }
   } else {
-    if (btnHome) { btnHome.textContent = '📂 Abrir conta'; btnHome.className = ''; }
-    if (btnResumo) { btnResumo.textContent = '📂 Abrir conta'; btnResumo.className = ''; }
+    if (btnHome) { btnHome.textContent = '📂 Abrir conta'; }
+    if (btnResumo) { btnResumo.textContent = '📂 Abrir conta'; }
   }
 
   const contaItensDiv = document.getElementById('contaItens');
@@ -2010,7 +2011,7 @@ function renderHistorico() {
     const mp = h.metodoPagamento || 'Não informado';
     const est = estiloMP[mp] || estiloMP['Não informado'];
 
-    return `<div class="card historico-item" style="margin-bottom:12px;border-left:4px solid ${est.cor};cursor:pointer;transition:transform .15s;" onclick="abrirRecibo(${h.id})" title="Toque para ver o recibo completo">
+    return `<div class="card historico-item" style="margin-bottom:12px;border-left:4px solid ${est.cor};cursor:pointer;transition:transform .15s;" onclick="abrirRecibo(${h.id})" title="Toque para ver o recibo">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
         <div style="flex:1;min-width:200px;">
           <b>${h.data}</b><br>
@@ -2087,7 +2088,6 @@ function renderAll() {
   if (window.speechSynthesis && speechSynthesis.getVoices().length > 0) {
     selectVoiceByPreference(pref);
   }
-  // Atualiza ícone de voz na tela inicial
   if (typeof atualizarIconeVoz === 'function') atualizarIconeVoz();
 }
 
@@ -2259,12 +2259,11 @@ class VoiceRecognizer {
       btn.classList.remove('danger');
       keepScreenOn(false);
     }
-    // Atualiza o ícone discreto na tela inicial
     atualizarIconeVoz();
-    // Salva a escolha do usuário
     data.voiceAssistantOn = this.isActive;
     try { save(); } catch(e) {}
   }
+  isSupported() { return this.recognitionMethod !== 'none'; }
   processNativeResult(text) { processVoice(text); if (this.isActive && !this.permissionDenied) setTimeout(() => this.startListening(), 500); }
 }
 let recognizer = new VoiceRecognizer();
@@ -2274,7 +2273,7 @@ async function toggleVoiceAssistant() {
     recognizer.deactivate();
     return;
   }
-  if (!recognizer.isSupported && !recognizer.isSupported()) {
+  if (!recognizer.isSupported()) {
     showFeedback('⚠️ Reconhecimento de voz não disponível.');
     return;
   }
@@ -2292,12 +2291,7 @@ async function toggleVoiceAssistant() {
   showFeedback('🎤 Assistente de voz ativado');
 }
 
-// Compatibilidade: garante que métodos antigos continuem funcionando
-if (typeof recognizer.isSupported !== 'function') {
-  recognizer.isSupported = function() { return this.recognitionMethod !== 'none'; };
-}
-
-// ========== ÍCONE DISCRETO DE VOZ (TELA INICIAL) ==========
+// ========== ÍCONE DISCRETO DE VOZ ==========
 function atualizarIconeVoz() {
   const icon = document.getElementById('voiceStatusIcon');
   const emoji = document.getElementById('voiceStatusIconEmoji');
@@ -2314,8 +2308,6 @@ function atualizarIconeVoz() {
 }
 
 // ========== RECIBO ==========
-let contaReciboAtual = null;
-
 function abrirRecibo(id) {
   const h = data.historico.find(c => c.id === id);
   if (!h) return;
@@ -2330,141 +2322,102 @@ function fecharRecibo() {
 }
 
 function renderRecibo(h) {
-  const desconto  = h.desconto || 0;
-  const perc      = h.percentual || 0;
+  const desconto = h.desconto || 0;
+  const perc = h.percentual || 0;
   const subComDesc = (h.subComDesconto !== undefined && h.subComDesconto !== null)
     ? h.subComDesconto
     : Math.max(0, (h.subtotal || 0) - desconto);
 
   const itensHTML = (h.itens && h.itens.length)
     ? h.itens.map(it => `
-        <tr>
-          <td>${it.qtd}× ${it.nome}</td>
-          <td style="text-align:right;">${money(it.preco)}</td>
-          <td style="text-align:right;">${money(it.qtd * it.preco)}</td>
-        </tr>`).join('')
-    : '<tr><td colspan="3" style="text-align:center;color:var(--muted);">Sem itens</td></tr>';
+        <div class="recibo-item">
+          <span class="qtd">${it.qtd}×</span>
+          <span class="nome">${it.nome}</span>
+          <span class="preco">${money(it.qtd * it.preco)}</span>
+        </div>`).join('')
+    : '<div class="note" style="text-align:center; padding:6px;">Sem itens</div>';
 
   document.getElementById('reciboBody').innerHTML = `
-    <div style="text-align:center; margin-bottom:16px;">
-      <div style="font-size:36px; line-height:1;">🧾</div>
-      <h2 style="margin:6px 0; color:#79e9aa; letter-spacing:1px;">RECIBO</h2>
-      <div class="note">${h.data}</div>
+    <h2 style="margin-top:0; text-align:center; color:#79e9aa;">🧾 Recibo</h2>
+
+    <div class="recibo-bloco">
+      <div class="recibo-linha"><span>Estabelecimento:</span><b>${h.estabelecimento || '—'}</b></div>
+      <div class="recibo-linha"><span>Cliente:</span><span>${h.cliente || '—'}</span></div>
+      <div class="recibo-linha"><span>Data:</span><span>${h.data}</span></div>
     </div>
 
-    <div style="background:var(--panel2);border-radius:10px;padding:14px;margin-bottom:14px;">
-      <div style="margin-bottom:6px;"><b>🏢 Estabelecimento:</b> ${h.estabelecimento || 'Não informado'}</div>
-      <div><b>👤 Cliente:</b> ${h.cliente || 'Não informado'}</div>
-    </div>
+    <div class="recibo-titulo">Itens</div>
+    ${itensHTML}
 
-    <h3 style="margin:10px 0 6px; font-size:15px;">Itens consumidos</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th style="text-align:right;">Unit.</th>
-          <th style="text-align:right;">Total</th>
-        </tr>
-      </thead>
-      <tbody>${itensHTML}</tbody>
-    </table>
-
-    <hr style="border-color:var(--border);margin:14px 0;">
-
-    <div style="font-size:14px;">
-      <div style="display:flex;justify-content:space-between;padding:4px 0;">
-        <span>Subtotal:</span><span>${money(h.subtotal || 0)}</span>
-      </div>
+    <div class="recibo-bloco" style="border-bottom:none; margin-top:10px;">
+      <div class="recibo-linha"><span>Subtotal</span><span>${money(h.subtotal || 0)}</span></div>
       ${desconto > 0 ? `
-        <div style="display:flex;justify-content:space-between;padding:4px 0;color:#5dade2;">
-          <span>Desconto${h.descricaoDesconto ? ' ('+h.descricaoDesconto+')' : ''}:</span>
-          <span>-${money(desconto)}</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;">
-          <span>Subtotal c/ desconto:</span><span>${money(subComDesc)}</span>
-        </div>
+        <div class="recibo-linha"><span>Desconto${h.descricaoDesconto ? ' ('+h.descricaoDesconto+')' : ''}</span><span>-${money(desconto)}</span></div>
+        <div class="recibo-linha"><span>Subtotal c/ desconto</span><span>${money(subComDesc)}</span></div>
       ` : ''}
-      <div style="display:flex;justify-content:space-between;padding:4px 0;">
-        <span>Gorjeta (${perc}%):</span><span>${money(h.gorjeta || 0)}</span>
-      </div>
+      <div class="recibo-linha"><span>Gorjeta (${perc}%)</span><span>${money(h.gorjeta || 0)}</span></div>
     </div>
 
-    <div style="display:flex;justify-content:space-between;padding:12px 0;border-top:2px solid var(--accent);margin-top:8px;font-size:20px;font-weight:bold;color:#79e9aa;">
-      <span>TOTAL:</span><span>${money(h.total || 0)}</span>
+    <div class="recibo-total"><span>TOTAL</span><span>${money(h.total || 0)}</span></div>
+
+    <div class="recibo-linha" style="justify-content:center; margin-top:6px;">
+      <span>Pagamento: <b>${h.metodoPagamento || 'Não informado'}</b></span>
     </div>
 
-    <div style="text-align:center;margin:12px 0;padding:8px;background:var(--panel2);border-radius:8px;font-size:13px;">
-      <b>💳 Pagamento:</b> ${h.metodoPagamento || 'Não informado'}
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:18px;">
+      <button onclick="compartilharRecibo()" style="flex:1; min-width:150px; padding:12px;">📤 Compartilhar</button>
+      <button class="secondary" onclick="fecharRecibo()" style="flex:1; min-width:100px; padding:12px;">Fechar</button>
     </div>
-
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
-      <button onclick="compartilharWhatsApp()" style="flex:1;background:#25D366;color:#fff;min-width:130px;">📱 WhatsApp</button>
-      <button onclick="compartilharRecibo()" class="secondary" style="flex:1;min-width:130px;">🔗 Compartilhar</button>
-      <button onclick="copiarRecibo()" class="secondary" style="flex:1;min-width:130px;">📋 Copiar</button>
-    </div>
-
-    <button class="secondary" onclick="fecharRecibo()" style="width:100%;margin-top:10px;">❌ Fechar</button>
   `;
 }
 
 function gerarTextoRecibo(h) {
   if (!h) return '';
-  const desconto   = h.desconto || 0;
-  const perc       = h.percentual || 0;
+  const desconto = h.desconto || 0;
+  const perc = h.percentual || 0;
   const subComDesc = (h.subComDesconto !== undefined && h.subComDesconto !== null)
     ? h.subComDesconto
     : Math.max(0, (h.subtotal || 0) - desconto);
 
-  const L = [];
-  L.push('🧾 *RECIBO - FECHA A CONTA*');
-  L.push('━━━━━━━━━━━━━━━━━━');
-  L.push('🏢 *' + (h.estabelecimento || 'Estabelecimento') + '*');
-  L.push('📅 ' + h.data);
-  L.push('👤 Cliente: ' + (h.cliente || 'Não informado'));
-  L.push('━━━━━━━━━━━━━━━━━━');
-  L.push('*ITENS:*');
+  const linhas = [];
+  linhas.push('🧾 RECIBO');
+  linhas.push(h.estabelecimento || 'Estabelecimento');
+  linhas.push('Data: ' + h.data);
+  linhas.push('Cliente: ' + (h.cliente || 'Não informado'));
+  linhas.push('');
+  linhas.push('ITENS:');
   (h.itens || []).forEach(it => {
-    L.push('• ' + it.qtd + '× ' + it.nome + ' — ' + money(it.qtd * it.preco));
+    linhas.push('• ' + it.qtd + 'x ' + it.nome + ' - ' + money(it.qtd * it.preco));
   });
-  L.push('━━━━━━━━━━━━━━━━━━');
-  L.push('Subtotal: ' + money(h.subtotal || 0));
+  linhas.push('');
+  linhas.push('Subtotal: ' + money(h.subtotal || 0));
   if (desconto > 0) {
-    L.push('Desconto' + (h.descricaoDesconto ? ' (' + h.descricaoDesconto + ')' : '') + ': -' + money(desconto));
-    L.push('Subtotal c/ desconto: ' + money(subComDesc));
+    linhas.push('Desconto' + (h.descricaoDesconto ? ' (' + h.descricaoDesconto + ')' : '') + ': -' + money(desconto));
+    linhas.push('Subtotal c/ desconto: ' + money(subComDesc));
   }
-  L.push('Gorjeta (' + perc + '%): ' + money(h.gorjeta || 0));
-  L.push('━━━━━━━━━━━━━━━━━━');
-  L.push('💰 *TOTAL: ' + money(h.total || 0) + '*');
-  L.push('💳 Pagamento: ' + (h.metodoPagamento || 'Não informado'));
-  L.push('━━━━━━━━━━━━━━━━━━');
-  L.push('Gerado por *FECHA A CONTA* 🍺');
-  return L.join('\n');
-}
-
-function compartilharWhatsApp() {
-  if (!contaReciboAtual) return;
-  const texto = gerarTextoRecibo(contaReciboAtual);
-  const url = 'https://wa.me/?text=' + encodeURIComponent(texto);
-  window.open(url, '_blank');
+  linhas.push('Gorjeta (' + perc + '%): ' + money(h.gorjeta || 0));
+  linhas.push('');
+  linhas.push('TOTAL: ' + money(h.total || 0));
+  linhas.push('Pagamento: ' + (h.metodoPagamento || 'Não informado'));
+  return linhas.join('\n');
 }
 
 function compartilharRecibo() {
   if (!contaReciboAtual) return;
   const texto = gerarTextoRecibo(contaReciboAtual);
-  if (navigator.share) {
-    navigator.share({ title: 'Recibo - Fecha a Conta', text: texto }).catch(err => {
-      if (err && err.name !== 'AbortError') copiarRecibo();
-    });
-  } else {
-    copiarRecibo();
-  }
-}
 
-function copiarRecibo() {
-  if (!contaReciboAtual) return;
-  const texto = gerarTextoRecibo(contaReciboAtual);
+  // 1) Copia o texto do recibo para a área de transferência
   copiarPixFallback(texto);
-  showFeedback('📋 Recibo copiado!');
+
+  // 2) Abre o WhatsApp com o texto já colado — o usuário só escolhe o destinatário
+  const url = 'https://wa.me/?text=' + encodeURIComponent(texto);
+  try {
+    window.open(url, '_blank');
+  } catch (e) {
+    window.location.href = url;
+  }
+
+  showFeedback('📋 Recibo copiado e WhatsApp aberto. Escolha o destinatário.');
 }
 
 // ========== COMANDOS DE VOZ PARSER ==========
@@ -2671,7 +2624,6 @@ window.onload = function() {
     }, false);
   }
 
-  // Restaura o ícone de voz e tenta reativar se estava ativo na última sessão
   atualizarIconeVoz();
   if (data.voiceAssistantOn === true && recognizer.isSupported()) {
     setTimeout(() => {
