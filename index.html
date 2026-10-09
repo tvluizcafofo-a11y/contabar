@@ -402,6 +402,40 @@ footer{text-align:center;color:var(--muted);padding:25px}
   .cardapio-header h2 { font-size: 22px; }
   .cardapio-header h2 .nome-estab { font-size: 17px; }
 }
+
+/* ===== BOTÕES DE EXPORTAÇÃO ===== */
+.export-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+@media(max-width:650px){
+  .export-buttons { grid-template-columns: 1fr; }
+}
+.export-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  text-align: left;
+  font-weight: normal;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.export-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
+.export-btn .icon { font-size: 24px; flex-shrink: 0; }
+.export-btn .info { flex: 1; min-width: 0; }
+.export-btn .info .title { font-weight: bold; font-size: 14px; color: var(--text); }
+.export-btn .info .desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.export-btn.full { border-color: rgba(57,201,122,0.5); }
+.export-btn.full:hover { background: rgba(57,201,122,0.08); }
+.export-btn.light { border-color: rgba(79,195,247,0.4); }
+.export-btn.light:hover { background: rgba(79,195,247,0.08); }
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -809,24 +843,44 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button class="back-config-btn" onclick="showScreen('configuracoes')">⬅️ Voltar para Configurações</button>
 <div class="card">
 <h2>💾 Importar / Exportar Dados</h2>
-<p class="note">Gerencie seus dados do aplicativo. Exporte para backup ou importe dados salvos.</p>
+<p class="note">Gerencie seus dados do aplicativo. A <b>exportação completa</b> inclui as imagens dos produtos (base64) — ideal para backup e migração. A <b>exportação leve</b> gera um arquivo menor apenas com os dados cadastrais.</p>
 <hr style="border-color:var(--border);margin:15px 0">
-<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;">
-  <button onclick="exportarDados()" style="flex:1;">📤 Exportar Dados (JSON)</button>
-  <button onclick="document.getElementById('fileInput').click()" style="flex:1;background:var(--panel2);color:var(--text);">📥 Importar Dados</button>
-  <input type="file" id="fileInput" accept=".json,application/json" style="display:none;" onchange="importarDados(event)">
+
+<h3 style="margin-top:0;">📤 Exportar</h3>
+<div class="export-buttons">
+  <button class="export-btn full" onclick="exportarDados(true)">
+    <span class="icon">🖼️</span>
+    <span class="info">
+      <div class="title">Backup Completo</div>
+      <div class="desc">Inclui todas as imagens dos produtos</div>
+    </span>
+  </button>
+  <button class="export-btn light" onclick="exportarDados(false)">
+    <span class="icon">📄</span>
+    <span class="info">
+      <div class="title">Somente Dados</div>
+      <div class="desc">Arquivo leve, sem imagens</div>
+    </span>
+  </button>
 </div>
+
+<h3 style="margin-top:20px;">📥 Importar</h3>
+<button onclick="document.getElementById('fileInput').click()" style="width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--border);">📥 Selecionar arquivo JSON</button>
+<input type="file" id="fileInput" accept=".json,application/json" style="display:none;" onchange="importarDados(event)">
+
 <div class="import-area" id="dropArea">
   <p style="font-size:48px;margin:0;">📂</p>
   <p><b>Arraste e solte um arquivo JSON aqui</b></p>
-  <p class="note">ou clique no botão "Importar Dados" acima</p>
+  <p class="note">ou clique no botão "Selecionar arquivo JSON" acima</p>
 </div>
 <div id="importStatus" style="margin-top:15px;padding:10px;border-radius:8px;display:none;"></div>
+
 <hr style="border-color:var(--border);margin:20px 0">
 <h3>📊 Resumo dos Dados</h3>
 <div id="dadosResumo" class="note">
   <p>Estabelecimentos: <b id="resumoEstabs">0</b></p>
   <p>Produtos no cardápio ativo: <b id="resumoProdutos">0</b></p>
+  <p>Imagens nos produtos: <b id="resumoImagens">0</b></p>
   <p>Itens no pedido: <b id="resumoPedido">0</b></p>
   <p>Contas no histórico: <b id="resumoHistorico">0</b></p>
   <p>Conta aberta: <b id="resumoContaAtiva">Não</b></p>
@@ -913,6 +967,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <p style="margin:6px 0;"><b>📄 Nome do arquivo:</b><br><span id="exportNomeArquivo" style="color:#8df0b8;font-family:monospace;font-size:13px;word-break:break-all;"></span></p>
       <p style="margin:6px 0;"><b>📂 Local de salvamento:</b><br><span id="exportLocal" style="color:var(--info);font-size:13px;"></span></p>
       <p style="margin:6px 0;"><b>📊 Tamanho:</b> <span id="exportTamanho" style="color:var(--muted);font-size:13px;"></span></p>
+      <p style="margin:6px 0;"><b>🖼️ Imagens:</b> <span id="exportImagens" style="color:#ffd97d;font-size:13px;"></span></p>
     </div>
     <p class="note" id="exportDica" style="font-size:13px;"></p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
@@ -2639,7 +2694,7 @@ function renderHistorico() {
         <span class="money" style="font-size:16px;">Subtotal: ${money(g.subtotal)}</span>
       </div>`;
       g.itens.forEach(h => {
-        html += criarCardConta(h);
+        html += criarContaConta(h);
       });
     });
     lista.innerHTML = html;
@@ -2660,6 +2715,14 @@ function renderAll() {
   document.getElementById('resumoPedido').textContent = data.pedido.reduce((s, x) => s + x.qtd, 0);
   document.getElementById('resumoHistorico').textContent = data.historico.length;
   document.getElementById('resumoContaAtiva').textContent = data.contaAtiva ? 'Sim' : 'Não';
+
+  // Contagem de imagens
+  let totalImagens = 0;
+  Object.values(data.estabelecimentos).forEach(estab => {
+    (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; });
+  });
+  const elImg = document.getElementById('resumoImagens');
+  if (elImg) elImg.textContent = totalImagens;
 
   document.getElementById('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
 
@@ -3151,7 +3214,7 @@ function processVoice(text) {
   if (matchSinonimo(norm, 'verConta')) { showScreen('conta'); return; }
   if (matchSinonimo(norm, 'verHistorico')) { showScreen('historico'); return; }
   if (matchSinonimo(norm, 'verCardapio')) { mostrarMiniCardapio(); return; }
-  if (matchSinonimo(norm, 'exportarDados')) { exportarDados(); return; }
+  if (matchSinonimo(norm, 'exportarDados')) { exportarDados(true); return; }
   if (matchSinonimo(norm, 'importarDados')) { showScreen('dados'); return; }
   if (matchSinonimo(norm, 'limparHistorico')) { limparHistorico(); return; }
 
@@ -3176,12 +3239,46 @@ function processVoice(text) {
 }
 
 // ========== DADOS / IMPORT & EXPORT ==========
-function exportarDados() {
-  const jsonStr = JSON.stringify(data, null, 2);
+/**
+ * Exporta os dados do app para JSON.
+ * @param {boolean} incluirImagens - Se true, mantém as imagens base64. Se false, remove.
+ */
+function exportarDados(incluirImagens = true) {
+  let dadosExport;
+  let totalImagens = 0;
+
+  if (incluirImagens) {
+    // Exportação completa (com imagens base64)
+    dadosExport = JSON.parse(JSON.stringify(data));
+    Object.values(dadosExport.estabelecimentos).forEach(estab => {
+      (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; });
+    });
+  } else {
+    // Cópia profunda, sem imagens
+    dadosExport = JSON.parse(JSON.stringify(data));
+    Object.values(dadosExport.estabelecimentos).forEach(estab => {
+      (estab.produtos || []).forEach(p => {
+        if (p.imagem) totalImagens++;
+        p.imagem = null;
+      });
+    });
+  }
+
+  // Metadados de exportação
+  dadosExport.__meta = {
+    app: 'FECHA A CONTA',
+    versao: 1,
+    exportadoEm: new Date().toISOString(),
+    incluirImagens: !!incluirImagens,
+    totalImagens: totalImagens
+  };
+
+  const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const filename = `conta_bar_backup_${new Date().toISOString().slice(0,10)}.json`;
+  const sufixo = incluirImagens ? 'completo' : 'sem-imagens';
+  const filename = `conta_bar_${sufixo}_${new Date().toISOString().slice(0,10)}.json`;
   a.href = url;
   a.download = filename;
   document.body.appendChild(a);
@@ -3193,6 +3290,17 @@ function exportarDados() {
   document.getElementById('exportNomeArquivo').textContent = filename;
   document.getElementById('exportLocal').textContent = 'Pasta de Downloads padrão';
   document.getElementById('exportTamanho').textContent = (blob.size / 1024).toFixed(2) + ' KB';
+  document.getElementById('exportImagens').textContent = incluirImagens
+    ? `${totalImagens} imagem(ns) incluída(s) no arquivo`
+    : `${totalImagens} imagem(ns) omitida(s) — arquivo leve`;
+
+  const dica = document.getElementById('exportDica');
+  if (incluirImagens) {
+    dica.innerHTML = '💡 Este arquivo contém <b>todos os dados + imagens em base64</b>. Use-o para backup completo ou para migrar para outro dispositivo.';
+  } else {
+    dica.innerHTML = '💡 Este arquivo contém <b>apenas os dados cadastrais</b> (sem imagens). Ideal para arquivos pequenos ou para compartilhar apenas os produtos.';
+  }
+
   document.getElementById('exportModal').style.display = 'flex';
 }
 
@@ -3215,7 +3323,13 @@ function importarDados(e) {
     try {
       const imported = JSON.parse(evt.target.result);
       if (typeof imported === 'object' && imported !== null) {
+        // Remove metadados de exportação antes de usar
+        delete imported.__meta;
+
         data = imported;
+        data.estabelecimentos = data.estabelecimentos || {};
+        data.pedido = data.pedido || [];
+        data.historico = data.historico || [];
         data.sinonimos = data.sinonimos || {};
         Object.keys(SINONIMOS_PADRAO).forEach(k => {
           if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) {
