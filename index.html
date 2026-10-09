@@ -436,6 +436,107 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .export-btn.full:hover { background: rgba(57,201,122,0.08); }
 .export-btn.light { border-color: rgba(79,195,247,0.4); }
 .export-btn.light:hover { background: rgba(79,195,247,0.08); }
+
+/* ===== MODAL TEMPORÁRIO DE PEDIDO ===== */
+.order-flash-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.7);
+  opacity: 0;
+  z-index: 10050;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  background: rgba(10, 14, 20, 0.96);
+  border: 3px solid var(--accent);
+  border-radius: 20px;
+  padding: 20px 20px 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 40px rgba(57,201,122,0.55), inset 0 0 20px rgba(57,201,122,0.1);
+  max-width: 320px;
+  width: 85%;
+  text-align: center;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.order-flash-modal.show {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+.order-flash-modal .flash-img-wrap {
+  width: 100%;
+  height: 180px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #10151f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  border: 2px solid rgba(57,201,122,0.35);
+}
+.order-flash-modal .flash-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.order-flash-modal .flash-emoji {
+  font-size: 90px;
+  line-height: 1;
+}
+.order-flash-modal .flash-nome {
+  font-size: 20px;
+  font-weight: bold;
+  color: #79e9aa;
+  text-shadow: 0 0 12px rgba(57,201,122,0.5);
+  word-break: break-word;
+  line-height: 1.25;
+}
+.order-flash-modal .flash-info {
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.order-flash-modal .flash-badge {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: rgba(57,201,122,0.2);
+  color: #79e9aa;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+.order-flash-modal .flash-check {
+  position: absolute;
+  top: -16px;
+  right: -16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #092114;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: bold;
+  box-shadow: 0 4px 14px rgba(57,201,122,0.6);
+  animation: popCheck 0.35s ease-out 0.1s backwards;
+}
+@keyframes popCheck {
+  from { transform: scale(0); }
+  60%  { transform: scale(1.25); }
+  to   { transform: scale(1); }
+}
+@media(max-width:650px){
+  .order-flash-modal { max-width: 270px; padding: 16px 16px 12px; }
+  .order-flash-modal .flash-img-wrap { height: 150px; }
+  .order-flash-modal .flash-nome { font-size: 17px; }
+  .order-flash-modal .flash-emoji { font-size: 70px; }
+  .order-flash-modal .flash-check { width: 38px; height: 38px; font-size: 20px; top: -12px; right: -12px; }
+}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -583,7 +684,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== CARDÁPIO — lista + botão incluir / form quando editar ===== -->
+<!-- ===== CARDÁPIO ===== -->
 <section id="cardapio" class="screen">
 <div class="card">
   <div class="cardapio-header">
@@ -593,7 +694,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
   </div>
 
-  <!-- Formulário (oculto por padrão) -->
   <div id="formProduto" style="display:none; padding:16px; background:var(--panel2); border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
     <h3 id="formProdutoTitulo" style="margin-top:0; color:#79e9aa;">➕ Novo produto</h3>
 
@@ -625,7 +725,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <p class="note" style="margin-top:8px;">Ao cadastrar, o app tenta buscar uma imagem automaticamente.</p>
   </div>
 
-  <!-- Lista de produtos -->
   <div id="listaProdutos"></div>
 
   <div class="tip-box">
@@ -891,6 +990,17 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 <footer>🍺 FECHA A CONTA - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
 
+<!-- ===== MODAL TEMPORÁRIO DE PEDIDO (2s) ===== -->
+<div id="orderFlashModal" class="order-flash-modal" aria-hidden="true">
+  <div class="flash-check">✓</div>
+  <div class="flash-img-wrap" id="flashImgWrap">
+    <span class="flash-emoji" id="flashEmoji">🍺</span>
+  </div>
+  <div class="flash-nome" id="flashNome">—</div>
+  <div class="flash-info" id="flashInfo"></div>
+  <div class="flash-badge">✓ Adicionado ao pedido</div>
+</div>
+
 <div id="feedbackModal" class="feedback-modal">
   <button class="close-btn" onclick="fecharFeedback()">×</button>
   <div id="feedbackMessage">✅ Comando executado!</div>
@@ -1085,6 +1195,7 @@ let contaReciboAtual = null;
 let textoReciboParaCompartilhar = '';
 let imagemProdutoTemp = null;
 let valoresOriginaisProduto = null;
+let orderFlashTimer = null;
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -1138,6 +1249,40 @@ function getNomeCliente() {
 function capitalizarNome(nome) {
   if (!nome) return '';
   return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+}
+
+// ========== MODAL TEMPORÁRIO DE PEDIDO ==========
+function mostrarFlashPedido(produto, qtd) {
+  const modal = document.getElementById('orderFlashModal');
+  if (!modal) return;
+
+  const imgWrap = document.getElementById('flashImgWrap');
+  const emojiEl = document.getElementById('flashEmoji');
+  const nomeEl = document.getElementById('flashNome');
+  const infoEl = document.getElementById('flashInfo');
+
+  // Imagem ou emoji fallback
+  if (produto.imagem) {
+    imgWrap.innerHTML = `<img src="${produto.imagem}" alt="${escapeHtml(produto.nome)}">`;
+  } else {
+    imgWrap.innerHTML = `<span class="flash-emoji" id="flashEmoji">${getEmojiProduto(produto.nome)}</span>`;
+  }
+
+  nomeEl.textContent = produto.nome;
+  infoEl.textContent = `${qtd}× ${money(produto.preco)} = ${money(produto.preco * qtd)}`;
+
+  // Cancela timer anterior se houver
+  if (orderFlashTimer) clearTimeout(orderFlashTimer);
+
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden', 'false');
+
+  // Fecha automaticamente após 2 segundos
+  orderFlashTimer = setTimeout(() => {
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden', 'true');
+    orderFlashTimer = null;
+  }, 2000);
 }
 
 // ========== MATCHER DE SINÔNIMOS ==========
@@ -2086,6 +2231,8 @@ function addPedido(produtoId, qtd) {
   const msg = qtd + 'x ' + p.nome + ' adicionado à conta';
   speak(msg);
   showFeedback('🛒 ' + msg);
+  // 👇 Mostra o modal temporário com a imagem + nome do produto
+  mostrarFlashPedido(p, qtd);
 }
 function removePedido(i) {
   const item = data.pedido[i];
