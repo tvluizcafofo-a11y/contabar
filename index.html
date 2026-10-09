@@ -1,4 +1,4 @@
-<!-- Conta Bar 30.09.2026 -->
+<!-- Conta Bar 09.10.2026 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -54,6 +54,8 @@ header p{margin:5px 0 0;color:var(--muted)}
 .voice-row select{background:#10151f;color:white;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:14px;width:auto;margin:0;}
 button{border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:bold;background:var(--accent);color:#092114}
 button:hover{filter:brightness(1.08)}button.secondary{background:#344057;color:white}button.danger{background:var(--danger);color:white}button.small{padding:7px 10px;font-size:12px}
+button:disabled{opacity:0.45;cursor:not-allowed;filter:grayscale(0.6);}
+button:disabled:hover{filter:grayscale(0.6);}
 .status{color:#d7ffe8;font-weight:bold}.command{margin-top:10px;color:#d7e3ee}
 nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
 nav button{background:var(--panel2);color:var(--text);border:1px solid var(--border)}
@@ -174,7 +176,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sync-status.ok{color:#79e9aa;}
 .sync-status.err{color:#ef8b93;}
 
-/* ===== MICROFONE FLUTUANTE — visível em TODAS as telas ===== */
+/* ===== MICROFONE FLUTUANTE ===== */
 .voice-status-icon {
   position: fixed;
   bottom: 22px;
@@ -361,6 +363,45 @@ footer{text-align:center;color:var(--muted);padding:25px}
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* ===== CABEÇALHO DO CARDÁPIO ===== */
+.cardapio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--accent);
+}
+.cardapio-header h2 {
+  margin: 0;
+  font-family: 'Anton','Impact','Arial Black',sans-serif;
+  font-size: 30px;
+  letter-spacing: 2px;
+  color: #79e9aa;
+  text-transform: uppercase;
+  line-height: 1.1;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.cardapio-header h2 .nome-estab {
+  display: inline;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 22px;
+  color: #ffd97d;
+  letter-spacing: normal;
+  text-transform: none;
+  font-weight: bold;
+  text-shadow: 0 0 14px rgba(255, 217, 125, 0.45), 0 1px 2px rgba(0,0,0,0.6);
+}
+@media(max-width:650px){
+  .cardapio-header h2 { font-size: 22px; }
+  .cardapio-header h2 .nome-estab { font-size: 17px; }
+}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -376,7 +417,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <h1>FECHA A CONTA</h1>
 </header>
 
-<!-- ===== MICROFONE FLUTUANTE — visível em TODAS as telas ===== -->
+<!-- ===== MICROFONE FLUTUANTE ===== -->
 <button id="voiceStatusIcon" class="voice-status-icon" onclick="toggleVoiceAssistant()" title="Ativar / Desativar assistente de voz" aria-label="Assistente de voz">
   <span id="voiceStatusIconEmoji">🎙️</span>
 </button>
@@ -508,42 +549,54 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
+<!-- ===== CARDÁPIO — lista + botão incluir / form quando editar ===== -->
 <section id="cardapio" class="screen">
-<div class="grid">
 <div class="card">
-<h2>🍺 Cadastro de <span id="cardapioEstabNome">(nenhum)</span></h2>
-
-<label>Nome do produto</label>
-<input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml">
-
-<label>Preço</label>
-<input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10.00">
-
-<label>Imagem do produto</label>
-<div id="produtoImagemPreview" class="produto-img-preview">
-  <div class="empty">
-    <div class="big">📷</div>
-    <div>Sem imagem</div>
-    <div class="small">Use 🔍 Buscar na internet ou 📤 Enviar do dispositivo</div>
+  <div class="cardapio-header">
+    <h2>🍺 Cardápio
+      <span class="nome-estab" id="cardapioEstabNome">— nenhum estabelecimento selecionado</span>
+    </h2>
+    <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
   </div>
-</div>
-<div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;">
-  <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar na internet</button>
-  <button type="button" class="secondary small" onclick="document.getElementById('produtoImagemFile').click()">📤 Enviar do dispositivo</button>
-  <button type="button" class="secondary small" id="btnRemoverImg" onclick="removerImagemProduto()" style="display:none;">🗑 Remover imagem</button>
-  <input type="file" id="produtoImagemFile" accept="image/*" style="display:none;" onchange="uploadImagemProduto(event)">
-</div>
 
-<button onclick="addProduto()">➕ Cadastrar produto</button>
-<p class="note">Ao cadastrar, o app tenta buscar uma imagem automaticamente. Se não encontrar, você pode enviar a sua.</p>
-<div class="tip-box">
-  <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo. Se o cardápio tem <b>"Cerveja Império"</b>, basta dizer <i>"desce uma império"</i>.</p>
-</div>
-</div>
-<div class="card">
-<h2>📦 Produtos do cardápio</h2>
-<div id="listaProdutos"></div>
-</div>
+  <!-- Formulário (oculto por padrão) -->
+  <div id="formProduto" style="display:none; padding:16px; background:var(--panel2); border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
+    <h3 id="formProdutoTitulo" style="margin-top:0; color:#79e9aa;">➕ Novo produto</h3>
+
+    <label>Nome do produto</label>
+    <input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml" oninput="verificarAlteracoesProduto()">
+
+    <label>Preço</label>
+    <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10.00" oninput="verificarAlteracoesProduto()">
+
+    <label>Imagem do produto</label>
+    <div id="produtoImagemPreview" class="produto-img-preview">
+      <div class="empty">
+        <div class="big">📷</div>
+        <div>Sem imagem</div>
+        <div class="small">Use 🔍 Buscar na internet ou 📤 Enviar do dispositivo</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;">
+      <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar na internet</button>
+      <button type="button" class="secondary small" onclick="document.getElementById('produtoImagemFile').click()">📤 Enviar do dispositivo</button>
+      <button type="button" class="secondary small" id="btnRemoverImg" onclick="removerImagemProduto()" style="display:none;">🗑 Remover imagem</button>
+      <input type="file" id="produtoImagemFile" accept="image/*" style="display:none;" onchange="uploadImagemProduto(event)">
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <button id="btnSalvarProduto" onclick="addProduto()">➕ Cadastrar produto</button>
+      <button class="secondary" onclick="fecharFormProduto()">❌ Cancelar</button>
+    </div>
+    <p class="note" style="margin-top:8px;">Ao cadastrar, o app tenta buscar uma imagem automaticamente.</p>
+  </div>
+
+  <!-- Lista de produtos -->
+  <div id="listaProdutos"></div>
+
+  <div class="tip-box">
+    <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo. Se o cardápio tem <b>"Cerveja Império"</b>, basta dizer <i>"desce uma império"</i>.</p>
+  </div>
 </div>
 </section>
 
@@ -838,14 +891,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<!-- ===== MODAL DE RECIBO ===== -->
 <div id="reciboModal" class="payment-modal">
   <div class="payment-content">
     <div id="reciboBody"></div>
   </div>
 </div>
 
-<!-- ===== MODAL DE COMPARTILHAR (fallback) ===== -->
 <div id="shareModal" class="payment-modal">
   <div class="payment-content" style="max-width:420px;">
     <h2 style="margin-top:0; text-align:center;">📤 Compartilhar recibo</h2>
@@ -978,6 +1029,7 @@ let confirmacaoPendente = null;
 let contaReciboAtual = null;
 let textoReciboParaCompartilhar = '';
 let imagemProdutoTemp = null;
+let valoresOriginaisProduto = null;
 const $ = id => document.getElementById(id);
 
 function save() {
@@ -987,12 +1039,10 @@ function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(data));
   } catch(e) {
-    // Quota excedida — tenta remover imagens antigas
     console.warn('localStorage cheio, tentando liberar espaço...', e);
     try {
       Object.values(data.estabelecimentos).forEach(estab => {
         (estab.produtos || []).forEach((p, i) => {
-          // Mantém só as 20 primeiras imagens mais recentes
           if (i > 20 && p.imagem && p.imagem.startsWith('data:')) {
             p.imagem = null;
           }
@@ -1022,7 +1072,6 @@ function showScreen(screenId) {
   const btn = document.querySelector(`nav button[data-screen="${screenId}"]`);
   if (btn) btn.classList.add('active');
   if (screenId === 'sinonimos') renderSinonimos();
-  if (screenId === 'cardapio') renderPreviewImagemProduto();
 }
 
 function getNomeCliente() {
@@ -1600,6 +1649,7 @@ function trocarEstabelecimentoAtivo() {
   if (id === '') data.estabelecimentoAtivoId = null;
   else data.estabelecimentoAtivoId = id;
   data.pedido = []; data.contaAtiva = false;
+  fecharFormProduto(true);
   save(); renderAll();
 }
 
@@ -1625,16 +1675,14 @@ function fecharMiniCardapio() {
   document.getElementById('miniCardapioModal').style.display = 'none';
 }
 
-// ========== IMAGEM DE PRODUTO (busca/upload) ==========
+// ========== IMAGEM DE PRODUTO ==========
 function extrairPalavraChaveImagem(nome) {
   if (!nome) return 'bar food';
   const norm = normalize(nome);
-  // Ordena as chaves por comprimento (mais específicas primeiro)
   const chaves = Object.keys(TRADUCAO_IMAGEM).sort((a,b) => b.length - a.length);
   for (const pt of chaves) {
     if (norm.includes(normalize(pt))) return TRADUCAO_IMAGEM[pt];
   }
-  // Fallback: primeira palavra significativa
   const palavras = norm.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
   return palavras[0] || 'bar food';
 }
@@ -1702,11 +1750,9 @@ async function buscarImagemAutomatica(nome) {
   if (!nome) return null;
   const kw = extrairPalavraChaveImagem(nome);
   const lock = hashCode(nome) % 9999;
-  // LoremFlickr — gratuito, sem chave, com CORS
   const url = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`;
   const result = await baixarImagemComoDataURL(url);
   if (result) return result;
-  // Fallback: tenta segunda URL sem lock
   const url2 = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}`;
   return await baixarImagemComoDataURL(url2);
 }
@@ -1780,6 +1826,7 @@ async function buscarImagemManual() {
   if (dataUrl) {
     imagemProdutoTemp = dataUrl;
     renderPreviewImagemProduto();
+    verificarAlteracoesProduto();
     showFeedback('✅ Imagem encontrada!');
   } else {
     showFeedback('❌ Nada encontrado. Envie uma imagem do dispositivo.');
@@ -1800,6 +1847,7 @@ function uploadImagemProduto(event) {
     setLoadingPreview(false);
     imagemProdutoTemp = compressed || e.target.result;
     renderPreviewImagemProduto();
+    verificarAlteracoesProduto();
     showFeedback('✅ Imagem carregada!');
   };
   reader.readAsDataURL(file);
@@ -1809,7 +1857,71 @@ function uploadImagemProduto(event) {
 function removerImagemProduto() {
   imagemProdutoTemp = null;
   renderPreviewImagemProduto();
+  verificarAlteracoesProduto();
   showFeedback('🗑️ Imagem removida.');
+}
+
+// ========== FORM DE PRODUTO ==========
+function mostrarFormProduto() {
+  const estab = getEstabelecimentoAtivo();
+  if (!estab) { showFeedback('⚠️ Selecione um estabelecimento primeiro.'); return; }
+  currentEditId = null;
+  valoresOriginaisProduto = null;
+  $('produtoNome').value = '';
+  $('produtoPreco').value = '';
+  imagemProdutoTemp = null;
+  renderPreviewImagemProduto();
+  document.getElementById('formProdutoTitulo').textContent = '➕ Novo produto';
+  document.getElementById('formProduto').style.display = 'block';
+  document.getElementById('btnIncluirProduto').style.display = 'none';
+  const btn = document.getElementById('btnSalvarProduto');
+  btn.disabled = false;
+  btn.textContent = '➕ Cadastrar produto';
+  setTimeout(() => { document.getElementById('produtoNome').focus(); }, 100);
+}
+
+function fecharFormProduto(silencioso = false) {
+  currentEditId = null;
+  valoresOriginaisProduto = null;
+  imagemProdutoTemp = null;
+  $('produtoNome').value = '';
+  $('produtoPreco').value = '';
+  const form = document.getElementById('formProduto');
+  if (form) form.style.display = 'none';
+  renderPreviewImagemProduto();
+  const estab = getEstabelecimentoAtivo();
+  const btnInc = document.getElementById('btnIncluirProduto');
+  if (btnInc) btnInc.style.display = estab ? 'inline-block' : 'none';
+  if (!silencioso) showFeedback('Cancelado.');
+}
+
+function verificarAlteracoesProduto() {
+  const btn = document.getElementById('btnSalvarProduto');
+  if (!btn) return;
+
+  if (currentEditId === null) {
+    btn.disabled = false;
+    btn.textContent = '➕ Cadastrar produto';
+    return;
+  }
+  const orig = valoresOriginaisProduto || {};
+  const nomeAtual = ($('produtoNome').value || '').trim();
+  const precoAtual = String($('produtoPreco').value || '').trim();
+  const precoOrig = orig.preco !== undefined && orig.preco !== null ? String(orig.preco) : '';
+  const imgAtual = imagemProdutoTemp || null;
+  const imgOrig = orig.imagem || null;
+
+  const mudou = (nomeAtual !== (orig.nome || ''))
+             || (precoAtual !== precoOrig)
+             || (imgAtual !== imgOrig);
+
+  if (mudou) {
+    btn.disabled = false;
+    btn.textContent = '💾 Salvar alterações';
+  } else {
+    btn.disabled = true;
+    btn.textContent = '💾 Nenhuma alteração';
+  }
 }
 
 // ========== PRODUTOS ==========
@@ -1829,18 +1941,18 @@ async function addProduto(nome, preco) {
       estab.produtos[index].nome = nome;
       estab.produtos[index].preco = Number(preco);
       estab.produtos[index].imagem = imgAtual || null;
-      currentEditId = null;
-      const h2 = document.querySelector('#cardapio .card h2');
-      if (h2) h2.innerHTML = '🍺 Cadastro de <span id="cardapioEstabNome">' + escapeHtml(estab.nome) + '</span>';
-      const btnCad = document.querySelector('#cardapio .card > button');
       speak('Produto atualizado com sucesso');
       showFeedback('✏️ Produto atualizado: ' + nome + ' - ' + money(preco));
     }
+    currentEditId = null;
+    valoresOriginaisProduto = null;
+    fecharFormProduto(true);
   } else {
     const novo = { id: Date.now() + Math.random(), nome, preco: Number(preco), imagem: imgAtual || null };
     estab.produtos.push(novo);
     speak(nome + ' cadastrado por ' + money(preco));
     showFeedback('✅ Produto cadastrado: ' + nome + ' - ' + money(preco));
+    fecharFormProduto(true);
 
     if (!imgAtual) {
       showFeedback('🖼️ Produto salvo. Buscando imagem...');
@@ -1853,17 +1965,11 @@ async function addProduto(nome, preco) {
             renderAll();
             showFeedback('🖼️ Imagem adicionada: ' + nome);
           }
-        } else {
-          showFeedback('ℹ️ Sem imagem. Você pode enviar uma no cadastro.');
         }
       });
     }
   }
 
-  $('produtoNome').value = '';
-  $('produtoPreco').value = '';
-  imagemProdutoTemp = null;
-  renderPreviewImagemProduto();
   save(); renderAll();
 }
 
@@ -1873,14 +1979,21 @@ function editProduto(id) {
   const p = estab.produtos.find(x => x.id === id);
   if (!p) return;
   currentEditId = id;
+  valoresOriginaisProduto = {
+    nome: p.nome || '',
+    preco: p.preco,
+    imagem: p.imagem || null
+  };
   $('produtoNome').value = p.nome;
   $('produtoPreco').value = p.preco;
   imagemProdutoTemp = p.imagem || null;
   renderPreviewImagemProduto();
-  const h2 = document.querySelector('#cardapio .card h2');
-  if (h2) h2.textContent = '✏️ Editando Produto';
+  document.getElementById('formProdutoTitulo').textContent = '✏️ Editando produto';
+  document.getElementById('formProduto').style.display = 'block';
+  document.getElementById('btnIncluirProduto').style.display = 'none';
   showScreen('cardapio');
-  $('produtoNome').focus();
+  verificarAlteracoesProduto();
+  setTimeout(() => { document.getElementById('produtoNome').focus(); }, 100);
   showFeedback('✏️ Editando: ' + p.nome);
 }
 
@@ -1895,11 +2008,7 @@ async function deleteProduto(id) {
   if (!ok) return;
   estab.produtos = estab.produtos.filter(x => x.id !== id);
   if (currentEditId === id) {
-    currentEditId = null;
-    imagemProdutoTemp = null;
-    renderPreviewImagemProduto();
-    const h2 = document.querySelector('#cardapio .card h2');
-    if (h2) h2.innerHTML = '🍺 Cadastro de <span id="cardapioEstabNome">' + escapeHtml(estab.nome) + '</span>';
+    fecharFormProduto(true);
   }
   save(); renderAll();
   showFeedback('🗑️ Produto excluído: ' + p.nome);
@@ -2309,24 +2418,25 @@ function renderEstabelecimentos() {
 function renderCardapio() {
   const estab = getEstabelecimentoAtivo();
   const nomeSpan = document.getElementById('cardapioEstabNome');
-  const mini = document.getElementById('cardapioMini');
+  const btnIncluir = document.getElementById('btnIncluirProduto');
+  const form = document.getElementById('formProduto');
+
   if (!estab) {
-    if (nomeSpan) nomeSpan.textContent = '(nenhum)';
-    if (mini) mini.innerHTML = '<div class="note">Selecione um estabelecimento para ver o cardápio.</div>';
+    if (nomeSpan) nomeSpan.textContent = '— nenhum estabelecimento selecionado';
+    if (btnIncluir) btnIncluir.style.display = 'none';
+    if (form) form.style.display = 'none';
     const lp = document.getElementById('listaProdutos');
-    if (lp) lp.innerHTML = '<div class="empty">Nenhum produto.</div>';
+    if (lp) lp.innerHTML = '<div class="empty">Selecione um estabelecimento para ver o cardápio.</div>';
     return;
   }
-  if (nomeSpan) nomeSpan.textContent = estab.nome;
+
+  if (nomeSpan) nomeSpan.textContent = '— ' + estab.nome;
+
   const prods = estab.produtos || [];
 
-  if (mini) {
-    mini.innerHTML = prods.length ? prods.map(p => {
-      const thumb = p.imagem
-        ? `<img src="${p.imagem}" class="produto-thumb-mini" alt="">`
-        : `<span class="produto-thumb-mini-placeholder">${getEmojiProduto(p.nome)}</span>`;
-      return `<div class="menu-mini-item"><span><span>${thumb}</span><span>${escapeHtml(p.nome)}</span></span><span>${money(p.preco)}</span></div>`;
-    }).join('') : '<div class="note">Nenhum produto no cardápio.</div>';
+  if (btnIncluir) {
+    const formAberto = form && form.style.display === 'block';
+    btnIncluir.style.display = formAberto ? 'none' : 'inline-block';
   }
 
   const lista = document.getElementById('listaProdutos');
@@ -2346,7 +2456,7 @@ function renderCardapio() {
           <button class="danger small" onclick="deleteProduto(${p.id})">🗑</button>
         </div>
       </div>`;
-    }).join('') : '<div class="empty">Nenhum produto cadastrado.</div>';
+    }).join('') : '<div class="empty">Nenhum produto cadastrado ainda.<br>Clique em <b>➕ Incluir novo produto</b> para começar.</div>';
   }
 
   const pedSelect = document.getElementById('pedidoProduto');
@@ -2762,7 +2872,7 @@ async function toggleVoiceAssistant() {
   showFeedback('🎤 Assistente de voz ativado');
 }
 
-// ========== ÍCONE FLUTUANTE DE VOZ (todas as telas) ==========
+// ========== ÍCONE FLUTUANTE DE VOZ ==========
 function atualizarIconeVoz() {
   const icon = document.getElementById('voiceStatusIcon');
   const emoji = document.getElementById('voiceStatusIconEmoji');
@@ -3030,7 +3140,7 @@ function processVoice(text) {
       let pPreco = parseFloat(m[2].replace(',', '.'));
       addProduto(pNome, pPreco);
     } else {
-      showScreen('cardapio');
+      mostrarFormProduto();
       $('produtoNome').value = rest;
       $('produtoNome').focus();
     }
