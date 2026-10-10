@@ -813,11 +813,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <div class="empty">
         <div class="big">📷</div>
         <div>Sem imagem</div>
-        <div class="small">Use 🔍 Buscar na internet ou 📤 Enviar do dispositivo</div>
+        <div class="small">Ao cadastrar, o app busca primeiro no seu dispositivo</div>
       </div>
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;">
-      <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar na internet</button>
+      <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar imagem</button>
       <button type="button" class="secondary small" onclick="document.getElementById('produtoImagemFile').click()">📤 Enviar do dispositivo</button>
       <button type="button" class="secondary small" id="btnRemoverImg" onclick="removerImagemProduto()" style="display:none;">🗑 Remover imagem</button>
       <input type="file" id="produtoImagemFile" accept="image/*" style="display:none;" onchange="uploadImagemProduto(event)">
@@ -827,7 +827,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <button id="btnSalvarProduto" onclick="addProduto()">➕ Cadastrar produto</button>
       <button class="secondary" onclick="fecharFormProduto()">❌ Cancelar</button>
     </div>
-    <p class="note" style="margin-top:8px;">Ao cadastrar, o app tenta buscar uma imagem automaticamente.</p>
+    <p class="note" style="margin-top:8px;">🖼️ Se outro estabelecimento já tem um produto parecido com imagem, ela é reaproveitada automaticamente.</p>
   </div>
 
   <div id="listaProdutos"></div>
@@ -1223,48 +1223,31 @@ const SINONIMOS_PADRAO = {
   exportarDados: ['exportar dados','exportar'],
   importarDados: ['importar dados','importar'],
   desativarVoz: ['desativar comando','desligar assistente','desligar app','desligar voz'],
-  // ==== SINÔNIMOS PARA PAGAMENTO ====
   pagamentoPix:       ['pix','pics','pique','picks','pixes','pixar','peaks','pic'],
   pagamentoDinheiro:  ['dinheiro','especie','espécie','cash','grana','nota','notas','papel','papelao'],
   pagamentoCartao:    ['cartao','cartão','credito','crédito','debito','débito','card','cards','maquininha'],
-  // ==== SINÔNIMO DE ESTABELECIMENTO (comando) ====
   sinonimoEstabelecimento: ['apelido','apelidar','apelido do','definir apelido']
 };
 
-// ========== COMANDOS_INFO (com categoria) ==========
 const COMANDOS_INFO = [
-  // Estabelecimentos
   { key:'selecionar',      titulo:'🏢 Selecionar Estabelecimento',      desc:'Muda o estabelecimento ativo. Ex: "selecionar Bar do Zé".', categoria:'Estabelecimentos' },
   { key:'verCardapio',     titulo:'🍺 Ver Cardápio',                    desc:'Exibe o cardápio do estabelecimento ativo.', categoria:'Estabelecimentos' },
   { key:'sinonimoEstabelecimento', titulo:'🏷️ Definir Apelido de Estabelecimento', desc:'Adiciona um apelido a um estabelecimento. Formato: "apelido [sinônimo] para [estabelecimento]". Ex: "apelido buteco para Bar do Zé".', categoria:'Estabelecimentos' },
-
-  // Produtos
   { key:'incluirProduto',  titulo:'➕ Incluir Produto no Cardápio',     desc:'Cadastra um novo produto. Ex: "incluir produtos cerveja 10 reais".', categoria:'Produtos' },
-
-  // Pedidos & Conta
   { key:'pedir',           titulo:'🛒 Pedir / Adicionar Item à Conta',  desc:'Adiciona produtos à conta atual quando há uma conta aberta.', categoria:'Pedidos & Conta' },
   { key:'abrirConta',      titulo:'📂 Abrir Conta',                     desc:'Inicia uma nova conta no estabelecimento ativo.', categoria:'Pedidos & Conta' },
   { key:'fecharConta',     titulo:'✅ Fechar Conta',                    desc:'Finaliza e solicita o fechamento da conta atual.', categoria:'Pedidos & Conta' },
   { key:'verConta',        titulo:'🧾 Ver Conta',                       desc:'Abre a tela da conta.', categoria:'Pedidos & Conta' },
-
-  // Pagamentos
   { key:'pagamentoPix',      titulo:'📱 Pagamento em PIX',      desc:'Palavras que acionam o botão PIX quando o modal de pagamento está aberto.', categoria:'Pagamentos' },
   { key:'pagamentoDinheiro', titulo:'💰 Pagamento em Dinheiro', desc:'Palavras que acionam o botão Dinheiro quando o modal de pagamento está aberto.', categoria:'Pagamentos' },
   { key:'pagamentoCartao',   titulo:'💳 Pagamento em Cartão',   desc:'Palavras que acionam o botão Cartão quando o modal de pagamento está aberto.', categoria:'Pagamentos' },
-
-  // Histórico
   { key:'verHistorico',    titulo:'📜 Ver Histórico',                   desc:'Mostra o histórico de contas.', categoria:'Histórico' },
   { key:'limparHistorico', titulo:'🗑 Limpar Histórico',                desc:'Apaga todo o histórico de contas.', categoria:'Histórico' },
-
-  // Dados
   { key:'exportarDados',   titulo:'📤 Exportar Dados',                  desc:'Exporta todos os dados para arquivo JSON.', categoria:'Dados' },
   { key:'importarDados',   titulo:'📥 Importar Dados',                  desc:'Abre a tela de importação de dados.', categoria:'Dados' },
-
-  // Controle
   { key:'desativarVoz',    titulo:'🔴 Desativar Assistente',            desc:'Desliga o assistente de voz.', categoria:'Controle' }
 ];
 
-// Ordem em que as categorias aparecem na tela de Sinônimos
 const ORDEM_CATEGORIAS_SINONIMOS = ['Estabelecimentos','Produtos','Pedidos & Conta','Pagamentos','Histórico','Dados','Controle'];
 
 // ========== TRADUÇÃO PT→EN PARA BUSCA DE IMAGEM ==========
@@ -1308,7 +1291,6 @@ data.voicePreference = data.voicePreference || 'default';
 data.usuario = data.usuario || null;
 data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
-// Sinônimos por estabelecimento (chave = idEstabelecimento)
 data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
 
 data.sinonimos = data.sinonimos || {};
@@ -1546,6 +1528,55 @@ function encontrarProdutoPorNome(textoNorm, produtos) {
   return { ambiguo: candidatos };
 }
 
+// ========== REUTILIZAÇÃO DE IMAGEM DE OUTRO ESTABELECIMENTO ==========
+/**
+ * Procura em TODOS os estabelecimentos (inclusive o ativo) um produto com nome
+ * similar que já tenha uma imagem cadastrada, e retorna essa imagem.
+ * @param {string} nomeProduto - Nome do novo produto
+ * @param {string} [ignorarId] - id do produto sendo editado (não considera ele mesmo)
+ * @returns {string|null} - dataURL da imagem ou null
+ */
+function buscarImagemProdutoExistente(nomeProduto, ignorarId) {
+  if (!nomeProduto) return null;
+  const normNome = normalize(nomeProduto).trim();
+  if (!normNome) return null;
+
+  const palavras = normNome.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
+  if (!palavras.length) {
+    // Se o nome é muito curto, exige match exato de nome
+    for (const estab of Object.values(data.estabelecimentos)) {
+      for (const p of (estab.produtos || [])) {
+        if (p.imagem && p.id !== ignorarId && normalize(p.nome) === normNome) {
+          return p.imagem;
+        }
+      }
+    }
+    return null;
+  }
+
+  let melhor = null;
+  let melhorScore = 0;
+
+  for (const estab of Object.values(data.estabelecimentos)) {
+    for (const p of (estab.produtos || [])) {
+      if (!p.imagem) continue;
+      if (ignorarId && p.id === ignorarId) continue;
+      const nomeP = normalize(p.nome);
+      // Nome exato → prioridade máxima
+      if (nomeP === normNome) return p.imagem;
+      // Score = quantidade de palavras em comum (de 3+ letras)
+      const score = palavras.filter(w => nomeP.includes(w)).length;
+      if (score > melhorScore) {
+        melhorScore = score;
+        melhor = p.imagem;
+      }
+    }
+  }
+
+  // Só retorna se pelo menos 1 palavra-chave do nome bateu
+  return melhorScore > 0 ? melhor : null;
+}
+
 // ========== CONFIRMAÇÃO VOZ-AMIGÁVEL ==========
 function confirmar(mensagem, opcoes = {}) {
   return new Promise((resolve) => {
@@ -1580,7 +1611,6 @@ function renderSinonimos() {
   const container = document.getElementById('listaSinonimos');
   if (!container) return;
 
-  // Agrupa os comandos por categoria
   const grupos = {};
   COMANDOS_INFO.forEach(cmd => {
     const cat = cmd.categoria || 'Outros';
@@ -2220,7 +2250,7 @@ function renderPreviewImagemProduto() {
       <div class="empty">
         <div class="big">📷</div>
         <div>Sem imagem</div>
-        <div class="small">Use 🔍 Buscar na internet ou 📤 Enviar do dispositivo</div>
+        <div class="small">Ao cadastrar, o app busca primeiro no seu dispositivo</div>
       </div>`;
     if (btnRemover) btnRemover.style.display = 'none';
   }
@@ -2243,6 +2273,7 @@ function setLoadingPreview(loading) {
   }
 }
 
+// ========== BUSCA MANUAL (dispositivo primeiro, depois internet) ==========
 async function buscarImagemManual() {
   const nome = $('produtoNome').value.trim();
   if (!nome) {
@@ -2250,15 +2281,30 @@ async function buscarImagemManual() {
     $('produtoNome').focus();
     return;
   }
+
   setLoadingPreview(true);
-  showFeedback('🔍 Buscando imagem...');
+
+  // 1) Procura no DISPOSITIVO (outros estabelecimentos)
+  showFeedback('🔍 Procurando imagem no dispositivo...');
+  const imgDispositivo = buscarImagemProdutoExistente(nome, currentEditId);
+  if (imgDispositivo) {
+    setLoadingPreview(false);
+    imagemProdutoTemp = imgDispositivo;
+    renderPreviewImagemProduto();
+    verificarAlteracoesProduto();
+    showFeedback('✅ Imagem reaproveitada do dispositivo!');
+    return;
+  }
+
+  // 2) Se não achou, busca na INTERNET
+  showFeedback('🌐 Nada no dispositivo. Buscando na internet...');
   const dataUrl = await buscarImagemAutomatica(nome);
   setLoadingPreview(false);
   if (dataUrl) {
     imagemProdutoTemp = dataUrl;
     renderPreviewImagemProduto();
     verificarAlteracoesProduto();
-    showFeedback('✅ Imagem encontrada!');
+    showFeedback('✅ Imagem encontrada na internet!');
   } else {
     showFeedback('❌ Nada encontrado. Envie uma imagem do dispositivo.');
   }
@@ -2385,8 +2431,22 @@ async function addProduto(nome, preco) {
     showFeedback('✅ Produto cadastrado: ' + nome + ' - ' + money(preco));
     fecharFormProduto(true);
 
+    // Se não tem imagem definida, tenta reaproveitar de outro estabelecimento primeiro,
+    // e só depois busca na internet.
     if (!imgAtual) {
-      showFeedback('🖼️ Produto salvo. Buscando imagem...');
+      const imgDispositivo = buscarImagemProdutoExistente(nome, novo.id);
+      if (imgDispositivo) {
+        const prod = estab.produtos.find(p => p.id === novo.id);
+        if (prod) {
+          prod.imagem = imgDispositivo;
+          save();
+          renderAll();
+          showFeedback('🖼️ Imagem reaproveitada de outro estabelecimento: ' + nome);
+          return;
+        }
+      }
+      // Nada no dispositivo → busca na internet
+      showFeedback('🖼️ Sem imagem no dispositivo. Buscando na internet...');
       buscarImagemAutomatica(nome).then((img) => {
         if (img) {
           const prod = estab.produtos.find(p => p.id === novo.id);
@@ -2394,7 +2454,7 @@ async function addProduto(nome, preco) {
             prod.imagem = img;
             save();
             renderAll();
-            showFeedback('🖼️ Imagem adicionada: ' + nome);
+            showFeedback('🖼️ Imagem adicionada da internet: ' + nome);
           }
         }
       });
@@ -3636,7 +3696,6 @@ function processVoice(text) {
   document.getElementById('lastCommand').textContent = 'Você disse: "' + text + '"';
   const norm = normalize(text);
 
-  // ===== CONFIRMAÇÃO PENDENTE (SIM / NÃO) — PRIORIDADE MÁXIMA =====
   if (confirmacaoPendente) {
     if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar)([\s.,!?]|$)/.test(norm)) {
       resolverConfirmacao(true); return;
@@ -3647,8 +3706,6 @@ function processVoice(text) {
     showFeedback('⚠️ Diga "sim" ou "não".');
     return;
   }
-
-  // ===== EXECUTAR BOTÕES DE MODAIS ATIVOS "LITERALMENTE" =====
 
   const paymentModal = document.getElementById('paymentModal');
   if (paymentModal && paymentModal.classList.contains('active')) {
@@ -3685,8 +3742,6 @@ function processVoice(text) {
     if (/(^|\s)(fechar|cancelar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharMiniCardapio(); return; }
   }
 
-  // ===== COMANDOS NORMAIS =====
-
   if (matchSinonimo(norm, 'desativarVoz')) {
     recognizer.deactivate();
     speak('Assistente desligado');
@@ -3694,11 +3749,9 @@ function processVoice(text) {
   }
 
   // ===== APELIDO PARA ESTABELECIMENTO =====
-  // Formato: "apelido [sinônimo] para [estabelecimento]"
   const sinApelido = matchSinonimo(norm, 'sinonimoEstabelecimento');
   if (sinApelido) {
     const resto = extrairResto(norm, sinApelido);
-    // resto esperado: "buteco para bar do ze"
     const idx = resto.indexOf(' para ');
     if (idx === -1) {
       speak('Formato: apelido buteco para Bar do Zé');
@@ -3713,21 +3766,18 @@ function processVoice(text) {
       return;
     }
 
-    // Procura estabelecimento existente (por nome ou por apelido)
     let matchEstab = encontrarEstabelecimentoPorTexto(nomeEstabTexto);
     let idEstab, nomeExibido;
     if (matchEstab) {
       idEstab = matchEstab.id;
       nomeExibido = matchEstab.estab.nome;
     } else {
-      // Cria novo estabelecimento
       idEstab = Date.now() + Math.random();
       nomeExibido = capitalizarNome(nomeEstabTexto);
       data.estabelecimentos[idEstab] = { nome: nomeExibido, endereco: '', pix: '', produtos: [] };
       if (!data.estabelecimentoAtivoId) data.estabelecimentoAtivoId = idEstab;
     }
 
-    // Verificações
     const estabNomeNorm = normalize(data.estabelecimentos[idEstab].nome);
     const sinNorm = normalize(sinonimo);
     if (sinNorm === estabNomeNorm) {
