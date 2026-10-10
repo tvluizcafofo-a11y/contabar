@@ -734,6 +734,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <h2>🎤 Sinônimos de Voz</h2>
 <p class="note">Personalize as palavras que você fala para cada comando. Digite um sinônimo e clique em <b>➕ Adicionar</b>. Clique no <b>×</b> vermelho para remover.</p>
 <p class="note">💡 Exemplo: para o comando <b>Pedir</b>, adicione <b>"desce"</b>, <b>"me dá"</b>, <b>"traz"</b> — e depois fale <i>"desce uma cerveja"</i> normalmente.</p>
+<p class="note">🏷️ Para apelidos de estabelecimentos, use a voz: <i>"apelido buteco para Bar do Zé"</i> — o apelido <b>buteco</b> será adicionado ao <b>Bar do Zé</b>.</p>
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
   <button class="secondary" onclick="restaurarTodosSinonimos()">🔄 Restaurar todos os padrões</button>
 </div>
@@ -999,6 +1000,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <li><span class="cmd">"Selecionar [nome]"</span><br><span class="desc">Ex: "selecionar Bar do Zé"</span></li>
   <li><span class="cmd">"Incluir estabelecimento [nome]"</span><br><span class="desc">Ex: "incluir estabelecimento Bar do Zé"</span></li>
   <li><span class="cmd">"Ver cardápio"</span><br><span class="desc">Exibe o mini cardápio do estabelecimento ativo</span></li>
+  <li><span class="cmd">"Apelido [sinônimo] para [estabelecimento]"</span><br><span class="desc">Ex: "apelido buteco para Bar do Zé" — cria o apelido "buteco"</span></li>
 </ul>
 <h3>🍺 Produtos</h3>
 <ul class="command-list">
@@ -1220,32 +1222,50 @@ const SINONIMOS_PADRAO = {
   limparHistorico: ['limpar historico','apagar historico','excluir historico'],
   exportarDados: ['exportar dados','exportar'],
   importarDados: ['importar dados','importar'],
-  desativarVoz: ['desativar comando','desligar assistente','desligar app','desligar voz']
+  desativarVoz: ['desativar comando','desligar assistente','desligar app','desligar voz'],
+  // ==== SINÔNIMOS PARA PAGAMENTO ====
+  pagamentoPix:       ['pix','pics','pique','picks','pixes','pixar','peaks','pic'],
+  pagamentoDinheiro:  ['dinheiro','especie','espécie','cash','grana','nota','notas','papel','papelao'],
+  pagamentoCartao:    ['cartao','cartão','credito','crédito','debito','débito','card','cards','maquininha'],
+  // ==== SINÔNIMO DE ESTABELECIMENTO (comando) ====
+  sinonimoEstabelecimento: ['apelido','apelidar','apelido do','definir apelido']
 };
 
-// COMANDOS_INFO agora tem 'categoria' para agrupamento na tela de Sinônimos
+// ========== COMANDOS_INFO (com categoria) ==========
 const COMANDOS_INFO = [
+  // Estabelecimentos
   { key:'selecionar',      titulo:'🏢 Selecionar Estabelecimento',      desc:'Muda o estabelecimento ativo. Ex: "selecionar Bar do Zé".', categoria:'Estabelecimentos' },
   { key:'verCardapio',     titulo:'🍺 Ver Cardápio',                    desc:'Exibe o cardápio do estabelecimento ativo.', categoria:'Estabelecimentos' },
+  { key:'sinonimoEstabelecimento', titulo:'🏷️ Definir Apelido de Estabelecimento', desc:'Adiciona um apelido a um estabelecimento. Formato: "apelido [sinônimo] para [estabelecimento]". Ex: "apelido buteco para Bar do Zé".', categoria:'Estabelecimentos' },
 
+  // Produtos
   { key:'incluirProduto',  titulo:'➕ Incluir Produto no Cardápio',     desc:'Cadastra um novo produto. Ex: "incluir produtos cerveja 10 reais".', categoria:'Produtos' },
 
+  // Pedidos & Conta
   { key:'pedir',           titulo:'🛒 Pedir / Adicionar Item à Conta',  desc:'Adiciona produtos à conta atual quando há uma conta aberta.', categoria:'Pedidos & Conta' },
   { key:'abrirConta',      titulo:'📂 Abrir Conta',                     desc:'Inicia uma nova conta no estabelecimento ativo.', categoria:'Pedidos & Conta' },
   { key:'fecharConta',     titulo:'✅ Fechar Conta',                    desc:'Finaliza e solicita o fechamento da conta atual.', categoria:'Pedidos & Conta' },
   { key:'verConta',        titulo:'🧾 Ver Conta',                       desc:'Abre a tela da conta.', categoria:'Pedidos & Conta' },
 
+  // Pagamentos
+  { key:'pagamentoPix',      titulo:'📱 Pagamento em PIX',      desc:'Palavras que acionam o botão PIX quando o modal de pagamento está aberto.', categoria:'Pagamentos' },
+  { key:'pagamentoDinheiro', titulo:'💰 Pagamento em Dinheiro', desc:'Palavras que acionam o botão Dinheiro quando o modal de pagamento está aberto.', categoria:'Pagamentos' },
+  { key:'pagamentoCartao',   titulo:'💳 Pagamento em Cartão',   desc:'Palavras que acionam o botão Cartão quando o modal de pagamento está aberto.', categoria:'Pagamentos' },
+
+  // Histórico
   { key:'verHistorico',    titulo:'📜 Ver Histórico',                   desc:'Mostra o histórico de contas.', categoria:'Histórico' },
   { key:'limparHistorico', titulo:'🗑 Limpar Histórico',                desc:'Apaga todo o histórico de contas.', categoria:'Histórico' },
 
+  // Dados
   { key:'exportarDados',   titulo:'📤 Exportar Dados',                  desc:'Exporta todos os dados para arquivo JSON.', categoria:'Dados' },
   { key:'importarDados',   titulo:'📥 Importar Dados',                  desc:'Abre a tela de importação de dados.', categoria:'Dados' },
 
+  // Controle
   { key:'desativarVoz',    titulo:'🔴 Desativar Assistente',            desc:'Desliga o assistente de voz.', categoria:'Controle' }
 ];
 
 // Ordem em que as categorias aparecem na tela de Sinônimos
-const ORDEM_CATEGORIAS_SINONIMOS = ['Estabelecimentos','Produtos','Pedidos & Conta','Histórico','Dados','Controle'];
+const ORDEM_CATEGORIAS_SINONIMOS = ['Estabelecimentos','Produtos','Pedidos & Conta','Pagamentos','Histórico','Dados','Controle'];
 
 // ========== TRADUÇÃO PT→EN PARA BUSCA DE IMAGEM ==========
 const TRADUCAO_IMAGEM = {
@@ -1288,6 +1308,8 @@ data.voicePreference = data.voicePreference || 'default';
 data.usuario = data.usuario || null;
 data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
+// Sinônimos por estabelecimento (chave = idEstabelecimento)
+data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
 
 data.sinonimos = data.sinonimos || {};
 Object.keys(SINONIMOS_PADRAO).forEach(k => {
@@ -1442,6 +1464,34 @@ function extrairResto(textoNorm, sinonimo) {
   return textoNorm.replace(re, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// ========== MATCHING DE ESTABELECIMENTO (nome + sinônimos) ==========
+function encontrarEstabelecimentoPorTexto(texto) {
+  const t = normalize(texto || '');
+  if (!t) return null;
+  let melhor = null;
+  let melhorScore = 0;
+  for (const [id, estab] of Object.entries(data.estabelecimentos)) {
+    const nomeNorm = normalize(estab.nome);
+    if (!nomeNorm) continue;
+    if (nomeNorm === t) return { id, estab };
+    if (t.includes(nomeNorm) || nomeNorm.includes(t)) {
+      const score = Math.min(t.length, nomeNorm.length);
+      if (score > melhorScore) { melhorScore = score; melhor = { id, estab }; }
+    }
+    const sins = data.sinonimosEstabelecimentos[id] || [];
+    for (const s of sins) {
+      const sn = normalize(s);
+      if (!sn) continue;
+      if (sn === t) return { id, estab };
+      if (t.includes(sn) || sn.includes(t)) {
+        const score = Math.min(t.length, sn.length);
+        if (score > melhorScore) { melhorScore = score; melhor = { id, estab }; }
+      }
+    }
+  }
+  return melhor;
+}
+
 // ========== MATCHING PARCIAL DE PRODUTOS ==========
 const PALAVRAS_IGNORAR = new Set([
   'o','a','os','as','um','uma','uns','umas',
@@ -1525,7 +1575,7 @@ function resolverConfirmacao(resposta) {
   cb(resposta);
 }
 
-// ========== SINÔNIMOS (nova estrutura agrupada por categoria) ==========
+// ========== SINÔNIMOS (renderização agrupada por categoria) ==========
 function renderSinonimos() {
   const container = document.getElementById('listaSinonimos');
   if (!container) return;
@@ -1539,7 +1589,6 @@ function renderSinonimos() {
   });
 
   let html = '';
-  // Renderiza na ordem definida em ORDEM_CATEGORIAS_SINONIMOS
   ORDEM_CATEGORIAS_SINONIMOS.forEach(cat => {
     if (!grupos[cat]) return;
     const cmds = grupos[cat];
@@ -1635,7 +1684,7 @@ async function restaurarSinonimosComando(key) {
 }
 
 async function restaurarTodosSinonimos() {
-  const ok = await confirmar('Restaurar TODOS os sinônimos padrão? Os personalizados serão perdidos.', {
+  const ok = await confirmar('Restaurar TODOS os sinônimos padrão? Os personalizados serão perdidos. (Apelidos de estabelecimentos não são afetados.)', {
     icone: '🔄', titulo: 'Restaurar todos', textoSim: 'Restaurar tudo', textoNao: 'Cancelar'
   });
   if (!ok) return;
@@ -1658,9 +1707,10 @@ function exportarSinonimos() {
   try {
     const payload = {
       app: 'FECHA A CONTA - Sinônimos de Voz',
-      versao: 1,
+      versao: 2,
       exportadoEm: new Date().toISOString(),
-      sinonimos: data.sinonimos
+      sinonimos: data.sinonimos,
+      sinonimosEstabelecimentos: data.sinonimosEstabelecimentos
     };
     const jsonStr = JSON.stringify(payload, null, 2);
     const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -1676,7 +1726,8 @@ function exportarSinonimos() {
 
     let total = 0;
     Object.values(data.sinonimos).forEach(v => { if (Array.isArray(v)) total += v.length; });
-    setSyncStatus(`✅ Exportado: ${filename} (${total} sinônimos)`, 'ok');
+    const totalEstab = Object.values(data.sinonimosEstabelecimentos).reduce((acc, v) => acc + (Array.isArray(v) ? v.length : 0), 0);
+    setSyncStatus(`✅ Exportado: ${filename} (${total} sinônimos + ${totalEstab} apelidos)`, 'ok');
     showFeedback('📤 Sinônimos exportados!');
     speak('Sinônimos exportados');
   } catch(e) {
@@ -1722,6 +1773,10 @@ function importarSinonimos(event) {
           data.sinonimos[k] = importados[k];
         }
       });
+
+      if (parsed.sinonimosEstabelecimentos && typeof parsed.sinonimosEstabelecimentos === 'object') {
+        data.sinonimosEstabelecimentos = parsed.sinonimosEstabelecimentos;
+      }
 
       save();
       renderSinonimos();
@@ -2000,6 +2055,7 @@ async function excluirEstabelecimento(id) {
   if (!ok) return;
   if (data.contaAtiva) { showFeedback('⚠️ Não é possível excluir com uma conta aberta.'); return; }
   delete data.estabelecimentos[id];
+  delete data.sinonimosEstabelecimentos[id];
   if (data.estabelecimentoAtivoId === id) {
     data.estabelecimentoAtivoId = Object.keys(data.estabelecimentos)[0] || null;
     data.pedido = [];
@@ -2782,7 +2838,8 @@ function renderEstabelecimentos() {
   lista.innerHTML = ids.map(id => {
     const e = data.estabelecimentos[id];
     const ativo = (id === currentId) ? '⭐ ' : '';
-    return `<div class="list-item"><span><b>${ativo}${escapeHtml(e.nome)}</b><br><span class="note">${escapeHtml(e.endereco || '')} ${e.pix ? '| PIX: ' + escapeHtml(e.pix) : ''}</span><br><span class="note">${e.produtos?.length || 0} produtos</span></span>
+    const numSin = (data.sinonimosEstabelecimentos[id] || []).length;
+    return `<div class="list-item"><span><b>${ativo}${escapeHtml(e.nome)}</b><br><span class="note">${escapeHtml(e.endereco || '')} ${e.pix ? '| PIX: ' + escapeHtml(e.pix) : ''}</span><br><span class="note">${e.produtos?.length || 0} produtos • ${numSin} apelido(s)</span></span>
       <div class="actions">
         <button class="secondary small" onclick="editarEstabelecimento('${id}')">✏️</button>
         <button class="secondary small" onclick="setEstabelecimentoAtivo('${id}')">Selecionar</button>
@@ -3037,7 +3094,6 @@ function renderAll() {
   document.getElementById('resumoHistorico').textContent = data.historico.length;
   document.getElementById('resumoContaAtiva').textContent = data.contaAtiva ? 'Sim' : 'Não';
 
-  // Contagem de imagens
   let totalImagens = 0;
   Object.values(data.estabelecimentos).forEach(estab => {
     (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; });
@@ -3124,7 +3180,7 @@ function changeVoice() {
   }
 }
 
-// ========== SPEAK — CORRIGIDO ==========
+// ========== SPEAK ==========
 function speak(text) {
   if (!speechOn) return;
 
@@ -3132,7 +3188,6 @@ function speak(text) {
   speechDiagnostic.lastText = text;
   speechDiagnostic.lastError = null;
 
-  // 1) PRIORIDADE: ponte nativa Android (mais confiável em WebView)
   if (isAndroidWebView && typeof window.Android !== 'undefined' && typeof window.Android.ttsSpeak === 'function') {
     try {
       window.Android.ttsSpeak(text);
@@ -3145,7 +3200,6 @@ function speak(text) {
     }
   }
 
-  // 2) Web Speech API (com detecção de falha silenciosa)
   if (window.speechSynthesis) {
     try {
       speechSynthesis.cancel();
@@ -3596,28 +3650,14 @@ function processVoice(text) {
 
   // ===== EXECUTAR BOTÕES DE MODAIS ATIVOS "LITERALMENTE" =====
 
-  // Modal de pagamento aberto?
   const paymentModal = document.getElementById('paymentModal');
   if (paymentModal && paymentModal.classList.contains('active')) {
-    // PIX — aceita várias grafias que o reconhecimento pode devolver
-    if (/(^|\s)(pix|pics|pic|pique|picks|peaks|pixes|pixar|pics)([\s.,!?]|$)/.test(norm) || norm.includes('pix')) {
-      pagarPix(); return;
-    }
-    // Dinheiro
-    if (/(^|\s)(dinheiro|especie|cash|grana|nota|notas|papel)([\s.,!?]|$)/.test(norm)) {
-      pagarDinheiro(); return;
-    }
-    // Cartão
-    if (/(^|\s)(cartao|credito|debito|card|cards)([\s.,!?]|$)/.test(norm)) {
-      pagarCartao(); return;
-    }
-    // Cancelar
-    if (/(^|\s)(cancelar|voltar|sair|fechar|desistir)([\s.,!?]|$)/.test(norm)) {
-      fecharPaymentModal(); return;
-    }
+    if (matchSinonimo(norm, 'pagamentoPix') || norm.includes('pix')) { pagarPix(); return; }
+    if (matchSinonimo(norm, 'pagamentoDinheiro')) { pagarDinheiro(); return; }
+    if (matchSinonimo(norm, 'pagamentoCartao')) { pagarCartao(); return; }
+    if (/(^|\s)(cancelar|voltar|sair|fechar|desistir)([\s.,!?]|$)/.test(norm)) { fecharPaymentModal(); return; }
   }
 
-  // Modal de compartilhar aberto?
   const shareModal = document.getElementById('shareModal');
   if (shareModal && shareModal.classList.contains('active')) {
     const opcoes = window._opcoesCompartilhar || [];
@@ -3634,14 +3674,12 @@ function processVoice(text) {
     if (/(^|\s)(cancelar|fechar|voltar|sair)([\s.,!?]|$)/.test(norm)) { fecharShareModal(); return; }
   }
 
-  // Modal de recibo aberto?
   const reciboModal = document.getElementById('reciboModal');
   if (reciboModal && reciboModal.classList.contains('active')) {
     if (/(^|\s)(compartilhar|enviar)([\s.,!?]|$)/.test(norm)) { compartilharRecibo(); return; }
     if (/(^|\s)(fechar|sair|voltar|cancelar)([\s.,!?]|$)/.test(norm)) { fecharRecibo(); return; }
   }
 
-  // Mini cardápio aberto?
   const miniModal = document.getElementById('miniCardapioModal');
   if (miniModal && miniModal.style.display === 'block') {
     if (/(^|\s)(fechar|cancelar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharMiniCardapio(); return; }
@@ -3655,14 +3693,71 @@ function processVoice(text) {
     return;
   }
 
+  // ===== APELIDO PARA ESTABELECIMENTO =====
+  // Formato: "apelido [sinônimo] para [estabelecimento]"
+  const sinApelido = matchSinonimo(norm, 'sinonimoEstabelecimento');
+  if (sinApelido) {
+    const resto = extrairResto(norm, sinApelido);
+    // resto esperado: "buteco para bar do ze"
+    const idx = resto.indexOf(' para ');
+    if (idx === -1) {
+      speak('Formato: apelido buteco para Bar do Zé');
+      showFeedback('⚠️ Diga: apelido [sinônimo] para [estabelecimento]');
+      return;
+    }
+    const sinonimo = resto.substring(0, idx).trim();
+    const nomeEstabTexto = resto.substring(idx + 6).trim();
+    if (!sinonimo || !nomeEstabTexto) {
+      speak('Formato: apelido buteco para Bar do Zé');
+      showFeedback('⚠️ Diga: apelido [sinônimo] para [estabelecimento]');
+      return;
+    }
+
+    // Procura estabelecimento existente (por nome ou por apelido)
+    let matchEstab = encontrarEstabelecimentoPorTexto(nomeEstabTexto);
+    let idEstab, nomeExibido;
+    if (matchEstab) {
+      idEstab = matchEstab.id;
+      nomeExibido = matchEstab.estab.nome;
+    } else {
+      // Cria novo estabelecimento
+      idEstab = Date.now() + Math.random();
+      nomeExibido = capitalizarNome(nomeEstabTexto);
+      data.estabelecimentos[idEstab] = { nome: nomeExibido, endereco: '', pix: '', produtos: [] };
+      if (!data.estabelecimentoAtivoId) data.estabelecimentoAtivoId = idEstab;
+    }
+
+    // Verificações
+    const estabNomeNorm = normalize(data.estabelecimentos[idEstab].nome);
+    const sinNorm = normalize(sinonimo);
+    if (sinNorm === estabNomeNorm) {
+      speak('Esse já é o nome do estabelecimento');
+      showFeedback('⚠️ Esse já é o nome do estabelecimento');
+      return;
+    }
+    if (!data.sinonimosEstabelecimentos[idEstab]) data.sinonimosEstabelecimentos[idEstab] = [];
+    if (data.sinonimosEstabelecimentos[idEstab].some(s => normalize(s) === sinNorm)) {
+      speak('Esse apelido já existe para ' + nomeExibido);
+      showFeedback('⚠️ Esse apelido já existe para ' + nomeExibido);
+      return;
+    }
+
+    data.sinonimosEstabelecimentos[idEstab].push(sinonimo);
+    save();
+    renderAll();
+    const msg = 'Apelido "' + sinonimo + '" adicionado para ' + nomeExibido;
+    speak(msg);
+    showFeedback('🏷️ ' + msg);
+    return;
+  }
+
   const sinAbrir = matchSinonimo(norm, 'abrirConta');
   if (sinAbrir) {
     const resto = extrairResto(norm, sinAbrir);
     if (resto) {
-      const estabs = Object.entries(data.estabelecimentos);
-      const matchEstab = estabs.find(([id, e]) => normalize(e.nome).includes(resto));
+      const matchEstab = encontrarEstabelecimentoPorTexto(resto);
       if (matchEstab) {
-        setEstabelecimentoAtivo(matchEstab[0]);
+        setEstabelecimentoAtivo(matchEstab.id);
         abrirContaManual();
       } else {
         abrirNovaConta(resto);
@@ -3676,9 +3771,8 @@ function processVoice(text) {
   const sinSel = matchSinonimo(norm, 'selecionar');
   if (sinSel) {
     const nome = extrairResto(norm, sinSel);
-    const estabs = Object.entries(data.estabelecimentos);
-    const matchEstab = estabs.find(([id, e]) => normalize(e.nome).includes(nome));
-    if (matchEstab) setEstabelecimentoAtivo(matchEstab[0]);
+    const matchEstab = encontrarEstabelecimentoPorTexto(nome);
+    if (matchEstab) setEstabelecimentoAtivo(matchEstab.id);
     else showFeedback('⚠️ Estabelecimento não encontrado.');
     return;
   }
@@ -3749,7 +3843,7 @@ function exportarDados(incluirImagens = true) {
 
   dadosExport.__meta = {
     app: 'FECHA A CONTA',
-    versao: 1,
+    versao: 2,
     exportadoEm: new Date().toISOString(),
     incluirImagens: !!incluirImagens,
     totalImagens: totalImagens
@@ -3812,6 +3906,7 @@ function importarDados(e) {
         data.pedido = data.pedido || [];
         data.historico = data.historico || [];
         data.sinonimos = data.sinonimos || {};
+        data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
         Object.keys(SINONIMOS_PADRAO).forEach(k => {
           if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) {
             data.sinonimos[k] = [...SINONIMOS_PADRAO[k]];
@@ -3838,7 +3933,8 @@ async function clearAllData() {
   localStorage.removeItem(KEY);
   data = {
     estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true,
-    sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO))
+    sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO)),
+    sinonimosEstabelecimentos: {}
   };
   renderAll();
   showFeedback('🗑 Todos os dados foram apagados.');
