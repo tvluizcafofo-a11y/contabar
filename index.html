@@ -1,4 +1,4 @@
-<!-- Conta Bar 09.10.2026 -->
+<!-- Conta Bar 10.10.2026 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -594,6 +594,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <option value="feminina">👩 Voz Feminina</option>
       <option value="masculina">👨 Voz Masculina</option>
     </select>
+    <button class="secondary" onclick="diagnosticarVoz()" style="margin-top:8px;">🔍 Diagnosticar voz</button>
   </div>
   <div class="command" id="lastCommand">Exemplos: "selecionar Bar do Zé", "incluir produtos cerveja 10 reais", "fechar conta".</div>
   <div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone.</div>
@@ -1198,6 +1199,15 @@ let valoresOriginaisProduto = null;
 let orderFlashTimer = null;
 const $ = id => document.getElementById(id);
 
+// ========== TTS — DIAGNÓSTICO ==========
+const speechDiagnostic = {
+  lastText: null,
+  lastError: null,
+  succeeded: false,
+  usedNative: false,
+  lastAttempt: null
+};
+
 function save() {
   data.speechOn = speechOn;
   const vs = document.getElementById('voiceSelect');
@@ -1257,7 +1267,6 @@ function mostrarFlashPedido(produto, qtd) {
   if (!modal) return;
 
   const imgWrap = document.getElementById('flashImgWrap');
-  const emojiEl = document.getElementById('flashEmoji');
   const nomeEl = document.getElementById('flashNome');
   const infoEl = document.getElementById('flashInfo');
 
@@ -2898,10 +2907,20 @@ function toggleFeedbackDismiss() {
   feedbackDismissed = document.getElementById('dismissFeedback').checked;
   if (feedbackDismissed) fecharFeedback();
 }
+
+// ========== TOGGLE SPEAK ==========
 function toggleSpeak() {
   speechOn = !speechOn;
   document.getElementById('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
   save();
+  if (speechOn) {
+    // "Acorda" o TTS com gesto do usuário (obrigatório no Chrome)
+    tentarCarregarVozes();
+    // Pequeno delay para garantir carregamento
+    setTimeout(() => speak('Respostas por voz ativadas'), 300);
+  } else {
+    try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch(e){}
+  }
 }
 
 let selectedVoice = null;
@@ -2929,6 +2948,7 @@ function selectVoiceByPreference(pref) {
   if (!found) found = voices.find(v => v.lang.startsWith('pt'));
   if (!found && voices.length > 0) found = voices[0];
   selectedVoice = found;
+  console.log('🎯 Voz selecionada:', selectedVoice ? selectedVoice.name + ' (' + selectedVoice.lang + ')' : 'nenhuma');
 }
 function changeVoice() {
   const pref = document.getElementById('voiceSelect').value;
@@ -2940,25 +2960,132 @@ function changeVoice() {
     } else selectVoiceByPreference(pref);
   }
 }
+
+// ========== SPEAK — CORRIGIDO ==========
 function speak(text) {
   if (!speechOn) return;
+
+  speechDiagnostic.lastAttempt = new Date().toISOString();
+  speechDiagnostic.lastText = text;
+  speechDiagnostic.lastError = null;
+
+  // 1) PRIORIDADE: ponte nativa Android (mais confiável em WebView)
+  if (isAndroidWebView && typeof window.Android !== 'undefined' && typeof window.Android.ttsSpeak === 'function') {
+    try {
+      window.Android.ttsSpeak(text);
+      speechDiagnostic.succeeded = true;
+      speechDiagnostic.usedNative = true;
+      return;
+    } catch (e) {
+      speechDiagnostic.lastError = 'native: ' + (e.message || e);
+      console.warn('TTS nativo falhou:', e);
+    }
+  }
+
+  // 2) Web Speech API (com detecção de falha silenciosa)
   if (window.speechSynthesis) {
     try {
       speechSynthesis.cancel();
-      let u = new SpeechSynthesisUtterance(text);
-      u.lang = 'pt-BR'; u.rate = 0.9;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'pt-BR';
+      u.rate = 0.95;
+      u.pitch = 1;
+      u.volume = 1;
       if (selectedVoice) u.voice = selectedVoice;
+
+      let spokeStarted = false;
+      u.onstart = () => { spokeStarted = true; speechDiagnostic.succeeded = true; };
+      u.onerror = (ev) => {
+        speechDiagnostic.lastError = 'web: ' + (ev.error || 'erro');
+        console.warn('Erro TTS:', ev.error);
+      };
+
       speechSynthesis.speak(u);
+
+      // Watchdog: se não começou a falar em 1,5s, tenta fallback
+      setTimeout(() => {
+        if (!spokeStarted && !speechSynthesis.speaking && !speechSynthesis.pending) {
+          speechDiagnostic.lastError = 'timeout: Web Speech não iniciou';
+          console.warn('Web Speech API não iniciou — tentando fallback');
+          if (isAndroidWebView && typeof window.Android !== 'undefined' && typeof window.Android.ttsSpeak === 'function') {
+            try { window.Android.ttsSpeak(text); speechDiagnostic.usedNative = true; speechDiagnostic.succeeded = true; } catch(e){}
+          }
+        }
+      }, 1500);
+
       return;
-    } catch (e) { console.warn('Erro speechSynthesis:', e); }
+    } catch (e) {
+      speechDiagnostic.lastError = 'exception: ' + (e.message || e);
+      console.warn('Exceção em speechSynthesis:', e);
+    }
   }
-  if (isAndroidWebView && typeof window.Android !== 'undefined' && window.Android.ttsSpeak) {
-    try { window.Android.ttsSpeak(text); return; } catch (e) {}
+
+  // 3) Fallback visual (último recurso)
+  const lastCmd = document.getElementById('lastCommand');
+  if (lastCmd) {
+    lastCmd.innerHTML = '🔊 ' + text;
+    lastCmd.style.background = 'rgba(57,201,122,0.2)';
+    lastCmd.style.padding = '8px';
+    lastCmd.style.borderRadius = '8px';
+    setTimeout(() => {
+      lastCmd.style.background = 'transparent';
+      lastCmd.style.padding = '0';
+    }, 3000);
+  }
+  speechDiagnostic.lastError = 'nenhum método de voz disponível';
+}
+
+// ========== CARREGAMENTO ROBUSTO DE VOZES ==========
+let voiceLoadAttempts = 0;
+function tentarCarregarVozes() {
+  voiceLoadAttempts++;
+  if (!window.speechSynthesis) return;
+  const voices = speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    console.log('🔊 ' + voices.length + ' vozes carregadas na tentativa ' + voiceLoadAttempts);
+    loadVoices();
+  } else if (voiceLoadAttempts < 20) {
+    setTimeout(tentarCarregarVozes, 300);
+  } else {
+    console.warn('⚠️ Nenhuma voz carregada após 20 tentativas — usando padrão do sistema');
   }
 }
+
 if (window.speechSynthesis) {
-  if (speechSynthesis.getVoices().length > 0) loadVoices();
-  else speechSynthesis.onvoiceschanged = loadVoices;
+  if (speechSynthesis.getVoices().length > 0) {
+    tentarCarregarVozes();
+  } else {
+    speechSynthesis.onvoiceschanged = tentarCarregarVozes;
+    tentarCarregarVozes(); // Inicia retry imediatamente
+  }
+}
+
+// ========== DIAGNÓSTICO DE VOZ ==========
+function diagnosticarVoz() {
+  const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
+  const ptVoices = voices.filter(v => v.lang.startsWith('pt'));
+  const linhas = [
+    '🔊 Voz ativada: ' + (speechOn ? 'SIM ✓' : 'NÃO ✗ (clique em "Voz: ATIVADA" para ligar)'),
+    '🌐 Web Speech API: ' + (window.speechSynthesis ? 'Disponível ✓' : 'INDISPONÍVEL ✗'),
+    '🎙️ Total de vozes: ' + voices.length,
+    '🇧🇷 Vozes PT-BR: ' + ptVoices.length + (ptVoices.length ? ' (' + ptVoices.map(v => v.name).slice(0,3).join(', ') + ')' : ''),
+    '🎯 Voz selecionada: ' + (selectedVoice ? selectedVoice.name + ' (' + selectedVoice.lang + ')' : '⚠️ Padrão do sistema'),
+    '',
+    '📱 Android WebView: ' + (isAndroidWebView ? 'SIM' : 'NÃO'),
+    '🔗 Objeto window.Android: ' + (typeof window.Android !== 'undefined' ? 'PRESENTE ✓' : 'AUSENTE ✗'),
+    '🔊 TTS nativo (ttsSpeak): ' + (typeof window.Android !== 'undefined' && typeof window.Android.ttsSpeak === 'function' ? 'DISPONÍVEL ✓' : 'AUSENTE ✗'),
+    '',
+    '💬 Último texto: ' + (speechDiagnostic.lastText || '(nada)'),
+    '✅ Última tentativa bem-sucedida: ' + (speechDiagnostic.succeeded ? 'SIM' : 'NÃO'),
+    '📡 Método usado: ' + (speechDiagnostic.usedNative ? 'Nativo Android' : (speechDiagnostic.succeeded ? 'Web Speech API' : '—')),
+    '❌ Último erro: ' + (speechDiagnostic.lastError || 'nenhum')
+  ];
+  const msg = linhas.join('\n');
+  console.log('=== DIAGNÓSTICO DE VOZ ===\n' + msg);
+  alert(msg);
+
+  // Testa a voz na hora
+  speak('Teste de voz. Um, dois, três.');
 }
 
 function keepScreenOn(active) {
