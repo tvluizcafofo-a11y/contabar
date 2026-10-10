@@ -88,7 +88,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .import-area.dragover{border-color:var(--accent);background:rgba(57,201,122,0.1);}
 @media(max-width:650px){.command-list{columns:1;}}
 .menu-mini{background:var(--panel2);border-radius:12px;padding:12px;margin:10px 0;max-height:200px;overflow-y:auto;border:1px solid var(--border);}
-.menu-mini-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;align-items:center;}
+.menu-mini-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:14px;align-items:center;gap:8px;}
 .menu-mini-item:last-child{border-bottom:none;}
 .estab-selector{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
 .estab-selector select{flex:1;min-width:150px;}
@@ -357,12 +357,36 @@ footer{text-align:center;color:var(--muted);padding:25px}
   align-items: center;
   gap: 10px;
   min-width: 0;
+  flex: 1;
 }
 .menu-mini-item > span:first-child > span:last-child {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Botão + nos itens do mini-cardápio */
+.btn-add-mini {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #092114;
+  font-size: 22px;
+  font-weight: bold;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(57,201,122,0.45);
+  transition: transform 0.12s, filter 0.12s;
+}
+.btn-add-mini:hover { filter: brightness(1.1); transform: scale(1.08); }
+.btn-add-mini:active { transform: scale(0.9); }
 
 /* ===== CABEÇALHO DO CARDÁPIO ===== */
 .cardapio-header {
@@ -450,7 +474,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   background: rgba(10, 14, 20, 0.96);
   border: 3px solid var(--accent);
   border-radius: 20px;
-  padding: 20px 20px 16px;
+  padding: 20px 20px 76px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 40px rgba(57,201,122,0.55), inset 0 0 20px rgba(57,201,122,0.1);
   max-width: 320px;
   width: 85%;
@@ -461,6 +485,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .order-flash-modal.show {
   opacity: 1;
   transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
 }
 .order-flash-modal .flash-img-wrap {
   width: 100%;
@@ -525,17 +550,42 @@ footer{text-align:center;color:var(--muted);padding:25px}
   box-shadow: 0 4px 14px rgba(57,201,122,0.6);
   animation: popCheck 0.35s ease-out 0.1s backwards;
 }
+.order-flash-modal .flash-add-btn {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #092114;
+  font-size: 32px;
+  font-weight: bold;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 6px 18px rgba(57,201,122,0.65);
+  transition: transform 0.12s, filter 0.12s;
+}
+.order-flash-modal .flash-add-btn:hover { transform: translateX(-50%) scale(1.08); filter: brightness(1.1); }
+.order-flash-modal .flash-add-btn:active { transform: translateX(-50%) scale(0.92); }
 @keyframes popCheck {
   from { transform: scale(0); }
   60%  { transform: scale(1.25); }
   to   { transform: scale(1); }
 }
 @media(max-width:650px){
-  .order-flash-modal { max-width: 270px; padding: 16px 16px 12px; }
+  .order-flash-modal { max-width: 270px; padding: 16px 16px 68px; }
   .order-flash-modal .flash-img-wrap { height: 150px; }
   .order-flash-modal .flash-nome { font-size: 17px; }
   .order-flash-modal .flash-emoji { font-size: 70px; }
   .order-flash-modal .flash-check { width: 38px; height: 38px; font-size: 20px; top: -12px; right: -12px; }
+  .order-flash-modal .flash-add-btn { width: 48px; height: 48px; font-size: 28px; bottom: 14px; }
 }
 </style>
 
@@ -561,7 +611,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
 <nav id="nav">
 <button data-screen="inicio" onclick="showScreen('inicio')" class="active">🏠 Início</button>
-<button data-screen="cardapio" onclick="showScreen('cardapio')">🍺 Cardápio</button>
+<button data-screen="cardapio" onclick="showScreen('cardapio')">🍺 Produtos</button>
 <button data-screen="conta" onclick="showScreen('conta')">🧾 Conta</button>
 <button data-screen="historico" onclick="showScreen('historico')">📜 Histórico</button>
 <button data-screen="configuracoes" onclick="showScreen('configuracoes')" title="Configurações">⚙️</button>
@@ -685,11 +735,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== CARDÁPIO ===== -->
+<!-- ===== PRODUTOS ===== -->
 <section id="cardapio" class="screen">
 <div class="card">
   <div class="cardapio-header">
-    <h2>🍺 Cardápio
+    <h2>🍺 Produtos
       <span class="nome-estab" id="cardapioEstabNome">— nenhum estabelecimento selecionado</span>
     </h2>
     <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
@@ -886,6 +936,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="tip-box">
   <p>🧠 <b>Nome parcial de produto:</b> ao fazer um pedido, você pode falar só parte do nome. Se o cardápio tem <b>"Cerveja Império"</b>, basta dizer <i>"desce uma império"</i>.</p>
 </div>
+<div class="tip-box">
+  <p>🖱️ <b>Botões por voz:</b> quando um modal estiver aberto (pagamento, compartilhar, etc.), basta falar o nome do botão para acioná-lo. Ex: <i>"pix"</i>, <i>"dinheiro"</i>, <i>"cartão"</i>, <i>"whatsapp"</i>, <i>"fechar"</i>.</p>
+</div>
 <p class="note">Todos os comandos disponíveis para controle por voz do sistema.</p>
 <hr style="border-color:var(--border);margin:15px 0">
 <h3>🏢 Estabelecimentos</h3>
@@ -911,6 +964,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <li><span class="cmd">"Abrir conta [nome]"</span><br><span class="desc">Seleciona o estabelecimento e abre a conta</span></li>
   <li><span class="cmd">"Mostrar conta"</span><br><span class="desc">Abre a tela da conta</span></li>
   <li><span class="cmd">"Fechar conta"</span><br><span class="desc">Finaliza a conta</span></li>
+</ul>
+<h3>💳 Pagamento (com modal aberto)</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Pix"</span><br><span class="desc">Aciona o botão PIX</span></li>
+  <li><span class="cmd">"Dinheiro"</span><br><span class="desc">Aciona o botão Dinheiro</span></li>
+  <li><span class="cmd">"Cartão"</span><br><span class="desc">Aciona o botão Cartão</span></li>
 </ul>
 <h3>📜 Histórico</h3>
 <ul class="command-list">
@@ -991,7 +1050,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 <footer>🍺 FECHA A CONTA - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
 
-<!-- ===== MODAL TEMPORÁRIO DE PEDIDO (2s) ===== -->
+<!-- ===== MODAL TEMPORÁRIO DE PEDIDO (4s) ===== -->
 <div id="orderFlashModal" class="order-flash-modal" aria-hidden="true">
   <div class="flash-check">✓</div>
   <div class="flash-img-wrap" id="flashImgWrap">
@@ -1000,6 +1059,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <div class="flash-nome" id="flashNome">—</div>
   <div class="flash-info" id="flashInfo"></div>
   <div class="flash-badge">✓ Adicionado ao pedido</div>
+  <button class="flash-add-btn" onclick="adicionarMaisUmFlash()" title="Adicionar mais um" aria-label="Adicionar mais um">+</button>
 </div>
 
 <div id="feedbackModal" class="feedback-modal">
@@ -1197,6 +1257,7 @@ let textoReciboParaCompartilhar = '';
 let imagemProdutoTemp = null;
 let valoresOriginaisProduto = null;
 let orderFlashTimer = null;
+let ultimoProdutoPedido = null; // usado pelo botão + do modal temporário
 const $ = id => document.getElementById(id);
 
 // ========== TTS — DIAGNÓSTICO ==========
@@ -1266,6 +1327,9 @@ function mostrarFlashPedido(produto, qtd) {
   const modal = document.getElementById('orderFlashModal');
   if (!modal) return;
 
+  // Guarda referência do produto atual (usado pelo botão "+")
+  ultimoProdutoPedido = produto;
+
   const imgWrap = document.getElementById('flashImgWrap');
   const nomeEl = document.getElementById('flashNome');
   const infoEl = document.getElementById('flashInfo');
@@ -1286,12 +1350,19 @@ function mostrarFlashPedido(produto, qtd) {
   modal.classList.add('show');
   modal.setAttribute('aria-hidden', 'false');
 
-  // Fecha automaticamente após 2 segundos
+  // Fecha automaticamente após 4 segundos
   orderFlashTimer = setTimeout(() => {
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
     orderFlashTimer = null;
-  }, 2000);
+  }, 4000);
+}
+
+// Botão "+" do modal temporário — adiciona mais uma unidade
+function adicionarMaisUmFlash() {
+  if (!ultimoProdutoPedido) return;
+  // addPedido re-trigger mostrarFlashPedido, que reinicia o timer
+  addPedido(ultimoProdutoPedido.id, 1);
 }
 
 // ========== MATCHER DE SINÔNIMOS ==========
@@ -1875,7 +1946,13 @@ function mostrarMiniCardapio() {
       const thumb = p.imagem
         ? `<img src="${p.imagem}" class="produto-thumb-mini" alt="">`
         : `<span class="produto-thumb-mini-placeholder">${getEmojiProduto(p.nome)}</span>`;
-      return `<div class="menu-mini-item"><span><span>${thumb}</span><span>${escapeHtml(p.nome)}</span></span><span>${money(p.preco)}</span></div>`;
+      return `<div class="menu-mini-item">
+        <span><span>${thumb}</span><span>${escapeHtml(p.nome)}</span></span>
+        <span style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <span style="color:#8df0b8;font-weight:bold;">${money(p.preco)}</span>
+          <button class="btn-add-mini" onclick="addPedido(${p.id}, 1); fecharMiniCardapio();" title="Adicionar à conta" aria-label="Adicionar ${escapeHtml(p.nome)}">+</button>
+        </span>
+      </div>`;
     }).join('');
   }
   modal.style.display = 'block';
@@ -2240,7 +2317,7 @@ function addPedido(produtoId, qtd) {
   const msg = qtd + 'x ' + p.nome + ' adicionado à conta';
   speak(msg);
   showFeedback('🛒 ' + msg);
-  // 👇 Mostra o modal temporário com a imagem + nome do produto
+  // Mostra o modal temporário com a imagem + nome do produto (4 segundos)
   mostrarFlashPedido(p, qtd);
 }
 function removePedido(i) {
@@ -2850,7 +2927,7 @@ function renderHistorico() {
         <span class="money" style="font-size:16px;">Subtotal: ${money(g.subtotal)}</span>
       </div>`;
       g.itens.forEach(h => {
-        html += criarContaConta(h);
+        html += criarCardConta(h);
       });
     });
     lista.innerHTML = html;
@@ -2914,9 +2991,7 @@ function toggleSpeak() {
   document.getElementById('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
   save();
   if (speechOn) {
-    // "Acorda" o TTS com gesto do usuário (obrigatório no Chrome)
     tentarCarregarVozes();
-    // Pequeno delay para garantir carregamento
     setTimeout(() => speak('Respostas por voz ativadas'), 300);
   } else {
     try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch(e){}
@@ -3056,7 +3131,7 @@ if (window.speechSynthesis) {
     tentarCarregarVozes();
   } else {
     speechSynthesis.onvoiceschanged = tentarCarregarVozes;
-    tentarCarregarVozes(); // Inicia retry imediatamente
+    tentarCarregarVozes();
   }
 }
 
@@ -3083,8 +3158,6 @@ function diagnosticarVoz() {
   const msg = linhas.join('\n');
   console.log('=== DIAGNÓSTICO DE VOZ ===\n' + msg);
   alert(msg);
-
-  // Testa a voz na hora
   speak('Teste de voz. Um, dois, três.');
 }
 
@@ -3423,6 +3496,7 @@ function processVoice(text) {
   document.getElementById('lastCommand').textContent = 'Você disse: "' + text + '"';
   const norm = normalize(text);
 
+  // ===== CONFIRMAÇÃO PENDENTE (SIM / NÃO) — PRIORIDADE MÁXIMA =====
   if (confirmacaoPendente) {
     if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar)([\s.,!?]|$)/.test(norm)) {
       resolverConfirmacao(true); return;
@@ -3433,6 +3507,50 @@ function processVoice(text) {
     showFeedback('⚠️ Diga "sim" ou "não".');
     return;
   }
+
+  // ===== EXECUTAR BOTÕES DE MODAIS ATIVOS "LITERALMENTE" =====
+
+  // Modal de pagamento aberto?
+  const paymentModal = document.getElementById('paymentModal');
+  if (paymentModal && paymentModal.classList.contains('active')) {
+    if (norm.includes('pix')) { pagarPix(); return; }
+    if (norm.includes('dinheiro') || norm.includes('especie') || norm.includes('espécie') || norm.includes('cash')) { pagarDinheiro(); return; }
+    if (norm.includes('cartao') || norm.includes('cartão') || norm.includes('credito') || norm.includes('crédito') || norm.includes('debito') || norm.includes('débito')) { pagarCartao(); return; }
+    if (norm.includes('cancelar') || norm.includes('voltar') || norm.includes('sair') || norm.includes('fechar')) { fecharPaymentModal(); return; }
+  }
+
+  // Modal de compartilhar aberto?
+  const shareModal = document.getElementById('shareModal');
+  if (shareModal && shareModal.classList.contains('active')) {
+    const opcoes = window._opcoesCompartilhar || [];
+    for (let i = 0; i < opcoes.length; i++) {
+      const op = opcoes[i];
+      const t = normalize(op.titulo);
+      if (!t) continue;
+      // Match direto ou match pela primeira palavra (ex: "WhatsApp" -> "whatsapp")
+      if (norm.includes(t) || t.split(/\s+/).some(w => w.length >= 3 && norm.includes(w))) {
+        if (op.url) executarCompartilhar(i, op.url, op.copiarAntes);
+        else executarCompartilhar(i, '', true);
+        return;
+      }
+    }
+    if (norm.includes('cancelar') || norm.includes('fechar') || norm.includes('voltar')) { fecharShareModal(); return; }
+  }
+
+  // Modal de recibo aberto?
+  const reciboModal = document.getElementById('reciboModal');
+  if (reciboModal && reciboModal.classList.contains('active')) {
+    if (norm.includes('compartilhar') || norm.includes('enviar')) { compartilharRecibo(); return; }
+    if (norm.includes('fechar') || norm.includes('sair') || norm.includes('voltar') || norm.includes('cancelar')) { fecharRecibo(); return; }
+  }
+
+  // Mini cardápio aberto?
+  const miniModal = document.getElementById('miniCardapioModal');
+  if (miniModal && miniModal.style.display === 'block') {
+    if (norm.includes('fechar') || norm.includes('cancelar') || norm.includes('sair') || norm.includes('voltar')) { fecharMiniCardapio(); return; }
+  }
+
+  // ===== COMANDOS NORMAIS =====
 
   if (matchSinonimo(norm, 'desativarVoz')) {
     recognizer.deactivate();
@@ -3513,22 +3631,16 @@ function processVoice(text) {
 }
 
 // ========== DADOS / IMPORT & EXPORT ==========
-/**
- * Exporta os dados do app para JSON.
- * @param {boolean} incluirImagens - Se true, mantém as imagens base64. Se false, remove.
- */
 function exportarDados(incluirImagens = true) {
   let dadosExport;
   let totalImagens = 0;
 
   if (incluirImagens) {
-    // Exportação completa (com imagens base64)
     dadosExport = JSON.parse(JSON.stringify(data));
     Object.values(dadosExport.estabelecimentos).forEach(estab => {
       (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; });
     });
   } else {
-    // Cópia profunda, sem imagens
     dadosExport = JSON.parse(JSON.stringify(data));
     Object.values(dadosExport.estabelecimentos).forEach(estab => {
       (estab.produtos || []).forEach(p => {
@@ -3538,7 +3650,6 @@ function exportarDados(incluirImagens = true) {
     });
   }
 
-  // Metadados de exportação
   dadosExport.__meta = {
     app: 'FECHA A CONTA',
     versao: 1,
@@ -3597,7 +3708,6 @@ function importarDados(e) {
     try {
       const imported = JSON.parse(evt.target.result);
       if (typeof imported === 'object' && imported !== null) {
-        // Remove metadados de exportação antes de usar
         delete imported.__meta;
 
         data = imported;
