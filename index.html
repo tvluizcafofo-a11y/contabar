@@ -136,8 +136,61 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .hist-filters-row select, .hist-filters-row input {margin:0;border-radius:8px;padding:8px 12px;font-size:14px;}
 .estab-group-header {background:var(--panel2);padding:10px 14px;border-radius:8px;margin:16px 0 10px;border-left:4px solid var(--accent);display:flex;justify-content:space-between;align-items:center;}
 
-.sinonimo-group{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px;border-left:3px solid var(--accent);}
-.sinonimo-group h3{margin:0 0 4px 0;font-size:15px;color:var(--text);}
+/* ===== SINÔNIMOS (nova estrutura por categoria) ===== */
+.sinonimo-categoria {
+  margin-bottom: 22px;
+  padding-bottom: 8px;
+}
+.sinonimo-categoria-titulo {
+  font-size: 15px;
+  color: #79e9aa;
+  margin: 12px 0 12px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg,#1d4937,#19382e);
+  border-left: 4px solid var(--accent);
+  border-radius: 8px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.sinonimo-categoria-titulo .contador-cat {
+  background: rgba(57,201,122,0.25);
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #d7ffe8;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+.sinonimo-group{
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:10px;
+  border-left:3px solid var(--accent);
+}
+.sinonimo-group h3{
+  margin:0 0 4px 0;
+  font-size:15px;
+  color:var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.sinonimo-group h3 .contador-sin {
+  font-size: 11px;
+  background: rgba(57,201,122,0.15);
+  color: #79e9aa;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+}
 .sinonimo-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;}
 .sinonimo-chip{display:inline-flex;align-items:center;gap:6px;background:#10151f;border:1px solid var(--border);color:var(--text);padding:5px 6px 5px 12px;border-radius:20px;font-size:13px;}
 .sinonimo-chip button{background:transparent;border:0;color:var(--danger);cursor:pointer;font-size:16px;padding:0 4px;line-height:1;font-weight:bold;border-radius:50%;}
@@ -1170,20 +1223,29 @@ const SINONIMOS_PADRAO = {
   desativarVoz: ['desativar comando','desligar assistente','desligar app','desligar voz']
 };
 
+// COMANDOS_INFO agora tem 'categoria' para agrupamento na tela de Sinônimos
 const COMANDOS_INFO = [
-  { key:'pedir',           titulo:'🛒 Pedir / Adicionar Item à Conta',  desc:'Adiciona produtos à conta atual quando há uma conta aberta.' },
-  { key:'abrirConta',      titulo:'📂 Abrir Conta',                     desc:'Inicia uma nova conta no estabelecimento ativo.' },
-  { key:'fecharConta',     titulo:'✅ Fechar Conta',                    desc:'Finaliza e solicita o fechamento da conta atual.' },
-  { key:'verConta',        titulo:'🧾 Ver Conta',                       desc:'Abre a tela da conta.' },
-  { key:'verHistorico',    titulo:'📜 Ver Histórico',                   desc:'Mostra o histórico de contas.' },
-  { key:'verCardapio',     titulo:'🍺 Ver Cardápio',                    desc:'Exibe o cardápio do estabelecimento ativo.' },
-  { key:'incluirProduto',  titulo:'➕ Incluir Produto no Cardápio',     desc:'Cadastra um novo produto. Ex: "incluir produtos cerveja 10 reais".' },
-  { key:'selecionar',      titulo:'🏢 Selecionar Estabelecimento',      desc:'Muda o estabelecimento ativo. Ex: "selecionar Bar do Zé".' },
-  { key:'limparHistorico', titulo:'🗑 Limpar Histórico',                desc:'Apaga todo o histórico de contas.' },
-  { key:'exportarDados',   titulo:'📤 Exportar Dados',                  desc:'Exporta todos os dados para arquivo JSON.' },
-  { key:'importarDados',   titulo:'📥 Importar Dados',                  desc:'Abre a tela de importação de dados.' },
-  { key:'desativarVoz',    titulo:'🔴 Desativar Assistente',            desc:'Desliga o assistente de voz.' }
+  { key:'selecionar',      titulo:'🏢 Selecionar Estabelecimento',      desc:'Muda o estabelecimento ativo. Ex: "selecionar Bar do Zé".', categoria:'Estabelecimentos' },
+  { key:'verCardapio',     titulo:'🍺 Ver Cardápio',                    desc:'Exibe o cardápio do estabelecimento ativo.', categoria:'Estabelecimentos' },
+
+  { key:'incluirProduto',  titulo:'➕ Incluir Produto no Cardápio',     desc:'Cadastra um novo produto. Ex: "incluir produtos cerveja 10 reais".', categoria:'Produtos' },
+
+  { key:'pedir',           titulo:'🛒 Pedir / Adicionar Item à Conta',  desc:'Adiciona produtos à conta atual quando há uma conta aberta.', categoria:'Pedidos & Conta' },
+  { key:'abrirConta',      titulo:'📂 Abrir Conta',                     desc:'Inicia uma nova conta no estabelecimento ativo.', categoria:'Pedidos & Conta' },
+  { key:'fecharConta',     titulo:'✅ Fechar Conta',                    desc:'Finaliza e solicita o fechamento da conta atual.', categoria:'Pedidos & Conta' },
+  { key:'verConta',        titulo:'🧾 Ver Conta',                       desc:'Abre a tela da conta.', categoria:'Pedidos & Conta' },
+
+  { key:'verHistorico',    titulo:'📜 Ver Histórico',                   desc:'Mostra o histórico de contas.', categoria:'Histórico' },
+  { key:'limparHistorico', titulo:'🗑 Limpar Histórico',                desc:'Apaga todo o histórico de contas.', categoria:'Histórico' },
+
+  { key:'exportarDados',   titulo:'📤 Exportar Dados',                  desc:'Exporta todos os dados para arquivo JSON.', categoria:'Dados' },
+  { key:'importarDados',   titulo:'📥 Importar Dados',                  desc:'Abre a tela de importação de dados.', categoria:'Dados' },
+
+  { key:'desativarVoz',    titulo:'🔴 Desativar Assistente',            desc:'Desliga o assistente de voz.', categoria:'Controle' }
 ];
+
+// Ordem em que as categorias aparecem na tela de Sinônimos
+const ORDEM_CATEGORIAS_SINONIMOS = ['Estabelecimentos','Produtos','Pedidos & Conta','Histórico','Dados','Controle'];
 
 // ========== TRADUÇÃO PT→EN PARA BUSCA DE IMAGEM ==========
 const TRADUCAO_IMAGEM = {
@@ -1257,7 +1319,7 @@ let textoReciboParaCompartilhar = '';
 let imagemProdutoTemp = null;
 let valoresOriginaisProduto = null;
 let orderFlashTimer = null;
-let ultimoProdutoPedido = null; // usado pelo botão + do modal temporário
+let ultimoProdutoPedido = null;
 const $ = id => document.getElementById(id);
 
 // ========== TTS — DIAGNÓSTICO ==========
@@ -1327,14 +1389,12 @@ function mostrarFlashPedido(produto, qtd) {
   const modal = document.getElementById('orderFlashModal');
   if (!modal) return;
 
-  // Guarda referência do produto atual (usado pelo botão "+")
   ultimoProdutoPedido = produto;
 
   const imgWrap = document.getElementById('flashImgWrap');
   const nomeEl = document.getElementById('flashNome');
   const infoEl = document.getElementById('flashInfo');
 
-  // Imagem ou emoji fallback
   if (produto.imagem) {
     imgWrap.innerHTML = `<img src="${produto.imagem}" alt="${escapeHtml(produto.nome)}">`;
   } else {
@@ -1344,13 +1404,11 @@ function mostrarFlashPedido(produto, qtd) {
   nomeEl.textContent = produto.nome;
   infoEl.textContent = `${qtd}× ${money(produto.preco)} = ${money(produto.preco * qtd)}`;
 
-  // Cancela timer anterior se houver
   if (orderFlashTimer) clearTimeout(orderFlashTimer);
 
   modal.classList.add('show');
   modal.setAttribute('aria-hidden', 'false');
 
-  // Fecha automaticamente após 4 segundos
   orderFlashTimer = setTimeout(() => {
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
@@ -1358,10 +1416,8 @@ function mostrarFlashPedido(produto, qtd) {
   }, 4000);
 }
 
-// Botão "+" do modal temporário — adiciona mais uma unidade
 function adicionarMaisUmFlash() {
   if (!ultimoProdutoPedido) return;
-  // addPedido re-trigger mostrarFlashPedido, que reinicia o timer
   addPedido(ultimoProdutoPedido.id, 1);
 }
 
@@ -1469,29 +1525,62 @@ function resolverConfirmacao(resposta) {
   cb(resposta);
 }
 
-// ========== SINÔNIMOS ==========
+// ========== SINÔNIMOS (nova estrutura agrupada por categoria) ==========
 function renderSinonimos() {
   const container = document.getElementById('listaSinonimos');
   if (!container) return;
-  container.innerHTML = COMANDOS_INFO.map(cmd => {
-    const lista = data.sinonimos[cmd.key] || [];
-    const chips = lista.length
-      ? lista.map((s, i) =>
-          `<span class="sinonimo-chip">${escapeHtml(s)}<button onclick="removerSinonimo('${cmd.key}',${i})" title="Remover">×</button></span>`
-        ).join('')
-      : '<span class="note">Nenhum sinônimo. Restaure os padrões.</span>';
-    return `<div class="sinonimo-group">
-      <h3>${cmd.titulo}</h3>
-      <p class="note" style="margin:0 0 8px;">${cmd.desc}</p>
-      <div class="sinonimo-chips">${chips}</div>
-      <div class="sinonimo-add">
-        <input id="novoSin_${cmd.key}" placeholder="Digite um sinônimo (ex: desce)" maxlength="40"
-          onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarSinonimo('${cmd.key}');}">
-        <button class="small" onclick="adicionarSinonimo('${cmd.key}')">➕ Adicionar</button>
-        <button class="secondary small" onclick="restaurarSinonimosComando('${cmd.key}')">↩️ Padrões</button>
-      </div>
-    </div>`;
-  }).join('');
+
+  // Agrupa os comandos por categoria
+  const grupos = {};
+  COMANDOS_INFO.forEach(cmd => {
+    const cat = cmd.categoria || 'Outros';
+    if (!grupos[cat]) grupos[cat] = [];
+    grupos[cat].push(cmd);
+  });
+
+  let html = '';
+  // Renderiza na ordem definida em ORDEM_CATEGORIAS_SINONIMOS
+  ORDEM_CATEGORIAS_SINONIMOS.forEach(cat => {
+    if (!grupos[cat]) return;
+    const cmds = grupos[cat];
+    html += `<div class="sinonimo-categoria">
+      <div class="sinonimo-categoria-titulo">
+        <span>📁 ${escapeHtml(cat)}</span>
+        <span class="contador-cat">${cmds.length} ${cmds.length === 1 ? 'comando' : 'comandos'}</span>
+      </div>`;
+
+    cmds.forEach(cmd => {
+      const lista = data.sinonimos[cmd.key] || [];
+      const chips = lista.length
+        ? lista.map((s, i) =>
+            `<span class="sinonimo-chip">${escapeHtml(s)}<button onclick="removerSinonimo('${cmd.key}',${i})" title="Remover">×</button></span>`
+          ).join('')
+        : '<span class="note">Nenhum sinônimo. Restaure os padrões.</span>';
+
+      const contador = lista.length
+        ? `<span class="contador-sin">${lista.length} ${lista.length === 1 ? 'sinônimo' : 'sinônimos'}</span>`
+        : '';
+
+      html += `<div class="sinonimo-group">
+        <h3>
+          <span>${escapeHtml(cmd.titulo)}</span>
+          ${contador}
+        </h3>
+        <p class="note" style="margin:0 0 8px;">${escapeHtml(cmd.desc)}</p>
+        <div class="sinonimo-chips">${chips}</div>
+        <div class="sinonimo-add">
+          <input id="novoSin_${cmd.key}" placeholder="Digite um sinônimo (ex: desce)" maxlength="40"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarSinonimo('${cmd.key}');}">
+          <button class="small" onclick="adicionarSinonimo('${cmd.key}')">➕ Adicionar</button>
+          <button class="secondary small" onclick="restaurarSinonimosComando('${cmd.key}')">↩️ Padrões</button>
+        </div>
+      </div>`;
+    });
+
+    html += `</div>`;
+  });
+
+  container.innerHTML = html;
 }
 
 function escapeHtml(s) {
@@ -2317,7 +2406,6 @@ function addPedido(produtoId, qtd) {
   const msg = qtd + 'x ' + p.nome + ' adicionado à conta';
   speak(msg);
   showFeedback('🛒 ' + msg);
-  // Mostra o modal temporário com a imagem + nome do produto (4 segundos)
   mostrarFlashPedido(p, qtd);
 }
 function removePedido(i) {
@@ -3077,7 +3165,6 @@ function speak(text) {
 
       speechSynthesis.speak(u);
 
-      // Watchdog: se não começou a falar em 1,5s, tenta fallback
       setTimeout(() => {
         if (!spokeStarted && !speechSynthesis.speaking && !speechSynthesis.pending) {
           speechDiagnostic.lastError = 'timeout: Web Speech não iniciou';
@@ -3095,7 +3182,6 @@ function speak(text) {
     }
   }
 
-  // 3) Fallback visual (último recurso)
   const lastCmd = document.getElementById('lastCommand');
   if (lastCmd) {
     lastCmd.innerHTML = '🔊 ' + text;
@@ -3513,10 +3599,22 @@ function processVoice(text) {
   // Modal de pagamento aberto?
   const paymentModal = document.getElementById('paymentModal');
   if (paymentModal && paymentModal.classList.contains('active')) {
-    if (norm.includes('pix')) { pagarPix(); return; }
-    if (norm.includes('dinheiro') || norm.includes('especie') || norm.includes('espécie') || norm.includes('cash')) { pagarDinheiro(); return; }
-    if (norm.includes('cartao') || norm.includes('cartão') || norm.includes('credito') || norm.includes('crédito') || norm.includes('debito') || norm.includes('débito')) { pagarCartao(); return; }
-    if (norm.includes('cancelar') || norm.includes('voltar') || norm.includes('sair') || norm.includes('fechar')) { fecharPaymentModal(); return; }
+    // PIX — aceita várias grafias que o reconhecimento pode devolver
+    if (/(^|\s)(pix|pics|pic|pique|picks|peaks|pixes|pixar|pics)([\s.,!?]|$)/.test(norm) || norm.includes('pix')) {
+      pagarPix(); return;
+    }
+    // Dinheiro
+    if (/(^|\s)(dinheiro|especie|cash|grana|nota|notas|papel)([\s.,!?]|$)/.test(norm)) {
+      pagarDinheiro(); return;
+    }
+    // Cartão
+    if (/(^|\s)(cartao|credito|debito|card|cards)([\s.,!?]|$)/.test(norm)) {
+      pagarCartao(); return;
+    }
+    // Cancelar
+    if (/(^|\s)(cancelar|voltar|sair|fechar|desistir)([\s.,!?]|$)/.test(norm)) {
+      fecharPaymentModal(); return;
+    }
   }
 
   // Modal de compartilhar aberto?
@@ -3527,27 +3625,26 @@ function processVoice(text) {
       const op = opcoes[i];
       const t = normalize(op.titulo);
       if (!t) continue;
-      // Match direto ou match pela primeira palavra (ex: "WhatsApp" -> "whatsapp")
       if (norm.includes(t) || t.split(/\s+/).some(w => w.length >= 3 && norm.includes(w))) {
         if (op.url) executarCompartilhar(i, op.url, op.copiarAntes);
         else executarCompartilhar(i, '', true);
         return;
       }
     }
-    if (norm.includes('cancelar') || norm.includes('fechar') || norm.includes('voltar')) { fecharShareModal(); return; }
+    if (/(^|\s)(cancelar|fechar|voltar|sair)([\s.,!?]|$)/.test(norm)) { fecharShareModal(); return; }
   }
 
   // Modal de recibo aberto?
   const reciboModal = document.getElementById('reciboModal');
   if (reciboModal && reciboModal.classList.contains('active')) {
-    if (norm.includes('compartilhar') || norm.includes('enviar')) { compartilharRecibo(); return; }
-    if (norm.includes('fechar') || norm.includes('sair') || norm.includes('voltar') || norm.includes('cancelar')) { fecharRecibo(); return; }
+    if (/(^|\s)(compartilhar|enviar)([\s.,!?]|$)/.test(norm)) { compartilharRecibo(); return; }
+    if (/(^|\s)(fechar|sair|voltar|cancelar)([\s.,!?]|$)/.test(norm)) { fecharRecibo(); return; }
   }
 
   // Mini cardápio aberto?
   const miniModal = document.getElementById('miniCardapioModal');
   if (miniModal && miniModal.style.display === 'block') {
-    if (norm.includes('fechar') || norm.includes('cancelar') || norm.includes('sair') || norm.includes('voltar')) { fecharMiniCardapio(); return; }
+    if (/(^|\s)(fechar|cancelar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharMiniCardapio(); return; }
   }
 
   // ===== COMANDOS NORMAIS =====
