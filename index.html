@@ -813,13 +813,14 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <div class="empty">
         <div class="big">📷</div>
         <div>Sem imagem</div>
-        <div class="small">Ao cadastrar, o app busca primeiro no seu dispositivo</div>
+        <div class="small">Busca em: dispositivo → repositório → internet</div>
       </div>
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;">
       <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar imagem</button>
       <button type="button" class="secondary small" onclick="document.getElementById('produtoImagemFile').click()">📤 Enviar do dispositivo</button>
       <button type="button" class="secondary small" id="btnRemoverImg" onclick="removerImagemProduto()" style="display:none;">🗑 Remover imagem</button>
+      <button type="button" class="secondary small" onclick="forcarAtualizacaoRotulos()" title="Força recarregar a lista de imagens da pasta rotulos">🔄 Atualizar lista de rótulos</button>
       <input type="file" id="produtoImagemFile" accept="image/*" style="display:none;" onchange="uploadImagemProduto(event)">
     </div>
 
@@ -2250,7 +2251,7 @@ function renderPreviewImagemProduto() {
       <div class="empty">
         <div class="big">📷</div>
         <div>Sem imagem</div>
-        <div class="small">Ao cadastrar, o app busca primeiro no seu dispositivo</div>
+        <div class="small">Busca em: dispositivo → repositório → internet</div>
       </div>`;
     if (btnRemover) btnRemover.style.display = 'none';
   }
@@ -2273,7 +2274,192 @@ function setLoadingPreview(loading) {
   }
 }
 
-// ========== BUSCA MANUAL (dispositivo primeiro, depois internet) ==========
+// ========== BUSCA NA PASTA "rotulos" DO REPOSITÓRIO (GITHUB) ==========
+const ROTULOS_CACHE_KEY = 'contaBar_rotulosCache_v2';
+const ROTULOS_CACHE_TTL = 30 * 60 * 1000; // 30 minutos
+
+// Descobre owner/repo quando a página roda no GitHub Pages
+function getGitHubRepoInfo() {
+  const host = window.location.hostname;
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  if (host.endsWith('.github.io')) {
+    const owner = host.replace(/\.github\.io$/, '');
+    // Se for página de projeto: usuario.github.io/repo/
+    if (parts.length > 0 && !/\.(html?|php|js|css)$/i.test(parts[0])) {
+      return { owner, repo: parts[0] };
+    }
+    // Página de usuário: usuario.github.io
+    return { owner, repo: owner + '.github.io' };
+  }
+  return null;
+}
+
+function getRotulosCache() {
+  try {
+    const raw = localStorage.getItem(ROTULOS_CACHE_KEY);
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (!obj || !Array.isArray(obj.files)) return null;
+    return obj;
+  } catch(e) { return null; }
+}
+
+function setRotulosCache(files) {
+  try {
+    localStorage.setItem(ROTULOS_CACHE_KEY, JSON.stringify({
+      timestamp: Date.now(),
+      files
+    }));
+  } catch(e) {}
+}
+
+function forcarAtualizacaoRotulos() {
+  try { localStorage.removeItem(ROTULOS_CACHE_KEY); } catch(e) {}
+  showFeedback('🔄 Lista de rótulos será atualizada na próxima busca.');
+  speak('Lista de rótulos atualizada');
+}
+
+// Lista as imagens da pasta rotulos — 2 estratégias:
+//   a) manifest.json local (./rotulos/manifest.json) — ilimitado e instantâneo
+//   b) API pública do GitHub (se não achar manifest)
+async function listarImagensRotulos(forcar = false) {
+  if (!forcar) {
+    const cached = getRotulosCache();
+    if (cached && (Date.now() - cached.timestamp) < ROTULOS_CACHE_TTL) {
+      return cached.files;
+    }
+  }
+
+  // --- Estratégia 1: manifest local ---
+  const manifestUrls = [
+    './rotulos/manifest.json',
+    './rotulos/index.json',
+    './rotulos/manifest'
+  ];
+  for (const url of manifestUrls) {
+    try {
+      const resp = await fetch(url, { cache: 'no-store' });
+      if (resp.ok) {
+        const arr = await resp.json();
+        if (Array.isArray(arr) && arr.length) {
+          const files = arr
+            .filter(n => typeof n === 'string')
+            .map(n => ({ name: n, url: './rotulos/' + encodeURIComponent(n) }));
+          setRotulosCache(files);
+          console.log('📁 rótulos via manifest:', files.length, 'arquivos');
+          return files;
+        }
+      }
+    } catch(e) { /* segue */ }
+  }
+
+  // --- Estratégia 2: GitHub API ---
+  const repo = getGitHubRepoInfo();
+  if (repo) {
+    try {
+      const apiUrl = `https://api.github.com/repos/${repo.owner}/${repo.repo}/contents/rotulos`;
+      const resp = await fetch(apiUrl);
+      if (resp.ok) {
+        const items = await resp.json();
+        if (Array.isArray(items)) {
+          const files = items
+            .filter(it => it.type === 'file' && /\.(jpe?g|png|webp|gif|bmp|avif)$/i.test(it.name))
+            .map(it => ({
+              name: it.name,
+              url: it.download_url || ('./rotulos/' + encodeURIComponent(it.name))
+            }));
+          setRotulosCache(files);
+          console.log('📁 rótulos via GitHub API:', files.length, 'arquivos');
+          return files;
+        }
+      } else {
+        console.warn('GitHub API retornou status', resp.status);
+      }
+    } catch(e) {
+      console.warn('Falha ao consultar GitHub API:', e);
+    }
+  }
+
+  return [];
+}
+
+// Normaliza nome de arquivo: "Cerveja_Brahma-600ml.jpg" → "cerveja brahma 600ml"
+function normalizarNomeRotulo(nome) {
+  return normalize(
+    String(nome).replace(/\.[a-z0-9]+$/i, '').replace(/[_\-.,]+/g, ' ')
+  ).trim();
+}
+
+// Match entre nome do produto e nome do arquivo
+function encontrarRotuloPorNome(nomeProduto, arquivos) {
+  if (!arquivos || !arquivos.length || !nomeProduto) return null;
+  const alvo = normalize(nomeProduto).trim();
+  if (!alvo) return null;
+  const palavras = alvo.split(/\s+/).filter(w => w.length >= 3);
+
+  let melhor = null;
+  let melhorScore = 0;
+
+  for (const arq of arquivos) {
+    const nomeArq = normalizarNomeRotulo(arq.name);
+    if (!nomeArq) continue;
+
+    // Match exato → melhor caso
+    if (nomeArq === alvo) return arq;
+
+    const palavrasArq = nomeArq.split(/\s+/).filter(Boolean);
+    let score = 0;
+    for (const w of palavras) {
+      if (palavrasArq.some(aw =>
+        aw === w ||
+        (aw.length >= 3 && w.length >= 3 && (aw.includes(w) || w.includes(aw)))
+      )) {
+        score++;
+      }
+    }
+    if (score > melhorScore) { melhorScore = score; melhor = arq; }
+  }
+
+  return melhorScore >= 1 ? melhor : null;
+}
+
+// Baixa a imagem do repositório e devolve dataURL comprimido
+async function carregarImagemRotulo(arq) {
+  if (!arq || !arq.url) return null;
+  try {
+    const resp = await fetch(arq.url, { mode: 'cors' });
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const blob = await resp.blob();
+    const dataUrl = await new Promise((resolve) => {
+      const fr = new FileReader();
+      fr.onload  = () => resolve(fr.result);
+      fr.onerror = () => resolve(null);
+      fr.readAsDataURL(blob);
+    });
+    if (!dataUrl) return null;
+    return await comprimirImagem(dataUrl, 500, 400, 0.8);
+  } catch(e) {
+    console.warn('Falha ao baixar imagem do repositório:', arq.name, e);
+    // Fallback: tenta via canvas (caso CORS permita)
+    return await baixarImagemComoDataURL(arq.url, 500, 400, 0.8);
+  }
+}
+
+async function buscarImagemNoGitHub(nome) {
+  try {
+    const arquivos = await listarImagensRotulos();
+    if (!arquivos.length) return null;
+    const match = encontrarRotuloPorNome(nome, arquivos);
+    if (!match) return null;
+    console.log('🎯 rótulo encontrado:', match.name);
+    return await carregarImagemRotulo(match);
+  } catch(e) {
+    console.warn('buscarImagemNoGitHub falhou:', e);
+    return null;
+  }
+}
+
+// ========== BUSCA MANUAL (dispositivo → repositório → internet) ==========
 async function buscarImagemManual() {
   const nome = $('produtoNome').value.trim();
   if (!nome) {
@@ -2284,7 +2470,7 @@ async function buscarImagemManual() {
 
   setLoadingPreview(true);
 
-  // 1) Procura no DISPOSITIVO (outros estabelecimentos)
+  // 1) Procura no DISPOSITIVO (outros estabelecimentos do app)
   showFeedback('🔍 Procurando imagem no dispositivo...');
   const imgDispositivo = buscarImagemProdutoExistente(nome, currentEditId);
   if (imgDispositivo) {
@@ -2296,8 +2482,20 @@ async function buscarImagemManual() {
     return;
   }
 
-  // 2) Se não achou, busca na INTERNET
-  showFeedback('🌐 Nada no dispositivo. Buscando na internet...');
+  // 2) Procura na pasta "rotulos" do REPOSITÓRIO
+  showFeedback('📦 Procurando na pasta "rotulos" do repositório...');
+  const imgRepo = await buscarImagemNoGitHub(nome);
+  if (imgRepo) {
+    setLoadingPreview(false);
+    imagemProdutoTemp = imgRepo;
+    renderPreviewImagemProduto();
+    verificarAlteracoesProduto();
+    showFeedback('✅ Imagem encontrada na pasta "rotulos"!');
+    return;
+  }
+
+  // 3) Procura na INTERNET
+  showFeedback('🌐 Nada no repositório. Buscando na internet...');
   const dataUrl = await buscarImagemAutomatica(nome);
   setLoadingPreview(false);
   if (dataUrl) {
@@ -2431,9 +2629,9 @@ async function addProduto(nome, preco) {
     showFeedback('✅ Produto cadastrado: ' + nome + ' - ' + money(preco));
     fecharFormProduto(true);
 
-    // Se não tem imagem definida, tenta reaproveitar de outro estabelecimento primeiro,
-    // e só depois busca na internet.
+    // Sem imagem → 1) dispositivo  →  2) pasta rotulos (repo)  →  3) internet
     if (!imgAtual) {
+      // 1) Dispositivo
       const imgDispositivo = buscarImagemProdutoExistente(nome, novo.id);
       if (imgDispositivo) {
         const prod = estab.produtos.find(p => p.id === novo.id);
@@ -2445,18 +2643,30 @@ async function addProduto(nome, preco) {
           return;
         }
       }
-      // Nada no dispositivo → busca na internet
-      showFeedback('🖼️ Sem imagem no dispositivo. Buscando na internet...');
-      buscarImagemAutomatica(nome).then((img) => {
-        if (img) {
-          const prod = estab.produtos.find(p => p.id === novo.id);
-          if (prod && !prod.imagem) {
-            prod.imagem = img;
+
+      // 2) Pasta rotulos no repositório
+      showFeedback('📦 Buscando na pasta "rotulos" do repositório...');
+      buscarImagemNoGitHub(nome).then((imgRepo) => {
+        const prod = estab.produtos.find(p => p.id === novo.id);
+        if (imgRepo && prod && !prod.imagem) {
+          prod.imagem = imgRepo;
+          save();
+          renderAll();
+          showFeedback('🖼️ Imagem adicionada da pasta "rotulos": ' + nome);
+          return;
+        }
+
+        // 3) Internet (fallback)
+        showFeedback('🌐 Buscando imagem na internet...');
+        buscarImagemAutomatica(nome).then((img) => {
+          const prod2 = estab.produtos.find(p => p.id === novo.id);
+          if (img && prod2 && !prod2.imagem) {
+            prod2.imagem = img;
             save();
             renderAll();
             showFeedback('🖼️ Imagem adicionada da internet: ' + nome);
           }
-        }
+        });
       });
     }
   }
