@@ -136,61 +136,13 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .hist-filters-row select, .hist-filters-row input {margin:0;border-radius:8px;padding:8px 12px;font-size:14px;}
 .estab-group-header {background:var(--panel2);padding:10px 14px;border-radius:8px;margin:16px 0 10px;border-left:4px solid var(--accent);display:flex;justify-content:space-between;align-items:center;}
 
-/* ===== SINÔNIMOS (nova estrutura por categoria) ===== */
-.sinonimo-categoria {
-  margin-bottom: 22px;
-  padding-bottom: 8px;
-}
-.sinonimo-categoria-titulo {
-  font-size: 15px;
-  color: #79e9aa;
-  margin: 12px 0 12px;
-  padding: 8px 12px;
-  background: linear-gradient(135deg,#1d4937,#19382e);
-  border-left: 4px solid var(--accent);
-  border-radius: 8px;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.sinonimo-categoria-titulo .contador-cat {
-  background: rgba(57,201,122,0.25);
-  padding: 2px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #d7ffe8;
-  font-weight: bold;
-  flex-shrink: 0;
-}
-.sinonimo-group{
-  background:var(--panel2);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:14px;
-  margin-bottom:10px;
-  border-left:3px solid var(--accent);
-}
-.sinonimo-group h3{
-  margin:0 0 4px 0;
-  font-size:15px;
-  color:var(--text);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.sinonimo-group h3 .contador-sin {
-  font-size: 11px;
-  background: rgba(57,201,122,0.15);
-  color: #79e9aa;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-weight: bold;
-}
+/* ===== SINÔNIMOS ===== */
+.sinonimo-categoria {margin-bottom: 22px;padding-bottom: 8px;}
+.sinonimo-categoria-titulo {font-size: 15px;color: #79e9aa;margin: 12px 0 12px;padding: 8px 12px;background: linear-gradient(135deg,#1d4937,#19382e);border-left: 4px solid var(--accent);border-radius: 8px;font-weight: bold;letter-spacing: 0.5px;display: flex;align-items: center;justify-content: space-between;gap: 10px;}
+.sinonimo-categoria-titulo .contador-cat {background: rgba(57,201,122,0.25);padding: 2px 10px;border-radius: 20px;font-size: 12px;color: #d7ffe8;font-weight: bold;flex-shrink: 0;}
+.sinonimo-group{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid var(--accent);}
+.sinonimo-group h3{margin:0 0 4px 0;font-size:15px;color:var(--text);display: flex;align-items: center;justify-content: space-between;gap: 10px;flex-wrap: wrap;}
+.sinonimo-group h3 .contador-sin {font-size: 11px;background: rgba(57,201,122,0.15);color: #79e9aa;padding: 2px 8px;border-radius: 10px;font-weight: bold;}
 .sinonimo-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;}
 .sinonimo-chip{display:inline-flex;align-items:center;gap:6px;background:#10151f;border:1px solid var(--border);color:var(--text);padding:5px 6px 5px 12px;border-radius:20px;font-size:13px;}
 .sinonimo-chip button{background:transparent;border:0;color:var(--danger);cursor:pointer;font-size:16px;padding:0 4px;line-height:1;font-weight:bold;border-radius:50%;}
@@ -213,13 +165,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .tip-box{background:rgba(79,195,247,0.1);border:1px solid var(--info);border-radius:10px;padding:12px;margin:12px 0;}
 .tip-box p{margin:0;color:var(--text);font-size:13px;}
 
-.sync-box{
-  background:linear-gradient(135deg,#1a2d40,#152233);
-  border:1px solid #2d5a7a;
-  border-radius:12px;
-  padding:16px;
-  margin-bottom:18px;
-}
+.sync-box{background:linear-gradient(135deg,#1a2d40,#152233);border:1px solid #2d5a7a;border-radius:12px;padding:16px;margin-bottom:18px;}
 .sync-box h3{margin:0 0 6px 0;color:#7ec8f0;font-size:16px;}
 .sync-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
 .sync-actions button{flex:1;min-width:150px;padding:12px;}
@@ -229,50 +175,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sync-status.ok{color:#79e9aa;}
 .sync-status.err{color:#ef8b93;}
 
-/* ===== MICROFONE FLUTUANTE ===== */
-.voice-status-icon {
-  position: fixed;
-  bottom: 22px;
-  right: 18px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(34,41,56,0.92);
-  border: 2px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  padding: 0;
-  z-index: 9998;
-  transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-  cursor: pointer;
-  opacity: 0.85;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
+.voice-status-icon {position: fixed;bottom: 22px;right: 18px;width: 56px;height: 56px;border-radius: 50%;background: rgba(34,41,56,0.92);border: 2px solid var(--border);display: flex;align-items: center;justify-content: center;font-size: 26px;padding: 0;z-index: 9998;transition: all 0.3s ease;box-shadow: 0 6px 20px rgba(0,0,0,0.6);cursor: pointer;opacity: 0.85;backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);}
 .voice-status-icon:hover { opacity: 1; transform: scale(1.08); }
-.voice-status-icon.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  opacity: 1;
-  animation: voicePulse 2s infinite;
-}
+.voice-status-icon.active {background: var(--accent);border-color: var(--accent);opacity: 1;animation: voicePulse 2s infinite;}
 .voice-status-icon.active #voiceStatusIconEmoji { color: #092114; }
-@keyframes voicePulse {
-  0%, 100% { box-shadow: 0 6px 20px rgba(57,201,122,0.5); }
-  50%      { box-shadow: 0 6px 30px rgba(57,201,122,1); }
-}
-@media(max-width:650px){
-  .voice-status-icon {
-    bottom: 18px;
-    right: 14px;
-    width: 54px;
-    height: 54px;
-    font-size: 24px;
-  }
-}
+@keyframes voicePulse {0%, 100% { box-shadow: 0 6px 20px rgba(57,201,122,0.5); }50%      { box-shadow: 0 6px 30px rgba(57,201,122,1); }}
+@media(max-width:650px){.voice-status-icon {bottom: 18px;right: 14px;width: 54px;height: 54px;font-size: 24px;}}
 
 #reciboModal .payment-content { max-width: 460px; }
 #reciboBody .recibo-bloco { padding:8px 0; border-bottom:1px dashed var(--border); }
@@ -284,226 +192,45 @@ footer{text-align:center;color:var(--muted);padding:25px}
 #reciboBody .recibo-item .qtd { color:var(--muted); margin-right:8px; }
 #reciboBody .recibo-item .preco { color:#8df0b8; }
 
-.share-option {
-  display:flex;
-  align-items:center;
-  gap:14px;
-  padding:14px 16px;
-  border-radius:12px;
-  background:var(--panel2);
-  border:1px solid var(--border);
-  margin-bottom:10px;
-  cursor:pointer;
-  transition:all .15s;
-  color:var(--text);
-  text-align:left;
-  font-weight:normal;
-  width:100%;
-}
+.share-option {display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--panel2);border:1px solid var(--border);margin-bottom:10px;cursor:pointer;transition:all .15s;color:var(--text);text-align:left;font-weight:normal;width:100%;}
 .share-option:hover { background:#2c3547; border-color:var(--accent); }
 .share-option .share-icon { font-size:26px; width:34px; text-align:center; flex-shrink:0; }
 .share-option .share-info { flex:1; }
 .share-option .share-info .share-title { font-weight:bold; font-size:15px; }
 .share-option .share-info .share-desc { font-size:12px; color:var(--muted); margin-top:2px; }
 
-/* ===== IMAGENS DE PRODUTO ===== */
-.produto-img-preview {
-  position: relative;
-  width: 100%;
-  height: 170px;
-  border-radius: 12px;
-  border: 2px dashed var(--border);
-  background: #10151f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  margin: 4px 0 10px;
-}
-.produto-img-preview img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.produto-img-preview .empty {
-  color: var(--muted);
-  font-size: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  text-align: center;
-  padding: 12px;
-}
+.produto-img-preview {position: relative;width: 100%;height: 170px;border-radius: 12px;border: 2px dashed var(--border);background: #10151f;display: flex;align-items: center;justify-content: center;overflow: hidden;margin: 4px 0 10px;}
+.produto-img-preview img {width: 100%;height: 100%;object-fit: cover;display: block;}
+.produto-img-preview .empty {color: var(--muted);font-size: 14px;display: flex;flex-direction: column;align-items: center;gap: 6px;text-align: center;padding: 12px;}
 .produto-img-preview .empty .big { font-size: 42px; line-height: 1; }
 .produto-img-preview .empty .small { font-size: 11px; opacity: 0.75; }
-.produto-img-preview.loading::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(2px);
-  z-index: 1;
-}
-.produto-img-preview .spinner {
-  position: absolute;
-  z-index: 2;
-  width: 34px; height: 34px;
-  border: 3px solid rgba(255,255,255,0.25);
-  border-top-color: var(--accent);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
+.produto-img-preview.loading::before {content: '';position: absolute;inset: 0;background: rgba(0,0,0,0.55);backdrop-filter: blur(2px);z-index: 1;}
+.produto-img-preview .spinner {position: absolute;z-index: 2;width: 34px; height: 34px;border: 3px solid rgba(255,255,255,0.25);border-top-color: var(--accent);border-radius: 50%;animation: spin 0.8s linear infinite;}
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.produto-thumb {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  object-fit: cover;
-  background: #10151f;
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-  display: block;
-}
-.produto-thumb-placeholder {
-  width: 56px;
-  height: 56px;
-  border-radius: 8px;
-  background: #10151f;
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  flex-shrink: 0;
-}
+.produto-thumb {width: 56px;height: 56px;border-radius: 8px;object-fit: cover;background: #10151f;border: 1px solid var(--border);flex-shrink: 0;display: block;}
+.produto-thumb-placeholder {width: 56px;height: 56px;border-radius: 8px;background: #10151f;border: 1px solid var(--border);display: flex;align-items: center;justify-content: center;font-size: 26px;flex-shrink: 0;}
 .list-item.with-thumb { gap: 12px; align-items: center; }
 .list-item.with-thumb > .info { flex: 1; min-width: 0; }
 .list-item.with-thumb > .info b { word-break: break-word; }
 
-.produto-thumb-mini {
-  width: 38px;
-  height: 38px;
-  border-radius: 6px;
-  object-fit: cover;
-  background: #10151f;
-  border: 1px solid var(--border);
-  display: inline-block;
-  flex-shrink: 0;
-}
-.produto-thumb-mini-placeholder {
-  width: 38px;
-  height: 38px;
-  border-radius: 6px;
-  background: #10151f;
-  border: 1px solid var(--border);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  flex-shrink: 0;
-}
-.menu-mini-item > span:first-child {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  flex: 1;
-}
-.menu-mini-item > span:first-child > span:last-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+.produto-thumb-mini {width: 38px;height: 38px;border-radius: 6px;object-fit: cover;background: #10151f;border: 1px solid var(--border);display: inline-block;flex-shrink: 0;}
+.produto-thumb-mini-placeholder {width: 38px;height: 38px;border-radius: 6px;background: #10151f;border: 1px solid var(--border);display: inline-flex;align-items: center;justify-content: center;font-size: 18px;flex-shrink: 0;}
+.menu-mini-item > span:first-child {display: flex;align-items: center;gap: 10px;min-width: 0;flex: 1;}
+.menu-mini-item > span:first-child > span:last-child {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
 
-/* Botão + nos itens do mini-cardápio */
-.btn-add-mini {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #092114;
-  font-size: 22px;
-  font-weight: bold;
-  border: 0;
-  cursor: pointer;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(57,201,122,0.45);
-  transition: transform 0.12s, filter 0.12s;
-}
+.btn-add-mini {width: 34px;height: 34px;border-radius: 50%;background: var(--accent);color: #092114;font-size: 22px;font-weight: bold;border: 0;cursor: pointer;padding: 0;display: inline-flex;align-items: center;justify-content: center;line-height: 1;flex-shrink: 0;box-shadow: 0 2px 8px rgba(57,201,122,0.45);transition: transform 0.12s, filter 0.12s;}
 .btn-add-mini:hover { filter: brightness(1.1); transform: scale(1.08); }
 .btn-add-mini:active { transform: scale(0.9); }
 
-/* ===== CABEÇALHO DO CARDÁPIO ===== */
-.cardapio-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 18px;
-  padding-bottom: 14px;
-  border-bottom: 2px solid var(--accent);
-}
-.cardapio-header h2 {
-  margin: 0;
-  font-family: 'Anton','Impact','Arial Black',sans-serif;
-  font-size: 30px;
-  letter-spacing: 2px;
-  color: #79e9aa;
-  text-transform: uppercase;
-  line-height: 1.1;
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.cardapio-header h2 .nome-estab {
-  display: inline;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 22px;
-  color: #ffd97d;
-  letter-spacing: normal;
-  text-transform: none;
-  font-weight: bold;
-  text-shadow: 0 0 14px rgba(255, 217, 125, 0.45), 0 1px 2px rgba(0,0,0,0.6);
-}
-@media(max-width:650px){
-  .cardapio-header h2 { font-size: 22px; }
-  .cardapio-header h2 .nome-estab { font-size: 17px; }
-}
+.cardapio-header {display: flex;justify-content: space-between;align-items: center;flex-wrap: wrap;gap: 12px;margin-bottom: 18px;padding-bottom: 14px;border-bottom: 2px solid var(--accent);}
+.cardapio-header h2 {margin: 0;font-family: 'Anton','Impact','Arial Black',sans-serif;font-size: 30px;letter-spacing: 2px;color: #79e9aa;text-transform: uppercase;line-height: 1.1;display: flex;align-items: baseline;flex-wrap: wrap;gap: 12px;}
+.cardapio-header h2 .nome-estab {display: inline;font-family: Arial, Helvetica, sans-serif;font-size: 22px;color: #ffd97d;letter-spacing: normal;text-transform: none;font-weight: bold;text-shadow: 0 0 14px rgba(255, 217, 125, 0.45), 0 1px 2px rgba(0,0,0,0.6);}
+@media(max-width:650px){.cardapio-header h2 { font-size: 22px; }.cardapio-header h2 .nome-estab { font-size: 17px; }}
 
-/* ===== BOTÕES DE EXPORTAÇÃO ===== */
-.export-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 14px;
-}
-@media(max-width:650px){
-  .export-buttons { grid-template-columns: 1fr; }
-}
-.export-btn {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 2px solid var(--border);
-  background: var(--panel2);
-  color: var(--text);
-  text-align: left;
-  font-weight: normal;
-  cursor: pointer;
-  transition: all 0.15s;
-}
+.export-buttons {display: grid;grid-template-columns: 1fr 1fr;gap: 12px;margin-bottom: 14px;}
+@media(max-width:650px){.export-buttons { grid-template-columns: 1fr; }}
+.export-btn {display: flex;align-items: center;gap: 12px;padding: 14px 16px;border-radius: 12px;border: 2px solid var(--border);background: var(--panel2);color: var(--text);text-align: left;font-weight: normal;cursor: pointer;transition: all 0.15s;}
 .export-btn:hover { border-color: var(--accent); transform: translateY(-2px); }
 .export-btn .icon { font-size: 24px; flex-shrink: 0; }
 .export-btn .info { flex: 1; min-width: 0; }
@@ -514,132 +241,27 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .export-btn.light { border-color: rgba(79,195,247,0.4); }
 .export-btn.light:hover { background: rgba(79,195,247,0.08); }
 
-/* ===== MODAL TEMPORÁRIO DE PEDIDO ===== */
-.order-flash-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.7);
-  opacity: 0;
-  z-index: 10050;
-  pointer-events: none;
-  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  background: rgba(10, 14, 20, 0.96);
-  border: 3px solid var(--accent);
-  border-radius: 20px;
-  padding: 20px 20px 76px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 40px rgba(57,201,122,0.55), inset 0 0 20px rgba(57,201,122,0.1);
-  max-width: 320px;
-  width: 85%;
-  text-align: center;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-.order-flash-modal.show {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-  pointer-events: auto;
-}
-.order-flash-modal .flash-img-wrap {
-  width: 100%;
-  height: 180px;
-  border-radius: 14px;
-  overflow: hidden;
-  background: #10151f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-  border: 2px solid rgba(57,201,122,0.35);
-}
-.order-flash-modal .flash-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-.order-flash-modal .flash-emoji {
-  font-size: 90px;
-  line-height: 1;
-}
-.order-flash-modal .flash-nome {
-  font-size: 20px;
-  font-weight: bold;
-  color: #79e9aa;
-  text-shadow: 0 0 12px rgba(57,201,122,0.5);
-  word-break: break-word;
-  line-height: 1.25;
-}
-.order-flash-modal .flash-info {
-  font-size: 14px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-.order-flash-modal .flash-badge {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 5px 14px;
-  border-radius: 20px;
-  background: rgba(57,201,122,0.2);
-  color: #79e9aa;
-  font-size: 13px;
-  font-weight: bold;
-  letter-spacing: 0.5px;
-}
-.order-flash-modal .flash-check {
-  position: absolute;
-  top: -16px;
-  right: -16px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #092114;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  font-weight: bold;
-  box-shadow: 0 4px 14px rgba(57,201,122,0.6);
-  animation: popCheck 0.35s ease-out 0.1s backwards;
-}
-.order-flash-modal .flash-add-btn {
-  position: absolute;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: #092114;
-  font-size: 32px;
-  font-weight: bold;
-  border: 0;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  box-shadow: 0 6px 18px rgba(57,201,122,0.65);
-  transition: transform 0.12s, filter 0.12s;
-}
+.order-flash-modal {position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%) scale(0.7);opacity: 0;z-index: 10050;pointer-events: none;transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);background: rgba(10, 14, 20, 0.96);border: 3px solid var(--accent);border-radius: 20px;padding: 20px 20px 76px;box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 40px rgba(57,201,122,0.55), inset 0 0 20px rgba(57,201,122,0.1);max-width: 320px;width: 85%;text-align: center;backdrop-filter: blur(8px);-webkit-backdrop-filter: blur(8px);}
+.order-flash-modal.show {opacity: 1;transform: translate(-50%, -50%) scale(1);pointer-events: auto;}
+.order-flash-modal .flash-img-wrap {width: 100%;height: 180px;border-radius: 14px;overflow: hidden;background: #10151f;display: flex;align-items: center;justify-content: center;margin-bottom: 12px;border: 2px solid rgba(57,201,122,0.35);}
+.order-flash-modal .flash-img-wrap img {width: 100%;height: 100%;object-fit: cover;display: block;}
+.order-flash-modal .flash-emoji {font-size: 90px;line-height: 1;}
+.order-flash-modal .flash-nome {font-size: 20px;font-weight: bold;color: #79e9aa;text-shadow: 0 0 12px rgba(57,201,122,0.5);word-break: break-word;line-height: 1.25;}
+.order-flash-modal .flash-info {font-size: 14px;color: var(--muted);margin-top: 6px;}
+.order-flash-modal .flash-badge {display: inline-block;margin-top: 10px;padding: 5px 14px;border-radius: 20px;background: rgba(57,201,122,0.2);color: #79e9aa;font-size: 13px;font-weight: bold;letter-spacing: 0.5px;}
+.order-flash-modal .flash-check {position: absolute;top: -16px;right: -16px;width: 44px;height: 44px;border-radius: 50%;background: var(--accent);color: #092114;display: flex;align-items: center;justify-content: center;font-size: 24px;font-weight: bold;box-shadow: 0 4px 14px rgba(57,201,122,0.6);animation: popCheck 0.35s ease-out 0.1s backwards;}
+.order-flash-modal .flash-add-btn {position: absolute;bottom: 18px;left: 50%;transform: translateX(-50%);width: 54px;height: 54px;border-radius: 50%;background: var(--accent);color: #092114;font-size: 32px;font-weight: bold;border: 0;cursor: pointer;padding: 0;display: flex;align-items: center;justify-content: center;line-height: 1;box-shadow: 0 6px 18px rgba(57,201,122,0.65);transition: transform 0.12s, filter 0.12s;}
 .order-flash-modal .flash-add-btn:hover { transform: translateX(-50%) scale(1.08); filter: brightness(1.1); }
 .order-flash-modal .flash-add-btn:active { transform: translateX(-50%) scale(0.92); }
-@keyframes popCheck {
-  from { transform: scale(0); }
-  60%  { transform: scale(1.25); }
-  to   { transform: scale(1); }
-}
-@media(max-width:650px){
-  .order-flash-modal { max-width: 270px; padding: 16px 16px 68px; }
-  .order-flash-modal .flash-img-wrap { height: 150px; }
-  .order-flash-modal .flash-nome { font-size: 17px; }
-  .order-flash-modal .flash-emoji { font-size: 70px; }
-  .order-flash-modal .flash-check { width: 38px; height: 38px; font-size: 20px; top: -12px; right: -12px; }
-  .order-flash-modal .flash-add-btn { width: 48px; height: 48px; font-size: 28px; bottom: 14px; }
-}
+@keyframes popCheck {from { transform: scale(0); }60%  { transform: scale(1.25); }to   { transform: scale(1); }}
+@media(max-width:650px){.order-flash-modal { max-width: 270px; padding: 16px 16px 68px; }.order-flash-modal .flash-img-wrap { height: 150px; }.order-flash-modal .flash-nome { font-size: 17px; }.order-flash-modal .flash-emoji { font-size: 70px; }.order-flash-modal .flash-check { width: 38px; height: 38px; font-size: 20px; top: -12px; right: -12px; }.order-flash-modal .flash-add-btn { width: 48px; height: 48px; font-size: 28px; bottom: 14px; }}
+
+/* Conta - layout simplificado */
+.conta-header-info {display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+.conta-total-box {text-align:center; padding:8px 0;}
+.conta-total-box .note {letter-spacing:1px;}
+.conta-btn-row {display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+.conta-btn-row button {flex:1; min-width:140px;}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -655,7 +277,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <h1>FECHA A CONTA</h1>
 </header>
 
-<!-- ===== MICROFONE FLUTUANTE ===== -->
 <button id="voiceStatusIcon" class="voice-status-icon" onclick="toggleVoiceAssistant()" title="Ativar / Desativar assistente de voz" aria-label="Assistente de voz">
   <span id="voiceStatusIconEmoji">🎙️</span>
 </button>
@@ -814,11 +435,17 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <div id="formProduto" style="display:none; padding:16px; background:var(--panel2); border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
     <h3 id="formProdutoTitulo" style="margin-top:0; color:#79e9aa;">➕ Novo produto</h3>
 
-    <label>Nome do produto</label>
-    <input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml" oninput="verificarAlteracoesProduto()">
+    <div id="produtoToggleWrap" style="display:none; margin-bottom:12px;">
+      <button type="button" class="secondary" id="btnToggleProdutoCampos" onclick="toggleProdutoCampos()" style="width:100%;">👁 Mostrar nome e preço</button>
+    </div>
 
-    <label>Preço</label>
-    <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10.00" oninput="verificarAlteracoesProduto()">
+    <div id="produtoCamposExtras">
+      <label>Nome do produto</label>
+      <input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml" oninput="verificarAlteracoesProduto()">
+
+      <label>Preço</label>
+      <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10.00" oninput="verificarAlteracoesProduto()">
+    </div>
 
     <label>Imagem do produto</label>
     <div id="produtoImagemPreview" class="produto-img-preview">
@@ -850,41 +477,35 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
+<!-- ===== CONTA (simplificada) ===== -->
 <section id="conta" class="screen">
-<div class="grid">
-  <div class="card">
-    <h2>🛒 Fazer Pedido</h2>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+<div class="card">
+  <div class="conta-header-info">
+    <div>
       <div class="note">Estabelecimento: <b id="contaEstabNome">Nenhum</b></div>
       <div class="note" id="contaStatus">Status: Nenhuma conta aberta</div>
+      <div class="note">Cliente: <b id="contaClienteNome">Não informado</b></div>
     </div>
-    
-    <label>Selecione o produto do cardápio</label>
-    <select id="pedidoProduto"></select>
-    
-    <div class="row">
-      <div>
-        <label>Quantidade</label>
-        <input id="pedidoQtd" type="number" min="1" value="1">
-      </div>
-      <div style="display:flex; align-items:flex-end;">
-        <button onclick="addPedido()" style="width:100%; margin-bottom:12px;">➕ Adicionar Item</button>
-      </div>
-    </div>
-    <p class="note" style="margin-top:-6px;">Ou use a voz: "Fazer pedido de 2 cervejas".</p>
-
-    <hr style="border-color:var(--border); margin:18px 0">
-
-    <h3>🧾 Itens Consumidos na Conta</h3>
-    <div id="contaItens"></div>
   </div>
 
-  <div class="card">
-    <h2>📊 Resumo da Conta</h2>
-    <div class="note" style="margin-bottom:10px;">Cliente/Usuário: <b id="contaClienteNome">Não informado</b></div>
+  <button onclick="mostrarMiniCardapio()" id="btnVerCardapioConta" style="width:100%; margin-bottom:16px; padding:14px; font-size:15px;">📋 Ver cardápio / Adicionar item</button>
 
-    <div style="font-size:16px;">Subtotal: <span class="money" id="contaSubtotal">R$ 0,00</span></div>
+  <h3 style="margin-top:6px;">🧾 Itens Consumidos</h3>
+  <div id="contaItens"></div>
 
+  <hr style="border-color:var(--border); margin:18px 0">
+
+  <div class="conta-total-box">
+    <div class="note">VALOR TOTAL DA CONTA</div>
+    <div class="total" id="contaTotal">R$ 0,00</div>
+  </div>
+
+  <div class="conta-btn-row">
+    <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">⚙ Desconto / Gorjeta</button>
+    <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()">📂 Abrir conta</button>
+  </div>
+
+  <div id="contaExtrasWrapper" style="display:none; margin-top:16px;">
     <div class="desconto-container">
       <div class="row">
         <div><label>Desconto (R$)</label><input id="descontoValor" type="number" step="0.01" min="0" placeholder="0,00" oninput="calcularTotaisConta()"></div>
@@ -892,8 +513,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
       </div>
     </div>
 
-    <div style="margin-top:10px;">Subtotal com desconto: <span class="money" id="contaSubtotalDesconto">R$ 0,00</span></div>
-    
     <div style="margin-top:10px;">
       <label>Gorjeta / Serviço</label>
       <select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
@@ -903,16 +522,23 @@ footer{text-align:center;color:var(--muted);padding:25px}
         <option value="20">20%</option>
       </select>
     </div>
-    
-    <div>Gorjeta: <span class="money" id="contaGorjeta">R$ 0,00</span></div>
-    
-    <hr style="border-color:var(--border); margin:15px 0">
-    <div>VALOR TOTAL ATUAL</div>
-    <div class="total" id="contaTotal">R$ 0,00</div>
-    
-    <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()" style="width:100%; margin-top:15px; padding:14px; font-size:16px;">📂 Abrir conta</button>
 
-    <hr style="border-color:var(--border); margin:20px 0">
+    <div style="margin-top:12px; padding:12px; background:var(--panel2); border-radius:10px;">
+      <div style="display:flex; justify-content:space-between; padding:3px 0;">
+        <span class="note">Subtotal:</span>
+        <span class="money" id="contaSubtotal">R$ 0,00</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:3px 0;">
+        <span class="note">Subtotal c/ desconto:</span>
+        <span class="money" id="contaSubtotalDesconto">R$ 0,00</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:3px 0;">
+        <span class="note">Gorjeta:</span>
+        <span class="money" id="contaGorjeta">R$ 0,00</span>
+      </div>
+    </div>
+
+    <hr style="border-color:var(--border); margin:16px 0">
     <h3>💳 Dados PIX para Pagamento</h3>
     <div id="pixInfo" class="note">Selecione um estabelecimento para ver os dados PIX.</div>
   </div>
@@ -1243,7 +869,6 @@ const SINONIMOS_PADRAO = {
   exportarDados: ['exportar dados','exportar'],
   importarDados: ['importar dados','importar'],
   desativarVoz: ['desativar comando','desligar assistente','desligar app','desligar voz'],
-  // ==== SINÔNIMOS PARA PAGAMENTO ====
   pagamentoPix:       ['pix','pics','pique','picks','pixes','pixar','peaks','pic'],
   pagamentoDinheiro:  ['dinheiro','especie','espécie','cash','grana','nota','notas','papel','papelao'],
   pagamentoCartao:    ['cartao','cartão','credito','crédito','debito','débito','card','cards','maquininha']
@@ -1347,7 +972,6 @@ let orderFlashTimer = null;
 let ultimoProdutoPedido = null;
 const $ = id => document.getElementById(id);
 
-// ========== TTS — DIAGNÓSTICO ==========
 const speechDiagnostic = {
   lastText: null,
   lastError: null,
@@ -1467,7 +1091,6 @@ function extrairResto(textoNorm, sinonimo) {
   return textoNorm.replace(re, ' ').replace(/\s+/g, ' ').trim();
 }
 
-// ========== MATCHING DE ESTABELECIMENTO (nome + sinônimos) ==========
 function encontrarEstabelecimentoPorTexto(texto) {
   const t = normalize(texto || '');
   if (!t) return null;
@@ -1495,7 +1118,6 @@ function encontrarEstabelecimentoPorTexto(texto) {
   return melhor;
 }
 
-// ========== MATCHING PARCIAL DE PRODUTOS ==========
 const PALAVRAS_IGNORAR = new Set([
   'o','a','os','as','um','uma','uns','umas',
   'de','da','do','das','dos','em','no','na','nos','nas','por','para','pra','pro',
@@ -1549,7 +1171,6 @@ function encontrarProdutoPorNome(textoNorm, produtos) {
   return { ambiguo: candidatos };
 }
 
-// ========== CONFIRMAÇÃO VOZ-AMIGÁVEL ==========
 function confirmar(mensagem, opcoes = {}) {
   return new Promise((resolve) => {
     confirmacaoPendente = { resolve };
@@ -1578,7 +1199,6 @@ function resolverConfirmacao(resposta) {
   cb(resposta);
 }
 
-// ========== SINÔNIMOS (renderização agrupada por categoria) ==========
 function renderSinonimos() {
   const container = document.getElementById('listaSinonimos');
   if (!container) return;
@@ -1636,7 +1256,7 @@ function renderSinonimos() {
       <span>🏢 Meus Estabelecimentos</span>
       <span class="contador-cat">${Object.keys(data.estabelecimentos).length} ${Object.keys(data.estabelecimentos).length === 1 ? 'local' : 'locais'}</span>
     </div>
-    <p class="note" style="margin:0 0 12px;">Adicione palavras alternativas para se referir a cada estabelecimento por voz. Ex: se o nome é <b>"Bar do Zé"</b>, você pode adicionar <b>"zé"</b>, <b>"buteco"</b>, <b>"bar do zé"</b>. Depois basta falar <i>"selecionar buteco"</i> ou <i>"abrir conta zé"</i>.</p>
+    <p class="note" style="margin:0 0 12px;">Adicione palavras alternativas para se referir a cada estabelecimento por voz.</p>
     ${renderSinonimosEstabelecimentos()}
   </div>`;
 
@@ -1646,7 +1266,7 @@ function renderSinonimos() {
 function renderSinonimosEstabelecimentos() {
   const estabs = Object.entries(data.estabelecimentos);
   if (!estabs.length) {
-    return '<div class="note" style="padding:12px; text-align:center;">Nenhum estabelecimento cadastrado. Vá em <b>⚙ Configurações → 🏢 Estabelecimentos</b> para cadastrar um.</div>';
+    return '<div class="note" style="padding:12px; text-align:center;">Nenhum estabelecimento cadastrado.</div>';
   }
   return estabs.map(([id, e]) => {
     const sinonimos = data.sinonimosEstabelecimentos[id] || [];
@@ -1794,7 +1414,6 @@ async function restaurarSinonimosEstab(idEstab) {
   showFeedback('↩️ Sinônimos removidos.');
 }
 
-// ========== IMPORTAR / EXPORTAR SINÔNIMOS ==========
 function setSyncStatus(msg, tipo) {
   const el = document.getElementById('syncStatus');
   if (!el) return;
@@ -1894,7 +1513,6 @@ function importarSinonimos(event) {
   reader.readAsText(file);
 }
 
-// ========== AÇÃO PRINCIPAL DA CONTA ==========
 function acaoPrincipalConta() {
   if (data.contaAtiva) {
     showScreen('conta');
@@ -1904,7 +1522,6 @@ function acaoPrincipalConta() {
   }
 }
 
-// ========== USUÁRIO / BANCOS ==========
 function salvarUsuarioAutomatico() {
   const nome = $('userNome').value.trim();
   const email = $('userEmail').value.trim();
@@ -2078,7 +1695,6 @@ async function excluirBancoUsuario(index) {
   showFeedback('🗑️ Banco removido.');
 }
 
-// ========== ESTABELECIMENTOS ==========
 function getEstabelecimentoAtivo() {
   if (!data.estabelecimentoAtivoId) return null;
   return data.estabelecimentos[data.estabelecimentoAtivoId] || null;
@@ -2233,6 +1849,21 @@ function fecharMiniCardapio() {
   document.getElementById('miniCardapioModal').style.display = 'none';
 }
 
+// ========== TOGGLE DOS CAMPOS DO PRODUTO (nome/preço) ==========
+function toggleProdutoCampos() {
+  const extras = document.getElementById('produtoCamposExtras');
+  const btn = document.getElementById('btnToggleProdutoCampos');
+  if (!extras || !btn) return;
+  const oculto = extras.style.display === 'none';
+  if (oculto) {
+    extras.style.display = 'block';
+    btn.textContent = '🙈 Ocultar nome e preço';
+  } else {
+    extras.style.display = 'none';
+    btn.textContent = '👁 Mostrar nome e preço';
+  }
+}
+
 // ========== IMAGEM DE PRODUTO ==========
 function extrairPalavraChaveImagem(nome) {
   if (!nome) return 'bar food';
@@ -2305,16 +1936,11 @@ function baixarImagemComoDataURL(url, maxW = 400, maxH = 300, quality = 0.75) {
 }
 
 // ========== BUSCA DE IMAGEM EM CASCATA ==========
-// Ordem: 1) dispositivo → 2) repositório GitHub (rótulos) → 3) internet
-
 function buscarImagemLocal(nome) {
   if (!nome) return null;
   const norm = normalize(nome);
   if (!norm) return null;
-
-  const palavrasAlvo = norm.split(/\s+/)
-    .filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
-
+  const palavrasAlvo = norm.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
   let melhor = null;
   let melhorScore = 0;
 
@@ -2323,30 +1949,20 @@ function buscarImagemLocal(nome) {
       if (!p.imagem) return;
       const pNorm = normalize(p.nome);
       if (!pNorm) return;
-
       let score = 0;
-      if (pNorm === norm) {
-        score = 1000;
-      } else if (pNorm.includes(norm) || norm.includes(pNorm)) {
-        score = Math.min(pNorm.length, norm.length) + 20;
-      } else {
-        const pWords = pNorm.split(/\s+/)
-          .filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
+      if (pNorm === norm) score = 1000;
+      else if (pNorm.includes(norm) || norm.includes(pNorm)) score = Math.min(pNorm.length, norm.length) + 20;
+      else {
+        const pWords = pNorm.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
         const comuns = pWords.filter(w => palavrasAlvo.includes(w));
         score = comuns.length * 10;
       }
-
-      if (score > melhorScore) {
-        melhorScore = score;
-        melhor = p.imagem;
-      }
+      if (score > melhorScore) { melhorScore = score; melhor = p.imagem; }
     });
   });
-
   return melhorScore >= 10 ? melhor : null;
 }
 
-// ---- Repositório GitHub ----
 let manifestRotulosCache = null;
 let manifestRotulosRepoCache = null;
 
@@ -2364,7 +1980,7 @@ async function carregarManifestRotulos(repo) {
           manifestRotulosRepoCache = repo;
           return json;
         }
-      } catch(e) { /* ignora */ }
+      } catch(e) { }
     }
   }
   return null;
@@ -2373,7 +1989,6 @@ async function carregarManifestRotulos(repo) {
 async function buscarImagemGitHubRotulos(nome) {
   const repo = (data.githubRotulosRepo || '').trim();
   if (!repo || !nome) return null;
-
   const norm = normalize(nome);
   const slug = norm.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const slugSemEspaco = norm.replace(/[^a-z0-9]+/g, '');
@@ -2384,7 +1999,6 @@ async function buscarImagemGitHubRotulos(nome) {
   if (manifest && typeof manifest === 'object') {
     const chaves = Object.keys(manifest);
     let match = null;
-
     for (const c of candidatos) {
       match = chaves.find(k => normalize(k) === c);
       if (match) break;
@@ -2399,7 +2013,6 @@ async function buscarImagemGitHubRotulos(nome) {
         if (match) break;
       }
     }
-
     if (match) {
       const path = String(manifest[match] || '').replace(/^\//, '');
       if (path) {
@@ -2415,7 +2028,6 @@ async function buscarImagemGitHubRotulos(nome) {
   const folders = ['rotulos/', 'imagens/', 'images/', 'img/', ''];
   const exts = ['jpg', 'jpeg', 'png', 'webp'];
   const slugs = [...new Set([slug, slugSemEspaco])].filter(Boolean);
-
   for (const branch of ['main', 'master']) {
     for (const folder of folders) {
       for (const s of slugs) {
@@ -2427,7 +2039,7 @@ async function buscarImagemGitHubRotulos(nome) {
               const dataUrl = await baixarImagemComoDataURL(url);
               if (dataUrl) return dataUrl;
             }
-          } catch(e) { /* ignora */ }
+          } catch(e) { }
         }
       }
     }
@@ -2437,23 +2049,12 @@ async function buscarImagemGitHubRotulos(nome) {
 
 async function buscarImagemAutomatica(nome) {
   if (!nome) return null;
-
   const local = buscarImagemLocal(nome);
-  if (local) {
-    console.log('🖼️ Imagem reaproveitada do dispositivo para:', nome);
-    return local;
-  }
-
+  if (local) return local;
   try {
     const github = await buscarImagemGitHubRotulos(nome);
-    if (github) {
-      console.log('🖼️ Imagem obtida do repositório GitHub para:', nome);
-      return github;
-    }
-  } catch (e) {
-    console.warn('Erro ao buscar no repositório GitHub:', e);
-  }
-
+    if (github) return github;
+  } catch (e) { }
   const kw = extrairPalavraChaveImagem(nome);
   const lock = hashCode(nome) % 9999;
   const url = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`;
@@ -2463,7 +2064,6 @@ async function buscarImagemAutomatica(nome) {
   return await baixarImagemComoDataURL(url2);
 }
 
-// ---- Config do repositório GitHub ----
 function salvarGithubRepo() {
   const input = document.getElementById('githubRepoInput');
   if (!input) return;
@@ -2632,6 +2232,13 @@ function mostrarFormProduto() {
   document.getElementById('formProdutoTitulo').textContent = '➕ Novo produto';
   document.getElementById('formProduto').style.display = 'block';
   document.getElementById('btnIncluirProduto').style.display = 'none';
+
+  // Modo cadastro: campos visíveis, sem toggle
+  const extras = document.getElementById('produtoCamposExtras');
+  const toggleWrap = document.getElementById('produtoToggleWrap');
+  if (extras) extras.style.display = 'block';
+  if (toggleWrap) toggleWrap.style.display = 'none';
+
   const btn = document.getElementById('btnSalvarProduto');
   btn.disabled = false;
   btn.textContent = '➕ Cadastrar produto';
@@ -2646,6 +2253,13 @@ function fecharFormProduto(silencioso = false) {
   $('produtoPreco').value = '';
   const form = document.getElementById('formProduto');
   if (form) form.style.display = 'none';
+
+  // Reset: campos visíveis por padrão, toggle escondido
+  const extras = document.getElementById('produtoCamposExtras');
+  const toggleWrap = document.getElementById('produtoToggleWrap');
+  if (extras) extras.style.display = 'block';
+  if (toggleWrap) toggleWrap.style.display = 'none';
+
   renderPreviewImagemProduto();
   const estab = getEstabelecimentoAtivo();
   const btnInc = document.getElementById('btnIncluirProduto');
@@ -2690,6 +2304,19 @@ async function addProduto(nome, preco) {
   preco = preco ?? Number($('produtoPreco').value);
   if (!nome || isNaN(preco) || preco <= 0) { showFeedback('⚠️ Informe nome e preço válido.'); return; }
   if (!estab.produtos) estab.produtos = [];
+
+  // ===== VERIFICAÇÃO DE DUPLICIDADE =====
+  // Compara nome normalizado (minúsculo, sem acentos).
+  // Se estiver editando, ignora o próprio produto da comparação.
+  const nomeNorm = normalize(nome).trim();
+  const duplicado = estab.produtos.find(p =>
+    normalize(p.nome).trim() === nomeNorm && String(p.id) !== String(currentEditId)
+  );
+  if (duplicado) {
+    showFeedback('⚠️ Produto já existe: ' + duplicado.nome);
+    speak('Esse produto já existe no cardápio');
+    return;
+  }
 
   const imgAtual = imagemProdutoTemp;
 
@@ -2749,9 +2376,17 @@ function editProduto(id) {
   document.getElementById('formProdutoTitulo').textContent = '✏️ Editando produto';
   document.getElementById('formProduto').style.display = 'block';
   document.getElementById('btnIncluirProduto').style.display = 'none';
+
+  // Modo edição: esconder campos e mostrar toggle para revelar
+  const extras = document.getElementById('produtoCamposExtras');
+  const toggleWrap = document.getElementById('produtoToggleWrap');
+  const toggleBtn = document.getElementById('btnToggleProdutoCampos');
+  if (extras) extras.style.display = 'none';
+  if (toggleWrap) toggleWrap.style.display = 'block';
+  if (toggleBtn) toggleBtn.textContent = '👁 Mostrar nome e preço';
+
   showScreen('cardapio');
   verificarAlteracoesProduto();
-  setTimeout(() => { document.getElementById('produtoNome').focus(); }, 100);
   showFeedback('✏️ Editando: ' + p.nome);
 }
 
@@ -2777,8 +2412,15 @@ function addPedido(produtoId, qtd) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
   if (!data.contaAtiva) { showFeedback('⚠ Não há conta aberta. Abra uma conta primeiro.'); return; }
-  produtoId = produtoId ?? Number($('pedidoProduto').value);
-  qtd = qtd ?? Number($('pedidoQtd').value);
+
+  if (produtoId == null) {
+    const el = $('pedidoProduto');
+    produtoId = el ? Number(el.value) : null;
+  }
+  if (qtd == null) {
+    const el = $('pedidoQtd');
+    qtd = el ? Number(el.value) : 1;
+  }
   const p = estab.produtos.find(x => x.id == produtoId);
   if (!p) { showFeedback('⚠️ Produto não encontrado no cardápio atual.'); return; }
   qtd = Math.max(1, Number(qtd) || 1);
@@ -2814,6 +2456,21 @@ function calcularTotaisConta() {
   document.getElementById('contaSubtotalDesconto').textContent = money(subComDesconto);
   document.getElementById('contaGorjeta').textContent = money(gor);
   document.getElementById('contaTotal').textContent = money(total);
+}
+
+// ========== TOGGLE DESCONTO/GORJETA ==========
+function toggleContaExtras() {
+  const wrapper = document.getElementById('contaExtrasWrapper');
+  const btn = document.getElementById('btnContaExtras');
+  if (!wrapper || !btn) return;
+  const aberto = wrapper.style.display === 'block';
+  if (aberto) {
+    wrapper.style.display = 'none';
+    btn.textContent = '⚙ Desconto / Gorjeta';
+  } else {
+    wrapper.style.display = 'block';
+    btn.textContent = '✔ Ocultar desconto / gorjeta';
+  }
 }
 
 // ========== FECHAMENTO / PAGAMENTO ==========
@@ -3245,7 +2902,7 @@ function renderConta() {
 
   const contaItensDiv = document.getElementById('contaItens');
   if (data.pedido.length === 0) {
-    contaItensDiv.innerHTML = '<div class="empty">Nenhum item consumido na conta.</div>';
+    contaItensDiv.innerHTML = '<div class="empty">Nenhum item consumido na conta.<br>Toque em <b>📋 Ver cardápio</b> para adicionar.</div>';
   } else {
     contaItensDiv.innerHTML = `<table><tr><th>Produto</th><th>Qtd.</th><th>Total</th><th></th></tr>${
       data.pedido.map((x, i) =>
@@ -3272,7 +2929,6 @@ function renderConta() {
     'Selecione um estabelecimento para ver os dados PIX.';
 }
 
-// ========== HISTÓRICO ==========
 function onChangeHistPeriodo() {
   const p = $('histPeriodo').value;
   $('histDatasPersonalizadas').style.display = (p === 'personalizado') ? 'flex' : 'none';
@@ -3399,7 +3055,7 @@ function renderHistorico() {
         <span class="money" style="font-size:16px;">Subtotal: ${money(g.subtotal)}</span>
       </div>`;
       g.itens.forEach(h => {
-        html += criarCardConta(h);
+        html += criarContaCard(h);
       });
     });
     lista.innerHTML = html;
@@ -3439,7 +3095,6 @@ function renderAll() {
   atualizarStatusGithubRepo();
 }
 
-// ========== FEEDBACK / VOZ ==========
 function showFeedback(mensagem) {
   if (feedbackDismissed) return;
   const modal = document.getElementById('feedbackModal');
@@ -3457,7 +3112,6 @@ function toggleFeedbackDismiss() {
   if (feedbackDismissed) fecharFeedback();
 }
 
-// ========== TOGGLE SPEAK ==========
 function toggleSpeak() {
   speechOn = !speechOn;
   document.getElementById('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
@@ -3508,7 +3162,6 @@ function changeVoice() {
   }
 }
 
-// ========== SPEAK ==========
 function speak(text) {
   if (!speechOn) return;
 
@@ -3550,7 +3203,6 @@ function speak(text) {
       setTimeout(() => {
         if (!spokeStarted && !speechSynthesis.speaking && !speechSynthesis.pending) {
           speechDiagnostic.lastError = 'timeout: Web Speech não iniciou';
-          console.warn('Web Speech API não iniciou — tentando fallback');
           if (isAndroidWebView && typeof window.Android !== 'undefined' && typeof window.Android.ttsSpeak === 'function') {
             try { window.Android.ttsSpeak(text); speechDiagnostic.usedNative = true; speechDiagnostic.succeeded = true; } catch(e){}
           }
@@ -3578,7 +3230,6 @@ function speak(text) {
   speechDiagnostic.lastError = 'nenhum método de voz disponível';
 }
 
-// ========== CARREGAMENTO ROBUSTO DE VOZES ==========
 let voiceLoadAttempts = 0;
 function tentarCarregarVozes() {
   voiceLoadAttempts++;
@@ -3603,7 +3254,6 @@ if (window.speechSynthesis) {
   }
 }
 
-// ========== DIAGNÓSTICO DE VOZ ==========
 function diagnosticarVoz() {
   const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
   const ptVoices = voices.filter(v => v.lang.startsWith('pt'));
@@ -3635,7 +3285,6 @@ function keepScreenOn(active) {
   }
 }
 
-// ========== RECONHECIMENTO DE VOZ ==========
 class VoiceRecognizer {
   constructor() {
     this.isListening = false; this.isActive = false; this.permissionDenied = false;
@@ -3750,7 +3399,6 @@ async function toggleVoiceAssistant() {
   showFeedback('🎤 Assistente de voz ativado');
 }
 
-// ========== ÍCONE FLUTUANTE DE VOZ ==========
 function atualizarIconeVoz() {
   const icon = document.getElementById('voiceStatusIcon');
   const emoji = document.getElementById('voiceStatusIconEmoji');
@@ -3766,7 +3414,6 @@ function atualizarIconeVoz() {
   }
 }
 
-// ========== RECIBO ==========
 function abrirRecibo(id) {
   const h = data.historico.find(c => c.id === id);
   if (!h) return;
@@ -3861,7 +3508,6 @@ function gerarTextoRecibo(h) {
   return linhas.join('\n');
 }
 
-// ========== COMPARTILHAR RECIBO ==========
 async function compartilharRecibo() {
   if (!contaReciboAtual) return;
   const texto = gerarTextoRecibo(contaReciboAtual);
@@ -3948,7 +3594,6 @@ function fecharShareModal() {
   window._opcoesCompartilhar = null;
 }
 
-// ========== COMANDOS DE VOZ PARSER ==========
 function parseNumberWords(s) {
   const words = { um: 1, uma: 1, dois: 2, duas: 2, tres: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, dez: 10 };
   let m = s.match(/\b(\d+)\b/);
@@ -4086,7 +3731,6 @@ function processVoice(text) {
   showFeedback('❓ Comando não reconhecido.');
 }
 
-// ========== DADOS / IMPORT & EXPORT ==========
 function exportarDados(incluirImagens = true) {
   let dadosExport;
   let totalImagens = 0;
@@ -4207,7 +3851,6 @@ async function clearAllData() {
   showFeedback('🗑 Todos os dados foram apagados.');
 }
 
-// ========== INICIALIZAÇÃO ==========
 window.onload = function() {
   renderAll();
   renderPreviewImagemProduto();
