@@ -136,7 +136,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .hist-filters-row select, .hist-filters-row input {margin:0;border-radius:8px;padding:8px 12px;font-size:14px;}
 .estab-group-header {background:var(--panel2);padding:10px 14px;border-radius:8px;margin:16px 0 10px;border-left:4px solid var(--accent);display:flex;justify-content:space-between;align-items:center;}
 
-/* ===== SINÔNIMOS ===== */
 .sinonimo-categoria {margin-bottom: 22px;padding-bottom: 8px;}
 .sinonimo-categoria-titulo {font-size: 15px;color: #79e9aa;margin: 12px 0 12px;padding: 8px 12px;background: linear-gradient(135deg,#1d4937,#19382e);border-left: 4px solid var(--accent);border-radius: 8px;font-weight: bold;letter-spacing: 0.5px;display: flex;align-items: center;justify-content: space-between;gap: 10px;}
 .sinonimo-categoria-titulo .contador-cat {background: rgba(57,201,122,0.25);padding: 2px 10px;border-radius: 20px;font-size: 12px;color: #d7ffe8;font-weight: bold;flex-shrink: 0;}
@@ -256,12 +255,15 @@ footer{text-align:center;color:var(--muted);padding:25px}
 @keyframes popCheck {from { transform: scale(0); }60%  { transform: scale(1.25); }to   { transform: scale(1); }}
 @media(max-width:650px){.order-flash-modal { max-width: 270px; padding: 16px 16px 68px; }.order-flash-modal .flash-img-wrap { height: 150px; }.order-flash-modal .flash-nome { font-size: 17px; }.order-flash-modal .flash-emoji { font-size: 70px; }.order-flash-modal .flash-check { width: 38px; height: 38px; font-size: 20px; top: -12px; right: -12px; }.order-flash-modal .flash-add-btn { width: 48px; height: 48px; font-size: 28px; bottom: 14px; }}
 
-/* Conta - layout simplificado */
 .conta-header-info {display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
 .conta-total-box {text-align:center; padding:8px 0;}
 .conta-total-box .note {letter-spacing:1px;}
 .conta-btn-row {display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
 .conta-btn-row button {flex:1; min-width:140px;}
+
+.conta-resumo-box {background:var(--panel2); border-radius:10px; padding:14px; border:1px solid var(--border);}
+.conta-resumo-linha {display:flex; justify-content:space-between; padding:5px 0; font-size:14px;}
+.conta-resumo-linha .label {color:var(--muted);}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -307,34 +309,43 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <h2>⚙ Configurações</h2>
 <p class="note">Gerencie as rotinas e parâmetros do seu aplicativo.</p>
 
-<div class="voice" style="margin-top:15px;">
-  <h3 style="margin-top:0; color:#79e9aa;">🎤 Assistente de Voz</h3>
-  <div class="voice-row">
-    <button id="voiceBtn" onclick="toggleVoiceAssistant()" style="font-size:16px;padding:12px 20px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
-    <button class="secondary" id="speakToggle" onclick="toggleSpeak()">🔊 Voz: ATIVADA</button>
-    <span class="status" id="voiceStatus">Assistente desligado.</span>
-    <select id="voiceSelect" onchange="changeVoice()">
-      <option value="default">🎙️ Voz Padrão</option>
-      <option value="feminina">👩 Voz Feminina</option>
-      <option value="masculina">👨 Voz Masculina</option>
-    </select>
-    <button class="secondary" onclick="diagnosticarVoz()" style="margin-top:8px;">🔍 Diagnosticar voz</button>
-  </div>
-  <div class="command" id="lastCommand">Exemplos: "selecionar Bar do Zé", "incluir produtos cerveja 10 reais", "fechar conta".</div>
-  <div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone.</div>
+<div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap;">
+  <p class="note" style="margin:0;">⚙ <b>Configurações avançadas</b> (assistente de voz e repositório de rótulos)</p>
+  <button class="secondary small" id="btnToggleConfigAvancada" onclick="toggleConfigAvancada()">👁 Mostrar</button>
 </div>
 
-<div class="voice" style="margin-top:15px;">
-  <h3 style="margin-top:0; color:#79e9aa;">🖼️ Repositório de Rótulos (GitHub)</h3>
-  <p class="note">Opcional. Configure um repositório público no GitHub com imagens de rótulos (ex: <code>meuusuario/rotulos</code>). Ao buscar uma imagem, o app verifica nesta ordem: <b>1)</b> imagens já salvas no dispositivo, <b>2)</b> este repositório, <b>3)</b> a internet.</p>
-  <div class="row">
-    <input id="githubRepoInput" placeholder="usuario/repositorio (ex: meuuser/rotulos)" style="margin:0;">
+<div id="configAvancadaWrapper" style="display:none;">
+
+  <div class="voice" style="margin-top:15px;">
+    <h3 style="margin-top:0; color:#79e9aa;">🎤 Assistente de Voz</h3>
+    <div class="voice-row">
+      <button id="voiceBtn" onclick="toggleVoiceAssistant()" style="font-size:16px;padding:12px 20px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
+      <button class="secondary" id="speakToggle" onclick="toggleSpeak()">🔊 Voz: ATIVADA</button>
+      <span class="status" id="voiceStatus">Assistente desligado.</span>
+      <select id="voiceSelect" onchange="changeVoice()">
+        <option value="default">🎙️ Voz Padrão</option>
+        <option value="feminina">👩 Voz Feminina</option>
+        <option value="masculina">👨 Voz Masculina</option>
+      </select>
+      <button class="secondary" onclick="diagnosticarVoz()" style="margin-top:8px;">🔍 Diagnosticar voz</button>
+    </div>
+    <div class="command" id="lastCommand">Exemplos: "selecionar Bar do Zé", "incluir produtos cerveja 10 reais", "fechar conta".</div>
+    <div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone.</div>
   </div>
-  <div class="sync-actions" style="margin-top:10px;">
-    <button class="secondary" onclick="salvarGithubRepo()">💾 Salvar</button>
-    <button class="secondary" onclick="testarGithubRepo()">🔍 Testar repositório</button>
+
+  <div class="voice" style="margin-top:15px;">
+    <h3 style="margin-top:0; color:#79e9aa;">🖼️ Repositório de Rótulos (GitHub)</h3>
+    <p class="note">Opcional. Configure um repositório público no GitHub com imagens de rótulos (ex: <code>meuusuario/rotulos</code>). Ao buscar uma imagem, o app verifica nesta ordem: <b>1)</b> imagens já salvas no dispositivo, <b>2)</b> este repositório, <b>3)</b> a internet.</p>
+    <div class="row">
+      <input id="githubRepoInput" placeholder="usuario/repositorio (ex: meuuser/rotulos)" style="margin:0;">
+    </div>
+    <div class="sync-actions" style="margin-top:10px;">
+      <button class="secondary" onclick="salvarGithubRepo()">💾 Salvar</button>
+      <button class="secondary" onclick="testarGithubRepo()">🔍 Testar repositório</button>
+    </div>
+    <p class="note" id="githubRepoStatus" style="margin-top:10px;"></p>
   </div>
-  <p class="note" id="githubRepoStatus" style="margin-top:10px;"></p>
+
 </div>
 
 <div class="config-grid">
@@ -422,7 +433,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== PRODUTOS ===== -->
 <section id="cardapio" class="screen">
 <div class="card">
   <div class="cardapio-header">
@@ -477,7 +487,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== CONTA (simplificada) ===== -->
+<!-- ===== CONTA ===== -->
 <section id="conta" class="screen">
 <div class="card">
   <div class="conta-header-info">
@@ -495,13 +505,29 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
   <hr style="border-color:var(--border); margin:18px 0">
 
+  <div class="conta-resumo-box">
+    <div class="conta-resumo-linha">
+      <span class="label">Subtotal:</span>
+      <span class="money" id="contaSubtotal">R$ 0,00</span>
+    </div>
+    <div class="conta-resumo-linha">
+      <span class="label">Desconto:</span>
+      <span class="money" id="contaDescontoDisplay" style="color:#5dade2;">- R$ 0,00</span>
+    </div>
+    <div class="conta-resumo-linha">
+      <span class="label">Gorjeta:</span>
+      <span class="money" id="contaGorjeta">R$ 0,00</span>
+    </div>
+    <div style="display:none;"><span id="contaSubtotalDesconto">R$ 0,00</span></div>
+  </div>
+
   <div class="conta-total-box">
     <div class="note">VALOR TOTAL DA CONTA</div>
     <div class="total" id="contaTotal">R$ 0,00</div>
   </div>
 
   <div class="conta-btn-row">
-    <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">⚙ Desconto / Gorjeta</button>
+    <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">✏️ Editar desconto / gorjeta</button>
     <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()">📂 Abrir conta</button>
   </div>
 
@@ -521,21 +547,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
         <option value="15">15%</option>
         <option value="20">20%</option>
       </select>
-    </div>
-
-    <div style="margin-top:12px; padding:12px; background:var(--panel2); border-radius:10px;">
-      <div style="display:flex; justify-content:space-between; padding:3px 0;">
-        <span class="note">Subtotal:</span>
-        <span class="money" id="contaSubtotal">R$ 0,00</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; padding:3px 0;">
-        <span class="note">Subtotal c/ desconto:</span>
-        <span class="money" id="contaSubtotalDesconto">R$ 0,00</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; padding:3px 0;">
-        <span class="note">Gorjeta:</span>
-        <span class="money" id="contaGorjeta">R$ 0,00</span>
-      </div>
     </div>
 
     <hr style="border-color:var(--border); margin:16px 0">
@@ -751,7 +762,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 <footer>🍺 FECHA A CONTA - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
 
-<!-- ===== MODAL TEMPORÁRIO DE PEDIDO (4s) ===== -->
 <div id="orderFlashModal" class="order-flash-modal" aria-hidden="true">
   <div class="flash-check">✓</div>
   <div class="flash-img-wrap" id="flashImgWrap">
@@ -850,12 +860,10 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 
 <script>
-// ========== DETECÇÃO DE AMBIENTE ==========
 const isAndroidWebView = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 const isWebView = typeof window.Android !== 'undefined' || isAndroidWebView;
 const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
 
-// ========== SINÔNIMOS PADRÃO ==========
 const SINONIMOS_PADRAO = {
   pedir: ['pedir','pede','fazer pedido','solicitar','solicita','mais um','mais uma'],
   abrirConta: ['abrir conta','nova conta','iniciar conta','começar conta'],
@@ -874,7 +882,6 @@ const SINONIMOS_PADRAO = {
   pagamentoCartao:    ['cartao','cartão','credito','crédito','debito','débito','card','cards','maquininha']
 };
 
-// ========== COMANDOS_INFO (com categoria) ==========
 const COMANDOS_INFO = [
   { key:'selecionar',      titulo:'🏢 Selecionar Estabelecimento',      desc:'Muda o estabelecimento ativo. Ex: "selecionar Bar do Zé".', categoria:'Estabelecimentos' },
   { key:'verCardapio',     titulo:'🍺 Ver Cardápio',                    desc:'Exibe o cardápio do estabelecimento ativo.', categoria:'Estabelecimentos' },
@@ -895,7 +902,6 @@ const COMANDOS_INFO = [
 
 const ORDEM_CATEGORIAS_SINONIMOS = ['Estabelecimentos','Produtos','Pedidos & Conta','Pagamentos','Histórico','Dados','Controle'];
 
-// ========== TRADUÇÃO PT→EN PARA BUSCA DE IMAGEM ==========
 const TRADUCAO_IMAGEM = {
   'cerveja': 'beer', 'cerva': 'beer', 'chopp': 'draft beer', 'chope': 'draft beer',
   'agua': 'water bottle', 'água': 'water bottle',
@@ -924,7 +930,6 @@ const TRADUCAO_IMAGEM = {
   'salmao': 'salmon', 'salmão': 'salmon'
 };
 
-// ========== VARIÁVEIS GLOBAIS ==========
 const KEY='contaBarVoz_v1';
 let data=JSON.parse(localStorage.getItem(KEY)||'{}');
 data.estabelecimentos = data.estabelecimentos || {};
@@ -1033,31 +1038,38 @@ function capitalizarNome(nome) {
   return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
 }
 
-// ========== MODAL TEMPORÁRIO DE PEDIDO ==========
+// ========== TOGGLE CONFIGURAÇÕES AVANÇADAS ==========
+function toggleConfigAvancada() {
+  const wrapper = document.getElementById('configAvancadaWrapper');
+  const btn = document.getElementById('btnToggleConfigAvancada');
+  if (!wrapper || !btn) return;
+  const oculto = wrapper.style.display === 'none';
+  if (oculto) {
+    wrapper.style.display = 'block';
+    btn.textContent = '🙈 Ocultar';
+  } else {
+    wrapper.style.display = 'none';
+    btn.textContent = '👁 Mostrar';
+  }
+}
+
 function mostrarFlashPedido(produto, qtd) {
   const modal = document.getElementById('orderFlashModal');
   if (!modal) return;
-
   ultimoProdutoPedido = produto;
-
   const imgWrap = document.getElementById('flashImgWrap');
   const nomeEl = document.getElementById('flashNome');
   const infoEl = document.getElementById('flashInfo');
-
   if (produto.imagem) {
     imgWrap.innerHTML = `<img src="${produto.imagem}" alt="${escapeHtml(produto.nome)}">`;
   } else {
     imgWrap.innerHTML = `<span class="flash-emoji" id="flashEmoji">${getEmojiProduto(produto.nome)}</span>`;
   }
-
   nomeEl.textContent = produto.nome;
   infoEl.textContent = `${qtd}× ${money(produto.preco)} = ${money(produto.preco * qtd)}`;
-
   if (orderFlashTimer) clearTimeout(orderFlashTimer);
-
   modal.classList.add('show');
   modal.setAttribute('aria-hidden', 'false');
-
   orderFlashTimer = setTimeout(() => {
     modal.classList.remove('show');
     modal.setAttribute('aria-hidden', 'true');
@@ -1070,7 +1082,6 @@ function adicionarMaisUmFlash() {
   addPedido(ultimoProdutoPedido.id, 1);
 }
 
-// ========== MATCHER DE SINÔNIMOS ==========
 function matchSinonimo(textoNorm, comandoKey) {
   const lista = (data.sinonimos && data.sinonimos[comandoKey]) || SINONIMOS_PADRAO[comandoKey] || [];
   const ordenada = [...lista].sort((a,b) => b.length - a.length);
@@ -1849,7 +1860,6 @@ function fecharMiniCardapio() {
   document.getElementById('miniCardapioModal').style.display = 'none';
 }
 
-// ========== TOGGLE DOS CAMPOS DO PRODUTO (nome/preço) ==========
 function toggleProdutoCampos() {
   const extras = document.getElementById('produtoCamposExtras');
   const btn = document.getElementById('btnToggleProdutoCampos');
@@ -1864,7 +1874,6 @@ function toggleProdutoCampos() {
   }
 }
 
-// ========== IMAGEM DE PRODUTO ==========
 function extrairPalavraChaveImagem(nome) {
   if (!nome) return 'bar food';
   const norm = normalize(nome);
@@ -1935,7 +1944,6 @@ function baixarImagemComoDataURL(url, maxW = 400, maxH = 300, quality = 0.75) {
   });
 }
 
-// ========== BUSCA DE IMAGEM EM CASCATA ==========
 function buscarImagemLocal(nome) {
   if (!nome) return null;
   const norm = normalize(nome);
@@ -2219,7 +2227,6 @@ function removerImagemProduto() {
   showFeedback('🗑️ Imagem removida.');
 }
 
-// ========== FORM DE PRODUTO ==========
 function mostrarFormProduto() {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Selecione um estabelecimento primeiro.'); return; }
@@ -2233,7 +2240,6 @@ function mostrarFormProduto() {
   document.getElementById('formProduto').style.display = 'block';
   document.getElementById('btnIncluirProduto').style.display = 'none';
 
-  // Modo cadastro: campos visíveis, sem toggle
   const extras = document.getElementById('produtoCamposExtras');
   const toggleWrap = document.getElementById('produtoToggleWrap');
   if (extras) extras.style.display = 'block';
@@ -2254,7 +2260,6 @@ function fecharFormProduto(silencioso = false) {
   const form = document.getElementById('formProduto');
   if (form) form.style.display = 'none';
 
-  // Reset: campos visíveis por padrão, toggle escondido
   const extras = document.getElementById('produtoCamposExtras');
   const toggleWrap = document.getElementById('produtoToggleWrap');
   if (extras) extras.style.display = 'block';
@@ -2296,7 +2301,6 @@ function verificarAlteracoesProduto() {
   }
 }
 
-// ========== PRODUTOS ==========
 async function addProduto(nome, preco) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
@@ -2305,9 +2309,6 @@ async function addProduto(nome, preco) {
   if (!nome || isNaN(preco) || preco <= 0) { showFeedback('⚠️ Informe nome e preço válido.'); return; }
   if (!estab.produtos) estab.produtos = [];
 
-  // ===== VERIFICAÇÃO DE DUPLICIDADE =====
-  // Compara nome normalizado (minúsculo, sem acentos).
-  // Se estiver editando, ignora o próprio produto da comparação.
   const nomeNorm = normalize(nome).trim();
   const duplicado = estab.produtos.find(p =>
     normalize(p.nome).trim() === nomeNorm && String(p.id) !== String(currentEditId)
@@ -2377,7 +2378,6 @@ function editProduto(id) {
   document.getElementById('formProduto').style.display = 'block';
   document.getElementById('btnIncluirProduto').style.display = 'none';
 
-  // Modo edição: esconder campos e mostrar toggle para revelar
   const extras = document.getElementById('produtoCamposExtras');
   const toggleWrap = document.getElementById('produtoToggleWrap');
   const toggleBtn = document.getElementById('btnToggleProdutoCampos');
@@ -2407,7 +2407,6 @@ async function deleteProduto(id) {
   showFeedback('🗑️ Produto excluído: ' + p.nome);
 }
 
-// ========== PEDIDO & CONTA ==========
 function addPedido(produtoId, qtd) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
@@ -2453,12 +2452,19 @@ function calcularTotaisConta() {
   const perc = Number($('gorjeta').value || 0);
   const gor = subComDesconto * perc / 100;
   const total = subComDesconto + gor;
-  document.getElementById('contaSubtotalDesconto').textContent = money(subComDesconto);
-  document.getElementById('contaGorjeta').textContent = money(gor);
-  document.getElementById('contaTotal').textContent = money(total);
+
+  const elSub = document.getElementById('contaSubtotal');
+  if (elSub) elSub.textContent = money(sub);
+  const elSD = document.getElementById('contaSubtotalDesconto');
+  if (elSD) elSD.textContent = money(subComDesconto);
+  const elDesc = document.getElementById('contaDescontoDisplay');
+  if (elDesc) elDesc.textContent = desconto > 0 ? '- ' + money(desconto) : 'R$ 0,00';
+  const elGor = document.getElementById('contaGorjeta');
+  if (elGor) elGor.textContent = money(gor);
+  const elTot = document.getElementById('contaTotal');
+  if (elTot) elTot.textContent = money(total);
 }
 
-// ========== TOGGLE DESCONTO/GORJETA ==========
 function toggleContaExtras() {
   const wrapper = document.getElementById('contaExtrasWrapper');
   const btn = document.getElementById('btnContaExtras');
@@ -2466,14 +2472,13 @@ function toggleContaExtras() {
   const aberto = wrapper.style.display === 'block';
   if (aberto) {
     wrapper.style.display = 'none';
-    btn.textContent = '⚙ Desconto / Gorjeta';
+    btn.textContent = '✏️ Editar desconto / gorjeta';
   } else {
     wrapper.style.display = 'block';
-    btn.textContent = '✔ Ocultar desconto / gorjeta';
+    btn.textContent = '✔ Fechar edição';
   }
 }
 
-// ========== FECHAMENTO / PAGAMENTO ==========
 async function confirmarFechamento() {
   if (!data.contaAtiva) {
     speak('Não há conta aberta para fechar.');
@@ -2727,7 +2732,6 @@ async function pagarCartao() {
   if (ok) finalizarPagamento();
 }
 
-// ========== ABRIR CONTA ==========
 async function abrirContaManual() {
   const estabAtivo = getEstabelecimentoAtivo();
   if (!estabAtivo) {
@@ -2804,7 +2808,6 @@ async function limparHistorico() {
   showFeedback('🗑️ Histórico limpo');
 }
 
-// ========== RENDERIZAÇÃO ==========
 function renderEstabelecimentos() {
   const select = $('estabAtivoSelect');
   const currentId = data.estabelecimentoAtivoId;
@@ -2912,7 +2915,6 @@ function renderConta() {
   }
 
   const sub = subtotal();
-  document.getElementById('contaSubtotal').textContent = money(sub);
   document.getElementById('homeSubtotal').textContent = money(sub);
 
   const totalItems = data.pedido.reduce((s, x) => s + x.qtd, 0);
@@ -3055,7 +3057,7 @@ function renderHistorico() {
         <span class="money" style="font-size:16px;">Subtotal: ${money(g.subtotal)}</span>
       </div>`;
       g.itens.forEach(h => {
-        html += criarContaCard(h);
+        html += criarCardConta(h);
       });
     });
     lista.innerHTML = html;
@@ -3855,6 +3857,14 @@ window.onload = function() {
   renderAll();
   renderPreviewImagemProduto();
   atualizarStatusGithubRepo();
+
+  // ==== ABRIR A ABA CORRETA AO INICIAR ====
+  // Se houver conta aberta, vai para "Conta". Senão, fica em "Início".
+  if (data.contaAtiva) {
+    showScreen('conta');
+  } else {
+    showScreen('inicio');
+  }
 
   const dropArea = document.getElementById('dropArea');
   if (dropArea) {
