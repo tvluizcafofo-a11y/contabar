@@ -640,6 +640,187 @@ footer{text-align:center;color:var(--muted);padding:25px}
   .order-flash-modal .flash-check { width: 38px; height: 38px; font-size: 20px; top: -12px; right: -12px; }
   .order-flash-modal .flash-add-btn { width: 48px; height: 48px; font-size: 28px; bottom: 14px; }
 }
+
+/* ===== TELA DE AJUDA (HELP) ===== */
+.help-search {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 99px;
+  border: 2px solid var(--border);
+  background: #10151f;
+  color: var(--text);
+  font-size: 15px;
+  margin-bottom: 18px;
+  transition: border-color 0.2s;
+}
+.help-search:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(57,201,122,0.15);
+}
+
+.help-topics {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.help-topic {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.help-topic.open {
+  border-color: var(--accent);
+  box-shadow: 0 4px 18px rgba(57,201,122,0.12);
+}
+.help-topic.hidden {
+  display: none;
+}
+
+.help-topic-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  font-weight: bold;
+  font-size: 15px;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.help-topic-header:hover {
+  background: rgba(57,201,122,0.06);
+}
+.help-topic-header .help-icon {
+  font-size: 26px;
+  width: 34px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.help-topic-header .help-title {
+  flex: 1;
+  min-width: 0;
+}
+.help-topic-header .help-arrow {
+  font-size: 14px;
+  color: var(--muted);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+.help-topic.open .help-arrow {
+  transform: rotate(90deg);
+  color: var(--accent);
+}
+
+.help-topic-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  background: rgba(10,14,20,0.4);
+}
+.help-topic.open .help-topic-body {
+  max-height: 3000px;
+}
+
+.help-topic-content {
+  padding: 4px 18px 20px 66px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text);
+}
+@media (max-width: 650px) {
+  .help-topic-content { padding-left: 18px; }
+}
+
+.help-topic-content p { margin: 8px 0; }
+.help-topic-content ul,
+.help-topic-content ol { margin: 8px 0; padding-left: 22px; }
+.help-topic-content li { margin: 6px 0; }
+.help-topic-content strong { color: #79e9aa; }
+.help-topic-content code {
+  background: #0a0e14;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #ffd97d;
+}
+.help-topic-content .help-callout {
+  background: rgba(79,195,247,0.1);
+  border-left: 4px solid var(--info);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-size: 13px;
+}
+.help-topic-content .help-callout.tip {
+  background: rgba(57,201,122,0.1);
+  border-left-color: var(--accent);
+}
+.help-topic-content .help-callout.warn {
+  background: rgba(239,93,103,0.1);
+  border-left-color: var(--danger);
+}
+.help-topic-content .help-step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 10px 0;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+}
+.help-topic-content .help-step .num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #092114;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 13px;
+}
+.help-topic-content .help-step .txt { flex: 1; }
+
+.help-empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 20px;
+  display: none;
+}
+.help-empty.show { display: block; }
+
+.help-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.help-badge {
+  display: inline-block;
+  background: rgba(57,201,122,0.18);
+  color: #79e9aa;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 20px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -667,6 +848,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button data-screen="cardapio" onclick="showScreen('cardapio')">🍺 Produtos</button>
 <button data-screen="conta" onclick="showScreen('conta')">🧾 Conta</button>
 <button data-screen="historico" onclick="showScreen('historico')">📜 Histórico</button>
+<button data-screen="ajuda" onclick="showScreen('ajuda')">❓ Ajuda</button>
 <button data-screen="configuracoes" onclick="showScreen('configuracoes')" title="Configurações">⚙️</button>
 </nav>
 
@@ -1103,6 +1285,450 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button class="danger" onclick="clearAllData()" style="margin-top:10px;">🗑 Limpar todos os dados</button>
 </div>
 </section>
+
+<!-- ===== AJUDA ===== -->
+<section id="ajuda" class="screen">
+<div class="card">
+  <h2 style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    ❓ Central de Ajuda
+    <span class="help-badge">clique nos tópicos</span>
+  </h2>
+  <p class="note">Tudo o que você precisa saber para usar o app. Clique em qualquer tópico para expandir.</p>
+
+  <input
+    type="text"
+    id="helpSearch"
+    class="help-search"
+    placeholder="🔍 Buscar na ajuda (ex: pix, voz, imagem...)"
+    oninput="filtrarAjuda()"
+  >
+
+  <div class="help-actions">
+    <button class="secondary small" onclick="expandirTodosAjuda(true)">⬇️ Expandir todos</button>
+    <button class="secondary small" onclick="expandirTodosAjuda(false)">⬆️ Recolher todos</button>
+  </div>
+
+  <div class="help-topics" id="helpTopics">
+
+    <!-- ====== 1. INÍCIO RÁPIDO ====== -->
+    <div class="help-topic" data-topic="inicio">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">🚀</span>
+        <span class="help-title">Início rápido — primeiros passos</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>Bem-vindo! Em <strong>5 minutos</strong> você já está usando o app.</p>
+          <div class="help-step"><span class="num">1</span><span class="txt"><strong>Cadastre um estabelecimento</strong> em <code>⚙️ → 🏢 Estabelecimentos</code>. Informe nome, endereço e chave PIX.</span></div>
+          <div class="help-step"><span class="num">2</span><span class="txt"><strong>Adicione produtos</strong> em <code>🍺 Produtos</code>. O app busca imagens automaticamente.</span></div>
+          <div class="help-step"><span class="num">3</span><span class="txt"><strong>Abra uma conta</strong> na tela <code>🧾 Conta</code> e comece a adicionar itens.</span></div>
+          <div class="help-step"><span class="num">4</span><span class="txt"><strong>Feche a conta</strong> escolhendo PIX, dinheiro ou cartão. O recibo vai para o histórico.</span></div>
+          <div class="help-callout tip">💡 <strong>Dica de ouro:</strong> ative o assistente de voz (botão 🎙️ no canto inferior direito) e peça tudo falando: <em>"abrir conta no Bar do Zé"</em>, <em>"desce duas cervejas"</em>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 2. ESTABELECIMENTOS ====== -->
+    <div class="help-topic" data-topic="estabelecimentos">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">🏢</span>
+        <span class="help-title">Estabelecimentos — como cadastrar</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>Estabelecimento é o bar, restaurante ou local onde você está consumindo.</p>
+          <p><strong>Para cadastrar:</strong></p>
+          <ul>
+            <li>Vá em <code>⚙️ → 🏢 Estabelecimentos</code></li>
+            <li>Clique em <strong>➕ Adicionar estabelecimento</strong></li>
+            <li>Preencha nome, endereço e a <strong>chave PIX</strong> (usada para gerar o QR Code de pagamento)</li>
+          </ul>
+          <p><strong>Apelidos por voz:</strong> você pode dar apelidos curtos. Ex: fale <em>"apelido buteco para Bar do Zé"</em> e depois basta falar <em>"abrir conta no buteco"</em>.</p>
+          <div class="help-callout tip">💡 O <strong>estabelecimento ativo</strong> (marcado com ⭐) é onde os produtos e contas são criados. Troque quando quiser no seletor no topo da tela.</div>
+          <div class="help-callout warn">⚠️ Ao trocar de estabelecimento com uma <strong>conta aberta</strong>, o app pergunta se você quer fechá-la primeiro.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 3. PRODUTOS ====== -->
+    <div class="help-topic" data-topic="produtos">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">🍺</span>
+        <span class="help-title">Produtos — cadastro e edição</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>Cada estabelecimento tem seu próprio cardápio.</p>
+          <p><strong>Para cadastrar um produto:</strong></p>
+          <ul>
+            <li>Vá em <code>🍺 Produtos</code></li>
+            <li>Clique em <strong>➕ Incluir novo produto</strong></li>
+            <li>Informe nome e preço. A imagem é opcional.</li>
+          </ul>
+          <p><strong>Editar:</strong> clique na imagem 🖼️ ou no botão ✏️ ao lado do produto.</p>
+          <p><strong>Excluir:</strong> clique em 🗑️ (pede confirmação).</p>
+          <div class="help-callout tip">💡 <strong>Dica:</strong> ao cadastrar sem imagem, o app busca automaticamente — primeiro no seu dispositivo, depois na pasta <code>rotulos</code> do repositório, e por último na internet.</div>
+          <div class="help-callout">🎤 Por voz: <em>"incluir produtos cerveja 10 reais"</em> — cadastra na hora.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 4. IMAGENS ====== -->
+    <div class="help-topic" data-topic="imagens">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">🖼️</span>
+        <span class="help-title">Imagens dos produtos — como o app busca</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>O app busca imagens em <strong>3 camadas</strong>, na seguinte ordem:</p>
+          <div class="help-step"><span class="num">1</span><span class="txt"><strong>Dispositivo</strong> — reaproveita imagens de produtos com nome parecido já cadastrados em outros estabelecimentos.</span></div>
+          <div class="help-step"><span class="num">2</span><span class="txt"><strong>Pasta <code>rotulos</code> do repositório</strong> — imagens que você subiu manualmente (ex: <code>cerveja-brahma-600ml.jpg</code>).</span></div>
+          <div class="help-step"><span class="num">3</span><span class="txt"><strong>Internet</strong> — busca automática por palavra-chave traduzida (ex: <em>"cerveja"</em> → <em>"beer"</em>).</span></div>
+          <p><strong>Botões disponíveis no formulário:</strong></p>
+          <ul>
+            <li><strong>🔍 Buscar imagem</strong> — dispara a busca nas 3 camadas</li>
+            <li><strong>📤 Enviar do dispositivo</strong> — escolhe um arquivo do seu celular</li>
+            <li><strong>🗑 Remover imagem</strong> — apaga a imagem atual</li>
+            <li><strong>🔄 Atualizar lista de rótulos</strong> — força recarregar a pasta <code>rotulos</code></li>
+          </ul>
+          <div class="help-callout tip">💡 <strong>Como usar a pasta <code>rotulos</code>:</strong> coloque arquivos com o nome do produto (ex: <code>coca-cola-2l.jpg</code>) e o app encontra sozinho. Aceita acentos, hífens e underscores.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 5. FAZER PEDIDO ====== -->
+    <div class="help-topic" data-topic="pedidos">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">🛒</span>
+        <span class="help-title">Fazer pedido — adicionar itens à conta</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>Só é possível adicionar itens com uma <strong>conta aberta</strong>.</p>
+          <p><strong>Método 1 — pela tela:</strong></p>
+          <ul>
+            <li>Vá em <code>🧾 Conta</code></li>
+            <li>Escolha o produto no seletor e a quantidade</li>
+            <li>Clique em <strong>➕ Adicionar Item</strong></li>
+          </ul>
+          <p><strong>Método 2 — mini-cardápio:</strong> clique em <strong>📋 Ver cardápio</strong> em Estabelecimentos e use o botão <strong>+</strong> ao lado do produto.</p>
+          <p><strong>Método 3 — por voz:</strong></p>
+          <ul>
+            <li><em>"desce duas cervejas"</em></li>
+            <li><em>"me dá uma porção de batata"</em></li>
+            <li><em>"mais uma"</em> — repete o último produto</li>
+          </ul>
+          <div class="help-callout tip">💡 Você pode falar apenas <strong>parte do nome</strong>. Se o cardápio tem <em>"Cerveja Império"</em>, basta dizer <em>"uma império"</em>.</div>
+          <div class="help-callout">✨ Após adicionar, aparece um <strong>modal com a foto do produto</strong> e um botão <strong>+</strong> para adicionar outro igual rapidinho.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 6. FECHAR CONTA ====== -->
+    <div class="help-topic" data-topic="fechar">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">✅</span>
+        <span class="help-title">Fechar conta — descontos, gorjeta e total</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p><strong>Antes de fechar</strong>, você pode ajustar:</p>
+          <ul>
+            <li><strong>Desconto em R$</strong> — valor fixo abatido do subtotal (com descrição opcional)</li>
+            <li><strong>Gorjeta / Serviço</strong> — 0%, 10%, 15% ou 20% (calculado sobre o subtotal com desconto)</li>
+          </ul>
+          <p>O <strong>VALOR TOTAL ATUAL</strong> é recalculado em tempo real no painel da direita.</p>
+          <p><strong>Para fechar:</strong></p>
+          <div class="help-step"><span class="num">1</span><span class="txt">Clique em <strong>✅ Solicitar fechamento da conta</strong> (na tela Conta ou Início).</span></div>
+          <div class="help-step"><span class="num">2</span><span class="txt">O modal de pagamento abre com o resumo completo.</span></div>
+          <div class="help-step"><span class="num">3</span><span class="txt">Escolha PIX, Dinheiro ou Cartão.</span></div>
+          <div class="help-step"><span class="num">4</span><span class="txt">Confirme. A conta vai para o <strong>Histórico</strong> e o recibo fica disponível.</span></div>
+          <div class="help-callout warn">⚠️ Conta <strong>vazia</strong> (sem itens)? O app pergunta se você quer fechar mesmo assim — útil para registrar uma visita sem consumo.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 7. PAGAMENTO PIX ====== -->
+    <div class="help-topic" data-topic="pix">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">📱</span>
+        <span class="help-title">Pagamento PIX — QR Code e copia e cola</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>O app gera o <strong>QR Code PIX</strong> com o valor exato, pronto para pagar.</p>
+          <p><strong>Passo a passo:</strong></p>
+          <ul>
+            <li>No modal de pagamento, clique em <strong>📱 PIX</strong></li>
+            <li>O QR Code aparece com a chave e o valor</li>
+            <li><strong>📋 Copiar código</strong> — copia o código copia-e-cola</li>
+            <li><strong>🏦 Abrir app do banco</strong> — abre o link do banco cadastrado em <code>👤 Usuário</code></li>
+            <li>Após pagar, clique em <strong>✅ Confirmar pagamento</strong></li>
+          </ul>
+          <div class="help-callout tip">💡 Para cadastrar o link do seu banco (ex: <code>nubank://</code>), vá em <code>⚙️ → 👤 Usuário → 🏦 Bancos</code>. O banco marcado com ⭐ é o que abre.</div>
+          <div class="help-callout">🎤 Por voz: com o modal aberto, basta dizer <em>"pix"</em>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 8. DEMAIS PAGAMENTOS ====== -->
+    <div class="help-topic" data-topic="pagamentos">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">💰</span>
+        <span class="help-title">Dinheiro e Cartão — pagamento rápido</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p><strong>Dinheiro</strong> e <strong>Cartão</strong> não geram QR Code — apenas confirmam e finalizam a conta.</p>
+          <ul>
+            <li>Clique em <strong>💰 Dinheiro</strong> ou <strong>💳 Cartão</strong></li>
+            <li>Confirme o valor na caixa de diálogo</li>
+            <li>A conta vai para o histórico com o método registrado</li>
+          </ul>
+          <div class="help-callout">🎤 Por voz: <em>"dinheiro"</em> ou <em>"cartão"</em>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 9. RECIBO E COMPARTILHAR ====== -->
+    <div class="help-topic" data-topic="recibo">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">🧾</span>
+        <span class="help-title">Recibo — visualizar e compartilhar</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>Toda conta fechada gera um <strong>recibo detalhado</strong> no histórico.</p>
+          <p><strong>Para ver:</strong> vá em <code>📜 Histórico</code> e <strong>toque no cartão</strong> da conta. O recibo abre com:</p>
+          <ul>
+            <li>Estabelecimento, cliente e data</li>
+            <li>Lista de itens com quantidade × preço</li>
+            <li>Subtotal, desconto, gorjeta e total</li>
+            <li>Forma de pagamento usada</li>
+          </ul>
+          <p><strong>Compartilhar:</strong> clique em <strong>📤 Compartilhar</strong>. Escolha entre:</p>
+          <ul>
+            <li>💬 WhatsApp &nbsp;•&nbsp; ✉️ E-mail &nbsp;•&nbsp; ✈️ Telegram</li>
+            <li>💬 SMS (em celulares)</li>
+            <li>📋 Copiar texto — cola em qualquer app</li>
+          </ul>
+          <div class="help-callout tip">💡 Em celulares, o compartilhamento nativo do sistema aparece automaticamente.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 10. HISTÓRICO ====== -->
+    <div class="help-topic" data-topic="historico">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">📜</span>
+        <span class="help-title">Histórico — filtros e agrupamento</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>O histórico guarda todas as contas fechadas com filtros poderosos.</p>
+          <p><strong>Por período:</strong></p>
+          <ul>
+            <li><strong>No mês</strong> — do dia 1 até hoje</li>
+            <li><strong>Mês anterior</strong> — mês passado completo</li>
+            <li><strong>Personalizado</strong> — escolha data inicial e final</li>
+          </ul>
+          <p><strong>Agrupamento:</strong></p>
+          <ul>
+            <li><strong>Por Data</strong> — lista cronológica</li>
+            <li><strong>Por Estabelecimento</strong> — agrupa por bar, com subtotal por grupo</li>
+          </ul>
+          <p>O rodapé mostra o <strong>total geral gasto</strong> no período filtrado.</p>
+          <div class="help-callout">🗑 Para excluir uma conta, use o botão <strong>Excluir</strong> no cartão. Para apagar tudo, clique em <strong>Limpar histórico</strong>.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 11. ASSISTENTE DE VOZ ====== -->
+    <div class="help-topic" data-topic="voz">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">🎤</span>
+        <span class="help-title">Assistente de voz — ativar e usar</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p><strong>Como ativar:</strong></p>
+          <ul>
+            <li>Clique no botão flutuante <strong>🎙️ no canto inferior direito</strong>, ou</li>
+            <li>Vá em <code>⚙️ → 🎤 Assistente de Voz → 🎤 ATIVAR ASSISTENTE DE VOZ</code></li>
+            <li>Permita o acesso ao microfone quando o navegador pedir</li>
+          </ul>
+          <p><strong>Quando ativo:</strong> o botão fica verde com 🎤 e uma borda pulsante.</p>
+          <p><strong>Comandos principais:</strong></p>
+          <ul>
+            <li><em>"selecionar Bar do Zé"</em></li>
+            <li><em>"abrir conta"</em></li>
+            <li><em>"desce duas cervejas"</em></li>
+            <li><em>"fechar conta"</em></li>
+            <li><em>"pix"</em> / <em>"dinheiro"</em> / <em>"cartão"</em> (modal aberto)</li>
+          </ul>
+          <p><strong>Confirmações:</strong> quando o app pergunta, diga <em>"sim"</em> ou <em>"não"</em>.</p>
+          <div class="help-callout warn">⚠️ <strong>Microfone não autorizado?</strong> Verifique as permissões do navegador (cadeado na barra de endereço). Em Android WebView, o app usa o TTS nativo.</div>
+          <div class="help-callout tip">💡 Em <code>⚙️ → 🎤 Assistente</code> você pode escolher voz <strong>feminina</strong> ou <strong>masculina</strong> e usar <strong>🔍 Diagnosticar voz</strong> para testar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 12. SINÔNIMOS ====== -->
+    <div class="help-topic" data-topic="sinonimos">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">🗣️</span>
+        <span class="help-title">Sinônimos — personalize os comandos</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>Você decide quais palavras o app reconhece. Por padrão <strong>"pedir"</strong> também aceita <em>"desce"</em>, <em>"me dá"</em>, <em>"traz"</em>, etc.</p>
+          <p><strong>Para adicionar um sinônimo:</strong></p>
+          <ul>
+            <li>Vá em <code>⚙️ → 🎤 Sinônimos de Voz</code></li>
+            <li>Localize o comando (agrupados por categoria: Estabelecimentos, Produtos, Pedidos, Pagamentos...)</li>
+            <li>Digite a nova palavra e clique em <strong>➕ Adicionar</strong></li>
+          </ul>
+          <p><strong>Backup:</strong> use <strong>📤 Exportar Sinônimos</strong> para salvar tudo em arquivo e <strong>📥 Importar</strong> para restaurar em outro dispositivo.</p>
+          <div class="help-callout tip">💡 Exemplo prático: adicione <strong>"manda"</strong> ao comando <em>Pedir</em>. Depois fale <em>"manda uma cerveja"</em> e funciona igual.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 13. USUÁRIO E BANCOS ====== -->
+    <div class="help-topic" data-topic="usuario">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">👤</span>
+        <span class="help-title">Meu cadastro e bancos para pagamento</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>Seus dados aparecem nos recibos e nas contas do histórico.</p>
+          <p><strong>Dados pessoais:</strong> nome, e-mail, telefone e endereço. Tudo é salvo automaticamente ao sair do campo.</p>
+          <p><strong>Bancos:</strong> cadastre os apps dos seus bancos para abrir direto durante o PIX.</p>
+          <ul>
+            <li>Vá em <code>⚙️ → 👤 Usuário → 🏦 Bancos</code></li>
+            <li>Clique em <strong>➕ Adicionar banco</strong></li>
+            <li>Informe nome (ex: Nubank) e o link do app (ex: <code>nubank://</code>)</li>
+            <li>O banco com ⭐ será o <strong>ativo</strong> — abrirá no botão <strong>🏦 Abrir app do banco</strong></li>
+          </ul>
+          <div class="help-callout tip">💡 Links comuns: <code>nubank://</code>, <code>picpay://</code>, <code>itau://</code>, <code>bb://</code>. Use o que seu banco disponibiliza para PIX.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 14. BACKUP ====== -->
+    <div class="help-topic" data-topic="backup">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">💾</span>
+        <span class="help-title">Backup e restauração de dados</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p>Seus dados ficam <strong>no navegador</strong> (localStorage). Faça backup regularmente!</p>
+          <p><strong>Exportar</strong> (em <code>⚙️ → 💾 Dados</code>):</p>
+          <ul>
+            <li><strong>🖼️ Backup Completo</strong> — inclui imagens em base64. Ideal para migrar de celular.</li>
+            <li><strong>📄 Somente Dados</strong> — arquivo leve, sem imagens. Bom para compartilhar cadastros.</li>
+          </ul>
+          <p><strong>Importar:</strong> clique em <strong>📥 Selecionar arquivo JSON</strong> ou <strong>arraste</strong> o arquivo para a área pontilhada.</p>
+          <div class="help-callout warn">⚠️ <strong>Importante:</strong> limpar dados do navegador apaga tudo. Exporte antes!</div>
+          <div class="help-callout tip">💡 <strong>Espaço cheio?</strong> Se o localStorage lotar, o app remove automaticamente imagens antigas e avisa. Use a exportação leve para economizar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 15. DICAS ====== -->
+    <div class="help-topic" data-topic="dicas">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">💡</span>
+        <span class="help-title">Dicas de uso eficiente</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <ul>
+            <li><strong>Deixe o microfone ligado</strong> — o assistente fica ouvindo e você não precisa tocar na tela entre pedidos.</li>
+            <li><strong>Apelidos de estabelecimentos</strong> economizam tempo: <em>"apelido buteco para Bar do Zé"</em>.</li>
+            <li><strong>Adicione o app à tela inicial</strong> (via menu do navegador) — fica como aplicativo nativo.</li>
+            <li><strong>Use o botão + do mini-cardápio</strong> — mais rápido que ir até a tela Conta.</li>
+            <li><strong>Filtro "Por Estabelecimento"</strong> no histórico mostra quanto gastou em cada bar.</li>
+            <li><strong>Desconto + gorjeta</strong> podem ser combinados — o app calcula corretamente (gorjeta sobre o valor com desconto).</li>
+            <li><strong>Repetir último item:</strong> depois de pedir algo, toque no <strong>+ grande no centro do modal</strong> ou fale <em>"mais uma"</em>.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 16. PERGUNTAS FREQUENTES ====== -->
+    <div class="help-topic" data-topic="faq">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">❔</span>
+        <span class="help-title">Perguntas frequentes (FAQ)</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p><strong>O app funciona sem internet?</strong><br>Sim, exceto busca de imagens na internet. Dados e uso offline funcionam normalmente.</p>
+          <p><strong>Posso ter vários estabelecimentos?</strong><br>Sim, quantos quiser. Cada um tem cardápio próprio.</p>
+          <p><strong>Perdi os dados ao limpar o cache. Recupera?</strong><br>Não. Sempre exporte backup antes de mexer no navegador.</p>
+          <p><strong>A voz não reconhece meu comando.</strong><br>Vá em <code>Sinônimos</code> e adicione a palavra que você usa. Ex: se você diz <em>"desce"</em> mas o app só reconhece <em>"pedir"</em>, adicione <em>"desce"</em> ao comando Pedir.</p>
+          <p><strong>Como faço o app abrir em tela cheia?</strong><br>Adicione à tela inicial do celular (Chrome: menu → <em>Adicionar à tela inicial</em>). Fica como PWA.</p>
+          <p><strong>O QR Code PIX está incorreto?</strong><br>Verifique se a chave PIX do estabelecimento está correta em Estabelecimentos. O QR é gerado no padrão EMV.</p>
+          <p><strong>Posso mudar a voz do assistente?</strong><br>Sim, em <code>⚙️ → 🎤 Assistente</code> escolha entre Padrão, Feminina ou Masculina.</p>
+          <p><strong>Onde as imagens dos produtos são salvas?</strong><br>Dentro do próprio navegador, em base64. Ocupam espaço — cuidado com muitas imagens grandes.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====== 17. ATALHOS ====== -->
+    <div class="help-topic" data-topic="atalhos">
+      <button class="help-topic-header" onclick="toggleHelpTopic(this)">
+        <span class="help-icon">⚡</span>
+        <span class="help-title">Atalhos rápidos e caminhos</span>
+        <span class="help-arrow">▶</span>
+      </button>
+      <div class="help-topic-body">
+        <div class="help-topic-content">
+          <p><strong>Onde encontrar cada função:</strong></p>
+          <ul>
+            <li>🏠 <strong>Início</strong> → status da conta atual + botão de abrir/fechar</li>
+            <li>🍺 <strong>Produtos</strong> → cardápio do estabelecimento ativo</li>
+            <li>🧾 <strong>Conta</strong> → pedidos, descontos, gorjeta, PIX</li>
+            <li>📜 <strong>Histórico</strong> → contas fechadas + recibos</li>
+            <li>❓ <strong>Ajuda</strong> → esta central de ajuda com busca</li>
+            <li>⚙️ <strong>Configurações</strong> → estabelecimentos, usuário, sinônimos, comandos, dados</li>
+            <li>🎙️ <strong>Botão flutuante</strong> → ativa/desativa o assistente de voz</li>
+          </ul>
+          <div class="help-callout tip">💡 Sempre que um modal estiver aberto (pagamento, compartilhar, recibo), você pode usar a voz para acionar os botões: <em>"pix"</em>, <em>"fechar"</em>, <em>"whatsapp"</em>.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="help-empty" id="helpEmpty">
+    <p style="font-size:48px; margin:0;">🔍</p>
+    <p><b>Nenhum tópico encontrado.</b></p>
+    <p class="note">Tente outra palavra-chave.</p>
+  </div>
+
+</div>
+</section>
 </div>
 <footer>🍺 FECHA A CONTA - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
 
@@ -1376,6 +2002,56 @@ function showScreen(screenId) {
   const btn = document.querySelector(`nav button[data-screen="${screenId}"]`);
   if (btn) btn.classList.add('active');
   if (screenId === 'sinonimos') renderSinonimos();
+  if (screenId === 'ajuda') {
+    const inp = document.getElementById('helpSearch');
+    if (inp) inp.value = '';
+    filtrarAjuda();
+  }
+}
+
+// ========== AJUDA — ACORDEÃO ==========
+function toggleHelpTopic(headerEl) {
+  const topic = headerEl.closest('.help-topic');
+  if (!topic) return;
+  topic.classList.toggle('open');
+}
+
+function expandirTodosAjuda(expandir) {
+  document.querySelectorAll('#helpTopics .help-topic:not(.hidden)').forEach(t => {
+    if (expandir) t.classList.add('open');
+    else t.classList.remove('open');
+  });
+  showFeedback(expandir ? '📖 Todos os tópicos expandidos' : '📕 Todos os tópicos recolhidos');
+}
+
+function filtrarAjuda() {
+  const input = document.getElementById('helpSearch');
+  const termo = normalize(input.value || '').trim();
+  const topicos = document.querySelectorAll('#helpTopics .help-topic');
+  let visiveis = 0;
+
+  topicos.forEach(t => {
+    if (!termo) {
+      t.classList.remove('hidden');
+      visiveis++;
+      return;
+    }
+    const texto = normalize(t.textContent);
+    if (texto.includes(termo)) {
+      t.classList.remove('hidden');
+      visiveis++;
+      if (termo.length >= 3) t.classList.add('open');
+    } else {
+      t.classList.add('hidden');
+      t.classList.remove('open');
+    }
+  });
+
+  const vazio = document.getElementById('helpEmpty');
+  if (vazio) {
+    if (visiveis === 0) vazio.classList.add('show');
+    else vazio.classList.remove('show');
+  }
 }
 
 function getNomeCliente() {
@@ -1530,13 +2206,6 @@ function encontrarProdutoPorNome(textoNorm, produtos) {
 }
 
 // ========== REUTILIZAÇÃO DE IMAGEM DE OUTRO ESTABELECIMENTO ==========
-/**
- * Procura em TODOS os estabelecimentos (inclusive o ativo) um produto com nome
- * similar que já tenha uma imagem cadastrada, e retorna essa imagem.
- * @param {string} nomeProduto - Nome do novo produto
- * @param {string} [ignorarId] - id do produto sendo editado (não considera ele mesmo)
- * @returns {string|null} - dataURL da imagem ou null
- */
 function buscarImagemProdutoExistente(nomeProduto, ignorarId) {
   if (!nomeProduto) return null;
   const normNome = normalize(nomeProduto).trim();
@@ -1544,7 +2213,6 @@ function buscarImagemProdutoExistente(nomeProduto, ignorarId) {
 
   const palavras = normNome.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
   if (!palavras.length) {
-    // Se o nome é muito curto, exige match exato de nome
     for (const estab of Object.values(data.estabelecimentos)) {
       for (const p of (estab.produtos || [])) {
         if (p.imagem && p.id !== ignorarId && normalize(p.nome) === normNome) {
@@ -1563,9 +2231,7 @@ function buscarImagemProdutoExistente(nomeProduto, ignorarId) {
       if (!p.imagem) continue;
       if (ignorarId && p.id === ignorarId) continue;
       const nomeP = normalize(p.nome);
-      // Nome exato → prioridade máxima
       if (nomeP === normNome) return p.imagem;
-      // Score = quantidade de palavras em comum (de 3+ letras)
       const score = palavras.filter(w => nomeP.includes(w)).length;
       if (score > melhorScore) {
         melhorScore = score;
@@ -1574,7 +2240,6 @@ function buscarImagemProdutoExistente(nomeProduto, ignorarId) {
     }
   }
 
-  // Só retorna se pelo menos 1 palavra-chave do nome bateu
   return melhorScore > 0 ? melhor : null;
 }
 
@@ -2278,17 +2943,14 @@ function setLoadingPreview(loading) {
 const ROTULOS_CACHE_KEY = 'contaBar_rotulosCache_v2';
 const ROTULOS_CACHE_TTL = 30 * 60 * 1000; // 30 minutos
 
-// Descobre owner/repo quando a página roda no GitHub Pages
 function getGitHubRepoInfo() {
   const host = window.location.hostname;
   const parts = window.location.pathname.split('/').filter(Boolean);
   if (host.endsWith('.github.io')) {
     const owner = host.replace(/\.github\.io$/, '');
-    // Se for página de projeto: usuario.github.io/repo/
     if (parts.length > 0 && !/\.(html?|php|js|css)$/i.test(parts[0])) {
       return { owner, repo: parts[0] };
     }
-    // Página de usuário: usuario.github.io
     return { owner, repo: owner + '.github.io' };
   }
   return null;
@@ -2319,9 +2981,6 @@ function forcarAtualizacaoRotulos() {
   speak('Lista de rótulos atualizada');
 }
 
-// Lista as imagens da pasta rotulos — 2 estratégias:
-//   a) manifest.json local (./rotulos/manifest.json) — ilimitado e instantâneo
-//   b) API pública do GitHub (se não achar manifest)
 async function listarImagensRotulos(forcar = false) {
   if (!forcar) {
     const cached = getRotulosCache();
@@ -2330,7 +2989,6 @@ async function listarImagensRotulos(forcar = false) {
     }
   }
 
-  // --- Estratégia 1: manifest local ---
   const manifestUrls = [
     './rotulos/manifest.json',
     './rotulos/index.json',
@@ -2353,7 +3011,6 @@ async function listarImagensRotulos(forcar = false) {
     } catch(e) { /* segue */ }
   }
 
-  // --- Estratégia 2: GitHub API ---
   const repo = getGitHubRepoInfo();
   if (repo) {
     try {
@@ -2383,14 +3040,12 @@ async function listarImagensRotulos(forcar = false) {
   return [];
 }
 
-// Normaliza nome de arquivo: "Cerveja_Brahma-600ml.jpg" → "cerveja brahma 600ml"
 function normalizarNomeRotulo(nome) {
   return normalize(
     String(nome).replace(/\.[a-z0-9]+$/i, '').replace(/[_\-.,]+/g, ' ')
   ).trim();
 }
 
-// Match entre nome do produto e nome do arquivo
 function encontrarRotuloPorNome(nomeProduto, arquivos) {
   if (!arquivos || !arquivos.length || !nomeProduto) return null;
   const alvo = normalize(nomeProduto).trim();
@@ -2404,7 +3059,6 @@ function encontrarRotuloPorNome(nomeProduto, arquivos) {
     const nomeArq = normalizarNomeRotulo(arq.name);
     if (!nomeArq) continue;
 
-    // Match exato → melhor caso
     if (nomeArq === alvo) return arq;
 
     const palavrasArq = nomeArq.split(/\s+/).filter(Boolean);
@@ -2423,7 +3077,6 @@ function encontrarRotuloPorNome(nomeProduto, arquivos) {
   return melhorScore >= 1 ? melhor : null;
 }
 
-// Baixa a imagem do repositório e devolve dataURL comprimido
 async function carregarImagemRotulo(arq) {
   if (!arq || !arq.url) return null;
   try {
@@ -2440,7 +3093,6 @@ async function carregarImagemRotulo(arq) {
     return await comprimirImagem(dataUrl, 500, 400, 0.8);
   } catch(e) {
     console.warn('Falha ao baixar imagem do repositório:', arq.name, e);
-    // Fallback: tenta via canvas (caso CORS permita)
     return await baixarImagemComoDataURL(arq.url, 500, 400, 0.8);
   }
 }
@@ -2470,7 +3122,6 @@ async function buscarImagemManual() {
 
   setLoadingPreview(true);
 
-  // 1) Procura no DISPOSITIVO (outros estabelecimentos do app)
   showFeedback('🔍 Procurando imagem no dispositivo...');
   const imgDispositivo = buscarImagemProdutoExistente(nome, currentEditId);
   if (imgDispositivo) {
@@ -2482,7 +3133,6 @@ async function buscarImagemManual() {
     return;
   }
 
-  // 2) Procura na pasta "rotulos" do REPOSITÓRIO
   showFeedback('📦 Procurando na pasta "rotulos" do repositório...');
   const imgRepo = await buscarImagemNoGitHub(nome);
   if (imgRepo) {
@@ -2494,7 +3144,6 @@ async function buscarImagemManual() {
     return;
   }
 
-  // 3) Procura na INTERNET
   showFeedback('🌐 Nada no repositório. Buscando na internet...');
   const dataUrl = await buscarImagemAutomatica(nome);
   setLoadingPreview(false);
@@ -2629,9 +3278,7 @@ async function addProduto(nome, preco) {
     showFeedback('✅ Produto cadastrado: ' + nome + ' - ' + money(preco));
     fecharFormProduto(true);
 
-    // Sem imagem → 1) dispositivo  →  2) pasta rotulos (repo)  →  3) internet
     if (!imgAtual) {
-      // 1) Dispositivo
       const imgDispositivo = buscarImagemProdutoExistente(nome, novo.id);
       if (imgDispositivo) {
         const prod = estab.produtos.find(p => p.id === novo.id);
@@ -2644,7 +3291,6 @@ async function addProduto(nome, preco) {
         }
       }
 
-      // 2) Pasta rotulos no repositório
       showFeedback('📦 Buscando na pasta "rotulos" do repositório...');
       buscarImagemNoGitHub(nome).then((imgRepo) => {
         const prod = estab.produtos.find(p => p.id === novo.id);
@@ -2656,7 +3302,6 @@ async function addProduto(nome, preco) {
           return;
         }
 
-        // 3) Internet (fallback)
         showFeedback('🌐 Buscando imagem na internet...');
         buscarImagemAutomatica(nome).then((img) => {
           const prod2 = estab.produtos.find(p => p.id === novo.id);
