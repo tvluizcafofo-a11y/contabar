@@ -131,6 +131,46 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .config-card p {margin:0;color:var(--muted);font-size:13px;line-height:1.4;}
 .back-config-btn {margin-bottom:15px;background:var(--panel2);color:var(--text);border:1px solid var(--border);}
 
+/* ===== SEÇÕES RECOLHÍVEIS (configurações) ===== */
+.collapsible-section {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--panel2);
+  margin-top: 14px;
+}
+.collapsible-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg,#1d4937,#19382e);
+  color: #79e9aa;
+  border: 0;
+  border-radius: 0;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: left;
+  letter-spacing: 0.3px;
+  transition: filter 0.15s;
+}
+.collapsible-header:hover { filter: brightness(1.12); }
+.collapsible-header .collapsible-arrow {
+  font-size: 13px;
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+  color: #79e9aa;
+}
+.collapsible-header.open .collapsible-arrow { transform: rotate(180deg); }
+.collapsible-content {
+  padding: 14px;
+  background: var(--panel2);
+}
+.collapsible-content .voice { margin-bottom: 0 !important; }
+
 .hist-filters {background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;}
 .hist-filters-row {display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
 .hist-filters-row select, .hist-filters-row input {margin:0;border-radius:8px;padding:8px 12px;font-size:14px;}
@@ -309,43 +349,50 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <h2>⚙ Configurações</h2>
 <p class="note">Gerencie as rotinas e parâmetros do seu aplicativo.</p>
 
-<div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:14px; flex-wrap:wrap;">
-  <p class="note" style="margin:0;">⚙ <b>Configurações avançadas</b> (assistente de voz e repositório de rótulos)</p>
-  <button class="secondary small" id="btnToggleConfigAvancada" onclick="toggleConfigAvancada()">👁 Mostrar</button>
+<!-- ===== ASSISTENTE DE VOZ (recolhível) ===== -->
+<div class="collapsible-section">
+  <button class="collapsible-header" id="btnHeaderAssistenteVoz" onclick="toggleCollapsible('assistenteVozContent', this)">
+    <span>🎤 Assistente de Voz</span>
+    <span class="collapsible-arrow">▼</span>
+  </button>
+  <div id="assistenteVozContent" class="collapsible-content" style="display:none;">
+    <div class="voice" style="margin-top:0;">
+      <div class="voice-row">
+        <button id="voiceBtn" onclick="toggleVoiceAssistant()" style="font-size:16px;padding:12px 20px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
+        <button class="secondary" id="speakToggle" onclick="toggleSpeak()">🔊 Voz: ATIVADA</button>
+        <span class="status" id="voiceStatus">Assistente desligado.</span>
+        <select id="voiceSelect" onchange="changeVoice()">
+          <option value="default">🎙️ Voz Padrão</option>
+          <option value="feminina">👩 Voz Feminina</option>
+          <option value="masculina">👨 Voz Masculina</option>
+        </select>
+        <button class="secondary" onclick="diagnosticarVoz()" style="margin-top:8px;">🔍 Diagnosticar voz</button>
+      </div>
+      <div class="command" id="lastCommand">Exemplos: "selecionar Bar do Zé", "incluir produtos cerveja 10 reais", "fechar conta".</div>
+      <div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone.</div>
+    </div>
+  </div>
 </div>
 
-<div id="configAvancadaWrapper" style="display:none;">
-
-  <div class="voice" style="margin-top:15px;">
-    <h3 style="margin-top:0; color:#79e9aa;">🎤 Assistente de Voz</h3>
-    <div class="voice-row">
-      <button id="voiceBtn" onclick="toggleVoiceAssistant()" style="font-size:16px;padding:12px 20px">🎤 ATIVAR ASSISTENTE DE VOZ</button>
-      <button class="secondary" id="speakToggle" onclick="toggleSpeak()">🔊 Voz: ATIVADA</button>
-      <span class="status" id="voiceStatus">Assistente desligado.</span>
-      <select id="voiceSelect" onchange="changeVoice()">
-        <option value="default">🎙️ Voz Padrão</option>
-        <option value="feminina">👩 Voz Feminina</option>
-        <option value="masculina">👨 Voz Masculina</option>
-      </select>
-      <button class="secondary" onclick="diagnosticarVoz()" style="margin-top:8px;">🔍 Diagnosticar voz</button>
+<!-- ===== REPOSITÓRIO DE RÓTULOS (recolhível) ===== -->
+<div class="collapsible-section">
+  <button class="collapsible-header" id="btnHeaderRepositorio" onclick="toggleCollapsible('repositorioRotulosContent', this)">
+    <span>🖼️ Repositório de Rótulos (GitHub)</span>
+    <span class="collapsible-arrow">▼</span>
+  </button>
+  <div id="repositorioRotulosContent" class="collapsible-content" style="display:none;">
+    <div class="voice" style="margin-top:0;">
+      <p class="note">Opcional. Configure um repositório público no GitHub com imagens de rótulos (ex: <code>meuusuario/rotulos</code>). Ao buscar uma imagem, o app verifica nesta ordem: <b>1)</b> imagens já salvas no dispositivo, <b>2)</b> este repositório, <b>3)</b> a internet.</p>
+      <div class="row">
+        <input id="githubRepoInput" placeholder="usuario/repositorio (ex: meuuser/rotulos)" style="margin:0;">
+      </div>
+      <div class="sync-actions" style="margin-top:10px;">
+        <button class="secondary" onclick="salvarGithubRepo()">💾 Salvar</button>
+        <button class="secondary" onclick="testarGithubRepo()">🔍 Testar repositório</button>
+      </div>
+      <p class="note" id="githubRepoStatus" style="margin-top:10px;"></p>
     </div>
-    <div class="command" id="lastCommand">Exemplos: "selecionar Bar do Zé", "incluir produtos cerveja 10 reais", "fechar conta".</div>
-    <div class="note" id="permissionHelp" style="margin-top:8px">Para usar a voz, clique em ATIVAR ASSISTENTE DE VOZ e permita o acesso ao microfone.</div>
   </div>
-
-  <div class="voice" style="margin-top:15px;">
-    <h3 style="margin-top:0; color:#79e9aa;">🖼️ Repositório de Rótulos (GitHub)</h3>
-    <p class="note">Opcional. Configure um repositório público no GitHub com imagens de rótulos (ex: <code>meuusuario/rotulos</code>). Ao buscar uma imagem, o app verifica nesta ordem: <b>1)</b> imagens já salvas no dispositivo, <b>2)</b> este repositório, <b>3)</b> a internet.</p>
-    <div class="row">
-      <input id="githubRepoInput" placeholder="usuario/repositorio (ex: meuuser/rotulos)" style="margin:0;">
-    </div>
-    <div class="sync-actions" style="margin-top:10px;">
-      <button class="secondary" onclick="salvarGithubRepo()">💾 Salvar</button>
-      <button class="secondary" onclick="testarGithubRepo()">🔍 Testar repositório</button>
-    </div>
-    <p class="note" id="githubRepoStatus" style="margin-top:10px;"></p>
-  </div>
-
 </div>
 
 <div class="config-grid">
@@ -487,7 +534,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 
-<!-- ===== CONTA ===== -->
 <section id="conta" class="screen">
 <div class="card">
   <div class="conta-header-info">
@@ -1038,19 +1084,13 @@ function capitalizarNome(nome) {
   return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
 }
 
-// ========== TOGGLE CONFIGURAÇÕES AVANÇADAS ==========
-function toggleConfigAvancada() {
-  const wrapper = document.getElementById('configAvancadaWrapper');
-  const btn = document.getElementById('btnToggleConfigAvancada');
-  if (!wrapper || !btn) return;
-  const oculto = wrapper.style.display === 'none';
-  if (oculto) {
-    wrapper.style.display = 'block';
-    btn.textContent = '🙈 Ocultar';
-  } else {
-    wrapper.style.display = 'none';
-    btn.textContent = '👁 Mostrar';
-  }
+// ========== SEÇÕES RECOLHÍVEIS (config) ==========
+function toggleCollapsible(contentId, btn) {
+  const content = document.getElementById(contentId);
+  if (!content) return;
+  const estaAberto = content.style.display !== 'none';
+  content.style.display = estaAberto ? 'none' : 'block';
+  if (btn) btn.classList.toggle('open', !estaAberto);
 }
 
 function mostrarFlashPedido(produto, qtd) {
@@ -3858,8 +3898,6 @@ window.onload = function() {
   renderPreviewImagemProduto();
   atualizarStatusGithubRepo();
 
-  // ==== ABRIR A ABA CORRETA AO INICIAR ====
-  // Se houver conta aberta, vai para "Conta". Senão, fica em "Início".
   if (data.contaAtiva) {
     showScreen('conta');
   } else {
