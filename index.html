@@ -121,8 +121,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 #novoBancoContainer .row{margin-bottom:6px;}
 #novoBancoContainer label{font-size:12px;margin:0 0 2px;}
 #novoBancoContainer input{padding:6px 8px;font-size:14px;margin:0;}
-.desconto-container{background:var(--panel2);border-radius:8px;padding:12px;margin-top:10px;border-left:3px solid var(--accent);}
-.desconto-container .row{margin-bottom:6px;}
+.gorjeta-container{background:var(--panel2);border-radius:8px;padding:12px;margin-top:10px;border-left:3px solid var(--accent);}
 
 .config-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;margin-top:15px;}
 .config-card {background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:transform 0.2s, border-color 0.2s;}
@@ -307,6 +306,18 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sync-badge {display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:bold;padding:4px 10px;border-radius:14px;background:rgba(79,195,247,0.15);color:#7ec8f0;margin-left:8px;border:1px solid rgba(79,195,247,0.3);}
 .sync-badge .spin {display:inline-block;width:12px;height:12px;border:2px solid rgba(126,200,240,0.35);border-top-color:#7ec8f0;border-radius:50%;animation:spin 0.8s linear infinite;}
 .sync-badge.done {background:rgba(57,201,122,0.15);color:#79e9aa;border-color:rgba(57,201,122,0.35);}
+
+/* ===== FORM PRODUTO - NOME + PREÇO NA MESMA LINHA ===== */
+.produto-form-linha {display:flex;gap:10px;align-items:flex-end;margin-bottom:12px;}
+.produto-form-linha .campo-nome {flex:3;min-width:0;}
+.produto-form-linha .campo-preco {flex:1;min-width:110px;}
+.produto-form-linha label {display:block;margin-bottom:2px;}
+.produto-form-linha input {margin:0;}
+
+@media(max-width:650px) {
+  .produto-form-linha {flex-direction:column;align-items:stretch;}
+  .produto-form-linha .campo-preco {min-width:0;}
+}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -501,11 +512,16 @@ footer{text-align:center;color:var(--muted);padding:25px}
     </div>
 
     <div id="produtoCamposExtras">
-      <label>Nome do produto</label>
-      <input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml" oninput="verificarAlteracoesProduto()">
-
-      <label>Preço</label>
-      <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10.00" oninput="verificarAlteracoesProduto()">
+      <div class="produto-form-linha">
+        <div class="campo-nome">
+          <label>Nome do produto</label>
+          <input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml" oninput="verificarAlteracoesProduto()">
+        </div>
+        <div class="campo-preco">
+          <label>Preço (R$)</label>
+          <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10,00" oninput="verificarAlteracoesProduto()">
+        </div>
+      </div>
     </div>
 
     <label>Imagem do produto</label>
@@ -562,14 +578,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <span class="money" id="contaSubtotal">R$ 0,00</span>
     </div>
     <div class="conta-resumo-linha">
-      <span class="label">Desconto:</span>
-      <span class="money" id="contaDescontoDisplay" style="color:#5dade2;">- R$ 0,00</span>
-    </div>
-    <div class="conta-resumo-linha">
       <span class="label">Gorjeta:</span>
       <span class="money" id="contaGorjeta">R$ 0,00</span>
     </div>
-    <div style="display:none;"><span id="contaSubtotalDesconto">R$ 0,00</span></div>
   </div>
 
   <div class="conta-total-box">
@@ -578,19 +589,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 
   <div class="conta-btn-row">
-    <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">✏️ Editar desconto / gorjeta</button>
+    <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">✏️ Editar gorjeta</button>
     <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()">📂 Abrir conta</button>
   </div>
 
   <div id="contaExtrasWrapper" style="display:none; margin-top:16px;">
-    <div class="desconto-container">
-      <div class="row">
-        <div><label>Desconto (R$)</label><input id="descontoValor" type="number" step="0.01" min="0" placeholder="0,00" oninput="calcularTotaisConta()"></div>
-        <div><label>Descrição do desconto</label><input id="descontoDescricao" placeholder="Ex.: Cupom, cortesia" maxlength="50"></div>
-      </div>
-    </div>
-
-    <div style="margin-top:10px;">
+    <div class="gorjeta-container">
       <label>Gorjeta / Serviço</label>
       <select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
         <option value="0">Sem gorjeta</option>
@@ -996,7 +1000,6 @@ data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
 
-// Repo padrão se nunca foi definido (mas respeita se o usuário limpou)
 if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) {
   data.githubRotulosRepo = REPO_PADRAO;
 }
@@ -1075,11 +1078,9 @@ function money(v) {
 function normalize(s) {
   return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
-// Slug para comparar com nomes de arquivo: remove tudo que não é letra/número
 function slugify(s) {
   return normalize(s).replace(/[^a-z0-9]+/g, '');
 }
-// Slug com hífen entre palavras
 function slugifyHifen(s) {
   return normalize(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
@@ -1777,7 +1778,6 @@ function getProdutosAtivos() {
 
 // ================================================================
 //  BUSCA LOCAL (DISPOSITIVO) — usa slug para casar "Cerveja Brahma"
-//  com qualquer produto que já tenha imagem e nome compatível.
 // ================================================================
 function buscarImagemLocal(nome) {
   if (!nome) return null;
@@ -1796,13 +1796,10 @@ function buscarImagemLocal(nome) {
       if (!pSlug) return;
 
       let score = 0;
-      // Match exato de slug
       if (pSlug === slug) score = 1000;
-      // Um contém o outro (ex.: "cervejabrahma" vs "cervejabrahma600ml")
       else if (pSlug.includes(slug) || slug.includes(pSlug)) {
         score = 600 + Math.round((Math.min(pSlug.length, slug.length) / Math.max(pSlug.length, slug.length)) * 300);
       }
-      // Match por palavras individuais (ex.: "cerveja" + "brahma")
       else if (palavrasAlvo.length > 0) {
         const pWords = pNome.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
         const comuns = palavrasAlvo.filter(w => pWords.includes(w) || pSlug.includes(w)).length;
@@ -1818,16 +1815,15 @@ function buscarImagemLocal(nome) {
 }
 
 // ================================================================
-//  BUSCA NO GITHUB — reescrita
+//  BUSCA NO GITHUB
 // ================================================================
-
 let manifestRotulosCache = null;
 let manifestRotulosRepoCache = null;
 let githubTreeCache = null;
 let githubTreeRepoCache = null;
 let githubTreeBranchCache = null;
 let githubTreeCacheTime = 0;
-const GITHUB_TREE_TTL = 5 * 60 * 1000; // 5 minutos
+const GITHUB_TREE_TTL = 5 * 60 * 1000;
 
 async function carregarManifestRotulos(repo) {
   if (manifestRotulosCache && manifestRotulosRepoCache === repo) return manifestRotulosCache;
@@ -1849,7 +1845,6 @@ async function carregarManifestRotulos(repo) {
   return null;
 }
 
-// Lista TODOS os arquivos do repositório via API de árvore do GitHub
 async function carregarArvoreGitHub(repo, forcarAtualizacao) {
   const agora = Date.now();
   if (!forcarAtualizacao
@@ -1890,7 +1885,7 @@ async function carregarArvoreGitHub(repo, forcarAtualizacao) {
         item.type === 'blob' && /\.(jpe?g|png|webp|gif|bmp)$/i.test(item.path)
       );
 
-      console.log(`[GitHub] Branch "${branch}": ${blobs.length} imagens (${json.tree.length} arquivos no total)`);
+      console.log(`[GitHub] Branch "${branch}": ${blobs.length} imagens`);
 
       if (blobs.length === 0) continue;
 
@@ -1914,10 +1909,6 @@ async function baixarDoGitHub(repo, branch, path) {
   return await baixarImagemComoDataURL(url);
 }
 
-// ================================================================
-//  CORE: matching por slug (nome do arquivo = nome do produto sem espaços)
-//  Ex.: "Cerveja Brahma" → arquivo "cervejabrahma.jpg"
-// ================================================================
 async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
   const repo = (data.githubRotulosRepo || '').trim();
   if (!repo || !nome) {
@@ -1931,9 +1922,7 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
   const palavras = nomeNorm.split(/\s+/).filter(w => w.length >= 2 && !PALAVRAS_IGNORAR.has(w));
 
   console.log(`[GitHub] Buscando "${nome}" em "${repo}"${forcarAtualizacao ? ' (forçado)' : ''}`);
-  console.log(`[GitHub] Slug: "${slug}" | Hífen: "${slugHifen}" | Palavras:`, palavras);
 
-  // 1) Manifest (mapeamento explícito)
   try {
     const manifest = await carregarManifestRotulos(repo);
     if (manifest && typeof manifest === 'object') {
@@ -1968,7 +1957,6 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
     }
   } catch (e) { }
 
-  // 2) Árvore do GitHub
   try {
     const resultado = await carregarArvoreGitHub(repo, forcarAtualizacao);
     if (resultado && resultado.tree && resultado.tree.length) {
@@ -2001,10 +1989,10 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
           detalhe = 'slug sem separador';
         } else if (slug.length >= 4 && baseSlug.includes(slug)) {
           score = 700 + Math.round((slug.length / baseSlug.length) * 100);
-          detalhe = `slug contido (${slug} ⊂ ${baseSlug})`;
+          detalhe = `slug contido`;
         } else if (baseSlug.length >= 4 && slug.includes(baseSlug)) {
           score = 600 + Math.round((baseSlug.length / slug.length) * 100);
-          detalhe = `base contida (${baseSlug} ⊂ ${slug})`;
+          detalhe = `base contida`;
         } else if (palavras.length > 0) {
           const baseWords = baseNorm.split(/[^a-z0-9]+/).filter(w => w.length >= 2);
           const comuns = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p)).length;
@@ -2033,15 +2021,12 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
         console.log(`[GitHub] ✓ Melhor match: "${melhorPath}" (score ${melhorScore}, ${melhorDetalhe})`);
         const dataUrl = await baixarDoGitHub(repo, branch, melhorPath);
         if (dataUrl) return dataUrl;
-      } else {
-        console.log(`[GitHub] Nenhum match com score ≥ 300 (melhor foi ${melhorScore})`);
       }
     }
   } catch (e) {
     console.warn('[GitHub] Erro na busca por árvore:', e);
   }
 
-  // 3) Fallback: URLs diretas com slug
   console.log('[GitHub] Tentando URLs diretas...');
   const folders = ['', 'rotulos/', 'imagens/', 'images/', 'img/'];
   const exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
@@ -2070,35 +2055,31 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
   return null;
 }
 
-// Busca completa: local → GitHub → internet
 async function buscarImagemAutomatica(nome) {
   if (!nome) return null;
 
-  // 1) Dispositivo (produtos locais com imagem salva)
   const local = buscarImagemLocal(nome);
   if (local) {
-    console.log(`[Imagem] ✓ "${nome}" encontrada no dispositivo`);
+    console.log(`[Imagem] ✓ "${nome}" no dispositivo`);
     return local;
   }
 
-  // 2) GitHub
   try {
     const github = await buscarImagemGitHubRotulos(nome);
     if (github) {
-      console.log(`[Imagem] ✓ "${nome}" encontrada no GitHub`);
+      console.log(`[Imagem] ✓ "${nome}" no GitHub`);
       return github;
     }
   } catch (e) {
     console.warn('[Imagem] Erro na busca GitHub:', e);
   }
 
-  // 3) Internet (loremflickr)
   const kw = extrairPalavraChaveImagem(nome);
   const lock = hashCode(nome) % 9999;
   const url = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`;
   const result = await baixarImagemComoDataURL(url);
   if (result) {
-    console.log(`[Imagem] ✓ "${nome}" encontrada na internet`);
+    console.log(`[Imagem] ✓ "${nome}" na internet`);
     return result;
   }
   const url2 = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}`;
@@ -2117,7 +2098,6 @@ function salvarGithubRepo() {
     return;
   }
   data.githubRotulosRepo = valor;
-  // Invalida caches
   manifestRotulosCache = null;
   manifestRotulosRepoCache = null;
   githubTreeCache = null;
@@ -2135,14 +2115,12 @@ async function testarGithubRepo() {
   if (!repo) { showFeedback('⚠️ Configure e salve um repositório primeiro.'); return; }
   showFeedback('🔍 Testando repositório...');
 
-  // Invalida caches para o teste ser real
   manifestRotulosCache = null; manifestRotulosRepoCache = null;
   githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null;
   githubTreeCacheTime = 0;
 
   const arvore = await carregarArvoreGitHub(repo, true);
   if (arvore && arvore.tree.length) {
-    // Exibe alguns nomes de exemplo
     const amostra = arvore.tree.slice(0, 5).map(x => x.path.split('/').pop()).join(', ');
     showFeedback(`✅ Repositório OK! ${arvore.tree.length} imagens (branch ${arvore.branch}). Ex.: ${amostra}`);
     return;
@@ -2152,7 +2130,7 @@ async function testarGithubRepo() {
     showFeedback(`✅ Manifest acessível com ${Object.keys(manifest).length} rótulo(s).`);
     return;
   }
-  showFeedback('❌ Não foi possível acessar o repositório. Verifique se ele é público, se o nome está correto e se você não atingiu o limite de requisições do GitHub (aguarde alguns minutos).');
+  showFeedback('❌ Não foi possível acessar o repositório. Verifique se é público e o nome está correto.');
 }
 
 function atualizarStatusGithubRepo() {
@@ -2174,21 +2152,15 @@ function atualizarStatusGithubRepo() {
 function sincronizarEstabelecimentoAtivoManual() {
   const id = data.estabelecimentoAtivoId;
   if (!id) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
-  // Invalida o cache da árvore para pegar mudanças do repo
   githubTreeCache = null;
   githubTreeRepoCache = null;
   githubTreeBranchCache = null;
   githubTreeCacheTime = 0;
-  sincronizandoImagens = false; // reseta flag
+  sincronizandoImagens = false;
   sincronizandoEstabId = null;
   sincronizarImagensEstabelecimento(id, true);
 }
 
-// ================================================================
-//  SINCRONIZAÇÃO DE IMAGENS AO SELECIONAR ESTABELECIMENTO
-//  Percorre todos os produtos sem imagem e busca:
-//  1) dispositivo  → 2) GitHub  → 3) internet
-// ================================================================
 function mostrarSyncBadge(mostrar, texto) {
   const badge = document.getElementById('cardapioSyncBadge');
   const txt = document.getElementById('cardapioSyncText');
@@ -2203,7 +2175,6 @@ function mostrarSyncBadge(mostrar, texto) {
 }
 
 async function sincronizarImagensEstabelecimento(estabId, forcar) {
-  // Se já está sincronizando outro estabelecimento, aguarda terminar
   if (sincronizandoImagens && sincronizandoEstabId !== estabId) {
     let tentativas = 0;
     while (sincronizandoImagens && tentativas < 60) {
@@ -2219,7 +2190,6 @@ async function sincronizarImagensEstabelecimento(estabId, forcar) {
   const estab = data.estabelecimentos[estabId];
   if (!estab) return;
 
-  const semImagem = (estab.produtos || []).filter(p => !p.imagem || (forcar === true && !p.imagem));
   const realmenteSem = (estab.produtos || []).filter(p => !p.imagem);
   if (realmenteSem.length === 0) {
     console.log('[Sync] Todos os produtos já têm imagem.');
@@ -2230,7 +2200,7 @@ async function sincronizarImagensEstabelecimento(estabId, forcar) {
   sincronizandoEstabId = estabId;
 
   const total = realmenteSem.length;
-  console.log(`[Sync] Iniciando busca de imagens para ${total} produto(s) em "${estab.nome}"`);
+  console.log(`[Sync] Buscando imagens para ${total} produto(s) em "${estab.nome}"`);
   mostrarSyncBadge(true, `0/${total}`);
   showFeedback(`🖼️ Buscando imagens (0/${total})...`);
 
@@ -2242,7 +2212,6 @@ async function sincronizarImagensEstabelecimento(estabId, forcar) {
 
     let origem = 'não encontrada';
     try {
-      // 1) Dispositivo
       const local = buscarImagemLocal(p.nome);
       if (local) {
         p.imagem = local;
@@ -2250,7 +2219,6 @@ async function sincronizarImagensEstabelecimento(estabId, forcar) {
         origem = 'dispositivo';
         save();
       } else {
-        // 2) GitHub
         let github = null;
         try {
           github = await buscarImagemGitHubRotulos(p.nome);
@@ -2262,7 +2230,6 @@ async function sincronizarImagensEstabelecimento(estabId, forcar) {
           origem = 'GitHub';
           save();
         } else {
-          // 3) Internet
           try {
             const kw = extrairPalavraChaveImagem(p.nome);
             const lock = hashCode(p.nome) % 9999;
@@ -2290,19 +2257,16 @@ async function sincronizarImagensEstabelecimento(estabId, forcar) {
       showFeedback(`🖼️ ${processados}/${total} • ${encontradas} imagem(ns) adicionada(s)`);
     }
 
-    // Renderiza parcialmente para o usuário ver o progresso
     if (processados % 3 === 0) {
       renderCardapio();
     }
 
-    // Pausa amigável para não estourar APIs
     await new Promise(r => setTimeout(r, 200));
   }
 
   sincronizandoImagens = false;
   sincronizandoEstabId = null;
 
-  // Render final
   renderAll();
 
   if (encontradas > 0) {
@@ -2340,7 +2304,6 @@ async function setEstabelecimentoAtivo(id) {
     const nome = data.estabelecimentos[id].nome;
     speak('Estabelecimento selecionado: ' + nome);
     showFeedback('🏢 Estabelecimento ativo: ' + nome);
-    // Dispara varredura de imagens
     setTimeout(() => sincronizarImagensEstabelecimento(id), 400);
   } else {
     data.estabelecimentoAtivoId = null;
@@ -2645,7 +2608,6 @@ async function buscarImagemGitHubManual() {
   }
   setLoadingPreview(true);
   showFeedback('🐙 Buscando no GitHub...');
-  // Força atualização da árvore para pegar mudanças recentes do repo
   const dataUrl = await buscarImagemGitHubRotulos(nome, true);
   setLoadingPreview(false);
   if (dataUrl) {
@@ -2687,6 +2649,14 @@ function removerImagemProduto() {
   showFeedback('🗑️ Imagem removida.');
 }
 
+function rolarParaFormProduto() {
+  setTimeout(() => {
+    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) { window.scrollTo(0, 0); }
+    const form = document.getElementById('formProduto');
+    if (form && form.scrollIntoView) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 80);
+}
+
 function mostrarFormProduto() {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Selecione um estabelecimento primeiro.'); return; }
@@ -2708,7 +2678,9 @@ function mostrarFormProduto() {
   const btn = document.getElementById('btnSalvarProduto');
   btn.disabled = false;
   btn.textContent = '➕ Cadastrar produto';
-  setTimeout(() => { document.getElementById('produtoNome').focus(); }, 100);
+
+  rolarParaFormProduto();
+  setTimeout(() => { document.getElementById('produtoNome').focus(); }, 200);
 }
 
 function fecharFormProduto(silencioso = false) {
@@ -2848,6 +2820,9 @@ function editProduto(id) {
   showScreen('cardapio');
   verificarAlteracoesProduto();
   showFeedback('✏️ Editando: ' + p.nome);
+
+  // SEMPRE rolar para o topo para mostrar o formulário
+  rolarParaFormProduto();
 }
 
 async function deleteProduto(id) {
@@ -2905,20 +2880,16 @@ function saveGorjetaConfig() {
   data.gorjetaConfig = Number($('gorjeta').value || 0);
   save();
 }
+
+// ========== CÁLCULO DE TOTAIS (SEM DESCONTO) ==========
 function calcularTotaisConta() {
   const sub = subtotal();
-  const desconto = Number($('descontoValor').value) || 0;
-  const subComDesconto = Math.max(0, sub - desconto);
   const perc = Number($('gorjeta').value || 0);
-  const gor = subComDesconto * perc / 100;
-  const total = subComDesconto + gor;
+  const gor = sub * perc / 100;
+  const total = sub + gor;
 
   const elSub = document.getElementById('contaSubtotal');
   if (elSub) elSub.textContent = money(sub);
-  const elSD = document.getElementById('contaSubtotalDesconto');
-  if (elSD) elSD.textContent = money(subComDesconto);
-  const elDesc = document.getElementById('contaDescontoDisplay');
-  if (elDesc) elDesc.textContent = desconto > 0 ? '- ' + money(desconto) : 'R$ 0,00';
   const elGor = document.getElementById('contaGorjeta');
   if (elGor) elGor.textContent = money(gor);
   const elTot = document.getElementById('contaTotal');
@@ -2932,7 +2903,7 @@ function toggleContaExtras() {
   const aberto = wrapper.style.display === 'block';
   if (aberto) {
     wrapper.style.display = 'none';
-    btn.textContent = '✏️ Editar desconto / gorjeta';
+    btn.textContent = '✏️ Editar gorjeta';
   } else {
     wrapper.style.display = 'block';
     btn.textContent = '✔ Fechar edição';
@@ -2955,14 +2926,11 @@ async function confirmarFechamento() {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠ Nenhum estabelecimento ativo.'); return; }
   const sub = subtotal();
-  const desconto = Number($('descontoValor').value) || 0;
-  const descricaoDesconto = $('descontoDescricao').value.trim() || 'Sem descrição';
-  const subComDesconto = Math.max(0, sub - desconto);
   const perc = Number($('gorjeta').value || 0);
-  const gor = subComDesconto * perc / 100;
-  const total = subComDesconto + gor;
+  const gor = sub * perc / 100;
+  const total = sub + gor;
   contaFechada = {
-    estab, sub, desconto, descricaoDesconto, subComDesconto, gor, perc, total,
+    estab, sub, gor, perc, total,
     itens: JSON.parse(JSON.stringify(data.pedido)),
     cliente: getNomeCliente()
   };
@@ -2971,8 +2939,6 @@ async function confirmarFechamento() {
     <p><b>Estabelecimento:</b> ${estab.nome}</p>
     <p><b>Cliente:</b> ${contaFechada.cliente}</p>
     <p><b>Subtotal:</b> ${money(sub)}</p>
-    ${desconto > 0 ? `<p><b>Desconto (${descricaoDesconto}):</b> -${money(desconto)}</p>` : ''}
-    <p><b>Subtotal c/ desconto:</b> ${money(subComDesconto)}</p>
     <p><b>Gorjeta (${perc}%):</b> ${money(gor)}</p>
     <p><b>TOTAL:</b> <span style="color:#79e9aa;font-weight:bold;">${money(total)}</span></p>
     <p class="note" style="margin-top:10px;">Escolha a forma de pagamento abaixo ⬇️</p>
@@ -2982,6 +2948,7 @@ async function confirmarFechamento() {
   pagamentoConfirmado = false;
   metodoPagamento = null;
 }
+
 function fecharContaVazia() {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
@@ -2989,7 +2956,7 @@ function fecharContaVazia() {
     id: Date.now(), data: new Date().toLocaleString('pt-BR'),
     estabelecimento: estab.nome,
     cliente: getNomeCliente(),
-    itens: [], subtotal: 0, desconto: 0, descricaoDesconto: '', subComDesconto: 0,
+    itens: [], subtotal: 0,
     gorjeta: 0, percentual: 0, total: 0,
     metodoPagamento: 'Sem itens'
   };
@@ -2999,6 +2966,7 @@ function fecharContaVazia() {
   speak('Conta vazia fechada.');
   showFeedback('🧾 Conta fechada (sem itens)');
 }
+
 function fecharPaymentModal() {
   document.getElementById('paymentModal').classList.remove('active');
   const container = document.getElementById('qrcode');
@@ -3146,6 +3114,7 @@ function abrirBanco() {
     showFeedback('⚠ Não foi possível abrir o app do banco.');
   }
 }
+
 function finalizarPagamento() {
   if (!contaFechada) return;
   const conta = {
@@ -3155,9 +3124,6 @@ function finalizarPagamento() {
     cliente: contaFechada.cliente,
     itens: contaFechada.itens,
     subtotal: contaFechada.sub,
-    desconto: contaFechada.desconto,
-    descricaoDesconto: contaFechada.descricaoDesconto,
-    subComDesconto: contaFechada.subComDesconto,
     gorjeta: contaFechada.gor,
     percentual: contaFechada.perc,
     total: contaFechada.total,
@@ -3165,7 +3131,6 @@ function finalizarPagamento() {
   };
   data.historico.unshift(conta);
   data.pedido = []; data.contaAtiva = false;
-  $('descontoValor').value = ''; $('descontoDescricao').value = '';
   save(); renderAll();
   const texto = `Pagamento confirmado em ${metodoPagamento || 'dinheiro'}. Total: ${money(contaFechada.total)}.`;
   speak(texto);
@@ -3241,7 +3206,6 @@ async function abrirNovaConta(nomeEstab) {
     }
   }
   data.pedido = []; data.contaAtiva = true;
-  $('descontoValor').value = '';$('descontoDescricao').value = '';
   save(); renderAll();
   speak('Nova conta aberta em ' + estabAtivo.nome);
   showFeedback('✅ Nova conta aberta!');
@@ -3462,10 +3426,6 @@ function renderHistorico() {
   };
 
   function criarCardConta(h) {
-    let descontoStr = '';
-    if (h.desconto && h.desconto > 0) {
-      descontoStr = `<span style="color:#5dade2;"><b>Desconto:</b> -${money(h.desconto)} (${escapeHtml(h.descricaoDesconto || 'sem descrição')})</span><br>`;
-    }
     const mp = h.metodoPagamento || 'Não informado';
     const est = estiloMP[mp] || estiloMP['Não informado'];
 
@@ -3478,7 +3438,6 @@ function renderHistorico() {
             ${est.icone} ${mp}
           </span><br>
           <span class="note">${(h.itens || []).map(x => `${x.qtd}×${escapeHtml(x.nome)}`).join(', ') || 'Sem itens'}</span><br>
-          ${descontoStr}
           <b>Total: ${money(h.total)}</b>
           <span class="note" style="margin-left:8px;color:#79e9aa;">🧾 toque para ver o recibo</span>
         </div>
@@ -3889,12 +3848,9 @@ function fecharRecibo() {
   contaReciboAtual = null;
 }
 
+// ========== RECIBO (SEM DESCONTO) ==========
 function renderRecibo(h) {
-  const desconto = h.desconto || 0;
   const perc = h.percentual || 0;
-  const subComDesc = (h.subComDesconto !== undefined && h.subComDesconto !== null)
-    ? h.subComDesconto
-    : Math.max(0, (h.subtotal || 0) - desconto);
 
   const itensHTML = (h.itens && h.itens.length)
     ? h.itens.map(it => `
@@ -3919,10 +3875,6 @@ function renderRecibo(h) {
 
     <div class="recibo-bloco" style="border-bottom:none; margin-top:10px;">
       <div class="recibo-linha"><span>Subtotal</span><span>${money(h.subtotal || 0)}</span></div>
-      ${desconto > 0 ? `
-        <div class="recibo-linha"><span>Desconto${h.descricaoDesconto ? ' ('+escapeHtml(h.descricaoDesconto)+')' : ''}</span><span>-${money(desconto)}</span></div>
-        <div class="recibo-linha"><span>Subtotal c/ desconto</span><span>${money(subComDesc)}</span></div>
-      ` : ''}
       <div class="recibo-linha"><span>Gorjeta (${perc}%)</span><span>${money(h.gorjeta || 0)}</span></div>
     </div>
 
@@ -3941,11 +3893,7 @@ function renderRecibo(h) {
 
 function gerarTextoRecibo(h) {
   if (!h) return '';
-  const desconto = h.desconto || 0;
   const perc = h.percentual || 0;
-  const subComDesc = (h.subComDesconto !== undefined && h.subComDesconto !== null)
-    ? h.subComDesconto
-    : Math.max(0, (h.subtotal || 0) - desconto);
 
   const linhas = [];
   linhas.push('🧾 RECIBO');
@@ -3959,10 +3907,6 @@ function gerarTextoRecibo(h) {
   });
   linhas.push('');
   linhas.push('Subtotal: ' + money(h.subtotal || 0));
-  if (desconto > 0) {
-    linhas.push('Desconto' + (h.descricaoDesconto ? ' (' + h.descricaoDesconto + ')' : '') + ': -' + money(desconto));
-    linhas.push('Subtotal c/ desconto: ' + money(subComDesc));
-  }
   linhas.push('Gorjeta (' + perc + '%): ' + money(h.gorjeta || 0));
   linhas.push('');
   linhas.push('TOTAL: ' + money(h.total || 0));
@@ -4214,7 +4158,7 @@ function exportarDados(incluirImagens = true) {
 
   dadosExport.__meta = {
     app: 'FECHA A CONTA',
-    versao: 2,
+    versao: 3,
     exportadoEm: new Date().toISOString(),
     incluirImagens: !!incluirImagens,
     totalImagens: totalImagens
@@ -4286,7 +4230,6 @@ function importarDados(e) {
             data.sinonimos[k] = [...SINONIMOS_PADRAO[k]];
           }
         });
-        // Invalida caches de árvore/manifest
         githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null;
         githubTreeCacheTime = 0;
         manifestRotulosCache = null; manifestRotulosRepoCache = null;
@@ -4362,7 +4305,6 @@ window.onload = function() {
     }, 1500);
   }
 
-  // Ao iniciar, se há estabelecimento ativo com produtos sem imagem, sincroniza
   if (data.estabelecimentoAtivoId) {
     const estab = data.estabelecimentos[data.estabelecimentoAtivoId];
     if (estab && (estab.produtos || []).some(p => !p.imagem)) {
