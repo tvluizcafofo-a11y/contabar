@@ -130,43 +130,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .config-card p {margin:0;color:var(--muted);font-size:13px;line-height:1.4;}
 .back-config-btn {margin-bottom:15px;background:var(--panel2);color:var(--text);border:1px solid var(--border);}
 
-.collapsible-section {
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-  background: var(--panel2);
-  margin-top: 14px;
-}
-.collapsible-header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  background: linear-gradient(135deg,#1d4937,#19382e);
-  color: #79e9aa;
-  border: 0;
-  border-radius: 0;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: left;
-  letter-spacing: 0.3px;
-  transition: filter 0.15s;
-}
+.collapsible-section {border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--panel2);margin-top:14px;}
+.collapsible-header {width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;background:linear-gradient(135deg,#1d4937,#19382e);color:#79e9aa;border:0;border-radius:0;font-size:15px;font-weight:bold;cursor:pointer;text-align:left;letter-spacing:0.3px;transition:filter 0.15s;}
 .collapsible-header:hover { filter: brightness(1.12); }
-.collapsible-header .collapsible-arrow {
-  font-size: 13px;
-  transition: transform 0.25s ease;
-  flex-shrink: 0;
-  color: #79e9aa;
-}
+.collapsible-header .collapsible-arrow {font-size:13px;transition:transform 0.25s ease;flex-shrink:0;color:#79e9aa;}
 .collapsible-header.open .collapsible-arrow { transform: rotate(180deg); }
-.collapsible-content {
-  padding: 14px;
-  background: var(--panel2);
-}
+.collapsible-content {padding:14px;background:var(--panel2);}
 .collapsible-content .voice { margin-bottom: 0 !important; }
 
 .hist-filters {background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;}
@@ -193,7 +162,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 @keyframes confirmIn{from{transform:scale(0.92);opacity:0;}to{transform:scale(1);opacity:1;}}
 .confirm-content .confirm-icon{font-size:52px;text-align:center;margin-bottom:8px;line-height:1;}
 .confirm-content h3{text-align:center;margin:0 0 10px 0;color:#79e9aa;}
-.confirm-content .confirm-msg{text-align:center;font-size:15px;color:var(--text);margin:0 0 12px 0;line-height:1.45;}
+.confirm-content .confirm-msg{text-align:center;font-size:15px;color:var(--text);margin:0 0 12px 0;line-height:1.45;white-space:pre-line;}
 .confirm-content .confirm-dica{text-align:center;font-size:12px;color:var(--muted);background:#0a0e14;border:1px dashed var(--border);border-radius:8px;padding:8px;margin:0 0 14px 0;}
 .confirm-content .confirm-actions{display:flex;gap:12px;}
 .confirm-content .confirm-actions button{flex:1;padding:14px;font-size:16px;}
@@ -318,8 +287,38 @@ footer{text-align:center;color:var(--muted);padding:25px}
   .produto-form-linha .campo-preco {min-width:0;}
 }
 
-/* Destaque do fallback visual de voz */
 .voice-visual-fallback {background:rgba(57,201,122,0.25) !important;padding:10px !important;border-radius:8px !important;font-size:16px !important;transition:all 0.3s;}
+
+.edit-banner {
+  display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+  background:linear-gradient(135deg,#2a5a3f,#1d4937);
+  border:2px solid var(--accent);
+  border-radius:12px;
+  padding:12px 16px;
+  margin-bottom:14px;
+  box-shadow:0 6px 24px rgba(57,201,122,0.35), inset 0 0 12px rgba(57,201,122,0.1);
+  animation: editBannerIn .25s ease;
+}
+@keyframes editBannerIn {from {opacity:0;transform:translateY(-8px);}to {opacity:1;transform:translateY(0);}}
+.edit-banner .edit-banner-title {
+  font-family:'Anton','Impact',sans-serif;
+  font-size:20px; letter-spacing:2px; color:#79e9aa; text-transform:uppercase;
+  display:flex; align-items:center; gap:10px; margin:0;
+}
+.edit-banner .edit-banner-sub {color:#d7ffe8; font-size:13px; font-weight:normal; letter-spacing:normal; text-transform:none;}
+.edit-banner .edit-banner-close {
+  background:transparent; color:#d7ffe8; border:1px solid rgba(215,255,232,0.4);
+  padding:6px 12px; font-size:13px; border-radius:8px; cursor:pointer;
+}
+.edit-banner .edit-banner-close:hover { background:rgba(215,255,232,0.1); filter:none; }
+
+#formProduto.modo-edicao {
+  border:2px solid var(--accent);
+  box-shadow:0 8px 30px rgba(57,201,122,0.25), inset 0 0 20px rgba(57,201,122,0.05);
+  background:linear-gradient(180deg,#1f3a2c 0%,var(--panel2) 100%);
+}
+#cardapio.editando .cardapio-header { opacity:0.45; pointer-events:none; }
+#cardapio.editando #listaProdutos { display:none; }
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -397,8 +396,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </button>
   <div id="repositorioRotulosContent" class="collapsible-content" style="display:none;">
     <div class="voice" style="margin-top:0;">
-      <p class="note">O repositório deve ser público. O app procura imagens pelo <b>nome do produto sem espaços</b>. Ex.: produto <b>"Cerveja Brahma"</b> → arquivo <code>cervejabrahma.jpg</code> (também funciona <code>cerveja-brahma.jpg</code> e <code>Cerveja_Brahma.png</code>).</p>
-      <p class="note">Ordem de busca ao selecionar um estabelecimento: <b>1)</b> imagens já salvas no dispositivo → <b>2)</b> este repositório GitHub → <b>3)</b> internet.</p>
+      <p class="note">O repositório deve ser público. O app procura imagens pelo <b>nome do produto sem espaços</b>. Ex.: produto <b>"Cerveja Brahma"</b> → arquivo <code>cervejabrahma.jpg</code>.</p>
       <div class="row">
         <input id="githubRepoInput" placeholder="usuario/repositorio (ex: contabar/rotulos)" style="margin:0;">
       </div>
@@ -441,15 +439,13 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button class="back-config-btn" onclick="showScreen('configuracoes')">⬅️ Voltar para Configurações</button>
 <div class="card">
 <h2>🎤 Sinônimos de Voz</h2>
-<p class="note">Personalize as palavras que você fala para cada comando. Digite um sinônimo e clique em <b>➕ Adicionar</b>. Clique no <b>×</b> vermelho para remover.</p>
-<p class="note">💡 Exemplo: para o comando <b>Pedir</b>, adicione <b>"desce"</b>, <b>"me dá"</b>, <b>"traz"</b> — e depois fale <i>"desce uma cerveja"</i> normalmente.</p>
+<p class="note">Personalize as palavras que você fala para cada comando.</p>
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin:15px 0;">
   <button class="secondary" onclick="restaurarTodosSinonimos()">🔄 Restaurar todos os padrões</button>
 </div>
 
 <div class="sync-box">
   <h3>📦 Backup dos Sinônimos</h3>
-  <p class="note" style="color:#aed8f5;">Salve seus sinônimos em um arquivo e restaure quando quiser.</p>
   <div class="sync-actions">
     <button class="btn-export" onclick="exportarSinonimos()">📤 Exportar Sinônimos</button>
     <button class="btn-import" onclick="document.getElementById('fileInputSinonimos').click()">📥 Importar Sinônimos</button>
@@ -488,7 +484,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <button id="btnSalvarEstab" onclick="salvarEstabelecimento()">➕ Adicionar estabelecimento</button>
     <button class="secondary" onclick="fecharFormEstabelecimento()">❌ Cancelar</button>
   </div>
-  <p class="note" id="barInfo" style="margin-top:8px;"></p>
 </div>
 
 <hr style="border-color:var(--border);margin:15px 0">
@@ -507,12 +502,16 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
   </div>
 
+  <div id="editBanner" class="edit-banner" style="display:none;">
+    <div>
+      <div class="edit-banner-title">✏️ Editando produto</div>
+      <div class="edit-banner-sub" id="editBannerSub">—</div>
+    </div>
+    <button class="edit-banner-close" onclick="fecharFormProduto()">✖ Sair da edição</button>
+  </div>
+
   <div id="formProduto" style="display:none; padding:16px; background:var(--panel2); border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
     <h3 id="formProdutoTitulo" style="margin-top:0; color:#79e9aa;">➕ Novo produto</h3>
-
-    <div id="produtoToggleWrap" style="display:none; margin-bottom:12px;">
-      <button type="button" class="secondary" id="btnToggleProdutoCampos" onclick="toggleProdutoCampos()" style="width:100%;">👁 Mostrar nome e preço</button>
-    </div>
 
     <div id="produtoCamposExtras">
       <div class="produto-form-linha">
@@ -553,7 +552,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <div id="listaProdutos"></div>
 
   <div class="tip-box">
-    <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo. Se o cardápio tem <b>"Cerveja Império"</b>, basta dizer <i>"desce uma império"</i>.</p>
+    <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo.</p>
   </div>
 </div>
 </section>
@@ -668,7 +667,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
 <div id="usuarioFormWrapper" style="display:none; margin-top:14px;">
   <div class="row">
-    <div><label>Nome</label><input id="userNome" placeholder="Seu nome completo" onchange="salvarUsuarioAutomatico()"></div>
+    <div><label>Nome *</label><input id="userNome" placeholder="Seu nome completo" onchange="salvarUsuarioAutomatico()"></div>
     <div><label>E-mail</label><input id="userEmail" placeholder="seu@email.com" onchange="salvarUsuarioAutomatico()"></div>
   </div>
   <div class="row">
@@ -701,70 +700,28 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="card">
 <h2>🎯 Lista Completa de Comandos de Voz</h2>
 <div class="tip-box">
-  <p>💡 <b>Dica:</b> Todos os comandos abaixo são personalizáveis! Vá em <b>⚙ Configurações → 🎤 Sinônimos de Voz</b> para adicionar ou remover palavras.</p>
-</div>
-<div class="tip-box">
-  <p>🧠 <b>Nome parcial de produto:</b> ao fazer um pedido, você pode falar só parte do nome. Se o cardápio tem <b>"Cerveja Império"</b>, basta dizer <i>"desce uma império"</i>.</p>
-</div>
-<div class="tip-box">
-  <p>🖱️ <b>Botões por voz:</b> quando um modal estiver aberto (pagamento, compartilhar, etc.), basta falar o nome do botão para acioná-lo. Ex: <i>"pix"</i>, <i>"dinheiro"</i>, <i>"cartão"</i>, <i>"whatsapp"</i>, <i>"fechar"</i>.</p>
+  <p>💡 <b>Dica:</b> Todos os comandos abaixo são personalizáveis! Vá em <b>⚙ Configurações → 🎤 Sinônimos de Voz</b>.</p>
 </div>
 <p class="note">Todos os comandos disponíveis para controle por voz do sistema.</p>
 <hr style="border-color:var(--border);margin:15px 0">
 <h3>🏢 Estabelecimentos</h3>
 <ul class="command-list">
   <li><span class="cmd">"Selecionar [nome]"</span><br><span class="desc">Ex: "selecionar Bar do Zé"</span></li>
-  <li><span class="cmd">"Incluir estabelecimento [nome]"</span><br><span class="desc">Ex: "incluir estabelecimento Bar do Zé"</span></li>
   <li><span class="cmd">"Ver cardápio"</span><br><span class="desc">Exibe o mini cardápio do estabelecimento ativo</span></li>
 </ul>
 <h3>🍺 Produtos</h3>
 <ul class="command-list">
   <li><span class="cmd">"Incluir produtos [nome] [valor]"</span><br><span class="desc">Ex: "incluir produtos cerveja 10 reais"</span></li>
-  <li><span class="cmd">"Incluir produtos [nome]"</span><br><span class="desc">Abre o cadastro com o nome preenchido</span></li>
 </ul>
 <h3>🛒 Pedidos & Conta</h3>
 <ul class="command-list">
-  <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Sinônimos: pedir, pega, me dá, desce, traz, quero, mais um...</span></li>
-  <li><span class="cmd">"Pedir [qtd] [parte do produto]"</span><br><span class="desc">Ex: "desce uma império" → acha "Cerveja Império"</span></li>
-  <li><span class="cmd">"Mais uma [produto]"</span><br><span class="desc">Adiciona 1 unidade</span></li>
+  <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Sinônimos: pedir, pega, me dá, desce, traz...</span></li>
 </ul>
 <h3>💰 Conta</h3>
 <ul class="command-list">
   <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Nova conta no estabelecimento ativo</span></li>
-  <li><span class="cmd">"Abrir conta [nome]"</span><br><span class="desc">Seleciona o estabelecimento e abre a conta</span></li>
-  <li><span class="cmd">"Mostrar conta"</span><br><span class="desc">Abre a tela da conta</span></li>
   <li><span class="cmd">"Fechar conta"</span><br><span class="desc">Finaliza a conta</span></li>
 </ul>
-<h3>💳 Pagamento (com modal aberto)</h3>
-<ul class="command-list">
-  <li><span class="cmd">"Pix"</span><br><span class="desc">Aciona o botão PIX</span></li>
-  <li><span class="cmd">"Dinheiro"</span><br><span class="desc">Aciona o botão Dinheiro</span></li>
-  <li><span class="cmd">"Cartão"</span><br><span class="desc">Aciona o botão Cartão</span></li>
-</ul>
-<h3>📜 Histórico</h3>
-<ul class="command-list">
-  <li><span class="cmd">"Ver histórico"</span><br><span class="desc">Mostra o histórico de contas</span></li>
-  <li><span class="cmd">"Limpar histórico"</span><br><span class="desc">Remove todo o histórico</span></li>
-</ul>
-<h3>💾 Dados</h3>
-<ul class="command-list">
-  <li><span class="cmd">"Exportar dados"</span><br><span class="desc">Exporta todos os dados para JSON</span></li>
-  <li><span class="cmd">"Importar dados"</span><br><span class="desc">Abre a tela de importação</span></li>
-  <li><span class="cmd">"Limpar dados"</span><br><span class="desc">Remove TODOS os dados</span></li>
-</ul>
-<h3>⚙ Controle</h3>
-<ul class="command-list">
-  <li><span class="cmd">"Desativar comando por voz"</span><br><span class="desc">Desliga o assistente</span></li>
-  <li><span class="cmd">"Desligar app"</span><br><span class="desc">Fecha o aplicativo</span></li>
-</ul>
-<h3>✅ Confirmação por Voz</h3>
-<ul class="command-list">
-  <li><span class="cmd">"Sim" / "Confirmo" / "Claro" / "Pode"</span><br><span class="desc">Confirma uma ação solicitada pelo app</span></li>
-  <li><span class="cmd">"Não" / "Cancela" / "Negativo"</span><br><span class="desc">Recusa uma ação solicitada pelo app</span></li>
-</ul>
-<div style="margin-top:20px;padding:15px;background:rgba(57,201,122,0.1);border-radius:10px;border:1px solid var(--accent);">
-  <p style="margin:0;color:var(--text);">💡 <b>Dica:</b> Números falados: "um", "dois", "três" ou "2", "3", "10".</p>
-</div>
 </div>
 </section>
 
@@ -772,7 +729,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button class="back-config-btn" onclick="showScreen('configuracoes')">⬅️ Voltar para Configurações</button>
 <div class="card">
 <h2>💾 Importar / Exportar Dados</h2>
-<p class="note">Gerencie seus dados do aplicativo. A <b>exportação completa</b> inclui as imagens dos produtos (base64) — ideal para backup e migração. A <b>exportação leve</b> gera um arquivo menor apenas com os dados cadastrais.</p>
 <hr style="border-color:var(--border);margin:15px 0">
 
 <h3 style="margin-top:0;">📤 Exportar</h3>
@@ -800,9 +756,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div class="import-area" id="dropArea">
   <p style="font-size:48px;margin:0;">📂</p>
   <p><b>Arraste e solte um arquivo JSON aqui</b></p>
-  <p class="note">ou clique no botão "Selecionar arquivo JSON" acima</p>
 </div>
-<div id="importStatus" style="margin-top:15px;padding:10px;border-radius:8px;display:none;"></div>
 
 <hr style="border-color:var(--border);margin:20px 0">
 <h3>📊 Resumo dos Dados</h3>
@@ -818,7 +772,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 </section>
 </div>
-<footer>🍺 FECHA A CONTA - Cardápio por Estabelecimento • Dados salvos neste navegador</footer>
+<footer>🍺 FECHA A CONTA - Cardápio por Estabelecimento</footer>
 
 <div id="orderFlashModal" class="order-flash-modal" aria-hidden="true">
   <div class="flash-check">✓</div>
@@ -828,7 +782,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <div class="flash-nome" id="flashNome">—</div>
   <div class="flash-info" id="flashInfo"></div>
   <div class="flash-badge">✓ Adicionado ao pedido</div>
-  <button class="flash-add-btn" onclick="adicionarMaisUmFlash()" title="Adicionar mais um" aria-label="Adicionar mais um">+</button>
+  <button class="flash-add-btn" onclick="adicionarMaisUmFlash()" title="Adicionar mais um">+</button>
 </div>
 
 <div id="feedbackModal" class="feedback-modal">
@@ -879,7 +833,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <div class="pix-code" id="pixCode"></div>
       <button onclick="copiarPix()">📋 Copiar código</button>
       <button id="btnAbrirBanco" onclick="abrirBanco()" style="margin-left:10px;">🏦 Abrir app do banco</button>
-      <p style="margin-top:10px;font-size:13px;" class="note">Após o pagamento, clique em "Confirmar pagamento" para finalizar.</p>
       <button onclick="finalizarPagamento()" style="margin-top:10px;">✅ Confirmar pagamento</button>
     </div>
   </div>
@@ -894,7 +847,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <div id="shareModal" class="payment-modal">
   <div class="payment-content" style="max-width:420px;">
     <h2 style="margin-top:0; text-align:center;">📤 Compartilhar recibo</h2>
-    <p class="note" style="text-align:center; margin-bottom:16px;">Escolha um aplicativo:</p>
     <div id="shareOptions"></div>
     <button class="secondary" onclick="fecharShareModal()" style="width:100%; margin-top:8px;">❌ Cancelar</button>
   </div>
@@ -902,33 +854,26 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
 <div id="exportModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:10005;justify-content:center;align-items:center;padding:20px;">
   <div style="background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:480px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,0.8);">
-    <h2 style="margin-top:0;color:var(--accent);">✅ Dados exportados com sucesso!</h2>
+    <h2 style="margin-top:0;color:var(--accent);">✅ Dados exportados!</h2>
     <div style="background:var(--panel2);padding:14px;border-radius:10px;margin:12px 0;border-left:4px solid var(--accent);">
-      <p style="margin:6px 0;"><b>📄 Nome do arquivo:</b><br><span id="exportNomeArquivo" style="color:#8df0b8;font-family:monospace;font-size:13px;word-break:break-all;"></span></p>
-      <p style="margin:6px 0;"><b>📂 Local de salvamento:</b><br><span id="exportLocal" style="color:var(--info);font-size:13px;"></span></p>
+      <p style="margin:6px 0;"><b>📄 Arquivo:</b> <span id="exportNomeArquivo" style="color:#8df0b8;font-family:monospace;font-size:13px;word-break:break-all;"></span></p>
+      <p style="margin:6px 0;"><b>📂 Local:</b> <span id="exportLocal" style="color:var(--info);font-size:13px;"></span></p>
       <p style="margin:6px 0;"><b>📊 Tamanho:</b> <span id="exportTamanho" style="color:var(--muted);font-size:13px;"></span></p>
       <p style="margin:6px 0;"><b>🖼️ Imagens:</b> <span id="exportImagens" style="color:#ffd97d;font-size:13px;"></span></p>
     </div>
     <p class="note" id="exportDica" style="font-size:13px;"></p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-      <button class="secondary small" onclick="copiarConteudoExportado()">📋 Copiar conteúdo</button>
+      <button class="secondary small" onclick="copiarConteudoExportado()">📋 Copiar</button>
       <button class="secondary small" onclick="fecharModalExportacao()">Fechar</button>
     </div>
   </div>
 </div>
 
 <script>
-// ============================================================
-//  DETECÇÃO DE AMBIENTE (Android, WebView, Chrome, etc.)
-// ============================================================
 const ua = navigator.userAgent || '';
 const isAndroid = /Android/i.test(ua);
 const isIOS = /iPhone|iPad|iPod/i.test(ua);
-// WebView Android: tem "; wv)" no user agent OU não tem Chrome/Firefox
-const isAndroidWebView = isAndroid && (
-  /;\s*wv\)/i.test(ua) ||
-  (!/Chrome\/\d+/i.test(ua) && !/Firefox\/\d+/i.test(ua) && !/EdgA?\//i.test(ua))
-);
+const isAndroidWebView = isAndroid && (/;\s*wv\)/i.test(ua) || (!/Chrome\/\d+/i.test(ua) && !/Firefox\/\d+/i.test(ua) && !/EdgA?\//i.test(ua)));
 const hasAndroidBridge = typeof window.Android !== 'undefined';
 const hasNativeTTS = hasAndroidBridge && typeof window.Android.ttsSpeak === 'function';
 const hasNativeSTT = hasAndroidBridge && typeof window.Android.startVoiceRecognition === 'function';
@@ -956,51 +901,40 @@ const SINONIMOS_PADRAO = {
 };
 
 const COMANDOS_INFO = [
-  { key:'selecionar',      titulo:'🏢 Selecionar Estabelecimento',      desc:'Muda o estabelecimento ativo. Ex: "selecionar Bar do Zé".', categoria:'Estabelecimentos' },
+  { key:'selecionar',      titulo:'🏢 Selecionar Estabelecimento',      desc:'Muda o estabelecimento ativo.', categoria:'Estabelecimentos' },
   { key:'verCardapio',     titulo:'🍺 Ver Cardápio',                    desc:'Exibe o cardápio do estabelecimento ativo.', categoria:'Estabelecimentos' },
-  { key:'incluirProduto',  titulo:'➕ Incluir Produto no Cardápio',     desc:'Cadastra um novo produto. Ex: "incluir produtos cerveja 10 reais".', categoria:'Produtos' },
-  { key:'pedir',           titulo:'🛒 Pedir / Adicionar Item à Conta',  desc:'Adiciona produtos à conta atual quando há uma conta aberta.', categoria:'Pedidos & Conta' },
-  { key:'abrirConta',      titulo:'📂 Abrir Conta',                     desc:'Inicia uma nova conta no estabelecimento ativo.', categoria:'Pedidos & Conta' },
-  { key:'fecharConta',     titulo:'✅ Fechar Conta',                    desc:'Finaliza e solicita o fechamento da conta atual.', categoria:'Pedidos & Conta' },
+  { key:'incluirProduto',  titulo:'➕ Incluir Produto no Cardápio',     desc:'Cadastra um novo produto.', categoria:'Produtos' },
+  { key:'pedir',           titulo:'🛒 Pedir / Adicionar Item à Conta',  desc:'Adiciona produtos à conta atual.', categoria:'Pedidos & Conta' },
+  { key:'abrirConta',      titulo:'📂 Abrir Conta',                     desc:'Inicia uma nova conta.', categoria:'Pedidos & Conta' },
+  { key:'fecharConta',     titulo:'✅ Fechar Conta',                    desc:'Finaliza a conta atual.', categoria:'Pedidos & Conta' },
   { key:'verConta',        titulo:'🧾 Ver Conta',                       desc:'Abre a tela da conta.', categoria:'Pedidos & Conta' },
-  { key:'pagamentoPix',      titulo:'📱 Pagamento em PIX',      desc:'Palavras que acionam o botão PIX quando o modal de pagamento está aberto.', categoria:'Pagamentos' },
-  { key:'pagamentoDinheiro', titulo:'💰 Pagamento em Dinheiro', desc:'Palavras que acionam o botão Dinheiro quando o modal de pagamento está aberto.', categoria:'Pagamentos' },
-  { key:'pagamentoCartao',   titulo:'💳 Pagamento em Cartão',   desc:'Palavras que acionam o botão Cartão quando o modal de pagamento está aberto.', categoria:'Pagamentos' },
-  { key:'verHistorico',    titulo:'📜 Ver Histórico',                   desc:'Mostra o histórico de contas.', categoria:'Histórico' },
-  { key:'limparHistorico', titulo:'🗑 Limpar Histórico',                desc:'Apaga todo o histórico de contas.', categoria:'Histórico' },
-  { key:'exportarDados',   titulo:'📤 Exportar Dados',                  desc:'Exporta todos os dados para arquivo JSON.', categoria:'Dados' },
-  { key:'importarDados',   titulo:'📥 Importar Dados',                  desc:'Abre a tela de importação de dados.', categoria:'Dados' },
-  { key:'desativarVoz',    titulo:'🔴 Desativar Assistente',            desc:'Desliga o assistente de voz.', categoria:'Controle' }
+  { key:'pagamentoPix',      titulo:'📱 Pagamento em PIX',      desc:'Aciona o botão PIX.', categoria:'Pagamentos' },
+  { key:'pagamentoDinheiro', titulo:'💰 Pagamento em Dinheiro', desc:'Aciona o botão Dinheiro.', categoria:'Pagamentos' },
+  { key:'pagamentoCartao',   titulo:'💳 Pagamento em Cartão',   desc:'Aciona o botão Cartão.', categoria:'Pagamentos' },
+  { key:'verHistorico',    titulo:'📜 Ver Histórico',                   desc:'Mostra o histórico.', categoria:'Histórico' },
+  { key:'limparHistorico', titulo:'🗑 Limpar Histórico',                desc:'Apaga todo o histórico.', categoria:'Histórico' },
+  { key:'exportarDados',   titulo:'📤 Exportar Dados',                  desc:'Exporta os dados.', categoria:'Dados' },
+  { key:'importarDados',   titulo:'📥 Importar Dados',                  desc:'Abre a tela de importação.', categoria:'Dados' },
+  { key:'desativarVoz',    titulo:'🔴 Desativar Assistente',            desc:'Desliga o assistente.', categoria:'Controle' }
 ];
 
 const ORDEM_CATEGORIAS_SINONIMOS = ['Estabelecimentos','Produtos','Pedidos & Conta','Pagamentos','Histórico','Dados','Controle'];
 
 const TRADUCAO_IMAGEM = {
   'cerveja': 'beer', 'cerva': 'beer', 'chopp': 'draft beer', 'chope': 'draft beer',
-  'agua': 'water bottle', 'água': 'water bottle',
-  'refrigerante': 'soda drink', 'coca': 'coca cola', 'coca-cola': 'coca cola',
-  'guarana': 'guarana soda', 'guaraná': 'guarana soda', 'pepsi': 'pepsi',
-  'suco': 'juice', 'limonada': 'lemonade',
-  'whisky': 'whisky', 'whiskey': 'whiskey',
-  'vodka': 'vodka', 'cachaca': 'cachaca', 'cachaça': 'cachaca',
-  'gin': 'gin tonic', 'rum': 'rum', 'tequila': 'tequila',
-  'vinho': 'wine glass', 'espumante': 'champagne', 'champanhe': 'champagne',
-  'energetico': 'energy drink', 'energético': 'energy drink', 'redbull': 'red bull',
-  'caipirinha': 'caipirinha', 'caipiroska': 'caipiroska', 'batida': 'cocktail drink',
-  'porcao': 'bar snack food', 'porção': 'bar snack food',
-  'batata': 'french fries', 'batata-frita': 'french fries', 'fritas': 'french fries',
-  'frango': 'chicken wings', 'asa': 'chicken wings',
-  'calabresa': 'sausage', 'linguica': 'sausage', 'linguiça': 'sausage',
-  'carne': 'steak plate', 'picanha': 'steak', 'churrasco': 'barbecue',
-  'bolinho': 'fried snack', 'pastel': 'pastel pastry',
-  'sanduiche': 'sandwich', 'sanduíche': 'sandwich',
-  'hamburguer': 'burger', 'hambúrguer': 'burger', 'burger': 'burger',
-  'pizza': 'pizza', 'petisco': 'bar snack',
-  'amendoim': 'peanuts', 'castanha': 'nuts', 'azeitona': 'olives',
-  'queijo': 'cheese plate', 'torresmo': 'pork crackling',
-  'camarao': 'shrimp', 'camarão': 'shrimp',
-  'tilapia': 'fish dish', 'tilápia': 'fish dish',
-  'salmao': 'salmon', 'salmão': 'salmon'
+  'agua': 'water bottle', 'refrigerante': 'soda drink', 'coca': 'coca cola',
+  'guarana': 'guarana soda', 'pepsi': 'pepsi', 'suco': 'juice',
+  'whisky': 'whisky', 'vodka': 'vodka', 'cachaca': 'cachaca', 'gin': 'gin tonic',
+  'rum': 'rum', 'tequila': 'tequila', 'vinho': 'wine glass', 'espumante': 'champagne',
+  'energetico': 'energy drink', 'redbull': 'red bull', 'caipirinha': 'caipirinha',
+  'porcao': 'bar snack food', 'batata': 'french fries', 'fritas': 'french fries',
+  'frango': 'chicken wings', 'asa': 'chicken wings', 'calabresa': 'sausage',
+  'linguica': 'sausage', 'carne': 'steak plate', 'picanha': 'steak',
+  'churrasco': 'barbecue', 'bolinho': 'fried snack', 'pastel': 'pastel pastry',
+  'sanduiche': 'sandwich', 'hamburguer': 'burger', 'burger': 'burger',
+  'pizza': 'pizza', 'petisco': 'bar snack', 'amendoim': 'peanuts',
+  'castanha': 'nuts', 'azeitona': 'olives', 'queijo': 'cheese plate',
+  'torresmo': 'pork crackling', 'camarao': 'shrimp', 'salmao': 'salmon'
 };
 
 const KEY='contaBarVoz_v1';
@@ -1042,7 +976,6 @@ let qrCodeInstance = null;
 let abrindoBanco = false;
 let editandoBancoId = null;
 let ultimoConteudoExportado = '';
-let ultimoNomeArquivoExportado = '';
 let metodoPagamento = null;
 let confirmacaoPendente = null;
 let contaReciboAtual = null;
@@ -1058,13 +991,8 @@ let speechExecutionId = 0;
 const $ = id => document.getElementById(id);
 
 const speechDiagnostic = {
-  lastText: null,
-  lastError: null,
-  succeeded: false,
-  usedNative: false,
-  usedWebSpeech: false,
-  usedAudioFallback: false,
-  usedVisual: false,
+  lastText: null, lastError: null, succeeded: false,
+  usedNative: false, usedWebSpeech: false, usedAudioFallback: false, usedVisual: false,
   lastAttempt: null
 };
 
@@ -1075,39 +1003,26 @@ function save() {
   try {
     localStorage.setItem(KEY, JSON.stringify(data));
   } catch(e) {
-    console.warn('localStorage cheio, tentando liberar espaço...', e);
+    console.warn('localStorage cheio:', e);
     try {
       Object.values(data.estabelecimentos).forEach(estab => {
         (estab.produtos || []).forEach((p, i) => {
-          if (i > 20 && p.imagem && p.imagem.startsWith('data:')) {
-            p.imagem = null;
-          }
+          if (i > 20 && p.imagem && p.imagem.startsWith('data:')) p.imagem = null;
         });
       });
       localStorage.setItem(KEY, JSON.stringify(data));
-      showFeedback('⚠️ Espaço cheio — imagens antigas foram removidas.');
+      showFeedback('⚠️ Espaço cheio — imagens antigas removidas.');
     } catch(e2) {
-      console.error('Não foi possível salvar:', e2);
       showFeedback('❌ Erro ao salvar (espaço cheio).');
     }
   }
 }
 
-function money(v) {
-  return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-}
-function normalize(s) {
-  return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
-function slugify(s) {
-  return normalize(s).replace(/[^a-z0-9]+/g, '');
-}
-function slugifyHifen(s) {
-  return normalize(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-}
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+function money(v) { return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+function normalize(s) { return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+function slugify(s) { return normalize(s).replace(/[^a-z0-9]+/g, ''); }
+function slugifyHifen(s) { return normalize(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1125,6 +1040,10 @@ function getNomeCliente() {
   return 'Não informado';
 }
 
+function usuarioCadastrado() {
+  return !!(data.usuario && data.usuario.nome && data.usuario.nome.trim() !== '');
+}
+
 function capitalizarNome(nome) {
   if (!nome) return '';
   return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
@@ -1133,9 +1052,9 @@ function capitalizarNome(nome) {
 function toggleCollapsible(contentId, btn) {
   const content = document.getElementById(contentId);
   if (!content) return;
-  const estaAberto = content.style.display !== 'none';
-  content.style.display = estaAberto ? 'none' : 'block';
-  if (btn) btn.classList.toggle('open', !estaAberto);
+  const aberto = content.style.display !== 'none';
+  content.style.display = aberto ? 'none' : 'block';
+  if (btn) btn.classList.toggle('open', !aberto);
 }
 
 function mostrarFlashPedido(produto, qtd) {
@@ -1148,7 +1067,7 @@ function mostrarFlashPedido(produto, qtd) {
   if (produto.imagem) {
     imgWrap.innerHTML = `<img src="${produto.imagem}" alt="${escapeHtml(produto.nome)}">`;
   } else {
-    imgWrap.innerHTML = `<span class="flash-emoji" id="flashEmoji">${getEmojiProduto(produto.nome)}</span>`;
+    imgWrap.innerHTML = `<span class="flash-emoji">${getEmojiProduto(produto.nome)}</span>`;
   }
   nomeEl.textContent = produto.nome;
   infoEl.textContent = `${qtd}× ${money(produto.preco)} = ${money(produto.preco * qtd)}`;
@@ -1190,8 +1109,7 @@ function extrairResto(textoNorm, sinonimo) {
 function encontrarEstabelecimentoPorTexto(texto) {
   const t = normalize(texto || '');
   if (!t) return null;
-  let melhor = null;
-  let melhorScore = 0;
+  let melhor = null, melhorScore = 0;
   for (const [id, estab] of Object.entries(data.estabelecimentos)) {
     const nomeNorm = normalize(estab.nome);
     if (!nomeNorm) continue;
@@ -1214,22 +1132,12 @@ function encontrarEstabelecimentoPorTexto(texto) {
   return melhor;
 }
 
-const PALAVRAS_IGNORAR = new Set([
-  'o','a','os','as','um','uma','uns','umas',
-  'de','da','do','das','dos','em','no','na','nos','nas','por','para','pra','pro',
-  'com','sem','ao','aos','sobre','entre','ate','até',
-  'e','ou','que','mas','porem','porém',
-  'mais','menos','bem','ja','já','la','lá','aqui','ali','entao','então','tipo','so','só',
-  'me','te','se','lhe','vos','lhes',
-  'dois','duas','tres','três','quatro','cinco','seis','sete','oito','nove','dez',
-  'real','reais','centavo','centavos'
-]);
+const PALAVRAS_IGNORAR = new Set(['o','a','os','as','um','uma','uns','umas','de','da','do','das','dos','em','no','na','nos','nas','por','para','pra','pro','com','sem','ao','aos','sobre','entre','ate','até','e','ou','que','mas','porem','porém','mais','menos','bem','ja','já','la','lá','aqui','ali','entao','então','tipo','so','só','me','te','se','lhe','vos','lhes','dois','duas','tres','três','quatro','cinco','seis','sete','oito','nove','dez','real','reais','centavo','centavos']);
 
 function construirPalavrasComando() {
   const palavras = new Set();
-  const sinonimos = data.sinonimos || {};
-  Object.keys(sinonimos).forEach(k => {
-    (sinonimos[k] || []).forEach(s => {
+  Object.keys(data.sinonimos || {}).forEach(k => {
+    (data.sinonimos[k] || []).forEach(s => {
       normalize(s).split(/\s+/).forEach(w => { if (w) palavras.add(w); });
     });
   });
@@ -1240,30 +1148,21 @@ function encontrarProdutoPorNome(textoNorm, produtos) {
   if (!produtos || !produtos.length) return null;
   const exato = produtos.find(p => textoNorm.includes(normalize(p.nome)));
   if (exato) return { produto: exato };
-
   const palavrasComando = construirPalavrasComando();
-  const palavrasChave = textoNorm.split(/\s+/)
-    .filter(w => w.length >= 3)
-    .filter(w => !PALAVRAS_IGNORAR.has(w) && !palavrasComando.has(w));
-
+  const palavrasChave = textoNorm.split(/\s+/).filter(w => w.length >= 3).filter(w => !PALAVRAS_IGNORAR.has(w) && !palavrasComando.has(w));
   if (!palavrasChave.length) return null;
-
   const candidatos = produtos.filter(p => {
     const nomeNorm = normalize(p.nome);
     return palavrasChave.some(kw => nomeNorm.includes(kw));
   });
-
   if (!candidatos.length) return null;
   if (candidatos.length === 1) return { produto: candidatos[0] };
-
   const pontuados = candidatos.map(p => {
     const nomeNorm = normalize(p.nome);
     const score = palavrasChave.filter(kw => nomeNorm.includes(kw)).length;
     return { p, score };
   }).sort((a,b) => b.score - a.score);
-
   if (pontuados[0].score > pontuados[1].score) return { produto: pontuados[0].p };
-
   return { ambiguo: candidatos };
 }
 
@@ -1279,7 +1178,7 @@ function confirmar(mensagem, opcoes = {}) {
     if (recognizer && recognizer.isActive) {
       dica.innerHTML = 'Diga <b>"sim"</b> ou <b>"não"</b>, ou clique em um botão.';
     } else {
-      dica.innerHTML = 'Clique em <b>Sim</b> ou <b>Não</b>. (Ative o assistente de voz para responder falando)';
+      dica.innerHTML = 'Clique em <b>Sim</b> ou <b>Não</b>.';
     }
     document.getElementById('confirmModal').classList.add('active');
     if (speechOn) speak(mensagem + ' Diga sim ou não.');
@@ -1295,10 +1194,6 @@ function resolverConfirmacao(resposta) {
   cb(resposta);
 }
 
-// ============================================================
-//  SISTEMA DE VOZ (TTS) — com cadeia de fallbacks
-//  Ordem: 1) bridge nativo → 2) Web Speech API → 3) Google Translate (áudio) → 4) visual
-// ============================================================
 let selectedVoice = null;
 let voiceLoadAttempts = 0;
 
@@ -1306,14 +1201,8 @@ function tentarCarregarVozes() {
   voiceLoadAttempts++;
   if (!window.speechSynthesis) return;
   const voices = speechSynthesis.getVoices();
-  if (voices.length > 0) {
-    console.log('[TTS] ' + voices.length + ' vozes carregadas (tentativa ' + voiceLoadAttempts + ')');
-    loadVoices();
-  } else if (voiceLoadAttempts < 20) {
-    setTimeout(tentarCarregarVozes, 300);
-  } else {
-    console.warn('[TTS] Nenhuma voz carregada após 20 tentativas');
-  }
+  if (voices.length > 0) { loadVoices(); }
+  else if (voiceLoadAttempts < 20) setTimeout(tentarCarregarVozes, 300);
 }
 
 function loadVoices() {
@@ -1330,27 +1219,20 @@ function selectVoiceByPreference(pref) {
   if (voices.length === 0) return;
   let found = null;
   if (pref === 'feminina') {
-    found = voices.find(v => v.lang.startsWith('pt') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('feminina') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('maria')));
-    if (!found) found = voices.find(v => v.lang.startsWith('pt') && v.name.toLowerCase().includes('female'));
+    found = voices.find(v => v.lang.startsWith('pt') && (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('feminina') || v.name.toLowerCase().includes('maria')));
     if (!found) found = voices.find(v => v.lang.startsWith('pt') && !v.name.toLowerCase().includes('male') && !v.name.toLowerCase().includes('masculino'));
   } else if (pref === 'masculina') {
-    found = voices.find(v => v.lang.startsWith('pt') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('masculino') || v.name.toLowerCase().includes('joão') || v.name.toLowerCase().includes('carlos') || v.name.toLowerCase().includes('daniel')));
-    if (!found) found = voices.find(v => v.lang.startsWith('pt') && v.name.toLowerCase().includes('male'));
+    found = voices.find(v => v.lang.startsWith('pt') && (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('masculino') || v.name.toLowerCase().includes('daniel') || v.name.toLowerCase().includes('carlos')));
     if (!found) found = voices.find(v => v.lang.startsWith('pt') && !v.name.toLowerCase().includes('female') && !v.name.toLowerCase().includes('feminina'));
   }
   if (!found) found = voices.find(v => v.lang.startsWith('pt'));
   if (!found && voices.length > 0) found = voices[0];
   selectedVoice = found;
-  console.log('[TTS] Voz selecionada:', selectedVoice ? selectedVoice.name + ' (' + selectedVoice.lang + ')' : 'nenhuma');
 }
 
 if (window.speechSynthesis) {
-  if (speechSynthesis.getVoices().length > 0) {
-    tentarCarregarVozes();
-  } else {
-    speechSynthesis.onvoiceschanged = tentarCarregarVozes;
-    tentarCarregarVozes();
-  }
+  if (speechSynthesis.getVoices().length > 0) tentarCarregarVozes();
+  else { speechSynthesis.onvoiceschanged = tentarCarregarVozes; tentarCarregarVozes(); }
 }
 
 function changeVoice() {
@@ -1376,68 +1258,45 @@ function resetSpeechDiagnostic() {
 
 function speak(text) {
   if (!speechOn || !text) return;
-
   speechDiagnostic.lastText = text;
   resetSpeechDiagnostic();
 
-  // 1) Bridge nativo Android
   if (hasNativeTTS) {
     try {
       window.Android.ttsSpeak(text);
       speechDiagnostic.succeeded = true;
       speechDiagnostic.usedNative = true;
       return;
-    } catch (e) {
-      speechDiagnostic.lastError = 'native: ' + (e.message || e);
-      console.warn('[TTS] Bridge nativo falhou:', e);
-    }
+    } catch (e) { speechDiagnostic.lastError = 'native: ' + (e.message || e); }
   }
 
-  // 2) Web Speech API
   if (window.speechSynthesis) {
     try {
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'pt-BR';
-      u.rate = 0.95;
-      u.pitch = 1;
-      u.volume = 1;
+      u.lang = 'pt-BR'; u.rate = 0.95; u.pitch = 1; u.volume = 1;
       if (selectedVoice) u.voice = selectedVoice;
-
       const execId = ++speechExecutionId;
       let spokeStarted = false;
-
       u.onstart = () => {
         if (execId !== speechExecutionId) return;
         spokeStarted = true;
         speechDiagnostic.succeeded = true;
         speechDiagnostic.usedWebSpeech = true;
       };
-      u.onerror = (ev) => {
-        speechDiagnostic.lastError = 'web: ' + (ev.error || 'erro');
-        console.warn('[TTS] Web Speech erro:', ev.error);
-      };
-
+      u.onerror = (ev) => { speechDiagnostic.lastError = 'web: ' + (ev.error || 'erro'); };
       speechSynthesis.speak(u);
-
-      // Watchdog: se não iniciou em 1.2s, cai para o fallback
       setTimeout(() => {
         if (execId !== speechExecutionId) return;
         if (!spokeStarted && !speechSynthesis.speaking && !speechSynthesis.pending) {
-          speechDiagnostic.lastError = 'Web Speech não iniciou (timeout 1.2s)';
-          console.warn('[TTS] Web Speech não iniciou — usando fallback de áudio');
+          speechDiagnostic.lastError = 'Web Speech não iniciou (timeout)';
           tentarFallbackAudio(text);
         }
       }, 1200);
-
       return;
-    } catch (e) {
-      speechDiagnostic.lastError = 'exception: ' + (e.message || e);
-      console.warn('[TTS] Exceção em speechSynthesis:', e);
-    }
+    } catch (e) { speechDiagnostic.lastError = 'exception: ' + (e.message || e); }
   }
 
-  // 3) Sem Web Speech — vai direto para fallback
   tentarFallbackAudio(text);
 }
 
@@ -1445,36 +1304,22 @@ async function tentarFallbackAudio(text) {
   try {
     const texto = String(text || '').slice(0, 200);
     if (!texto) { mostrarFallbackVisual(text); return; }
+    if (audioTTSAtual) { try { audioTTSAtual.pause(); } catch(e) {} audioTTSAtual = null; }
 
-    // Para qualquer áudio anterior
-    if (audioTTSAtual) {
-      try { audioTTSAtual.pause(); } catch(e) {}
-      audioTTSAtual = null;
-    }
-
-    // Google Translate TTS — funciona em WebView Android sem Web Speech API
     const urls = [
       'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=pt-BR&q=' + encodeURIComponent(texto),
       'https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=pt-BR&q=' + encodeURIComponent(texto)
     ];
-
     for (const url of urls) {
       const ok = await tentarTocarAudio(url);
       if (ok) {
         speechDiagnostic.succeeded = true;
         speechDiagnostic.usedAudioFallback = true;
-        console.log('[TTS] ✓ Áudio fallback funcionou');
         return;
       }
     }
-
-    // 4) Nada funcionou — visual
-    console.warn('[TTS] Todos os métodos falharam — usando fallback visual');
     mostrarFallbackVisual(text);
-  } catch (e) {
-    console.warn('[TTS] Erro no fallback:', e);
-    mostrarFallbackVisual(text);
-  }
+  } catch (e) { mostrarFallbackVisual(text); }
 }
 
 function tentarTocarAudio(url) {
@@ -1484,44 +1329,15 @@ function tentarTocarAudio(url) {
       audio.preload = 'auto';
       audio.src = url;
       audioTTSAtual = audio;
-
       let resolved = false;
-      const done = (ok) => {
-        if (resolved) return;
-        resolved = true;
-        resolve(ok);
-      };
-
+      const done = (ok) => { if (resolved) return; resolved = true; resolve(ok); };
       const timeout = setTimeout(() => done(false), 6000);
-
-      audio.onended = () => {
-        clearTimeout(timeout);
-        audioTTSAtual = null;
-        done(true);
-      };
-      audio.onerror = () => {
-        clearTimeout(timeout);
-        audioTTSAtual = null;
-        done(false);
-      };
-      audio.onplaying = () => {
-        // Já começou a tocar — considera sucesso
-        speechDiagnostic.succeeded = true;
-        speechDiagnostic.usedAudioFallback = true;
-        clearTimeout(timeout);
-      };
-
+      audio.onended = () => { clearTimeout(timeout); audioTTSAtual = null; done(true); };
+      audio.onerror = () => { clearTimeout(timeout); audioTTSAtual = null; done(false); };
+      audio.onplaying = () => { speechDiagnostic.succeeded = true; speechDiagnostic.usedAudioFallback = true; clearTimeout(timeout); };
       const p = audio.play();
-      if (p && p.catch) {
-        p.catch(() => {
-          clearTimeout(timeout);
-          audioTTSAtual = null;
-          done(false);
-        });
-      }
-    } catch (e) {
-      resolve(false);
-    }
+      if (p && p.catch) p.catch(() => { clearTimeout(timeout); audioTTSAtual = null; done(false); });
+    } catch (e) { resolve(false); }
   });
 }
 
@@ -1532,9 +1348,7 @@ function mostrarFallbackVisual(text) {
   lastCmd.innerHTML = '🔊 <b>' + escapeHtml(text) + '</b>';
   lastCmd.classList.add('voice-visual-fallback');
   clearTimeout(window._visualTTS);
-  window._visualTTS = setTimeout(() => {
-    lastCmd.classList.remove('voice-visual-fallback');
-  }, 4000);
+  window._visualTTS = setTimeout(() => lastCmd.classList.remove('voice-visual-fallback'), 4000);
 }
 
 function toggleSpeak() {
@@ -1559,15 +1373,13 @@ function testarFalaFallback() {
     if (speechDiagnostic.usedWebSpeech) usados.push('Web Speech');
     if (speechDiagnostic.usedAudioFallback) usados.push('Áudio fallback');
     if (speechDiagnostic.usedVisual) usados.push('Visual');
-    const metodo = usados.length ? usados.join(' + ') : 'Nenhum';
-    showFeedback('🔊 Método: ' + metodo);
+    showFeedback('🔊 Método: ' + (usados.length ? usados.join(' + ') : 'Nenhum'));
   }, 2000);
 }
 
 function diagnosticarVoz() {
   const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
   const ptVoices = voices.filter(v => v.lang.startsWith('pt'));
-
   const usados = [];
   if (speechDiagnostic.usedNative) usados.push('Bridge nativo');
   if (speechDiagnostic.usedWebSpeech) usados.push('Web Speech');
@@ -1576,49 +1388,38 @@ function diagnosticarVoz() {
 
   const ambiente = isAndroidWebView ? 'WebView Android'
                  : isAndroid ? 'Android (browser)'
-                 : isIOS ? 'iOS'
-                 : 'Desktop/Navegador';
+                 : isIOS ? 'iOS' : 'Desktop/Navegador';
 
   const linhas = [
-    '📱 Ambiente detectado: ' + ambiente,
+    '📱 Ambiente: ' + ambiente,
     '',
     '🔊 Voz ativada: ' + (speechOn ? 'SIM ✓' : 'NÃO ✗'),
     '🌐 Web Speech API: ' + (hasWebSpeech ? 'Disponível ✓' : 'INDISPONÍVEL ✗'),
     '🎙️ Total de vozes: ' + voices.length,
     '🇧🇷 Vozes PT-BR: ' + ptVoices.length + (ptVoices.length ? ' (' + ptVoices.map(v => v.name).slice(0,3).join(', ') + ')' : ''),
-    '🎯 Voz selecionada: ' + (selectedVoice ? selectedVoice.name + ' (' + selectedVoice.lang + ')' : '⚠️ Padrão do sistema'),
+    '🎯 Voz selecionada: ' + (selectedVoice ? selectedVoice.name : '⚠️ Padrão'),
     '',
     '🔗 window.Android: ' + (hasAndroidBridge ? 'PRESENTE ✓' : 'AUSENTE ✗'),
-    '🔊 TTS nativo (ttsSpeak): ' + (hasNativeTTS ? 'DISPONÍVEL ✓' : 'AUSENTE ✗'),
-    '🎤 STT nativo (startVoiceRecognition): ' + (hasNativeSTT ? 'DISPONÍVEL ✓' : 'AUSENTE ✗'),
+    '🔊 TTS nativo: ' + (hasNativeTTS ? 'DISPONÍVEL ✓' : 'AUSENTE ✗'),
+    '🎤 STT nativo: ' + (hasNativeSTT ? 'DISPONÍVEL ✓' : 'AUSENTE ✗'),
     '🎤 Web Speech Recognition: ' + (hasWebSTT ? 'Disponível ✓' : 'INDISPONÍVEL ✗'),
     '',
-    '💬 Último texto: ' + (speechDiagnostic.lastText || '(nada)'),
     '✅ Último sucesso: ' + (speechDiagnostic.succeeded ? 'SIM' : 'NÃO'),
     '📡 Métodos usados: ' + (usados.length ? usados.join(' + ') : '—'),
-    '❌ Último erro: ' + (speechDiagnostic.lastError || 'nenhum'),
-    '',
-    hasWebSpeech || hasNativeTTS
-      ? '💡 TTS funcionará. Se a voz não sair, será usado o fallback de áudio (Google Translate).'
-      : '⚠️ Sem Web Speech nem bridge nativo. O app usará o fallback de áudio (Google Translate) — mantenha o dispositivo com internet.'
+    '❌ Último erro: ' + (speechDiagnostic.lastError || 'nenhum')
   ];
-
   const msg = linhas.join('\n');
-  console.log('=== DIAGNÓSTICO DE VOZ ===\n' + msg);
+  console.log('=== DIAGNÓSTICO ===\n' + msg);
   alert(msg);
   speak('Teste de voz. Um, dois, três.');
 }
 
-// ============================================================
-//  RECONHECIMENTO DE VOZ (STT)
-// ============================================================
 class VoiceRecognizer {
   constructor() {
     this.isListening = false; this.isActive = false; this.permissionDenied = false;
     this.recognition = null; this.recognitionMethod = null;
-    if (hasNativeSTT) {
-      this.recognitionMethod = 'native';
-    } else if (hasWebSTT) {
+    if (hasNativeSTT) this.recognitionMethod = 'native';
+    else if (hasWebSTT) {
       this.recognitionMethod = 'web';
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       this.recognition = new SR();
@@ -1631,16 +1432,11 @@ class VoiceRecognizer {
   }
   setupListeners() {
     if (this.recognitionMethod === 'web' && this.recognition) {
-      this.recognition.onstart = () => {
-        this.isListening = true;
-        const el = document.getElementById('voiceStatus');
-        if (el) el.textContent = '🟢 Ouvindo comando...';
-      };
+      this.recognition.onstart = () => { this.isListening = true; const el = document.getElementById('voiceStatus'); if (el) el.textContent = '🟢 Ouvindo...'; };
       this.recognition.onend = () => {
         this.isListening = false;
         if (this.isActive && !this.permissionDenied) {
-          const el = document.getElementById('voiceStatus');
-          if (el) el.textContent = '🟢 Aguardando próximo comando...';
+          const el = document.getElementById('voiceStatus'); if (el) el.textContent = '🟢 Aguardando...';
           this.startListening();
         }
       };
@@ -1648,8 +1444,7 @@ class VoiceRecognizer {
         this.isListening = false;
         if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
           this.permissionDenied = true; this.isActive = false;
-          const el = document.getElementById('voiceStatus');
-          if (el) el.textContent = '🚫 Microfone não autorizado.';
+          const el = document.getElementById('voiceStatus'); if (el) el.textContent = '🚫 Microfone não autorizado.';
           this.updateUI(); return;
         }
         if (e.error === 'no-speech') { if (this.isActive && !this.permissionDenied) this.startListening(); return; }
@@ -1667,12 +1462,7 @@ class VoiceRecognizer {
     if (this.recognitionMethod === 'web' && this.recognition) {
       try { this.isListening = true; this.recognition.start(); } catch (e) { this.isListening = false; }
     } else if (this.recognitionMethod === 'native' && hasNativeSTT) {
-      try {
-        this.isListening = true;
-        window.Android.startVoiceRecognition();
-        const el = document.getElementById('voiceStatus');
-        if (el) el.textContent = '🟢 Ouvindo comando...';
-      } catch (e) { this.isListening = false; }
+      try { this.isListening = true; window.Android.startVoiceRecognition(); } catch (e) { this.isListening = false; }
     }
   }
   stopListening() {
@@ -1681,27 +1471,20 @@ class VoiceRecognizer {
   }
   activate() {
     this.isActive = true; this.permissionDenied = false;
-    const el = document.getElementById('voiceStatus');
-    if (el) el.textContent = '🟢 Ativando...';
+    const el = document.getElementById('voiceStatus'); if (el) el.textContent = '🟢 Ativando...';
     this.updateUI();
     setTimeout(() => { if (this.isActive && !this.permissionDenied) this.startListening(); }, 500);
   }
   deactivate() {
     this.isActive = false; this.isListening = false; this.stopListening();
-    const el = document.getElementById('voiceStatus');
-    if (el) el.textContent = 'Assistente desligado.';
+    const el = document.getElementById('voiceStatus'); if (el) el.textContent = 'Assistente desligado.';
     this.updateUI();
   }
   updateUI() {
     const btn = document.getElementById('voiceBtn');
     if (btn) {
-      if (this.isActive) {
-        btn.textContent = '🔴 DESLIGAR ASSISTENTE DE VOZ';
-        btn.classList.add('danger');
-      } else {
-        btn.textContent = '🎤 ATIVAR ASSISTENTE DE VOZ';
-        btn.classList.remove('danger');
-      }
+      if (this.isActive) { btn.textContent = '🔴 DESLIGAR ASSISTENTE DE VOZ'; btn.classList.add('danger'); }
+      else { btn.textContent = '🎤 ATIVAR ASSISTENTE DE VOZ'; btn.classList.remove('danger'); }
     }
     keepScreenOn(this.isActive);
     atualizarIconeVoz();
@@ -1714,19 +1497,14 @@ class VoiceRecognizer {
 let recognizer = new VoiceRecognizer();
 
 function keepScreenOn(active) {
-  if ('wakeLock' in navigator) {
-    if (active) navigator.wakeLock.request('screen').catch(e => console.warn(e));
-  }
+  if ('wakeLock' in navigator && active) navigator.wakeLock.request('screen').catch(e => console.warn(e));
 }
 
 async function toggleVoiceAssistant() {
-  if (recognizer.isActive) {
-    recognizer.deactivate();
-    return;
-  }
+  if (recognizer.isActive) { recognizer.deactivate(); return; }
   if (!recognizer.isSupported()) {
-    showFeedback('⚠️ Reconhecimento de voz não disponível neste navegador.');
-    speak('Reconhecimento de voz não disponível neste dispositivo');
+    showFeedback('⚠️ Reconhecimento de voz não disponível.');
+    speak('Reconhecimento de voz não disponível');
     return;
   }
   try {
@@ -1734,13 +1512,10 @@ async function toggleVoiceAssistant() {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(t => t.stop());
     }
-  } catch (e) {
-    showFeedback('🚫 Permissão de microfone negada.');
-    return;
-  }
+  } catch (e) { showFeedback('🚫 Permissão negada.'); return; }
   recognizer.activate();
   if (speechOn) speak('Assistente de voz ativado.');
-  showFeedback('🎤 Assistente de voz ativado');
+  showFeedback('🎤 Assistente ativado');
 }
 
 function atualizarIconeVoz() {
@@ -1748,17 +1523,13 @@ function atualizarIconeVoz() {
   const emoji = document.getElementById('voiceStatusIconEmoji');
   if (!icon || !emoji) return;
   if (recognizer && recognizer.isActive) {
-    icon.classList.add('active');
-    emoji.textContent = '🎤';
-    icon.title = 'Assistente de voz ATIVO — clique para desativar';
+    icon.classList.add('active'); emoji.textContent = '🎤';
+    icon.title = 'Assistente ATIVO — clique para desativar';
   } else {
-    icon.classList.remove('active');
-    emoji.textContent = '🎙️';
-    icon.title = 'Assistente de voz INATIVO — clique para ativar';
+    icon.classList.remove('active'); emoji.textContent = '🎙️';
+    icon.title = 'Assistente INATIVO — clique para ativar';
   }
 }
-
-// ============ Restante do app (sinônimos, produtos, contas, etc.) ============
 
 function renderSinonimos() {
   const container = document.getElementById('listaSinonimos');
@@ -1784,24 +1555,16 @@ function renderSinonimos() {
     cmds.forEach(cmd => {
       const lista = data.sinonimos[cmd.key] || [];
       const chips = lista.length
-        ? lista.map((s, i) =>
-            `<span class="sinonimo-chip">${escapeHtml(s)}<button onclick="removerSinonimo('${cmd.key}',${i})" title="Remover">×</button></span>`
-          ).join('')
-        : '<span class="note">Nenhum sinônimo. Restaure os padrões.</span>';
-
-      const contador = lista.length
-        ? `<span class="contador-sin">${lista.length} ${lista.length === 1 ? 'sinônimo' : 'sinônimos'}</span>`
-        : '';
+        ? lista.map((s, i) => `<span class="sinonimo-chip">${escapeHtml(s)}<button onclick="removerSinonimo('${cmd.key}',${i})" title="Remover">×</button></span>`).join('')
+        : '<span class="note">Nenhum sinônimo.</span>';
+      const contador = lista.length ? `<span class="contador-sin">${lista.length}</span>` : '';
 
       html += `<div class="sinonimo-group">
-        <h3>
-          <span>${escapeHtml(cmd.titulo)}</span>
-          ${contador}
-        </h3>
+        <h3><span>${escapeHtml(cmd.titulo)}</span>${contador}</h3>
         <p class="note" style="margin:0 0 8px;">${escapeHtml(cmd.desc)}</p>
         <div class="sinonimo-chips">${chips}</div>
         <div class="sinonimo-add">
-          <input id="novoSin_${cmd.key}" placeholder="Digite um sinônimo (ex: desce)" maxlength="40"
+          <input id="novoSin_${cmd.key}" placeholder="Digite um sinônimo" maxlength="40"
             onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarSinonimo('${cmd.key}');}">
           <button class="small" onclick="adicionarSinonimo('${cmd.key}')">➕ Adicionar</button>
           <button class="secondary small" onclick="restaurarSinonimosComando('${cmd.key}')">↩️ Padrões</button>
@@ -1815,9 +1578,8 @@ function renderSinonimos() {
   html += `<div class="sinonimo-categoria">
     <div class="sinonimo-categoria-titulo">
       <span>🏢 Meus Estabelecimentos</span>
-      <span class="contador-cat">${Object.keys(data.estabelecimentos).length} ${Object.keys(data.estabelecimentos).length === 1 ? 'local' : 'locais'}</span>
+      <span class="contador-cat">${Object.keys(data.estabelecimentos).length}</span>
     </div>
-    <p class="note" style="margin:0 0 12px;">Adicione palavras alternativas para se referir a cada estabelecimento por voz.</p>
     ${renderSinonimosEstabelecimentos()}
   </div>`;
 
@@ -1826,31 +1588,18 @@ function renderSinonimos() {
 
 function renderSinonimosEstabelecimentos() {
   const estabs = Object.entries(data.estabelecimentos);
-  if (!estabs.length) {
-    return '<div class="note" style="padding:12px; text-align:center;">Nenhum estabelecimento cadastrado.</div>';
-  }
+  if (!estabs.length) return '<div class="note" style="padding:12px;text-align:center;">Nenhum estabelecimento.</div>';
   return estabs.map(([id, e]) => {
     const sinonimos = data.sinonimosEstabelecimentos[id] || [];
     const chips = sinonimos.length
-      ? sinonimos.map((s, i) =>
-          `<span class="sinonimo-chip">${escapeHtml(s)}<button onclick="removerSinonimoEstab('${id}',${i})" title="Remover">×</button></span>`
-        ).join('')
-      : '<span class="note">Nenhum sinônimo. Adicione palavras alternativas.</span>';
-
-    const contador = sinonimos.length
-      ? `<span class="contador-sin">${sinonimos.length} ${sinonimos.length === 1 ? 'sinônimo' : 'sinônimos'}</span>`
-      : '';
-
+      ? sinonimos.map((s, i) => `<span class="sinonimo-chip">${escapeHtml(s)}<button onclick="removerSinonimoEstab('${id}',${i})" title="Remover">×</button></span>`).join('')
+      : '<span class="note">Nenhum sinônimo.</span>';
     const isAtivo = (id === data.estabelecimentoAtivoId) ? ' ⭐' : '';
-
     return `<div class="sinonimo-group">
-      <h3>
-        <span>🏢 ${escapeHtml(e.nome)}${isAtivo}</span>
-        ${contador}
-      </h3>
+      <h3><span>🏢 ${escapeHtml(e.nome)}${isAtivo}</span></h3>
       <div class="sinonimo-chips">${chips}</div>
       <div class="sinonimo-add">
-        <input id="novoSinEstab_${id}" placeholder="Ex: buteco, zé, barzinho" maxlength="40"
+        <input id="novoSinEstab_${id}" placeholder="Ex: buteco, zé" maxlength="40"
           onkeydown="if(event.key==='Enter'){event.preventDefault();adicionarSinonimoEstab('${id}');}">
         <button class="small" onclick="adicionarSinonimoEstab('${id}')">➕ Adicionar</button>
         <button class="secondary small" onclick="restaurarSinonimosEstab('${id}')">↩️ Limpar</button>
@@ -1864,20 +1613,16 @@ async function adicionarSinonimo(key) {
   if (!input) return;
   const valor = input.value.trim();
   if (!valor) { showFeedback('⚠️ Digite um sinônimo.'); input.focus(); return; }
-  if (valor.length > 40) { showFeedback('⚠️ Sinônimo muito longo (máx. 40).'); return; }
+  if (valor.length > 40) { showFeedback('⚠️ Muito longo (máx 40).'); return; }
   if (!data.sinonimos[key]) data.sinonimos[key] = [];
   const normV = normalize(valor);
   if (data.sinonimos[key].some(s => normalize(s) === normV)) {
-    showFeedback('⚠️ Esse sinônimo já existe.');
-    input.value = ''; input.focus();
-    return;
+    showFeedback('⚠️ Já existe.'); input.value = ''; input.focus(); return;
   }
   data.sinonimos[key].push(valor);
-  save();
-  renderSinonimos();
-  const inp2 = document.getElementById('novoSin_' + key);
-  if (inp2) inp2.focus();
-  showFeedback('✅ Sinônimo adicionado: ' + valor);
+  save(); renderSinonimos();
+  const inp2 = document.getElementById('novoSin_' + key); if (inp2) inp2.focus();
+  showFeedback('✅ Adicionado: ' + valor);
   speak('Sinônimo ' + valor + ' adicionado');
 }
 
@@ -1885,36 +1630,27 @@ async function removerSinonimo(key, index) {
   const lista = data.sinonimos[key] || [];
   const valor = lista[index];
   if (valor === undefined) return;
-  const ok = await confirmar(`Remover o sinônimo "${valor}"?`, {
-    icone: '🗑️', titulo: 'Remover sinônimo', textoSim: 'Remover', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar(`Remover o sinônimo "${valor}"?`, { icone: '🗑️', titulo: 'Remover', textoSim: 'Remover', textoNao: 'Cancelar' });
   if (!ok) return;
   data.sinonimos[key].splice(index, 1);
-  save();
-  renderSinonimos();
-  showFeedback('🗑️ Sinônimo removido: ' + valor);
+  save(); renderSinonimos();
+  showFeedback('🗑️ Removido: ' + valor);
 }
 
 async function restaurarSinonimosComando(key) {
-  const ok = await confirmar('Restaurar os sinônimos padrão deste comando? Os personalizados serão perdidos.', {
-    icone: '↩️', titulo: 'Restaurar padrões', textoSim: 'Restaurar', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar('Restaurar padrões deste comando?', { icone: '↩️', titulo: 'Restaurar', textoSim: 'Restaurar', textoNao: 'Cancelar' });
   if (!ok) return;
   data.sinonimos[key] = [...SINONIMOS_PADRAO[key]];
-  save();
-  renderSinonimos();
-  showFeedback('↩️ Sinônimos restaurados.');
+  save(); renderSinonimos();
+  showFeedback('↩️ Restaurados.');
 }
 
 async function restaurarTodosSinonimos() {
-  const ok = await confirmar('Restaurar TODOS os sinônimos padrão? Os personalizados serão perdidos. (Os sinônimos de estabelecimentos não são afetados.)', {
-    icone: '🔄', titulo: 'Restaurar todos', textoSim: 'Restaurar tudo', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar('Restaurar TODOS os sinônimos padrão?', { icone: '🔄', titulo: 'Restaurar todos', textoSim: 'Restaurar', textoNao: 'Cancelar' });
   if (!ok) return;
   data.sinonimos = JSON.parse(JSON.stringify(SINONIMOS_PADRAO));
-  save();
-  renderSinonimos();
-  showFeedback('🔄 Todos os sinônimos foram restaurados.');
+  save(); renderSinonimos();
+  showFeedback('🔄 Restaurados.');
   speak('Sinônimos restaurados');
 }
 
@@ -1922,53 +1658,36 @@ async function adicionarSinonimoEstab(idEstab) {
   const input = document.getElementById('novoSinEstab_' + idEstab);
   if (!input) return;
   const valor = input.value.trim();
-  if (!valor) { showFeedback('⚠️ Digite um sinônimo.'); input.focus(); return; }
-  if (valor.length > 40) { showFeedback('⚠️ Sinônimo muito longo (máx. 40).'); return; }
+  if (!valor) { showFeedback('⚠️ Digite.'); input.focus(); return; }
+  if (valor.length > 40) { showFeedback('⚠️ Muito longo.'); return; }
   if (!data.sinonimosEstabelecimentos[idEstab]) data.sinonimosEstabelecimentos[idEstab] = [];
   const normV = normalize(valor);
   if (data.sinonimosEstabelecimentos[idEstab].some(s => normalize(s) === normV)) {
-    showFeedback('⚠️ Esse sinônimo já existe para este estabelecimento.');
-    input.value = ''; input.focus();
-    return;
-  }
-  const estab = data.estabelecimentos[idEstab];
-  if (estab && normalize(estab.nome) === normV) {
-    showFeedback('⚠️ Esse já é o nome do estabelecimento.');
-    input.value = ''; input.focus();
-    return;
+    showFeedback('⚠️ Já existe.'); input.value = ''; input.focus(); return;
   }
   data.sinonimosEstabelecimentos[idEstab].push(valor);
-  save();
-  renderSinonimos();
-  const inp2 = document.getElementById('novoSinEstab_' + idEstab);
-  if (inp2) inp2.focus();
-  showFeedback('✅ Sinônimo adicionado: ' + valor);
-  speak('Sinônimo ' + valor + ' adicionado');
+  save(); renderSinonimos();
+  const inp2 = document.getElementById('novoSinEstab_' + idEstab); if (inp2) inp2.focus();
+  showFeedback('✅ Adicionado: ' + valor);
 }
 
 async function removerSinonimoEstab(idEstab, index) {
   const lista = data.sinonimosEstabelecimentos[idEstab] || [];
   const valor = lista[index];
   if (valor === undefined) return;
-  const ok = await confirmar(`Remover o sinônimo "${valor}"?`, {
-    icone: '🗑️', titulo: 'Remover sinônimo', textoSim: 'Remover', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar(`Remover "${valor}"?`, { icone: '🗑️', titulo: 'Remover', textoSim: 'Remover', textoNao: 'Cancelar' });
   if (!ok) return;
   data.sinonimosEstabelecimentos[idEstab].splice(index, 1);
-  save();
-  renderSinonimos();
-  showFeedback('🗑️ Sinônimo removido: ' + valor);
+  save(); renderSinonimos();
+  showFeedback('🗑️ Removido.');
 }
 
 async function restaurarSinonimosEstab(idEstab) {
-  const ok = await confirmar('Limpar todos os sinônimos personalizados deste estabelecimento?', {
-    icone: '↩️', titulo: 'Limpar sinônimos', textoSim: 'Limpar', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar('Limpar sinônimos deste estabelecimento?', { icone: '↩️', titulo: 'Limpar', textoSim: 'Limpar', textoNao: 'Cancelar' });
   if (!ok) return;
   data.sinonimosEstabelecimentos[idEstab] = [];
-  save();
-  renderSinonimos();
-  showFeedback('↩️ Sinônimos removidos.');
+  save(); renderSinonimos();
+  showFeedback('↩️ Removidos.');
 }
 
 function setSyncStatus(msg, tipo) {
@@ -1981,8 +1700,7 @@ function setSyncStatus(msg, tipo) {
 function exportarSinonimos() {
   try {
     const payload = {
-      app: 'FECHA A CONTA - Sinônimos de Voz',
-      versao: 2,
+      app: 'FECHA A CONTA - Sinônimos', versao: 2,
       exportadoEm: new Date().toISOString(),
       sinonimos: data.sinonimos,
       sinonimosEstabelecimentos: data.sinonimosEstabelecimentos
@@ -1992,24 +1710,13 @@ function exportarSinonimos() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     const filename = `sinonimos_voz_${new Date().toISOString().slice(0,10)}.json`;
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-
-    let total = 0;
-    Object.values(data.sinonimos).forEach(v => { if (Array.isArray(v)) total += v.length; });
-    const totalEstab = Object.values(data.sinonimosEstabelecimentos).reduce((acc, v) => acc + (Array.isArray(v) ? v.length : 0), 0);
-    setSyncStatus(`✅ Exportado: ${filename} (${total} sinônimos + ${totalEstab} de estabelecimentos)`, 'ok');
-    showFeedback('📤 Sinônimos exportados!');
+    setSyncStatus(`✅ Exportado: ${filename}`, 'ok');
+    showFeedback('📤 Exportados!');
     speak('Sinônimos exportados');
-  } catch(e) {
-    console.error(e);
-    setSyncStatus('❌ Erro ao exportar: ' + e.message, 'err');
-    showFeedback('❌ Erro ao exportar.');
-  }
+  } catch(e) { setSyncStatus('❌ Erro: ' + e.message, 'err'); }
 }
 
 function importarSinonimos(event) {
@@ -2019,53 +1726,22 @@ function importarSinonimos(event) {
   reader.onload = async function(evt) {
     try {
       const parsed = JSON.parse(evt.target.result);
-      if (!parsed || typeof parsed !== 'object') throw new Error('Arquivo inválido.');
       const importados = parsed.sinonimos || parsed;
-      if (!importados || typeof importados !== 'object') throw new Error('Campo "sinonimos" ausente.');
-
-      let totalComandos = 0, totalSinonimos = 0;
-      Object.keys(importados).forEach(k => {
-        if (Array.isArray(importados[k]) && importados[k].length > 0) {
-          totalComandos++;
-          totalSinonimos += importados[k].length;
-        }
-      });
-      if (totalSinonimos === 0) throw new Error('Nenhum sinônimo encontrado no arquivo.');
-
-      const quando = parsed.exportadoEm ? new Date(parsed.exportadoEm).toLocaleString('pt-BR') : 'data desconhecida';
-      const ok = await confirmar(
-        `Aplicar ${totalSinonimos} sinônimos em ${totalComandos} comandos? (Exportado em ${quando}) Os sinônimos atuais serão substituídos.`,
-        { icone: '📥', titulo: 'Importar sinônimos', textoSim: 'Aplicar', textoNao: 'Cancelar' }
-      );
-      if (!ok) {
-        setSyncStatus('ℹ️ Importação cancelada.', '');
-        event.target.value = '';
-        return;
-      }
-
+      if (!importados || typeof importados !== 'object') throw new Error('Arquivo inválido.');
+      let total = 0;
+      Object.keys(importados).forEach(k => { if (Array.isArray(importados[k])) total += importados[k].length; });
+      if (total === 0) throw new Error('Nenhum sinônimo.');
+      const ok = await confirmar(`Aplicar ${total} sinônimos?`, { icone: '📥', titulo: 'Importar', textoSim: 'Aplicar', textoNao: 'Cancelar' });
+      if (!ok) { event.target.value = ''; return; }
       Object.keys(SINONIMOS_PADRAO).forEach(k => {
-        if (Array.isArray(importados[k]) && importados[k].length > 0) {
-          data.sinonimos[k] = importados[k];
-        }
+        if (Array.isArray(importados[k]) && importados[k].length > 0) data.sinonimos[k] = importados[k];
       });
-
-      if (parsed.sinonimosEstabelecimentos && typeof parsed.sinonimosEstabelecimentos === 'object') {
-        data.sinonimosEstabelecimentos = parsed.sinonimosEstabelecimentos;
-      }
-
-      save();
-      renderSinonimos();
-      const dataHora = new Date().toLocaleString('pt-BR');
-      setSyncStatus(`✅ Importado em ${dataHora} (${totalSinonimos} sinônimos)`, 'ok');
-      showFeedback('📥 Sinônimos importados!');
-      speak('Sinônimos importados');
-    } catch(err) {
-      console.error(err);
-      setSyncStatus('❌ Erro ao importar: ' + err.message, 'err');
-      showFeedback('❌ Erro: ' + err.message);
-    } finally {
-      event.target.value = '';
-    }
+      if (parsed.sinonimosEstabelecimentos) data.sinonimosEstabelecimentos = parsed.sinonimosEstabelecimentos;
+      save(); renderSinonimos();
+      setSyncStatus(`✅ Importado (${total} sinônimos)`, 'ok');
+      showFeedback('📥 Importados!');
+    } catch(err) { setSyncStatus('❌ Erro: ' + err.message, 'err'); }
+    finally { event.target.value = ''; }
   };
   reader.readAsText(file);
 }
@@ -2091,9 +1767,7 @@ function salvarUsuarioAutomatico() {
   data.usuario.telefone = telefone;
   data.usuario.endereco = endereco;
   if (!data.usuario.bancos) data.usuario.bancos = [];
-  if (data.usuario.bancos.length > 0 && !data.usuario.bancoAtivoId) {
-    data.usuario.bancoAtivoId = data.usuario.bancos[0].id;
-  }
+  if (data.usuario.bancos.length > 0 && !data.usuario.bancoAtivoId) data.usuario.bancoAtivoId = data.usuario.bancos[0].id;
   save();
   atualizarResumoUsuario();
   $('userInfo').textContent = 'Dados salvos automaticamente.';
@@ -2101,14 +1775,10 @@ function salvarUsuarioAutomatico() {
 }
 
 async function excluirUsuario() {
-  const ok = await confirmar('Tem certeza que deseja excluir seu cadastro? Esta ação não pode ser desfeita.', {
-    icone: '🗑️', titulo: 'Excluir cadastro', textoSim: 'Excluir', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar('Excluir seu cadastro? Esta ação não pode ser desfeita.', { icone: '🗑️', titulo: 'Excluir cadastro', textoSim: 'Excluir', textoNao: 'Cancelar' });
   if (!ok) return;
   data.usuario = null;
-  save();
-  renderAll();
-  atualizarResumoUsuario();
+  save(); renderAll(); atualizarResumoUsuario();
   speak('Cadastro excluído');
   showFeedback('🗑️ Cadastro removido');
 }
@@ -2129,11 +1799,8 @@ function atualizarResumoUsuario() {
   const el = document.getElementById('usuarioResumoNome');
   if (!el) return;
   const nome = (data.usuario && data.usuario.nome) ? String(data.usuario.nome).trim() : '';
-  if (nome) {
-    el.innerHTML = '<b style="color:#79e9aa;font-size:16px;">' + escapeHtml(nome) + '</b>';
-  } else {
-    el.textContent = 'Nenhum nome cadastrado';
-  }
+  if (nome) el.innerHTML = '<b style="color:#79e9aa;font-size:16px;">' + escapeHtml(nome) + '</b>';
+  else el.textContent = 'Nenhum nome cadastrado';
 }
 
 function toggleUsuarioForm() {
@@ -2141,20 +1808,15 @@ function toggleUsuarioForm() {
   const btn = document.getElementById('btnToggleUsuarioForm');
   if (!wrapper || !btn) return;
   const aberto = wrapper.style.display === 'block';
-  if (aberto) {
-    wrapper.style.display = 'none';
-    btn.textContent = '✏️ Editar cadastro';
-  } else {
-    wrapper.style.display = 'block';
-    btn.textContent = '✔ Fechar edição';
-  }
+  wrapper.style.display = aberto ? 'none' : 'block';
+  btn.textContent = aberto ? '✏️ Editar cadastro' : '✔ Fechar edição';
 }
 
 function renderUsuario() {
   const container = document.getElementById('listaBancosUsuario');
   const u = data.usuario;
   if (!u || !u.bancos || u.bancos.length === 0) {
-    container.innerHTML = '<p class="note">Nenhum banco cadastrado para pagamento.</p>';
+    container.innerHTML = '<p class="note">Nenhum banco cadastrado.</p>';
     return;
   }
   container.innerHTML = u.bancos.map((banco, index) => {
@@ -2166,7 +1828,7 @@ function renderUsuario() {
         <div class="banco-detalhe">Link: ${banco.link || 'Não informado'}</div>
       </div>
       <div class="banco-actions">
-        <button onclick="setBancoAtivo(${index})" title="Tornar ativo" style="color:var(--accent);">⭐</button>
+        <button onclick="setBancoAtivo(${index})" title="Ativar" style="color:var(--accent);">⭐</button>
         <button onclick="editarBancoUsuario(${index})" title="Editar">✏</button>
         <button class="excluir" onclick="excluirBancoUsuario(${index})" title="Excluir">🗑</button>
       </div>
@@ -2178,8 +1840,7 @@ function setBancoAtivo(index) {
   const u = data.usuario;
   if (!u || !u.bancos || index >= u.bancos.length) return;
   u.bancoAtivoId = u.bancos[index].id;
-  save();
-  renderUsuario();
+  save(); renderUsuario();
   showFeedback('✅ Banco ativo alterado.');
 }
 
@@ -2195,17 +1856,14 @@ function cancelarNovoBanco() {
   editandoBancoId = null;
   document.getElementById('novoBancoContainer').style.display = 'none';
   document.getElementById('btnAdicionarBanco').style.display = 'inline-block';
-  document.getElementById('novoBancoNome').value = '';
-  document.getElementById('novoBancoLink').value = '';
 }
 
 function salvarNovoBanco() {
   const nome = document.getElementById('novoBancoNome').value.trim();
   const link = document.getElementById('novoBancoLink').value.trim();
-  if (!nome) { showFeedback('⚠️ Informe o nome do banco.'); return; }
+  if (!nome) { showFeedback('⚠️ Informe o nome.'); return; }
   if (!data.usuario) data.usuario = { bancos: [] };
   if (!data.usuario.bancos) data.usuario.bancos = [];
-
   if (editandoBancoId) {
     const banco = data.usuario.bancos.find(b => b.id === editandoBancoId);
     if (banco) { banco.nome = nome; banco.link = link; }
@@ -2216,14 +1874,12 @@ function salvarNovoBanco() {
     if (!data.usuario.bancoAtivoId) data.usuario.bancoAtivoId = newId;
     showFeedback('✅ Banco adicionado!');
   }
-
   editandoBancoId = null;
   document.getElementById('novoBancoContainer').style.display = 'none';
   document.getElementById('btnAdicionarBanco').style.display = 'inline-block';
   document.getElementById('novoBancoNome').value = '';
   document.getElementById('novoBancoLink').value = '';
-  save();
-  renderUsuario();
+  save(); renderUsuario();
 }
 
 function editarBancoUsuario(index) {
@@ -2244,11 +1900,8 @@ async function excluirBancoUsuario(index) {
   if (!u || !u.bancos || index >= u.bancos.length) return;
   const removido = u.bancos[index];
   u.bancos.splice(index, 1);
-  if (u.bancoAtivoId === removido.id) {
-    u.bancoAtivoId = u.bancos.length > 0 ? u.bancos[0].id : null;
-  }
-  save();
-  renderUsuario();
+  if (u.bancoAtivoId === removido.id) u.bancoAtivoId = u.bancos.length > 0 ? u.bancos[0].id : null;
+  save(); renderUsuario();
   showFeedback('🗑️ Banco removido.');
 }
 
@@ -2261,17 +1914,12 @@ function getProdutosAtivos() {
   return estab ? estab.produtos || [] : [];
 }
 
-// ============================================================
-//  BUSCA DE IMAGENS: dispositivo → GitHub → internet
-// ============================================================
 function buscarImagemLocal(nome) {
   if (!nome) return null;
   const slug = slugify(nome);
   if (!slug || slug.length < 3) return null;
-
   const palavrasAlvo = normalize(nome).split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
-  let melhor = null;
-  let melhorScore = 0;
+  let melhor = null, melhorScore = 0;
 
   Object.values(data.estabelecimentos).forEach(estab => {
     (estab.produtos || []).forEach(p => {
@@ -2279,32 +1927,22 @@ function buscarImagemLocal(nome) {
       const pNome = normalize(p.nome || '');
       const pSlug = slugify(pNome);
       if (!pSlug) return;
-
       let score = 0;
       if (pSlug === slug) score = 1000;
-      else if (pSlug.includes(slug) || slug.includes(pSlug)) {
-        score = 600 + Math.round((Math.min(pSlug.length, slug.length) / Math.max(pSlug.length, slug.length)) * 300);
-      }
+      else if (pSlug.includes(slug) || slug.includes(pSlug)) score = 600 + Math.round((Math.min(pSlug.length, slug.length) / Math.max(pSlug.length, slug.length)) * 300);
       else if (palavrasAlvo.length > 0) {
         const pWords = pNome.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
         const comuns = palavrasAlvo.filter(w => pWords.includes(w) || pSlug.includes(w)).length;
-        if (comuns > 0 && comuns >= Math.ceil(palavrasAlvo.length * 0.5)) {
-          score = 300 + comuns * 50;
-        }
+        if (comuns > 0 && comuns >= Math.ceil(palavrasAlvo.length * 0.5)) score = 300 + comuns * 50;
       }
-
       if (score > melhorScore) { melhorScore = score; melhor = p.imagem; }
     });
   });
   return melhorScore >= 300 ? melhor : null;
 }
 
-let manifestRotulosCache = null;
-let manifestRotulosRepoCache = null;
-let githubTreeCache = null;
-let githubTreeRepoCache = null;
-let githubTreeBranchCache = null;
-let githubTreeCacheTime = 0;
+let manifestRotulosCache = null, manifestRotulosRepoCache = null;
+let githubTreeCache = null, githubTreeRepoCache = null, githubTreeBranchCache = null, githubTreeCacheTime = 0;
 const GITHUB_TREE_TTL = 5 * 60 * 1000;
 
 async function carregarManifestRotulos(repo) {
@@ -2315,12 +1953,7 @@ async function carregarManifestRotulos(repo) {
       try {
         const url = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
         const resp = await fetch(url, { cache: 'no-cache' });
-        if (resp.ok) {
-          const json = await resp.json();
-          manifestRotulosCache = json;
-          manifestRotulosRepoCache = repo;
-          return json;
-        }
+        if (resp.ok) { const json = await resp.json(); manifestRotulosCache = json; manifestRotulosRepoCache = repo; return json; }
       } catch(e) { }
     }
   }
@@ -2329,38 +1962,21 @@ async function carregarManifestRotulos(repo) {
 
 async function carregarArvoreGitHub(repo, forcarAtualizacao) {
   const agora = Date.now();
-  if (!forcarAtualizacao
-      && githubTreeCache
-      && githubTreeRepoCache === repo
-      && (agora - githubTreeCacheTime) < GITHUB_TREE_TTL) {
+  if (!forcarAtualizacao && githubTreeCache && githubTreeRepoCache === repo && (agora - githubTreeCacheTime) < GITHUB_TREE_TTL) {
     return { tree: githubTreeCache, branch: githubTreeBranchCache };
   }
-
   const branches = ['main', 'master', 'gh-pages', 'principal'];
   for (const branch of branches) {
     try {
       const url = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
-      const resp = await fetch(url, {
-        cache: 'no-cache',
-        headers: { 'Accept': 'application/vnd.github+json' }
-      });
-
+      const resp = await fetch(url, { cache: 'no-cache', headers: { 'Accept': 'application/vnd.github+json' } });
       if (resp.status === 403 || resp.status === 429) continue;
       if (!resp.ok) continue;
-
       const json = await resp.json();
       if (!json.tree || !Array.isArray(json.tree)) continue;
-
-      const blobs = json.tree.filter(item =>
-        item.type === 'blob' && /\.(jpe?g|png|webp|gif|bmp)$/i.test(item.path)
-      );
+      const blobs = json.tree.filter(item => item.type === 'blob' && /\.(jpe?g|png|webp|gif|bmp)$/i.test(item.path));
       if (blobs.length === 0) continue;
-
-      githubTreeCache = blobs;
-      githubTreeRepoCache = repo;
-      githubTreeBranchCache = branch;
-      githubTreeCacheTime = agora;
-
+      githubTreeCache = blobs; githubTreeRepoCache = repo; githubTreeBranchCache = branch; githubTreeCacheTime = agora;
       return { tree: blobs, branch };
     } catch(e) { }
   }
@@ -2368,14 +1984,12 @@ async function carregarArvoreGitHub(repo, forcarAtualizacao) {
 }
 
 async function baixarDoGitHub(repo, branch, path) {
-  const url = `https://raw.githubusercontent.com/${repo}/${branch}/${encodeURI(path)}`;
-  return await baixarImagemComoDataURL(url);
+  return await baixarImagemComoDataURL(`https://raw.githubusercontent.com/${repo}/${branch}/${encodeURI(path)}`);
 }
 
 async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
   const repo = (data.githubRotulosRepo || '').trim();
   if (!repo || !nome) return null;
-
   const nomeNorm = normalize(nome);
   const slug = slugify(nome);
   const slugHifen = slugifyHifen(nome);
@@ -2387,18 +2001,11 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
       const chaves = Object.keys(manifest);
       const candidatos = [...new Set([slug, slugHifen, slug.replace(/-/g, ''), ...palavras, nomeNorm].filter(Boolean))];
       let match = null;
-      for (const c of candidatos) {
-        match = chaves.find(k => slugify(k) === slugify(c));
-        if (match) break;
-      }
+      for (const c of candidatos) { match = chaves.find(k => slugify(k) === slugify(c)); if (match) break; }
       if (!match) {
         for (const c of candidatos) {
           if (!c || c.length < 3) continue;
-          match = chaves.find(k => {
-            const nk = slugify(k);
-            const nc = slugify(c);
-            return nk.includes(nc) || nc.includes(nk);
-          });
+          match = chaves.find(k => { const nk = slugify(k); const nc = slugify(c); return nk.includes(nc) || nc.includes(nk); });
           if (match) break;
         }
       }
@@ -2418,27 +2025,21 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
     const resultado = await carregarArvoreGitHub(repo, forcarAtualizacao);
     if (resultado && resultado.tree && resultado.tree.length) {
       const { tree, branch } = resultado;
-      let melhorPath = null;
-      let melhorScore = 0;
-
+      let melhorPath = null, melhorScore = 0;
       tree.forEach(item => {
         const path = item.path;
         const partes = path.split('/');
-        const baseCompleto = partes[partes.length - 1];
-        const baseSemExt = baseCompleto.replace(/\.[^.]+$/, '');
+        const baseSemExt = partes[partes.length - 1].replace(/\.[^.]+$/, '');
         const baseNorm = normalize(baseSemExt);
         const baseSlug = slugify(baseSemExt);
         const baseSlugHifen = slugifyHifen(baseSemExt);
-
         let score = 0;
         if (baseSlug === slug) score = 1000;
         else if (baseSlugHifen === slugHifen) score = 990;
         else if (baseSlug === slugHifen.replace(/-/g, '')) score = 980;
-        else if (slug.length >= 4 && baseSlug.includes(slug)) {
-          score = 700 + Math.round((slug.length / baseSlug.length) * 100);
-        } else if (baseSlug.length >= 4 && slug.includes(baseSlug)) {
-          score = 600 + Math.round((baseSlug.length / slug.length) * 100);
-        } else if (palavras.length > 0) {
+        else if (slug.length >= 4 && baseSlug.includes(slug)) score = 700 + Math.round((slug.length / baseSlug.length) * 100);
+        else if (baseSlug.length >= 4 && slug.includes(baseSlug)) score = 600 + Math.round((baseSlug.length / slug.length) * 100);
+        else if (palavras.length > 0) {
           const baseWords = baseNorm.split(/[^a-z0-9]+/).filter(w => w.length >= 2);
           const comuns = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p)).length;
           if (comuns > 0 && comuns >= Math.ceil(palavras.length * 0.5)) {
@@ -2446,10 +2047,8 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
             score = Math.round(300 + cobertura * 300 + comuns * 30);
           }
         }
-
         if (score > melhorScore) { melhorScore = score; melhorPath = path; }
       });
-
       if (melhorPath && melhorScore >= 300) {
         const dataUrl = await baixarDoGitHub(repo, branch, melhorPath);
         if (dataUrl) return dataUrl;
@@ -2460,91 +2059,62 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
   const folders = ['', 'rotulos/', 'imagens/', 'images/', 'img/'];
   const exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
   const slugs = [...new Set([slug, slugHifen, slug.replace(/[^a-z0-9]/g, ''), ...palavras])].filter(Boolean);
-
   for (const branch of ['main', 'master']) {
     for (const folder of folders) {
       for (const s of slugs) {
         if (!s || s.length < 2) continue;
         for (const ext of exts) {
-          const caminho = `${folder}${s}.${ext}`;
-          const url = `https://raw.githubusercontent.com/${repo}/${branch}/${caminho}`;
           try {
-            const dataUrl = await baixarImagemComoDataURL(url);
+            const dataUrl = await baixarImagemComoDataURL(`https://raw.githubusercontent.com/${repo}/${branch}/${folder}${s}.${ext}`);
             if (dataUrl) return dataUrl;
           } catch(e) { }
         }
       }
     }
   }
-
   return null;
 }
 
 async function buscarImagemAutomatica(nome) {
   if (!nome) return null;
-
   const local = buscarImagemLocal(nome);
   if (local) return local;
-
   try {
     const github = await buscarImagemGitHubRotulos(nome);
     if (github) return github;
   } catch (e) { }
-
   const kw = extrairPalavraChaveImagem(nome);
   const lock = hashCode(nome) % 9999;
-  const url = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`;
-  const result = await baixarImagemComoDataURL(url);
+  const result = await baixarImagemComoDataURL(`https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`);
   if (result) return result;
-  const url2 = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}`;
-  return await baixarImagemComoDataURL(url2);
+  return await baixarImagemComoDataURL(`https://loremflickr.com/400/300/${encodeURIComponent(kw)}`);
 }
 
 function salvarGithubRepo() {
   const input = document.getElementById('githubRepoInput');
   if (!input) return;
-  let valor = input.value.trim()
-    .replace(/^https?:\/\/github\.com\//i, '')
-    .replace(/\.git$/i, '')
-    .replace(/\/+$/, '');
-  if (valor && !/^[^\/\s]+\/[^\/\s]+$/.test(valor)) {
-    showFeedback('⚠️ Use o formato usuario/repositorio');
-    return;
-  }
+  let valor = input.value.trim().replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/\/+$/, '');
+  if (valor && !/^[^\/\s]+\/[^\/\s]+$/.test(valor)) { showFeedback('⚠️ Use usuario/repositorio'); return; }
   data.githubRotulosRepo = valor;
-  manifestRotulosCache = null;
-  manifestRotulosRepoCache = null;
-  githubTreeCache = null;
-  githubTreeRepoCache = null;
-  githubTreeBranchCache = null;
-  githubTreeCacheTime = 0;
-  save();
-  atualizarStatusGithubRepo();
-  showFeedback(valor ? '✅ Repositório salvo: ' + valor : 'ℹ️ Repositório removido');
-  speak(valor ? 'Repositório configurado' : 'Repositório removido');
+  manifestRotulosCache = null; manifestRotulosRepoCache = null;
+  githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
+  save(); atualizarStatusGithubRepo();
+  showFeedback(valor ? '✅ Salvo: ' + valor : 'ℹ️ Removido');
 }
 
 async function testarGithubRepo() {
   const repo = (data.githubRotulosRepo || '').trim();
-  if (!repo) { showFeedback('⚠️ Configure e salve um repositório primeiro.'); return; }
-  showFeedback('🔍 Testando repositório...');
-
+  if (!repo) { showFeedback('⚠️ Configure um repositório primeiro.'); return; }
+  showFeedback('🔍 Testando...');
   manifestRotulosCache = null; manifestRotulosRepoCache = null;
-  githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null;
-  githubTreeCacheTime = 0;
-
+  githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
   const arvore = await carregarArvoreGitHub(repo, true);
   if (arvore && arvore.tree.length) {
     const amostra = arvore.tree.slice(0, 5).map(x => x.path.split('/').pop()).join(', ');
-    showFeedback(`✅ Repositório OK! ${arvore.tree.length} imagens (branch ${arvore.branch}). Ex.: ${amostra}`);
+    showFeedback(`✅ OK! ${arvore.tree.length} imagens. Ex.: ${amostra}`);
     return;
   }
-  const manifest = await carregarManifestRotulos(repo);
-  if (manifest && typeof manifest === 'object') {
-    showFeedback(`✅ Manifest acessível com ${Object.keys(manifest).length} rótulo(s).`);
-    return;
-  }
-  showFeedback('❌ Não foi possível acessar o repositório. Verifique se é público e o nome está correto.');
+  showFeedback('❌ Não foi possível acessar.');
 }
 
 function atualizarStatusGithubRepo() {
@@ -2553,25 +2123,16 @@ function atualizarStatusGithubRepo() {
   const repo = data.githubRotulosRepo || '';
   if (input && document.activeElement !== input) input.value = repo;
   if (status) {
-    if (repo) {
-      status.innerHTML = '✅ Repositório configurado: <b>' + escapeHtml(repo) + '</b>';
-      status.style.color = '#79e9aa';
-    } else {
-      status.textContent = 'Nenhum repositório configurado. A busca usará apenas imagens locais e da internet.';
-      status.style.color = '';
-    }
+    if (repo) { status.innerHTML = '✅ Configurado: <b>' + escapeHtml(repo) + '</b>'; status.style.color = '#79e9aa'; }
+    else { status.textContent = 'Nenhum repositório configurado.'; status.style.color = ''; }
   }
 }
 
 function sincronizarEstabelecimentoAtivoManual() {
   const id = data.estabelecimentoAtivoId;
   if (!id) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
-  githubTreeCache = null;
-  githubTreeRepoCache = null;
-  githubTreeBranchCache = null;
-  githubTreeCacheTime = 0;
-  sincronizandoImagens = false;
-  sincronizandoEstabId = null;
+  githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
+  sincronizandoImagens = false; sincronizandoEstabId = null;
   sincronizarImagensEstabelecimento(id, true);
 }
 
@@ -2579,86 +2140,51 @@ function mostrarSyncBadge(mostrar, texto) {
   const badge = document.getElementById('cardapioSyncBadge');
   const txt = document.getElementById('cardapioSyncText');
   if (!badge || !txt) return;
-  if (mostrar) {
-    badge.style.display = 'inline-flex';
-    badge.classList.remove('done');
-    txt.textContent = texto || 'Sincronizando...';
-  } else {
-    badge.style.display = 'none';
-  }
+  if (mostrar) { badge.style.display = 'inline-flex'; badge.classList.remove('done'); txt.textContent = texto || '...'; }
+  else badge.style.display = 'none';
 }
 
 async function sincronizarImagensEstabelecimento(estabId, forcar) {
   if (sincronizandoImagens && sincronizandoEstabId !== estabId) {
-    let tentativas = 0;
-    while (sincronizandoImagens && tentativas < 60) {
-      await new Promise(r => setTimeout(r, 500));
-      tentativas++;
-    }
+    let t = 0;
+    while (sincronizandoImagens && t < 60) { await new Promise(r => setTimeout(r, 500)); t++; }
   }
   if (sincronizandoImagens && sincronizandoEstabId === estabId) return;
-
   const estab = data.estabelecimentos[estabId];
   if (!estab) return;
-
-  const realmenteSem = (estab.produtos || []).filter(p => !p.imagem);
-  if (realmenteSem.length === 0) return;
-
-  sincronizandoImagens = true;
-  sincronizandoEstabId = estabId;
-
-  const total = realmenteSem.length;
+  const semImagem = (estab.produtos || []).filter(p => !p.imagem);
+  if (semImagem.length === 0) return;
+  sincronizandoImagens = true; sincronizandoEstabId = estabId;
+  const total = semImagem.length;
   mostrarSyncBadge(true, `0/${total}`);
   showFeedback(`🖼️ Buscando imagens (0/${total})...`);
-
-  let encontradas = 0;
-  let processados = 0;
-
-  for (const p of realmenteSem) {
+  let encontradas = 0, processados = 0;
+  for (const p of semImagem) {
     if (p.imagem) { processados++; continue; }
-
     try {
       const local = buscarImagemLocal(p.nome);
-      if (local) {
-        p.imagem = local;
-        encontradas++;
-        save();
-      } else {
+      if (local) { p.imagem = local; encontradas++; save(); }
+      else {
         let github = null;
         try { github = await buscarImagemGitHubRotulos(p.nome); } catch(e) { }
-
-        if (github) {
-          p.imagem = github;
-          encontradas++;
-          save();
-        } else {
+        if (github) { p.imagem = github; encontradas++; save(); }
+        else {
           try {
             const kw = extrairPalavraChaveImagem(p.nome);
             const lock = hashCode(p.nome) % 9999;
-            const internet = await baixarImagemComoDataURL(
-              `https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`
-            );
-            if (internet) {
-              p.imagem = internet;
-              encontradas++;
-              save();
-            }
+            const internet = await baixarImagemComoDataURL(`https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`);
+            if (internet) { p.imagem = internet; encontradas++; save(); }
           } catch(e) { }
         }
       }
     } catch (e) { }
-
     processados++;
     mostrarSyncBadge(true, `${processados}/${total} • ${encontradas} ✓`);
-
     if (processados % 3 === 0) renderCardapio();
     await new Promise(r => setTimeout(r, 200));
   }
-
-  sincronizandoImagens = false;
-  sincronizandoEstabId = null;
+  sincronizandoImagens = false; sincronizandoEstabId = null;
   renderAll();
-
   if (encontradas > 0) {
     mostrarSyncBadge(true, `${encontradas} ✓`);
     const badge = document.getElementById('cardapioSyncBadge');
@@ -2676,24 +2202,18 @@ async function setEstabelecimentoAtivo(id) {
   if (id && data.estabelecimentos[id]) {
     data.estabelecimentoAtivoId = id;
     if (data.contaAtiva) {
-      const ok = await confirmar('Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?', {
-        icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar'
-      });
+      const ok = await confirmar('Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar' });
       if (ok) {
-        callbackAposFechar = function() {
-          data.pedido = []; data.contaAtiva = false;
-          save(); renderAll(); setEstabelecimentoAtivo(id);
-        };
-        showScreen('conta');
-        setTimeout(confirmarFechamento, 300);
+        callbackAposFechar = function() { data.pedido = []; data.contaAtiva = false; save(); renderAll(); setEstabelecimentoAtivo(id); };
+        showScreen('conta'); setTimeout(confirmarFechamento, 300);
         return;
-      } else { return; }
+      } else return;
     }
     data.pedido = []; data.contaAtiva = false;
     save(); renderAll();
     const nome = data.estabelecimentos[id].nome;
     speak('Estabelecimento selecionado: ' + nome);
-    showFeedback('🏢 Estabelecimento ativo: ' + nome);
+    showFeedback('🏢 Ativo: ' + nome);
     setTimeout(() => sincronizarImagensEstabelecimento(id), 400);
   } else {
     data.estabelecimentoAtivoId = null;
@@ -2710,30 +2230,26 @@ function editarEstabelecimento(id) {
   $('barNome').value = e.nome;
   $('barEndereco').value = e.endereco || '';
   $('barPix').value = e.pix || '';
-  document.getElementById('btnSalvarEstab').textContent = '💾 Atualizar estabelecimento';
+  document.getElementById('btnSalvarEstab').textContent = '💾 Atualizar';
   document.getElementById('formEstabTitulo').textContent = '✏️ Editar estabelecimento';
   document.getElementById('formEstabelecimento').style.display = 'block';
   showScreen('estabelecimentos');
-  setTimeout(() => { document.getElementById('barNome').focus(); }, 100);
+  setTimeout(() => document.getElementById('barNome').focus(), 100);
 }
 
 function mostrarFormEstabelecimento() {
   currentEditEstabId = null;
-  $('barNome').value = '';
-  $('barEndereco').value = '';
-  $('barPix').value = '';
-  document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
+  $('barNome').value = ''; $('barEndereco').value = ''; $('barPix').value = '';
+  document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar';
   document.getElementById('formEstabTitulo').textContent = '➕ Novo estabelecimento';
   document.getElementById('formEstabelecimento').style.display = 'block';
-  setTimeout(() => { document.getElementById('barNome').focus(); }, 100);
+  setTimeout(() => document.getElementById('barNome').focus(), 100);
 }
 
 function fecharFormEstabelecimento() {
   currentEditEstabId = null;
-  $('barNome').value = '';
-  $('barEndereco').value = '';
-  $('barPix').value = '';
-  document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar estabelecimento';
+  $('barNome').value = ''; $('barEndereco').value = ''; $('barPix').value = '';
+  document.getElementById('btnSalvarEstab').textContent = '➕ Adicionar';
   document.getElementById('formEstabTitulo').textContent = '➕ Novo estabelecimento';
   document.getElementById('formEstabelecimento').style.display = 'none';
 }
@@ -2742,13 +2258,13 @@ function salvarEstabelecimento() {
   const nome = capitalizarNome($('barNome').value.trim());
   const endereco = $('barEndereco').value.trim();
   const pix = $('barPix').value.trim();
-  if (!nome) { showFeedback('⚠️ Informe o nome do estabelecimento.'); return; }
+  if (!nome) { showFeedback('⚠️ Informe o nome.'); return; }
   if (currentEditEstabId) {
     data.estabelecimentos[currentEditEstabId].nome = nome;
     data.estabelecimentos[currentEditEstabId].endereco = endereco;
     data.estabelecimentos[currentEditEstabId].pix = pix;
     speak('Estabelecimento atualizado');
-    showFeedback('✅ Estabelecimento atualizado');
+    showFeedback('✅ Atualizado');
   } else {
     const id = Date.now() + Math.random();
     data.estabelecimentos[id] = { nome, endereco: endereco || '', pix: pix || '', produtos: [] };
@@ -2760,23 +2276,62 @@ function salvarEstabelecimento() {
   save(); renderAll();
 }
 
+/* ============================================================
+   EXCLUSÃO DE ESTABELECIMENTO COM VERIFICAÇÃO DE MOVIMENTAÇÕES
+   ============================================================ */
 async function excluirEstabelecimento(id) {
-  const nome = data.estabelecimentos[id]?.nome || '';
-  const ok = await confirmar(`Excluir o estabelecimento "${nome}" e todos os seus produtos?`, {
-    icone: '🗑️', titulo: 'Excluir estabelecimento', textoSim: 'Excluir', textoNao: 'Cancelar'
-  });
-  if (!ok) return;
-  if (data.contaAtiva) { showFeedback('⚠️ Não é possível excluir com uma conta aberta.'); return; }
+  const estab = data.estabelecimentos[id];
+  if (!estab) return;
+  const nome = estab.nome || '';
+
+  if (data.contaAtiva && data.estabelecimentoAtivoId === id) {
+    showFeedback('⚠️ Não é possível excluir com uma conta aberta.');
+    return;
+  }
+
+  const pedidoVinculado = data.pedido.filter(item => item.estabId === id);
+  const qtdPedidoVinc = pedidoVinculado.reduce((s, i) => s + (i.qtd || 0), 0);
+  const historicoVinculado = data.historico.filter(h =>
+    h.estabelecimento === nome ||
+    (h.itens || []).some(it => it.estabId === id)
+  );
+  const totalMovimentos = historicoVinculado.length;
+
+  if (pedidoVinculado.length > 0 || totalMovimentos > 0) {
+    let detalhes = '';
+    if (qtdPedidoVinc > 0) detalhes += `• ${qtdPedidoVinc} item(ns) na conta atual\n`;
+    if (totalMovimentos > 0) detalhes += `• ${totalMovimentos} conta(s) no histórico\n`;
+
+    const ok = await confirmar(
+      `O estabelecimento "${nome}" possui movimentações:\n\n${detalhes}\nPara excluir, TODOS os movimentos vinculados serão removidos também (tudo ou nada).\n\nDeseja continuar?`,
+      { icone: '⚠️', titulo: 'Estabelecimento com movimentações', textoSim: 'Excluir tudo', textoNao: 'Cancelar' }
+    );
+    if (!ok) return;
+
+    data.pedido = data.pedido.filter(item => item.estabId !== id);
+    data.historico = data.historico.filter(h =>
+      h.estabelecimento !== nome &&
+      !(h.itens || []).some(it => it.estabId === id)
+    );
+    speak('Estabelecimento e movimentações excluídos');
+    showFeedback('🗑️ Tudo excluído');
+  } else {
+    const ok = await confirmar(
+      `Excluir o estabelecimento "${nome}" e todos os seus produtos?`,
+      { icone: '🗑️', titulo: 'Excluir estabelecimento', textoSim: 'Excluir', textoNao: 'Cancelar' }
+    );
+    if (!ok) return;
+    speak('Estabelecimento ' + nome + ' excluído');
+    showFeedback('🗑️ ' + nome + ' removido');
+  }
+
   delete data.estabelecimentos[id];
   delete data.sinonimosEstabelecimentos[id];
   if (data.estabelecimentoAtivoId === id) {
     data.estabelecimentoAtivoId = Object.keys(data.estabelecimentos)[0] || null;
-    data.pedido = [];
   }
   if (currentEditEstabId === id) fecharFormEstabelecimento();
   save(); renderAll();
-  speak('Estabelecimento ' + nome + ' excluído');
-  showFeedback('🗑️ ' + nome + ' removido');
 }
 
 function trocarEstabelecimentoAtivo() {
@@ -2810,7 +2365,7 @@ function mostrarMiniCardapio() {
         <span><span>${thumb}</span><span>${escapeHtml(p.nome)}</span></span>
         <span style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
           <span style="color:#8df0b8;font-weight:bold;">${money(p.preco)}</span>
-          <button class="btn-add-mini" onclick="addPedido(${p.id}, 1); fecharMiniCardapio();" title="Adicionar à conta" aria-label="Adicionar ${escapeHtml(p.nome)}">+</button>
+          <button class="btn-add-mini" onclick="addPedido(${p.id}, 1); fecharMiniCardapio();" title="Adicionar à conta">+</button>
         </span>
       </div>`;
     }).join('');
@@ -2819,20 +2374,6 @@ function mostrarMiniCardapio() {
 }
 function fecharMiniCardapio() {
   document.getElementById('miniCardapioModal').style.display = 'none';
-}
-
-function toggleProdutoCampos() {
-  const extras = document.getElementById('produtoCamposExtras');
-  const btn = document.getElementById('btnToggleProdutoCampos');
-  if (!extras || !btn) return;
-  const oculto = extras.style.display === 'none';
-  if (oculto) {
-    extras.style.display = 'block';
-    btn.textContent = '🙈 Ocultar nome e preço';
-  } else {
-    extras.style.display = 'none';
-    btn.textContent = '👁 Mostrar nome e preço';
-  }
 }
 
 function extrairPalavraChaveImagem(nome) {
@@ -2892,8 +2433,7 @@ function baixarImagemComoDataURL(url, maxW = 400, maxH = 300, quality = 0.75) {
         h = Math.max(1, Math.round(h * ratio));
         const canvas = document.createElement('canvas');
         canvas.width = w; canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, w, h);
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
         done(canvas.toDataURL('image/jpeg', quality));
       } catch (e) { done(null); }
     };
@@ -2927,15 +2467,10 @@ function renderPreviewImagemProduto() {
   if (!container) return;
   const btnRemover = document.getElementById('btnRemoverImg');
   if (imagemProdutoTemp) {
-    container.innerHTML = `<img src="${imagemProdutoTemp}" alt="Imagem do produto">`;
+    container.innerHTML = `<img src="${imagemProdutoTemp}" alt="">`;
     if (btnRemover) btnRemover.style.display = 'inline-block';
   } else {
-    container.innerHTML = `
-      <div class="empty">
-        <div class="big">📷</div>
-        <div>Sem imagem</div>
-        <div class="small">Use 🔍 Buscar na internet, 🐙 Buscar no GitHub ou 📤 Enviar do dispositivo</div>
-      </div>`;
+    container.innerHTML = `<div class="empty"><div class="big">📷</div><div>Sem imagem</div><div class="small">Use 🔍 Buscar, 🐙 GitHub ou 📤 Enviar</div></div>`;
     if (btnRemover) btnRemover.style.display = 'none';
   }
 }
@@ -2945,27 +2480,18 @@ function setLoadingPreview(loading) {
   if (!c) return;
   if (loading) {
     c.classList.add('loading');
-    if (!c.querySelector('.spinner')) {
-      const sp = document.createElement('div');
-      sp.className = 'spinner';
-      c.appendChild(sp);
-    }
+    if (!c.querySelector('.spinner')) { const sp = document.createElement('div'); sp.className = 'spinner'; c.appendChild(sp); }
   } else {
     c.classList.remove('loading');
-    const sp = c.querySelector('.spinner');
-    if (sp) sp.remove();
+    const sp = c.querySelector('.spinner'); if (sp) sp.remove();
   }
 }
 
 async function buscarImagemManual() {
   const nome = $('produtoNome').value.trim();
-  if (!nome) {
-    showFeedback('⚠️ Informe o nome do produto primeiro.');
-    $('produtoNome').focus();
-    return;
-  }
+  if (!nome) { showFeedback('⚠️ Informe o nome primeiro.'); $('produtoNome').focus(); return; }
   setLoadingPreview(true);
-  showFeedback('🔍 Buscando imagem...');
+  showFeedback('🔍 Buscando...');
   const dataUrl = await buscarImagemAutomatica(nome);
   setLoadingPreview(false);
   if (dataUrl) {
@@ -2973,23 +2499,14 @@ async function buscarImagemManual() {
     renderPreviewImagemProduto();
     verificarAlteracoesProduto();
     showFeedback('✅ Imagem encontrada!');
-  } else {
-    showFeedback('❌ Nada encontrado. Envie uma imagem do dispositivo.');
-  }
+  } else showFeedback('❌ Nada encontrado.');
 }
 
 async function buscarImagemGitHubManual() {
   const nome = $('produtoNome').value.trim();
-  if (!nome) {
-    showFeedback('⚠️ Informe o nome do produto primeiro.');
-    $('produtoNome').focus();
-    return;
-  }
+  if (!nome) { showFeedback('⚠️ Informe o nome primeiro.'); $('produtoNome').focus(); return; }
   const repo = (data.githubRotulosRepo || '').trim();
-  if (!repo) {
-    showFeedback('⚠️ Configure um repositório em Configurações → Repositório de Rótulos.');
-    return;
-  }
+  if (!repo) { showFeedback('⚠️ Configure um repositório.'); return; }
   setLoadingPreview(true);
   showFeedback('🐙 Buscando no GitHub...');
   const dataUrl = await buscarImagemGitHubRotulos(nome, true);
@@ -2998,20 +2515,15 @@ async function buscarImagemGitHubManual() {
     imagemProdutoTemp = dataUrl;
     renderPreviewImagemProduto();
     verificarAlteracoesProduto();
-    showFeedback('✅ Imagem encontrada no GitHub!');
-    speak('Imagem encontrada no GitHub');
-  } else {
-    showFeedback('❌ Nada encontrado no GitHub. Verifique o nome do arquivo no repo.');
-  }
+    showFeedback('✅ Encontrada no GitHub!');
+    speak('Imagem encontrada');
+  } else showFeedback('❌ Nada no GitHub.');
 }
 
 function uploadImagemProduto(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
-  if (!file.type.startsWith('image/')) {
-    showFeedback('⚠️ Selecione um arquivo de imagem.');
-    return;
-  }
+  if (!file.type.startsWith('image/')) { showFeedback('⚠️ Selecione uma imagem.'); return; }
   const reader = new FileReader();
   reader.onload = async (e) => {
     setLoadingPreview(true);
@@ -3033,17 +2545,38 @@ function removerImagemProduto() {
   showFeedback('🗑️ Imagem removida.');
 }
 
+function mostrarBannerEdicao(mostrar, subtitulo) {
+  const banner = document.getElementById('editBanner');
+  const sub = document.getElementById('editBannerSub');
+  if (!banner) return;
+  if (mostrar) {
+    banner.style.display = 'flex';
+    if (sub) sub.textContent = subtitulo || '';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
 function rolarParaFormProduto() {
   setTimeout(() => {
-    try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch(e) { window.scrollTo(0, 0); }
-    const form = document.getElementById('formProduto');
-    if (form && form.scrollIntoView) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 80);
+    try {
+      const header = document.querySelector('header');
+      const headerH = header ? header.offsetHeight : 0;
+      const cardapio = document.getElementById('cardapio');
+      if (cardapio) {
+        const topo = cardapio.getBoundingClientRect().top + window.scrollY - headerH - 8;
+        window.scrollTo({ top: Math.max(0, topo), behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch(e) { window.scrollTo(0, 0); }
+  }, 100);
 }
 
 function mostrarFormProduto() {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Selecione um estabelecimento primeiro.'); return; }
+
   currentEditId = null;
   valoresOriginaisProduto = null;
   $('produtoNome').value = '';
@@ -3052,19 +2585,17 @@ function mostrarFormProduto() {
   renderPreviewImagemProduto();
   document.getElementById('formProdutoTitulo').textContent = '➕ Novo produto';
   document.getElementById('formProduto').style.display = 'block';
+  document.getElementById('formProduto').classList.remove('modo-edicao');
   document.getElementById('btnIncluirProduto').style.display = 'none';
-
-  const extras = document.getElementById('produtoCamposExtras');
-  const toggleWrap = document.getElementById('produtoToggleWrap');
-  if (extras) extras.style.display = 'block';
-  if (toggleWrap) toggleWrap.style.display = 'none';
+  document.getElementById('cardapio').classList.remove('editando');
+  mostrarBannerEdicao(false);
 
   const btn = document.getElementById('btnSalvarProduto');
   btn.disabled = false;
   btn.textContent = '➕ Cadastrar produto';
 
   rolarParaFormProduto();
-  setTimeout(() => { document.getElementById('produtoNome').focus(); }, 200);
+  setTimeout(() => document.getElementById('produtoNome').focus(), 200);
 }
 
 function fecharFormProduto(silencioso = false) {
@@ -3073,13 +2604,14 @@ function fecharFormProduto(silencioso = false) {
   imagemProdutoTemp = null;
   $('produtoNome').value = '';
   $('produtoPreco').value = '';
-  const form = document.getElementById('formProduto');
-  if (form) form.style.display = 'none';
 
-  const extras = document.getElementById('produtoCamposExtras');
-  const toggleWrap = document.getElementById('produtoToggleWrap');
-  if (extras) extras.style.display = 'block';
-  if (toggleWrap) toggleWrap.style.display = 'none';
+  const form = document.getElementById('formProduto');
+  if (form) { form.style.display = 'none'; form.classList.remove('modo-edicao'); }
+
+  document.getElementById('cardapio').classList.remove('editando');
+  const listaProdutos = document.getElementById('listaProdutos');
+  if (listaProdutos) listaProdutos.style.display = '';
+  mostrarBannerEdicao(false);
 
   renderPreviewImagemProduto();
   const estab = getEstabelecimentoAtivo();
@@ -3091,7 +2623,6 @@ function fecharFormProduto(silencioso = false) {
 function verificarAlteracoesProduto() {
   const btn = document.getElementById('btnSalvarProduto');
   if (!btn) return;
-
   if (currentEditId === null) {
     btn.disabled = false;
     btn.textContent = '➕ Cadastrar produto';
@@ -3103,18 +2634,9 @@ function verificarAlteracoesProduto() {
   const precoOrig = orig.preco !== undefined && orig.preco !== null ? String(orig.preco) : '';
   const imgAtual = imagemProdutoTemp || null;
   const imgOrig = orig.imagem || null;
-
-  const mudou = (nomeAtual !== (orig.nome || ''))
-             || (precoAtual !== precoOrig)
-             || (imgAtual !== imgOrig);
-
-  if (mudou) {
-    btn.disabled = false;
-    btn.textContent = '💾 Salvar alterações';
-  } else {
-    btn.disabled = true;
-    btn.textContent = '💾 Nenhuma alteração';
-  }
+  const mudou = (nomeAtual !== (orig.nome || '')) || (precoAtual !== precoOrig) || (imgAtual !== imgOrig);
+  if (mudou) { btn.disabled = false; btn.textContent = '💾 Salvar alterações'; }
+  else { btn.disabled = true; btn.textContent = '💾 Nenhuma alteração'; }
 }
 
 async function addProduto(nome, preco) {
@@ -3126,12 +2648,10 @@ async function addProduto(nome, preco) {
   if (!estab.produtos) estab.produtos = [];
 
   const nomeNorm = normalize(nome).trim();
-  const duplicado = estab.produtos.find(p =>
-    normalize(p.nome).trim() === nomeNorm && String(p.id) !== String(currentEditId)
-  );
+  const duplicado = estab.produtos.find(p => normalize(p.nome).trim() === nomeNorm && String(p.id) !== String(currentEditId));
   if (duplicado) {
     showFeedback('⚠️ Produto já existe: ' + duplicado.nome);
-    speak('Esse produto já existe no cardápio');
+    speak('Esse produto já existe');
     return;
   }
 
@@ -3143,8 +2663,8 @@ async function addProduto(nome, preco) {
       estab.produtos[index].nome = nome;
       estab.produtos[index].preco = Number(preco);
       estab.produtos[index].imagem = imgAtual || null;
-      speak('Produto atualizado com sucesso');
-      showFeedback('✏️ Produto atualizado: ' + nome + ' - ' + money(preco));
+      speak('Produto atualizado');
+      showFeedback('✏️ Atualizado: ' + nome + ' - ' + money(preco));
     }
     currentEditId = null;
     valoresOriginaisProduto = null;
@@ -3153,18 +2673,16 @@ async function addProduto(nome, preco) {
     const novo = { id: Date.now() + Math.random(), nome, preco: Number(preco), imagem: imgAtual || null };
     estab.produtos.push(novo);
     speak(nome + ' cadastrado por ' + money(preco));
-    showFeedback('✅ Produto cadastrado: ' + nome + ' - ' + money(preco));
+    showFeedback('✅ Cadastrado: ' + nome + ' - ' + money(preco));
     fecharFormProduto(true);
-
     if (!imgAtual) {
-      showFeedback('🖼️ Produto salvo. Buscando imagem...');
+      showFeedback('🖼️ Buscando imagem...');
       buscarImagemAutomatica(nome).then((img) => {
         if (img) {
           const prod = estab.produtos.find(p => p.id === novo.id);
           if (prod && !prod.imagem) {
             prod.imagem = img;
-            save();
-            renderAll();
+            save(); renderAll();
             showFeedback('🖼️ Imagem adicionada: ' + nome);
           }
         }
@@ -3175,51 +2693,103 @@ async function addProduto(nome, preco) {
   save(); renderAll();
 }
 
+/* ============================================================
+   EDITAR PRODUTO — mostra campos no topo, esconde lista, banner
+   ============================================================ */
 function editProduto(id) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
   const p = estab.produtos.find(x => x.id === id);
   if (!p) return;
+
   currentEditId = id;
-  valoresOriginaisProduto = {
-    nome: p.nome || '',
-    preco: p.preco,
-    imagem: p.imagem || null
-  };
+  valoresOriginaisProduto = { nome: p.nome || '', preco: p.preco, imagem: p.imagem || null };
+
+  // Preenche campos — NOME e PREÇO VISÍVEIS
   $('produtoNome').value = p.nome;
   $('produtoPreco').value = p.preco;
   imagemProdutoTemp = p.imagem || null;
   renderPreviewImagemProduto();
+
   document.getElementById('formProdutoTitulo').textContent = '✏️ Editando produto';
-  document.getElementById('formProduto').style.display = 'block';
+  const form = document.getElementById('formProduto');
+  form.style.display = 'block';
+  form.classList.add('modo-edicao');
+
+  // Esconde a lista e destaca o modo foco
+  document.getElementById('cardapio').classList.add('editando');
+  const listaProdutos = document.getElementById('listaProdutos');
+  if (listaProdutos) listaProdutos.style.display = 'none';
   document.getElementById('btnIncluirProduto').style.display = 'none';
 
-  const extras = document.getElementById('produtoCamposExtras');
-  const toggleWrap = document.getElementById('produtoToggleWrap');
-  const toggleBtn = document.getElementById('btnToggleProdutoCampos');
-  if (extras) extras.style.display = 'none';
-  if (toggleWrap) toggleWrap.style.display = 'block';
-  if (toggleBtn) toggleBtn.textContent = '👁 Mostrar nome e preço';
+  // Banner com nome do produto sendo editado
+  mostrarBannerEdicao(true, '📝 ' + p.nome + '  •  ' + money(p.preco));
 
+  // Vai para a aba cardápio e rola para o topo (após o header)
   showScreen('cardapio');
   verificarAlteracoesProduto();
   showFeedback('✏️ Editando: ' + p.nome);
   rolarParaFormProduto();
+  setTimeout(() => { try { document.getElementById('produtoNome').focus(); } catch(e){} }, 300);
 }
 
+/* ============================================================
+   EXCLUIR PRODUTO COM VERIFICAÇÃO DE MOVIMENTAÇÕES
+   ============================================================ */
 async function deleteProduto(id) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
   const p = estab.produtos.find(x => x.id === id);
   if (!p) return;
-  const ok = await confirmar(`Excluir o produto "${p.nome}"?`, {
-    icone: '🗑️', titulo: 'Excluir produto', textoSim: 'Excluir', textoNao: 'Cancelar'
-  });
-  if (!ok) return;
+
+  const pedidoVinculado = data.pedido.filter(item =>
+    item.produtoId == id && item.estabId === data.estabelecimentoAtivoId
+  );
+  const qtdPedidoVinc = pedidoVinculado.reduce((s, i) => s + (i.qtd || 0), 0);
+
+  const historicoVinculado = data.historico.filter(h =>
+    (h.itens || []).some(it =>
+      (it.produtoId != null && it.produtoId == id && it.estabId === data.estabelecimentoAtivoId) ||
+      (it.produtoId == null && normalize(it.nome) === normalize(p.nome) && h.estabelecimento === estab.nome)
+    )
+  );
+  const totalHist = historicoVinculado.length;
+
+  if (pedidoVinculado.length > 0 || totalHist > 0) {
+    let detalhes = '';
+    if (qtdPedidoVinc > 0) detalhes += `• ${qtdPedidoVinc} unidade(s) na conta atual\n`;
+    if (totalHist > 0) detalhes += `• ${totalHist} conta(s) no histórico\n`;
+
+    const ok = await confirmar(
+      `O produto "${p.nome}" possui movimentações:\n\n${detalhes}\nPara excluir, TODOS os movimentos vinculados serão removidos também (tudo ou nada).\n\nDeseja continuar?`,
+      { icone: '⚠️', titulo: 'Produto com movimentações', textoSim: 'Excluir tudo', textoNao: 'Cancelar' }
+    );
+    if (!ok) return;
+
+    data.pedido = data.pedido.filter(item =>
+      !(item.produtoId == id && item.estabId === data.estabelecimentoAtivoId)
+    );
+    data.historico = data.historico.filter(h =>
+      !(h.itens || []).some(it =>
+        (it.produtoId != null && it.produtoId == id && it.estabId === data.estabelecimentoAtivoId) ||
+        (it.produtoId == null && normalize(it.nome) === normalize(p.nome) && h.estabelecimento === estab.nome)
+      )
+    );
+    speak('Produto e movimentações excluídos');
+    showFeedback('🗑️ Tudo excluído');
+  } else {
+    const ok = await confirmar(
+      `Excluir o produto "${p.nome}"?`,
+      { icone: '🗑️', titulo: 'Excluir produto', textoSim: 'Excluir', textoNao: 'Cancelar' }
+    );
+    if (!ok) return;
+    speak('Produto ' + p.nome + ' excluído');
+    showFeedback('🗑️ ' + p.nome + ' removido');
+  }
+
   estab.produtos = estab.produtos.filter(x => x.id !== id);
   if (currentEditId === id) fecharFormProduto(true);
   save(); renderAll();
-  showFeedback('🗑️ Produto excluído: ' + p.nome);
 }
 
 function addPedido(produtoId, qtd) {
@@ -3236,7 +2806,7 @@ function addPedido(produtoId, qtd) {
     qtd = el ? Number(el.value) : 1;
   }
   const p = estab.produtos.find(x => x.id == produtoId);
-  if (!p) { showFeedback('⚠️ Produto não encontrado no cardápio atual.'); return; }
+  if (!p) { showFeedback('⚠️ Produto não encontrado.'); return; }
   qtd = Math.max(1, Number(qtd) || 1);
   let item = data.pedido.find(x => x.produtoId == p.id && x.estabId === data.estabelecimentoAtivoId);
   if (item) item.qtd += qtd;
@@ -3253,26 +2823,17 @@ function removePedido(i) {
   save(); renderAll();
   if (item) showFeedback('🗑 Removido: ' + item.nome);
 }
-function subtotal() {
-  return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0);
-}
-function saveGorjetaConfig() {
-  data.gorjetaConfig = Number($('gorjeta').value || 0);
-  save();
-}
+function subtotal() { return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0); }
+function saveGorjetaConfig() { data.gorjetaConfig = Number($('gorjeta').value || 0); save(); }
 
 function calcularTotaisConta() {
   const sub = subtotal();
   const perc = Number($('gorjeta').value || 0);
   const gor = sub * perc / 100;
   const total = sub + gor;
-
-  const elSub = document.getElementById('contaSubtotal');
-  if (elSub) elSub.textContent = money(sub);
-  const elGor = document.getElementById('contaGorjeta');
-  if (elGor) elGor.textContent = money(gor);
-  const elTot = document.getElementById('contaTotal');
-  if (elTot) elTot.textContent = money(total);
+  const elSub = document.getElementById('contaSubtotal'); if (elSub) elSub.textContent = money(sub);
+  const elGor = document.getElementById('contaGorjeta'); if (elGor) elGor.textContent = money(gor);
+  const elTot = document.getElementById('contaTotal'); if (elTot) elTot.textContent = money(total);
 }
 
 function toggleContaExtras() {
@@ -3280,25 +2841,14 @@ function toggleContaExtras() {
   const btn = document.getElementById('btnContaExtras');
   if (!wrapper || !btn) return;
   const aberto = wrapper.style.display === 'block';
-  if (aberto) {
-    wrapper.style.display = 'none';
-    btn.textContent = '✏️ Editar gorjeta';
-  } else {
-    wrapper.style.display = 'block';
-    btn.textContent = '✔ Fechar edição';
-  }
+  wrapper.style.display = aberto ? 'none' : 'block';
+  btn.textContent = aberto ? '✏️ Editar gorjeta' : '✔ Fechar edição';
 }
 
 async function confirmarFechamento() {
-  if (!data.contaAtiva) {
-    speak('Não há conta aberta para fechar.');
-    showFeedback('⚠️ Nenhuma conta aberta');
-    return;
-  }
+  if (!data.contaAtiva) { speak('Não há conta aberta.'); showFeedback('⚠️ Nenhuma conta aberta'); return; }
   if (!data.pedido.length) {
-    const ok = await confirmar('A conta está vazia (sem itens). Deseja fechá-la mesmo assim?', {
-      icone: '⚠️', titulo: 'Conta vazia', textoSim: 'Fechar', textoNao: 'Cancelar'
-    });
+    const ok = await confirmar('A conta está vazia. Deseja fechá-la?', { icone: '⚠️', titulo: 'Conta vazia', textoSim: 'Fechar', textoNao: 'Cancelar' });
     if (ok) fecharContaVazia();
     return;
   }
@@ -3308,11 +2858,7 @@ async function confirmarFechamento() {
   const perc = Number($('gorjeta').value || 0);
   const gor = sub * perc / 100;
   const total = sub + gor;
-  contaFechada = {
-    estab, sub, gor, perc, total,
-    itens: JSON.parse(JSON.stringify(data.pedido)),
-    cliente: getNomeCliente()
-  };
+  contaFechada = { estab, sub, gor, perc, total, itens: JSON.parse(JSON.stringify(data.pedido)), cliente: getNomeCliente() };
   const modal = document.getElementById('paymentModal');
   document.getElementById('paymentResumo').innerHTML = `
     <p><b>Estabelecimento:</b> ${estab.nome}</p>
@@ -3320,7 +2866,7 @@ async function confirmarFechamento() {
     <p><b>Subtotal:</b> ${money(sub)}</p>
     <p><b>Gorjeta (${perc}%):</b> ${money(gor)}</p>
     <p><b>TOTAL:</b> <span style="color:#79e9aa;font-weight:bold;">${money(total)}</span></p>
-    <p class="note" style="margin-top:10px;">Escolha a forma de pagamento abaixo ⬇️</p>
+    <p class="note" style="margin-top:10px;">Escolha a forma de pagamento ⬇️</p>
   `;
   document.getElementById('pixDetalhes').style.display = 'none';
   modal.classList.add('active');
@@ -3333,10 +2879,8 @@ function fecharContaVazia() {
   if (!estab) return;
   const conta = {
     id: Date.now(), data: new Date().toLocaleString('pt-BR'),
-    estabelecimento: estab.nome,
-    cliente: getNomeCliente(),
-    itens: [], subtotal: 0,
-    gorjeta: 0, percentual: 0, total: 0,
+    estabelecimento: estab.nome, cliente: getNomeCliente(),
+    itens: [], subtotal: 0, gorjeta: 0, percentual: 0, total: 0,
     metodoPagamento: 'Sem itens'
   };
   data.historico.unshift(conta);
@@ -3351,7 +2895,7 @@ function fecharPaymentModal() {
   const container = document.getElementById('qrcode');
   while (container.firstChild) container.removeChild(container.firstChild);
   if (qrCodeInstance) qrCodeInstance = null;
-  if (callbackAposFechar) { callbackAposFechar = null; }
+  if (callbackAposFechar) callbackAposFechar = null;
   contaFechada = null;
   abrindoBanco = false;
   metodoPagamento = null;
@@ -3369,9 +2913,7 @@ function pagarPix() {
   modal.style.display = 'block';
   const user = data.usuario;
   let temLink = false;
-  if (user && user.bancos && user.bancos.length > 0) {
-    temLink = user.bancos.some(b => b.link && b.link.trim() !== '');
-  }
+  if (user && user.bancos && user.bancos.length > 0) temLink = user.bancos.some(b => b.link && b.link.trim() !== '');
   document.getElementById('btnAbrirBanco').style.display = temLink ? 'inline-block' : 'none';
 }
 function gerarPayloadPIX(estab, valor) {
@@ -3380,10 +2922,8 @@ function gerarPayloadPIX(estab, valor) {
   const chave = estab.pix;
   const gui = campo('00', 'br.gov.bcb.pix'.length, 'br.gov.bcb.pix');
   const chaveField = campo('01', chave.length, chave);
-  let mai = gui + chaveField;
-  const merchant = campo('26', mai.length, mai);
-  const txid = '***';
-  const txidField = campo('05', txid.length, txid);
+  const merchant = campo('26', (gui + chaveField).length, gui + chaveField);
+  const txidField = campo('05', 3, '***');
   const additional = campo('62', txidField.length, txidField);
   let payload = '';
   payload += campo('00', 2, '01');
@@ -3391,10 +2931,7 @@ function gerarPayloadPIX(estab, valor) {
   payload += merchant;
   payload += campo('52', 4, '0000');
   payload += campo('53', 3, '986');
-  if (valor > 0) {
-    const valorStr = valor.toFixed(2);
-    payload += campo('54', valorStr.length, valorStr);
-  }
+  if (valor > 0) { const vs = valor.toFixed(2); payload += campo('54', vs.length, vs); }
   payload += campo('58', 2, 'BR');
   payload += campo('59', nome.length, nome);
   payload += campo('60', cidade.length, cidade);
@@ -3402,59 +2939,35 @@ function gerarPayloadPIX(estab, valor) {
   const semCRC = payload + '6304';
   return semCRC + crc16(semCRC);
 }
-function campo(id, tamanho, valor) {
-  const s = String(valor);
-  return id + String(s.length).padStart(2, '0') + s;
-}
+function campo(id, tamanho, valor) { return id + String(String(valor).length).padStart(2, '0') + String(valor); }
 function crc16(str) {
   let crc = 0xFFFF;
   for (let i = 0; i < str.length; i++) {
     crc ^= str.charCodeAt(i) << 8;
-    for (let j = 0; j < 8; j++) {
-      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
-    }
+    for (let j = 0; j < 8; j++) crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
   }
   return crc.toString(16).toUpperCase().padStart(4, '0');
 }
-function limparTexto(s, max) {
-  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9 .\\-]/g,'').toUpperCase().trim().slice(0,max);
-}
+function limparTexto(s, max) { return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9 .\\-]/g,'').toUpperCase().trim().slice(0,max); }
 function gerarQRCode(texto) {
   const container = document.getElementById('qrcode');
   while (container.firstChild) container.removeChild(container.firstChild);
   if (qrCodeInstance) qrCodeInstance = null;
   if (typeof QRCode !== 'undefined' && QRCode) {
     try {
-      qrCodeInstance = new QRCode(container, {
-        text: texto, width: 280, height: 280,
-        colorDark: "#10131a", colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-      });
+      qrCodeInstance = new QRCode(container, { text: texto, width: 280, height: 280, colorDark: "#10131a", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
       const canvas = container.querySelector('canvas');
-      if (canvas) {
-        canvas.style.display = 'block';
-        canvas.style.margin = '0 auto';
-        canvas.style.borderRadius = '4px';
-        canvas.style.maxWidth = '100%';
-        canvas.style.height = 'auto';
-      }
-      const imgs = container.querySelectorAll('img');
-      imgs.forEach(img => img.remove());
-    } catch (e) {
-      container.innerHTML = '<p class="note">Erro ao gerar QR Code.</p>';
-    }
-  } else {
-    container.innerHTML = '<p class="note">Biblioteca QR Code não carregada.</p>';
-  }
+      if (canvas) { canvas.style.display = 'block'; canvas.style.margin = '0 auto'; canvas.style.maxWidth = '100%'; canvas.style.height = 'auto'; }
+      container.querySelectorAll('img').forEach(img => img.remove());
+    } catch (e) { container.innerHTML = '<p class="note">Erro ao gerar QR Code.</p>'; }
+  } else container.innerHTML = '<p class="note">QR Code não carregado.</p>';
 }
 function copiarPix() {
   const code = document.getElementById('pixCode').textContent;
   if (!code) return;
   if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(code).then(() => {
-      showFeedback('📋 Código PIX copiado!');
-    }).catch(() => { copiarPixFallback(code); });
-  } else { copiarPixFallback(code); }
+    navigator.clipboard.writeText(code).then(() => showFeedback('📋 Copiado!')).catch(() => copiarPixFallback(code));
+  } else copiarPixFallback(code);
 }
 function copiarPixFallback(code) {
   const ta = document.createElement('textarea');
@@ -3466,31 +2979,19 @@ function copiarPixFallback(code) {
 }
 function abrirBanco() {
   const user = data.usuario;
-  if (!user || !user.bancos || user.bancos.length === 0) {
-    showFeedback('⚠ Nenhum banco cadastrado.');
-    return;
-  }
-  let bancoSelecionado = null;
-  if (user.bancoAtivoId) {
-    bancoSelecionado = user.bancos.find(b => b.id === user.bancoAtivoId);
-  }
-  if (!bancoSelecionado) bancoSelecionado = user.bancos[0];
-  if (!bancoSelecionado.link || bancoSelecionado.link.trim() === '') {
-    showFeedback('⚠️ O banco selecionado não possui link.');
-    return;
-  }
+  if (!user || !user.bancos || user.bancos.length === 0) { showFeedback('⚠ Nenhum banco cadastrado.'); return; }
+  let bancoSel = null;
+  if (user.bancoAtivoId) bancoSel = user.bancos.find(b => b.id === user.bancoAtivoId);
+  if (!bancoSel) bancoSel = user.bancos[0];
+  if (!bancoSel.link || bancoSel.link.trim() === '') { showFeedback('⚠️ Banco sem link.'); return; }
   if (abrindoBanco) { showFeedback('⏳ Aguarde...'); return; }
   abrindoBanco = true;
-  const link = bancoSelecionado.link;
   try {
-    const win = window.open(link, '_blank');
-    if (!win) window.location.href = link;
-    showFeedback('🏦 Abrindo app do banco...');
+    const win = window.open(bancoSel.link, '_blank');
+    if (!win) window.location.href = bancoSel.link;
+    showFeedback('🏦 Abrindo...');
     setTimeout(() => { abrindoBanco = false; }, 5000);
-  } catch (e) {
-    abrindoBanco = false;
-    showFeedback('⚠ Não foi possível abrir o app do banco.');
-  }
+  } catch (e) { abrindoBanco = false; showFeedback('⚠ Não foi possível abrir.'); }
 }
 
 function finalizarPagamento() {
@@ -3521,45 +3022,74 @@ function finalizarPagamento() {
 async function pagarDinheiro() {
   if (!contaFechada) return;
   metodoPagamento = 'Dinheiro';
-  const ok = await confirmar(`Confirmar pagamento em DINHEIRO no valor de ${money(contaFechada.total)}?`, {
-    icone: '💰', titulo: 'Pagamento em dinheiro', textoSim: 'Confirmar', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar(`Confirmar pagamento em DINHEIRO de ${money(contaFechada.total)}?`, { icone: '💰', titulo: 'Pagamento em dinheiro', textoSim: 'Confirmar', textoNao: 'Cancelar' });
   if (ok) finalizarPagamento();
 }
 async function pagarCartao() {
   if (!contaFechada) return;
   metodoPagamento = 'Cartão';
-  const ok = await confirmar(`Confirmar pagamento em CARTÃO no valor de ${money(contaFechada.total)}?`, {
-    icone: '💳', titulo: 'Pagamento em cartão', textoSim: 'Confirmar', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar(`Confirmar pagamento em CARTÃO de ${money(contaFechada.total)}?`, { icone: '💳', titulo: 'Pagamento em cartão', textoSim: 'Confirmar', textoNao: 'Cancelar' });
   if (ok) finalizarPagamento();
+}
+
+/* ============================================================
+   SOLICITAR CADASTRO AO ABRIR CONTA
+   ============================================================ */
+async function solicitarCadastroUsuario(motivo) {
+  const ok = await confirmar(
+    motivo + '\n\nDeseja cadastrar um usuário agora?',
+    { icone: '👤', titulo: 'Usuário não cadastrado', textoSim: 'Cadastrar', textoNao: 'Cancelar' }
+  );
+  if (!ok) return false;
+
+  showScreen('usuario');
+  const wrapper = document.getElementById('usuarioFormWrapper');
+  const btn = document.getElementById('btnToggleUsuarioForm');
+  if (wrapper && wrapper.style.display !== 'block') {
+    wrapper.style.display = 'block';
+    if (btn) btn.textContent = '✔ Fechar edição';
+  }
+  setTimeout(() => {
+    try { document.getElementById('userNome').focus(); } catch(e){}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, 300);
+  showFeedback('👤 Preencha o campo Nome e os dados');
+  speak('Por favor, cadastre seu nome');
+  return false;
 }
 
 async function abrirContaManual() {
   const estabAtivo = getEstabelecimentoAtivo();
+
+  if (!usuarioCadastrado()) {
+    await solicitarCadastroUsuario('Para abrir uma conta, é necessário ter um usuário cadastrado.');
+    return;
+  }
+
   if (!estabAtivo) {
     showFeedback('🏢 Selecione ou crie um estabelecimento primeiro.');
     showScreen('estabelecimentos');
     return;
   }
+
   if (data.contaAtiva) {
-    const ok = await confirmar('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?', {
-      icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar'
-    });
+    const ok = await confirmar('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar' });
     if (ok) {
       callbackAposFechar = function() { abrirNovaConta(null); };
       showScreen('conta');
       setTimeout(confirmarFechamento, 300);
-    } else {
-      showScreen('conta');
-    }
-  } else { abrirNovaConta(null); }
+    } else showScreen('conta');
+  } else abrirNovaConta(null);
 }
+
 async function abrirNovaConta(nomeEstab) {
+  if (!usuarioCadastrado()) {
+    await solicitarCadastroUsuario('Para abrir uma conta, é necessário ter um usuário cadastrado.');
+    return;
+  }
+
   if (data.contaAtiva) {
-    const ok = await confirmar('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?', {
-      icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar'
-    });
+    const ok = await confirmar('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar' });
     if (ok) {
       callbackAposFechar = function() { abrirNovaConta(nomeEstab); };
       showScreen('conta');
@@ -3567,6 +3097,7 @@ async function abrirNovaConta(nomeEstab) {
     }
     return;
   }
+
   let estabAtivo = getEstabelecimentoAtivo();
   if (!estabAtivo) {
     if (nomeEstab) {
@@ -3591,19 +3122,15 @@ async function abrirNovaConta(nomeEstab) {
 }
 
 async function excluirContaHistorico(id) {
-  const ok = await confirmar('Tem certeza que deseja excluir esta conta do histórico?', {
-    icone: '🗑️', titulo: 'Excluir conta', textoSim: 'Excluir', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar('Excluir esta conta do histórico?', { icone: '🗑️', titulo: 'Excluir conta', textoSim: 'Excluir', textoNao: 'Cancelar' });
   if (!ok) return;
   data.historico = data.historico.filter(item => item.id !== id);
   save(); renderHistorico();
-  speak('Conta removida do histórico');
+  speak('Conta removida');
   showFeedback('🗑️ Conta removida');
 }
 async function limparHistorico() {
-  const ok = await confirmar('Limpar TODO o histórico? Esta ação não pode ser desfeita.', {
-    icone: '⚠️', titulo: 'Limpar histórico', textoSim: 'Limpar', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar('Limpar TODO o histórico?', { icone: '⚠️', titulo: 'Limpar histórico', textoSim: 'Limpar', textoNao: 'Cancelar' });
   if (!ok) return;
   data.historico = [];
   save(); renderHistorico();
@@ -3653,10 +3180,9 @@ function renderCardapio() {
   }
 
   if (nomeSpan) nomeSpan.textContent = '— ' + estab.nome;
-
   const prods = estab.produtos || [];
 
-  if (btnIncluir) {
+  if (btnIncluir && !currentEditId) {
     const formAberto = form && form.style.display === 'block';
     btnIncluir.style.display = formAberto ? 'none' : 'inline-block';
   }
@@ -3666,7 +3192,7 @@ function renderCardapio() {
     lista.innerHTML = prods.length ? prods.map(p => {
       const thumb = p.imagem
         ? `<img src="${p.imagem}" class="produto-thumb" alt="${escapeHtml(p.nome)}" onclick="editProduto(${p.id})" title="Clique para editar" style="cursor:pointer;">`
-        : `<div class="produto-thumb-placeholder" onclick="editProduto(${p.id})" title="Clique para editar e escolher imagem" style="cursor:pointer;">${getEmojiProduto(p.nome)}</div>`;
+        : `<div class="produto-thumb-placeholder" onclick="editProduto(${p.id})" title="Clique para editar" style="cursor:pointer;">${getEmojiProduto(p.nome)}</div>`;
       return `<div class="list-item with-thumb">
         ${thumb}
         <div class="info">
@@ -3678,13 +3204,7 @@ function renderCardapio() {
           <button class="danger small" onclick="deleteProduto(${p.id})">🗑</button>
         </div>
       </div>`;
-    }).join('') : '<div class="empty">Nenhum produto cadastrado ainda.<br>Clique em <b>➕ Incluir novo produto</b> para começar.</div>';
-  }
-
-  const pedSelect = document.getElementById('pedidoProduto');
-  if (pedSelect) {
-    pedSelect.innerHTML = prods.map(p => `<option value="${p.id}">${escapeHtml(p.nome)} — ${money(p.preco)}</option>`).join('');
-    if (!prods.length) pedSelect.innerHTML = '<option value="">Nenhum produto no cardápio</option>';
+    }).join('') : '<div class="empty">Nenhum produto cadastrado ainda.<br>Clique em <b>➕ Incluir novo produto</b>.</div>';
   }
 }
 
@@ -3707,18 +3227,15 @@ function renderConta() {
 
   const contaItensDiv = document.getElementById('contaItens');
   if (data.pedido.length === 0) {
-    contaItensDiv.innerHTML = '<div class="empty">Nenhum item consumido na conta.<br>Toque em <b>📋 Ver cardápio</b> para adicionar.</div>';
+    contaItensDiv.innerHTML = '<div class="empty">Nenhum item consumido.<br>Toque em <b>📋 Ver cardápio</b>.</div>';
   } else {
     contaItensDiv.innerHTML = `<table><tr><th>Produto</th><th>Qtd.</th><th>Total</th><th></th></tr>${
-      data.pedido.map((x, i) =>
-        `<tr><td>${escapeHtml(x.nome)}</td><td>${x.qtd}</td><td>${money(x.preco * x.qtd)}</td><td><button class="danger small" onclick="removePedido(${i})">×</button></td></tr>`
-      ).join('')
+      data.pedido.map((x, i) => `<tr><td>${escapeHtml(x.nome)}</td><td>${x.qtd}</td><td>${money(x.preco * x.qtd)}</td><td><button class="danger small" onclick="removePedido(${i})">×</button></td></tr>`).join('')
     }</table>`;
   }
 
   const sub = subtotal();
   document.getElementById('homeSubtotal').textContent = money(sub);
-
   const totalItems = data.pedido.reduce((s, x) => s + x.qtd, 0);
   document.getElementById('homeItems').textContent = totalItems ? totalItems + ' item(ns) na conta.' : 'Nenhum item na conta.';
   document.getElementById('homeEstabAtivo').textContent = estab ? estab.nome : 'Nenhum';
@@ -3730,7 +3247,7 @@ function renderConta() {
   const e = estab || {};
   document.getElementById('pixInfo').innerHTML = e.nome ?
     `<b>${escapeHtml(e.nome)}</b><br>${escapeHtml(e.endereco || '')}<br><br><b>Chave PIX:</b><br>${escapeHtml(e.pix || 'Não informada')}` :
-    'Selecione um estabelecimento para ver os dados PIX.';
+    'Selecione um estabelecimento.';
 }
 
 function onChangeHistPeriodo() {
@@ -3760,8 +3277,7 @@ function renderHistorico() {
 
   const modoPeriodo = $('histPeriodo').value;
   const agora = new Date();
-  let dataInicioFilter = null;
-  let dataFimFilter = null;
+  let dataInicioFilter = null, dataFimFilter = null;
 
   if (modoPeriodo === 'mes') {
     dataInicioFilter = new Date(agora.getFullYear(), agora.getMonth(), 1, 0, 0, 0);
@@ -3772,52 +3288,42 @@ function renderHistorico() {
   } else if (modoPeriodo === 'personalizado') {
     const iniVal = $('histDataInicio').value;
     const fimVal = $('histDataFim').value;
-    if (iniVal) {
-      const [y, m, d] = iniVal.split('-');
-      dataInicioFilter = new Date(y, m - 1, d, 0, 0, 0);
-    }
-    if (fimVal) {
-      const [y, m, d] = fimVal.split('-');
-      dataFimFilter = new Date(y, m - 1, d, 23, 59, 59);
-    }
+    if (iniVal) { const [y, m, d] = iniVal.split('-'); dataInicioFilter = new Date(y, m - 1, d, 0, 0, 0); }
+    if (fimVal) { const [y, m, d] = fimVal.split('-'); dataFimFilter = new Date(y, m - 1, d, 23, 59, 59); }
   }
 
-  const historicoFiltrado = data.historico.filter(h => {
+  const hist = data.historico.filter(h => {
     const dt = parseDataConta(h.data, h.id);
     if (dataInicioFilter && dt < dataInicioFilter) return false;
     if (dataFimFilter && dt > dataFimFilter) return false;
     return true;
   });
 
-  if (historicoFiltrado.length === 0) {
-    lista.innerHTML = '<div class="empty">Nenhuma conta encontrada para o período selecionado.</div>';
-    document.getElementById('totalGeralHistorico').textContent = '💰 Total geral do período: ' + money(0);
+  if (hist.length === 0) {
+    lista.innerHTML = '<div class="empty">Nenhuma conta no período.</div>';
+    document.getElementById('totalGeralHistorico').textContent = '💰 Total: ' + money(0);
     return;
   }
 
   const estiloMP = {
-    'PIX':      { icone: '📱', cor: '#4fc3f7', bg: 'rgba(79,195,247,0.15)' },
+    'PIX': { icone: '📱', cor: '#4fc3f7', bg: 'rgba(79,195,247,0.15)' },
     'Dinheiro': { icone: '💰', cor: '#79e9aa', bg: 'rgba(121,233,170,0.15)' },
-    'Cartão':   { icone: '💳', cor: '#ffb74d', bg: 'rgba(255,183,77,0.15)' },
-    'Sem itens':{ icone: '📭', cor: '#aeb8c8', bg: 'rgba(174,184,200,0.12)' },
+    'Cartão': { icone: '💳', cor: '#ffb74d', bg: 'rgba(255,183,77,0.15)' },
+    'Sem itens': { icone: '📭', cor: '#aeb8c8', bg: 'rgba(174,184,200,0.12)' },
     'Não informado': { icone: '❓', cor: '#aeb8c8', bg: 'rgba(174,184,200,0.12)' }
   };
 
   function criarCardConta(h) {
     const mp = h.metodoPagamento || 'Não informado';
     const est = estiloMP[mp] || estiloMP['Não informado'];
-
-    return `<div class="card historico-item" style="margin-bottom:12px;border-left:4px solid ${est.cor};cursor:pointer;transition:transform .15s;" onclick="abrirRecibo(${h.id})" title="Toque para ver o recibo">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+    return `<div class="card historico-item" style="margin-bottom:12px;border-left:4px solid ${est.cor};cursor:pointer;" onclick="abrirRecibo(${h.id})">
+      <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
         <div style="flex:1;min-width:200px;">
           <b>${escapeHtml(h.data)}</b><br>
-          <span class="note">Estabelecimento: ${escapeHtml(h.estabelecimento)} | Cliente: ${escapeHtml(h.cliente || 'Não informado')}</span><br>
-          <span style="display:inline-block;margin:6px 0;padding:4px 10px;border-radius:20px;background:${est.bg};color:${est.cor};font-size:13px;font-weight:bold;">
-            ${est.icone} ${mp}
-          </span><br>
+          <span class="note">${escapeHtml(h.estabelecimento)} | Cliente: ${escapeHtml(h.cliente || '—')}</span><br>
+          <span style="display:inline-block;margin:6px 0;padding:4px 10px;border-radius:20px;background:${est.bg};color:${est.cor};font-size:13px;font-weight:bold;">${est.icone} ${mp}</span><br>
           <span class="note">${(h.itens || []).map(x => `${x.qtd}×${escapeHtml(x.nome)}`).join(', ') || 'Sem itens'}</span><br>
           <b>Total: ${money(h.total)}</b>
-          <span class="note" style="margin-left:8px;color:#79e9aa;">🧾 toque para ver o recibo</span>
         </div>
         <div class="actions" onclick="event.stopPropagation();">
           <button class="danger small" onclick="excluirContaHistorico(${h.id})">🗑 Excluir</button>
@@ -3831,36 +3337,26 @@ function renderHistorico() {
 
   if (modoOrdem === 'data') {
     let html = '';
-    historicoFiltrado.forEach(h => {
-      totalGeral += h.total || 0;
-      html += criarCardConta(h);
-    });
+    hist.forEach(h => { totalGeral += h.total || 0; html += criarCardConta(h); });
     lista.innerHTML = html;
   } else {
     const grupos = {};
-    historicoFiltrado.forEach(h => {
+    hist.forEach(h => {
       totalGeral += h.total || 0;
       const nomeEstab = h.estabelecimento || 'Não informado';
       if (!grupos[nomeEstab]) grupos[nomeEstab] = { itens: [], subtotal: 0 };
       grupos[nomeEstab].itens.push(h);
       grupos[nomeEstab].subtotal += (h.total || 0);
     });
-
     let html = '';
     Object.keys(grupos).sort().forEach(nomeEstab => {
       const g = grupos[nomeEstab];
-      html += `<div class="estab-group-header">
-        <h3 style="margin:0; font-size:16px;">🏢 ${escapeHtml(nomeEstab)}</h3>
-        <span class="money" style="font-size:16px;">Subtotal: ${money(g.subtotal)}</span>
-      </div>`;
-      g.itens.forEach(h => {
-        html += criarCardConta(h);
-      });
+      html += `<div class="estab-group-header"><h3 style="margin:0;font-size:16px;">🏢 ${escapeHtml(nomeEstab)}</h3><span class="money" style="font-size:16px;">Subtotal: ${money(g.subtotal)}</span></div>`;
+      g.itens.forEach(h => { html += criarCardConta(h); });
     });
     lista.innerHTML = html;
   }
-
-  document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral de gastos no período: ${money(totalGeral)}`;
+  document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral: ${money(totalGeral)}`;
 }
 
 function renderAll() {
@@ -3887,9 +3383,7 @@ function renderAll() {
 
   const pref = data.voicePreference || 'default';
   document.getElementById('voiceSelect').value = pref;
-  if (window.speechSynthesis && speechSynthesis.getVoices().length > 0) {
-    selectVoiceByPreference(pref);
-  }
+  if (window.speechSynthesis && speechSynthesis.getVoices().length > 0) selectVoiceByPreference(pref);
   if (typeof atualizarIconeVoz === 'function') atualizarIconeVoz();
   atualizarStatusGithubRepo();
 }
@@ -3922,20 +3416,13 @@ function fecharRecibo() {
   document.getElementById('reciboModal').classList.remove('active');
   contaReciboAtual = null;
 }
-
 function renderRecibo(h) {
   const perc = h.percentual || 0;
   const itensHTML = (h.itens && h.itens.length)
-    ? h.itens.map(it => `
-        <div class="recibo-item">
-          <span class="qtd">${it.qtd}×</span>
-          <span class="nome">${escapeHtml(it.nome)}</span>
-          <span class="preco">${money(it.qtd * it.preco)}</span>
-        </div>`).join('')
-    : '<div class="note" style="text-align:center; padding:6px;">Sem itens</div>';
-
+    ? h.itens.map(it => `<div class="recibo-item"><span class="qtd">${it.qtd}×</span><span class="nome">${escapeHtml(it.nome)}</span><span class="preco">${money(it.qtd * it.preco)}</span></div>`).join('')
+    : '<div class="note" style="text-align:center;padding:6px;">Sem itens</div>';
   document.getElementById('reciboBody').innerHTML = `
-    <h2 style="margin-top:0; text-align:center; color:#79e9aa;">🧾 Recibo</h2>
+    <h2 style="margin-top:0;text-align:center;color:#79e9aa;">🧾 Recibo</h2>
     <div class="recibo-bloco">
       <div class="recibo-linha"><span>Estabelecimento:</span><b>${escapeHtml(h.estabelecimento || '—')}</b></div>
       <div class="recibo-linha"><span>Cliente:</span><span>${escapeHtml(h.cliente || '—')}</span></div>
@@ -3943,34 +3430,23 @@ function renderRecibo(h) {
     </div>
     <div class="recibo-titulo">Itens</div>
     ${itensHTML}
-    <div class="recibo-bloco" style="border-bottom:none; margin-top:10px;">
+    <div class="recibo-bloco" style="border-bottom:none;margin-top:10px;">
       <div class="recibo-linha"><span>Subtotal</span><span>${money(h.subtotal || 0)}</span></div>
       <div class="recibo-linha"><span>Gorjeta (${perc}%)</span><span>${money(h.gorjeta || 0)}</span></div>
     </div>
     <div class="recibo-total"><span>TOTAL</span><span>${money(h.total || 0)}</span></div>
-    <div class="recibo-linha" style="justify-content:center; margin-top:6px;">
-      <span>Pagamento: <b>${escapeHtml(h.metodoPagamento || 'Não informado')}</b></span>
-    </div>
-    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:18px;">
-      <button onclick="compartilharRecibo()" style="flex:1; min-width:150px; padding:12px;">📤 Compartilhar</button>
-      <button class="secondary" onclick="fecharRecibo()" style="flex:1; min-width:100px; padding:12px;">Fechar</button>
+    <div class="recibo-linha" style="justify-content:center;margin-top:6px;"><span>Pagamento: <b>${escapeHtml(h.metodoPagamento || 'Não informado')}</b></span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;">
+      <button onclick="compartilharRecibo()" style="flex:1;min-width:150px;padding:12px;">📤 Compartilhar</button>
+      <button class="secondary" onclick="fecharRecibo()" style="flex:1;min-width:100px;padding:12px;">Fechar</button>
     </div>
   `;
 }
-
 function gerarTextoRecibo(h) {
   if (!h) return '';
   const perc = h.percentual || 0;
-  const linhas = [];
-  linhas.push('🧾 RECIBO');
-  linhas.push(h.estabelecimento || 'Estabelecimento');
-  linhas.push('Data: ' + h.data);
-  linhas.push('Cliente: ' + (h.cliente || 'Não informado'));
-  linhas.push('');
-  linhas.push('ITENS:');
-  (h.itens || []).forEach(it => {
-    linhas.push('• ' + it.qtd + 'x ' + it.nome + ' - ' + money(it.qtd * it.preco));
-  });
+  const linhas = ['🧾 RECIBO', h.estabelecimento || 'Estabelecimento', 'Data: ' + h.data, 'Cliente: ' + (h.cliente || 'Não informado'), '', 'ITENS:'];
+  (h.itens || []).forEach(it => linhas.push('• ' + it.qtd + 'x ' + it.nome + ' - ' + money(it.qtd * it.preco)));
   linhas.push('');
   linhas.push('Subtotal: ' + money(h.subtotal || 0));
   linhas.push('Gorjeta (' + perc + '%): ' + money(h.gorjeta || 0));
@@ -3979,70 +3455,44 @@ function gerarTextoRecibo(h) {
   linhas.push('Pagamento: ' + (h.metodoPagamento || 'Não informado'));
   return linhas.join('\n');
 }
-
 async function compartilharRecibo() {
   if (!contaReciboAtual) return;
   const texto = gerarTextoRecibo(contaReciboAtual);
   const titulo = 'Recibo - ' + (contaReciboAtual.estabelecimento || 'FECHA A CONTA');
   textoReciboParaCompartilhar = texto;
-
   if (navigator.share) {
-    try {
-      await navigator.share({ title: titulo, text: texto });
-      return;
-    } catch (err) {
-      if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) return;
-    }
+    try { await navigator.share({ title: titulo, text: texto }); return; }
+    catch (err) { if (err && (err.name === 'AbortError' || err.name === 'NotAllowedError')) return; }
   }
   mostrarModalCompartilhar(texto, titulo);
 }
-
 function mostrarModalCompartilhar(texto, titulo) {
   const container = document.getElementById('shareOptions');
   const encoded = encodeURIComponent(texto);
   const encodedTitle = encodeURIComponent(titulo);
   const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-
   const opcoes = [
-    { icone: '💬', titulo: 'WhatsApp', desc: 'Enviar recibo pelo WhatsApp', url: 'https://wa.me/?text=' + encoded, copiarAntes: false },
+    { icone: '💬', titulo: 'WhatsApp', desc: 'Enviar pelo WhatsApp', url: 'https://wa.me/?text=' + encoded, copiarAntes: false },
     { icone: '✉️', titulo: 'E-mail', desc: 'Enviar por e-mail', url: 'mailto:?subject=' + encodedTitle + '&body=' + encoded, copiarAntes: false },
     { icone: '✈️', titulo: 'Telegram', desc: 'Enviar pelo Telegram', url: 'https://t.me/share/url?url=' + encoded + '&text=' + encodedTitle, copiarAntes: false }
   ];
-  if (isMobile) {
-    opcoes.push({
-      icone: '💬', titulo: 'SMS', desc: 'Enviar por mensagem de texto',
-      url: 'sms:' + (/iPhone|iPad|iPod/i.test(navigator.userAgent) ? '&' : '?') + 'body=' + encoded,
-      copiarAntes: false
-    });
-  }
-  opcoes.push({ icone: '📋', titulo: 'Copiar texto', desc: 'Copiar o recibo para colar em qualquer app', url: null, copiarAntes: true });
-
+  if (isMobile) opcoes.push({ icone: '💬', titulo: 'SMS', desc: 'Enviar por SMS', url: 'sms:' + (/iPhone|iPad|iPod/i.test(navigator.userAgent) ? '&' : '?') + 'body=' + encoded, copiarAntes: false });
+  opcoes.push({ icone: '📋', titulo: 'Copiar texto', desc: 'Copiar o recibo', url: null, copiarAntes: true });
   container.innerHTML = opcoes.map((op, i) =>
     `<button class="share-option" onclick="executarCompartilhar(${i}, '${op.url ? op.url.replace(/'/g, "\\'") : ''}', ${op.copiarAntes})">
       <span class="share-icon">${op.icone}</span>
-      <span class="share-info">
-        <div class="share-title">${op.titulo}</div>
-        <div class="share-desc">${op.desc}</div>
-      </span>
+      <span class="share-info"><div class="share-title">${op.titulo}</div><div class="share-desc">${op.desc}</div></span>
     </button>`
   ).join('');
-
   window._opcoesCompartilhar = opcoes;
   document.getElementById('shareModal').classList.add('active');
 }
-
 function executarCompartilhar(index, url, copiarAntes) {
   const texto = textoReciboParaCompartilhar;
-  if (copiarAntes || !url) {
-    copiarPixFallback(texto);
-    showFeedback('📋 Recibo copiado!');
-    fecharShareModal();
-    return;
-  }
+  if (copiarAntes || !url) { copiarPixFallback(texto); showFeedback('📋 Copiado!'); fecharShareModal(); return; }
   try { window.open(url, '_blank'); } catch (e) { window.location.href = url; }
   fecharShareModal();
 }
-
 function fecharShareModal() {
   document.getElementById('shareModal').classList.remove('active');
   textoReciboParaCompartilhar = '';
@@ -4053,9 +3503,7 @@ function parseNumberWords(s) {
   const words = { um: 1, uma: 1, dois: 2, duas: 2, tres: 3, quatro: 4, cinco: 5, seis: 6, sete: 7, oito: 8, nove: 9, dez: 10 };
   let m = s.match(/\b(\d+)\b/);
   if (m) return parseInt(m[1], 10);
-  for (let w in words) {
-    if (new RegExp('\\b' + w + '\\b', 'i').test(s)) return words[w];
-  }
+  for (let w in words) { if (new RegExp('\\b' + w + '\\b', 'i').test(s)) return words[w]; }
   return 1;
 }
 
@@ -4065,12 +3513,8 @@ function processVoice(text) {
   const norm = normalize(text);
 
   if (confirmacaoPendente) {
-    if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar)([\s.,!?]|$)/.test(norm)) {
-      resolverConfirmacao(true); return;
-    }
-    if (/(^|\s)(nao|cancela|cancelar|negativo|no|recusar|recuso)([\s.,!?]|$)/.test(norm)) {
-      resolverConfirmacao(false); return;
-    }
+    if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar)([\s.,!?]|$)/.test(norm)) { resolverConfirmacao(true); return; }
+    if (/(^|\s)(nao|cancela|cancelar|negativo|no|recusar|recuso)([\s.,!?]|$)/.test(norm)) { resolverConfirmacao(false); return; }
     showFeedback('⚠️ Diga "sim" ou "não".');
     return;
   }
@@ -4110,21 +3554,15 @@ function processVoice(text) {
     if (/(^|\s)(fechar|cancelar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharMiniCardapio(); return; }
   }
 
-  if (matchSinonimo(norm, 'desativarVoz')) {
-    recognizer.deactivate();
-    speak('Assistente desligado');
-    return;
-  }
+  if (matchSinonimo(norm, 'desativarVoz')) { recognizer.deactivate(); speak('Assistente desligado'); return; }
 
   const sinAbrir = matchSinonimo(norm, 'abrirConta');
   if (sinAbrir) {
     const resto = extrairResto(norm, sinAbrir);
     if (resto) {
       const matchEstab = encontrarEstabelecimentoPorTexto(resto);
-      if (matchEstab) {
-        setEstabelecimentoAtivo(matchEstab.id);
-        abrirContaManual();
-      } else abrirNovaConta(resto);
+      if (matchEstab) { setEstabelecimentoAtivo(matchEstab.id); abrirContaManual(); }
+      else abrirNovaConta(resto);
     } else abrirContaManual();
     return;
   }
@@ -4142,15 +3580,8 @@ function processVoice(text) {
   if (sinInc) {
     let rest = extrairResto(norm, sinInc);
     let m = rest.match(/(.*?)\s+(\d+(?:[.,]\d+)?)\s*(?:reais|real)?$/);
-    if (m) {
-      let pNome = m[1].trim();
-      let pPreco = parseFloat(m[2].replace(',', '.'));
-      addProduto(pNome, pPreco);
-    } else {
-      mostrarFormProduto();
-      $('produtoNome').value = rest;
-      $('produtoNome').focus();
-    }
+    if (m) addProduto(m[1].trim(), parseFloat(m[2].replace(',', '.')));
+    else { mostrarFormProduto(); $('produtoNome').value = rest; $('produtoNome').focus(); }
     return;
   }
 
@@ -4167,15 +3598,12 @@ function processVoice(text) {
     let qtd = parseNumberWords(norm);
     let prods = getProdutosAtivos();
     const resultado = encontrarProdutoPorNome(norm, prods);
-    if (resultado && resultado.produto) {
-      addPedido(resultado.produto.id, qtd);
-    } else if (resultado && resultado.ambiguo) {
+    if (resultado && resultado.produto) addPedido(resultado.produto.id, qtd);
+    else if (resultado && resultado.ambiguo) {
       const nomes = resultado.ambiguo.map(p => p.nome).join(', ');
-      showFeedback('⚠️ Encontrei vários produtos: ' + nomes + '. Seja mais específico.');
+      showFeedback('⚠️ Vários produtos: ' + nomes);
       speak('Encontrei vários produtos. Seja mais específico.');
-    } else {
-      showFeedback('⚠️ Produto não identificado no cardápio.');
-    }
+    } else showFeedback('⚠️ Produto não identificado.');
     return;
   }
 
@@ -4183,9 +3611,7 @@ function processVoice(text) {
 }
 
 function exportarDados(incluirImagens = true) {
-  let dadosExport;
-  let totalImagens = 0;
-
+  let dadosExport, totalImagens = 0;
   if (incluirImagens) {
     dadosExport = JSON.parse(JSON.stringify(data));
     Object.values(dadosExport.estabelecimentos).forEach(estab => {
@@ -4194,63 +3620,33 @@ function exportarDados(incluirImagens = true) {
   } else {
     dadosExport = JSON.parse(JSON.stringify(data));
     Object.values(dadosExport.estabelecimentos).forEach(estab => {
-      (estab.produtos || []).forEach(p => {
-        if (p.imagem) totalImagens++;
-        p.imagem = null;
-      });
+      (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; });
     });
   }
-
-  dadosExport.__meta = {
-    app: 'FECHA A CONTA',
-    versao: 4,
-    exportadoEm: new Date().toISOString(),
-    incluirImagens: !!incluirImagens,
-    totalImagens: totalImagens
-  };
-
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 6, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   const sufixo = incluirImagens ? 'completo' : 'sem-imagens';
   const filename = `conta_bar_${sufixo}_${new Date().toISOString().slice(0,10)}.json`;
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
-
   ultimoConteudoExportado = jsonStr;
   document.getElementById('exportNomeArquivo').textContent = filename;
   document.getElementById('exportLocal').textContent = 'Pasta de Downloads padrão';
   document.getElementById('exportTamanho').textContent = (blob.size / 1024).toFixed(2) + ' KB';
-  document.getElementById('exportImagens').textContent = incluirImagens
-    ? `${totalImagens} imagem(ns) incluída(s) no arquivo`
-    : `${totalImagens} imagem(ns) omitida(s) — arquivo leve`;
-
-  const dica = document.getElementById('exportDica');
-  if (incluirImagens) {
-    dica.innerHTML = '💡 Este arquivo contém <b>todos os dados + imagens em base64</b>. Use-o para backup completo ou para migrar para outro dispositivo.';
-  } else {
-    dica.innerHTML = '💡 Este arquivo contém <b>apenas os dados cadastrais</b> (sem imagens). Ideal para arquivos pequenos ou para compartilhar apenas os produtos.';
-  }
-
+  document.getElementById('exportImagens').textContent = incluirImagens ? `${totalImagens} imagem(ns) incluída(s)` : `${totalImagens} imagem(ns) omitida(s)`;
+  document.getElementById('exportDica').innerHTML = incluirImagens
+    ? '💡 Contém todos os dados + imagens em base64.'
+    : '💡 Apenas dados cadastrais (sem imagens).';
   document.getElementById('exportModal').style.display = 'flex';
 }
-
-function fecharModalExportacao() {
-  document.getElementById('exportModal').style.display = 'none';
-}
-
+function fecharModalExportacao() { document.getElementById('exportModal').style.display = 'none'; }
 function copiarConteudoExportado() {
-  if (ultimoConteudoExportado) {
-    copiarPixFallback(ultimoConteudoExportado);
-    showFeedback('📋 Dados copiados para a área de transferência!');
-  }
+  if (ultimoConteudoExportado) { copiarPixFallback(ultimoConteudoExportado); showFeedback('📋 Copiado!'); }
 }
-
 function importarDados(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -4260,53 +3656,38 @@ function importarDados(e) {
       const imported = JSON.parse(evt.target.result);
       if (typeof imported === 'object' && imported !== null) {
         delete imported.__meta;
-
         data = imported;
         data.estabelecimentos = data.estabelecimentos || {};
         data.pedido = data.pedido || [];
         data.historico = data.historico || [];
         data.sinonimos = data.sinonimos || {};
         data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
-        if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) {
-          data.githubRotulosRepo = REPO_PADRAO;
-        }
+        if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) data.githubRotulosRepo = REPO_PADRAO;
         Object.keys(SINONIMOS_PADRAO).forEach(k => {
-          if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) {
-            data.sinonimos[k] = [...SINONIMOS_PADRAO[k]];
-          }
+          if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) data.sinonimos[k] = [...SINONIMOS_PADRAO[k]];
         });
-        githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null;
-        githubTreeCacheTime = 0;
+        githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
         manifestRotulosCache = null; manifestRotulosRepoCache = null;
-        save();
-        renderAll();
-        showFeedback('✅ Dados importados com sucesso!');
-      } else {
-        showFeedback('⚠️ Arquivo JSON inválido.');
-      }
-    } catch (err) {
-      showFeedback('⚠️ Erro ao ler o arquivo JSON.');
-    }
+        save(); renderAll();
+        showFeedback('✅ Dados importados!');
+      } else showFeedback('⚠️ Arquivo inválido.');
+    } catch (err) { showFeedback('⚠️ Erro ao ler JSON.'); }
   };
   reader.readAsText(file);
 }
-
 async function clearAllData() {
-  const ok = await confirmar('ATENÇÃO: Deseja apagar TODOS os dados do aplicativo? Esta ação não pode ser desfeita.', {
-    icone: '⚠️', titulo: 'Apagar tudo', textoSim: 'Apagar tudo', textoNao: 'Cancelar'
-  });
+  const ok = await confirmar('Apagar TODOS os dados do aplicativo?', { icone: '⚠️', titulo: 'Apagar tudo', textoSim: 'Apagar', textoNao: 'Cancelar' });
   if (!ok) return;
   localStorage.removeItem(KEY);
   data = {
     estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true,
     sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO)),
-    sinonimosEstabelecimentos: {},
-    githubRotulosRepo: REPO_PADRAO
+    sinonimosEstabelecimentos: {}, githubRotulosRepo: REPO_PADRAO
   };
   githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
   manifestRotulosCache = null; manifestRotulosRepoCache = null;
   renderAll();
-  showFeedback('🗑 Todos os dados foram apagados.');
+  showFeedback('🗑 Todos os dados apagados.');
 }
 
 window.onload = function() {
@@ -4314,11 +3695,8 @@ window.onload = function() {
   renderPreviewImagemProduto();
   atualizarStatusGithubRepo();
 
-  if (data.contaAtiva) {
-    showScreen('conta');
-  } else {
-    showScreen('inicio');
-  }
+  if (data.contaAtiva) showScreen('conta');
+  else showScreen('inicio');
 
   const dropArea = document.getElementById('dropArea');
   if (dropArea) {
@@ -4332,8 +3710,7 @@ window.onload = function() {
       dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
     });
     dropArea.addEventListener('drop', e => {
-      const dt = e.dataTransfer;
-      const files = dt.files;
+      const files = e.dataTransfer.files;
       if (files.length > 0) {
         document.getElementById('fileInput').files = files;
         importarDados({ target: { files: files } });
@@ -4343,13 +3720,8 @@ window.onload = function() {
 
   atualizarIconeVoz();
   if (data.voiceAssistantOn === true && recognizer.isSupported()) {
-    setTimeout(() => {
-      if (!recognizer.isActive) {
-        try { recognizer.activate(); } catch(e) { }
-      }
-    }, 1500);
+    setTimeout(() => { if (!recognizer.isActive) { try { recognizer.activate(); } catch(e) { } } }, 1500);
   }
-
   if (data.estabelecimentoAtivoId) {
     const estab = data.estabelecimentos[data.estabelecimentoAtivoId];
     if (estab && (estab.produtos || []).some(p => !p.imagem)) {
