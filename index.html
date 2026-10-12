@@ -131,7 +131,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .config-card p {margin:0;color:var(--muted);font-size:13px;line-height:1.4;}
 .back-config-btn {margin-bottom:15px;background:var(--panel2);color:var(--text);border:1px solid var(--border);}
 
-/* ===== SEÇÕES RECOLHÍVEIS (configurações) ===== */
 .collapsible-section {
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -304,6 +303,10 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .conta-resumo-box {background:var(--panel2); border-radius:10px; padding:14px; border:1px solid var(--border);}
 .conta-resumo-linha {display:flex; justify-content:space-between; padding:5px 0; font-size:14px;}
 .conta-resumo-linha .label {color:var(--muted);}
+
+.sync-badge {display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:bold;padding:4px 10px;border-radius:14px;background:rgba(79,195,247,0.15);color:#7ec8f0;margin-left:8px;border:1px solid rgba(79,195,247,0.3);}
+.sync-badge .spin {display:inline-block;width:12px;height:12px;border:2px solid rgba(126,200,240,0.35);border-top-color:#7ec8f0;border-radius:50%;animation:spin 0.8s linear infinite;}
+.sync-badge.done {background:rgba(57,201,122,0.15);color:#79e9aa;border-color:rgba(57,201,122,0.35);}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -349,7 +352,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <h2>⚙ Configurações</h2>
 <p class="note">Gerencie as rotinas e parâmetros do seu aplicativo.</p>
 
-<!-- ===== ASSISTENTE DE VOZ (recolhível) ===== -->
 <div class="collapsible-section">
   <button class="collapsible-header" id="btnHeaderAssistenteVoz" onclick="toggleCollapsible('assistenteVozContent', this)">
     <span>🎤 Assistente de Voz</span>
@@ -374,7 +376,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<!-- ===== REPOSITÓRIO DE RÓTULOS (recolhível) ===== -->
 <div class="collapsible-section">
   <button class="collapsible-header" id="btnHeaderRepositorio" onclick="toggleCollapsible('repositorioRotulosContent', this)">
     <span>🖼️ Repositório de Rótulos (GitHub)</span>
@@ -382,13 +383,15 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </button>
   <div id="repositorioRotulosContent" class="collapsible-content" style="display:none;">
     <div class="voice" style="margin-top:0;">
-      <p class="note">Opcional. Configure um repositório público no GitHub com imagens de rótulos (ex: <code>meuusuario/rotulos</code>). Ao buscar uma imagem, o app verifica nesta ordem: <b>1)</b> imagens já salvas no dispositivo, <b>2)</b> este repositório, <b>3)</b> a internet.</p>
+      <p class="note">O repositório deve ser público. O app procura imagens pelo <b>nome do produto sem espaços</b>. Ex.: produto <b>"Cerveja Brahma"</b> → arquivo <code>cervejabrahma.jpg</code> (também funciona <code>cerveja-brahma.jpg</code> e <code>Cerveja_Brahma.png</code>).</p>
+      <p class="note">Ordem de busca ao selecionar um estabelecimento: <b>1)</b> imagens já salvas no dispositivo → <b>2)</b> este repositório GitHub → <b>3)</b> internet.</p>
       <div class="row">
-        <input id="githubRepoInput" placeholder="usuario/repositorio (ex: meuuser/rotulos)" style="margin:0;">
+        <input id="githubRepoInput" placeholder="usuario/repositorio (ex: contabar/rotulos)" style="margin:0;">
       </div>
       <div class="sync-actions" style="margin-top:10px;">
         <button class="secondary" onclick="salvarGithubRepo()">💾 Salvar</button>
         <button class="secondary" onclick="testarGithubRepo()">🔍 Testar repositório</button>
+        <button class="secondary" onclick="sincronizarEstabelecimentoAtivoManual()">🔄 Sincronizar agora</button>
       </div>
       <p class="note" id="githubRepoStatus" style="margin-top:10px;"></p>
     </div>
@@ -485,6 +488,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <div class="cardapio-header">
     <h2>🍺 Produtos
       <span class="nome-estab" id="cardapioEstabNome">— nenhum estabelecimento selecionado</span>
+      <span id="cardapioSyncBadge" class="sync-badge" style="display:none;"><span class="spin"></span> <span id="cardapioSyncText">Sincronizando...</span></span>
     </h2>
     <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
   </div>
@@ -911,6 +915,8 @@ const isAndroidWebView = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Ope
 const isWebView = typeof window.Android !== 'undefined' || isAndroidWebView;
 const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
 
+const REPO_PADRAO = 'contabar/rotulos';
+
 const SINONIMOS_PADRAO = {
   pedir: ['pedir','pede','fazer pedido','solicitar','solicita','mais um','mais uma'],
   abrirConta: ['abrir conta','nova conta','iniciar conta','começar conta'],
@@ -989,7 +995,11 @@ data.usuario = data.usuario || null;
 data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
-data.githubRotulosRepo = data.githubRotulosRepo || '';
+
+// Repo padrão se nunca foi definido (mas respeita se o usuário limpou)
+if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) {
+  data.githubRotulosRepo = REPO_PADRAO;
+}
 
 data.sinonimos = data.sinonimos || {};
 Object.keys(SINONIMOS_PADRAO).forEach(k => {
@@ -1023,6 +1033,7 @@ let valoresOriginaisProduto = null;
 let orderFlashTimer = null;
 let ultimoProdutoPedido = null;
 let sincronizandoImagens = false;
+let sincronizandoEstabId = null;
 const $ = id => document.getElementById(id);
 
 const speechDiagnostic = {
@@ -1064,6 +1075,14 @@ function money(v) {
 function normalize(s) {
   return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
+// Slug para comparar com nomes de arquivo: remove tudo que não é letra/número
+function slugify(s) {
+  return normalize(s).replace(/[^a-z0-9]+/g, '');
+}
+// Slug com hífen entre palavras
+function slugifyHifen(s) {
+  return normalize(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
 
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1086,7 +1105,6 @@ function capitalizarNome(nome) {
   return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
 }
 
-// ========== SEÇÕES RECOLHÍVEIS (config) ==========
 function toggleCollapsible(contentId, btn) {
   const content = document.getElementById(contentId);
   if (!content) return;
@@ -1757,47 +1775,545 @@ function getProdutosAtivos() {
   return estab ? estab.produtos || [] : [];
 }
 
-// ========== SINCRONIZAÇÃO DE IMAGENS AO SELECIONAR ESTABELECIMENTO ==========
-async function sincronizarImagensEstabelecimento(estabId) {
-  if (sincronizandoImagens) return;
-  const estab = data.estabelecimentos[estabId];
-  if (!estab || !Array.isArray(estab.produtos)) return;
+// ================================================================
+//  BUSCA LOCAL (DISPOSITIVO) — usa slug para casar "Cerveja Brahma"
+//  com qualquer produto que já tenha imagem e nome compatível.
+// ================================================================
+function buscarImagemLocal(nome) {
+  if (!nome) return null;
+  const slug = slugify(nome);
+  if (!slug || slug.length < 3) return null;
 
-  const semImagem = estab.produtos.filter(p => !p.imagem);
-  if (semImagem.length === 0) return;
+  const palavrasAlvo = normalize(nome).split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
+  let melhor = null;
+  let melhorScore = 0;
+
+  Object.values(data.estabelecimentos).forEach(estab => {
+    (estab.produtos || []).forEach(p => {
+      if (!p.imagem) return;
+      const pNome = normalize(p.nome || '');
+      const pSlug = slugify(pNome);
+      if (!pSlug) return;
+
+      let score = 0;
+      // Match exato de slug
+      if (pSlug === slug) score = 1000;
+      // Um contém o outro (ex.: "cervejabrahma" vs "cervejabrahma600ml")
+      else if (pSlug.includes(slug) || slug.includes(pSlug)) {
+        score = 600 + Math.round((Math.min(pSlug.length, slug.length) / Math.max(pSlug.length, slug.length)) * 300);
+      }
+      // Match por palavras individuais (ex.: "cerveja" + "brahma")
+      else if (palavrasAlvo.length > 0) {
+        const pWords = pNome.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
+        const comuns = palavrasAlvo.filter(w => pWords.includes(w) || pSlug.includes(w)).length;
+        if (comuns > 0 && comuns >= Math.ceil(palavrasAlvo.length * 0.5)) {
+          score = 300 + comuns * 50;
+        }
+      }
+
+      if (score > melhorScore) { melhorScore = score; melhor = p.imagem; }
+    });
+  });
+  return melhorScore >= 300 ? melhor : null;
+}
+
+// ================================================================
+//  BUSCA NO GITHUB — reescrita
+// ================================================================
+
+let manifestRotulosCache = null;
+let manifestRotulosRepoCache = null;
+let githubTreeCache = null;
+let githubTreeRepoCache = null;
+let githubTreeBranchCache = null;
+let githubTreeCacheTime = 0;
+const GITHUB_TREE_TTL = 5 * 60 * 1000; // 5 minutos
+
+async function carregarManifestRotulos(repo) {
+  if (manifestRotulosCache && manifestRotulosRepoCache === repo) return manifestRotulosCache;
+  const caminhos = ['manifest.json', 'rotulos/manifest.json', 'index.json', 'rotulos/index.json'];
+  for (const branch of ['main', 'master']) {
+    for (const path of caminhos) {
+      try {
+        const url = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
+        const resp = await fetch(url, { cache: 'no-cache' });
+        if (resp.ok) {
+          const json = await resp.json();
+          manifestRotulosCache = json;
+          manifestRotulosRepoCache = repo;
+          return json;
+        }
+      } catch(e) { }
+    }
+  }
+  return null;
+}
+
+// Lista TODOS os arquivos do repositório via API de árvore do GitHub
+async function carregarArvoreGitHub(repo, forcarAtualizacao) {
+  const agora = Date.now();
+  if (!forcarAtualizacao
+      && githubTreeCache
+      && githubTreeRepoCache === repo
+      && (agora - githubTreeCacheTime) < GITHUB_TREE_TTL) {
+    console.log(`[GitHub] Usando árvore em cache (${githubTreeCache.length} imagens)`);
+    return { tree: githubTreeCache, branch: githubTreeBranchCache };
+  }
+
+  const branches = ['main', 'master', 'gh-pages', 'principal'];
+  for (const branch of branches) {
+    try {
+      const url = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
+      console.log(`[GitHub] GET ${url}`);
+      const resp = await fetch(url, {
+        cache: 'no-cache',
+        headers: { 'Accept': 'application/vnd.github+json' }
+      });
+
+      if (resp.status === 403 || resp.status === 429) {
+        console.warn('[GitHub] Rate limit atingido (', resp.status, '). Aguarde alguns minutos.');
+        continue;
+      }
+      if (resp.status === 404) {
+        console.log(`[GitHub] Branch "${branch}" não existe ou repo privado.`);
+        continue;
+      }
+      if (!resp.ok) {
+        console.log(`[GitHub] Branch "${branch}" retornou ${resp.status}`);
+        continue;
+      }
+
+      const json = await resp.json();
+      if (!json.tree || !Array.isArray(json.tree)) continue;
+
+      const blobs = json.tree.filter(item =>
+        item.type === 'blob' && /\.(jpe?g|png|webp|gif|bmp)$/i.test(item.path)
+      );
+
+      console.log(`[GitHub] Branch "${branch}": ${blobs.length} imagens (${json.tree.length} arquivos no total)`);
+
+      if (blobs.length === 0) continue;
+
+      githubTreeCache = blobs;
+      githubTreeRepoCache = repo;
+      githubTreeBranchCache = branch;
+      githubTreeCacheTime = agora;
+
+      return { tree: blobs, branch };
+    } catch(e) {
+      console.warn(`[GitHub] Erro no branch "${branch}":`, e.message);
+    }
+  }
+
+  console.warn('[GitHub] Não foi possível carregar a árvore do repositório');
+  return null;
+}
+
+async function baixarDoGitHub(repo, branch, path) {
+  const url = `https://raw.githubusercontent.com/${repo}/${branch}/${encodeURI(path)}`;
+  return await baixarImagemComoDataURL(url);
+}
+
+// ================================================================
+//  CORE: matching por slug (nome do arquivo = nome do produto sem espaços)
+//  Ex.: "Cerveja Brahma" → arquivo "cervejabrahma.jpg"
+// ================================================================
+async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
+  const repo = (data.githubRotulosRepo || '').trim();
+  if (!repo || !nome) {
+    console.log('[GitHub] Repo não configurado ou nome vazio');
+    return null;
+  }
+
+  const nomeNorm = normalize(nome);
+  const slug = slugify(nome);
+  const slugHifen = slugifyHifen(nome);
+  const palavras = nomeNorm.split(/\s+/).filter(w => w.length >= 2 && !PALAVRAS_IGNORAR.has(w));
+
+  console.log(`[GitHub] Buscando "${nome}" em "${repo}"${forcarAtualizacao ? ' (forçado)' : ''}`);
+  console.log(`[GitHub] Slug: "${slug}" | Hífen: "${slugHifen}" | Palavras:`, palavras);
+
+  // 1) Manifest (mapeamento explícito)
+  try {
+    const manifest = await carregarManifestRotulos(repo);
+    if (manifest && typeof manifest === 'object') {
+      const chaves = Object.keys(manifest);
+      const candidatos = [...new Set([slug, slugHifen, slug.replace(/-/g, ''), ...palavras, nomeNorm].filter(Boolean))];
+      let match = null;
+      for (const c of candidatos) {
+        match = chaves.find(k => slugify(k) === slugify(c));
+        if (match) break;
+      }
+      if (!match) {
+        for (const c of candidatos) {
+          if (!c || c.length < 3) continue;
+          match = chaves.find(k => {
+            const nk = slugify(k);
+            const nc = slugify(c);
+            return nk.includes(nc) || nc.includes(nk);
+          });
+          if (match) break;
+        }
+      }
+      if (match) {
+        const path = String(manifest[match] || '').replace(/^\//, '');
+        if (path) {
+          console.log(`[GitHub] Manifest match: "${match}" → ${path}`);
+          for (const branch of ['main', 'master']) {
+            const dataUrl = await baixarDoGitHub(repo, branch, path);
+            if (dataUrl) return dataUrl;
+          }
+        }
+      }
+    }
+  } catch (e) { }
+
+  // 2) Árvore do GitHub
+  try {
+    const resultado = await carregarArvoreGitHub(repo, forcarAtualizacao);
+    if (resultado && resultado.tree && resultado.tree.length) {
+      const { tree, branch } = resultado;
+      let melhorPath = null;
+      let melhorScore = 0;
+      let melhorDetalhe = '';
+      const debugTop = [];
+
+      tree.forEach(item => {
+        const path = item.path;
+        const partes = path.split('/');
+        const baseCompleto = partes[partes.length - 1];
+        const baseSemExt = baseCompleto.replace(/\.[^.]+$/, '');
+        const baseNorm = normalize(baseSemExt);
+        const baseSlug = slugify(baseSemExt);
+        const baseSlugHifen = slugifyHifen(baseSemExt);
+
+        let score = 0;
+        let detalhe = '';
+
+        if (baseSlug === slug) {
+          score = 1000;
+          detalhe = 'slug exato';
+        } else if (baseSlugHifen === slugHifen) {
+          score = 990;
+          detalhe = 'slug-hífen exato';
+        } else if (baseSlug === slugHifen.replace(/-/g, '')) {
+          score = 980;
+          detalhe = 'slug sem separador';
+        } else if (slug.length >= 4 && baseSlug.includes(slug)) {
+          score = 700 + Math.round((slug.length / baseSlug.length) * 100);
+          detalhe = `slug contido (${slug} ⊂ ${baseSlug})`;
+        } else if (baseSlug.length >= 4 && slug.includes(baseSlug)) {
+          score = 600 + Math.round((baseSlug.length / slug.length) * 100);
+          detalhe = `base contida (${baseSlug} ⊂ ${slug})`;
+        } else if (palavras.length > 0) {
+          const baseWords = baseNorm.split(/[^a-z0-9]+/).filter(w => w.length >= 2);
+          const comuns = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p)).length;
+          if (comuns > 0 && comuns >= Math.ceil(palavras.length * 0.5)) {
+            const cobertura = comuns / palavras.length;
+            score = Math.round(300 + cobertura * 300 + comuns * 30);
+            detalhe = `palavras ${comuns}/${palavras.length}`;
+          }
+        }
+
+        if (score > 0) debugTop.push({ path, score, detalhe });
+
+        if (score > melhorScore) {
+          melhorScore = score;
+          melhorPath = path;
+          melhorDetalhe = detalhe;
+        }
+      });
+
+      debugTop.sort((a,b) => b.score - a.score);
+      if (debugTop.length) {
+        console.log('[GitHub] Top 5 matches:', debugTop.slice(0, 5));
+      }
+
+      if (melhorPath && melhorScore >= 300) {
+        console.log(`[GitHub] ✓ Melhor match: "${melhorPath}" (score ${melhorScore}, ${melhorDetalhe})`);
+        const dataUrl = await baixarDoGitHub(repo, branch, melhorPath);
+        if (dataUrl) return dataUrl;
+      } else {
+        console.log(`[GitHub] Nenhum match com score ≥ 300 (melhor foi ${melhorScore})`);
+      }
+    }
+  } catch (e) {
+    console.warn('[GitHub] Erro na busca por árvore:', e);
+  }
+
+  // 3) Fallback: URLs diretas com slug
+  console.log('[GitHub] Tentando URLs diretas...');
+  const folders = ['', 'rotulos/', 'imagens/', 'images/', 'img/'];
+  const exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+  const slugs = [...new Set([slug, slugHifen, slug.replace(/[^a-z0-9]/g, ''), ...palavras])].filter(Boolean);
+
+  for (const branch of ['main', 'master']) {
+    for (const folder of folders) {
+      for (const s of slugs) {
+        if (!s || s.length < 2) continue;
+        for (const ext of exts) {
+          const caminho = `${folder}${s}.${ext}`;
+          const url = `https://raw.githubusercontent.com/${repo}/${branch}/${caminho}`;
+          try {
+            const dataUrl = await baixarImagemComoDataURL(url);
+            if (dataUrl) {
+              console.log(`[GitHub] ✓ URL direta funcionou: ${caminho}`);
+              return dataUrl;
+            }
+          } catch(e) { }
+        }
+      }
+    }
+  }
+
+  console.log('[GitHub] ✗ Nenhuma imagem encontrada');
+  return null;
+}
+
+// Busca completa: local → GitHub → internet
+async function buscarImagemAutomatica(nome) {
+  if (!nome) return null;
+
+  // 1) Dispositivo (produtos locais com imagem salva)
+  const local = buscarImagemLocal(nome);
+  if (local) {
+    console.log(`[Imagem] ✓ "${nome}" encontrada no dispositivo`);
+    return local;
+  }
+
+  // 2) GitHub
+  try {
+    const github = await buscarImagemGitHubRotulos(nome);
+    if (github) {
+      console.log(`[Imagem] ✓ "${nome}" encontrada no GitHub`);
+      return github;
+    }
+  } catch (e) {
+    console.warn('[Imagem] Erro na busca GitHub:', e);
+  }
+
+  // 3) Internet (loremflickr)
+  const kw = extrairPalavraChaveImagem(nome);
+  const lock = hashCode(nome) % 9999;
+  const url = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`;
+  const result = await baixarImagemComoDataURL(url);
+  if (result) {
+    console.log(`[Imagem] ✓ "${nome}" encontrada na internet`);
+    return result;
+  }
+  const url2 = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}`;
+  return await baixarImagemComoDataURL(url2);
+}
+
+function salvarGithubRepo() {
+  const input = document.getElementById('githubRepoInput');
+  if (!input) return;
+  let valor = input.value.trim()
+    .replace(/^https?:\/\/github\.com\//i, '')
+    .replace(/\.git$/i, '')
+    .replace(/\/+$/, '');
+  if (valor && !/^[^\/\s]+\/[^\/\s]+$/.test(valor)) {
+    showFeedback('⚠️ Use o formato usuario/repositorio');
+    return;
+  }
+  data.githubRotulosRepo = valor;
+  // Invalida caches
+  manifestRotulosCache = null;
+  manifestRotulosRepoCache = null;
+  githubTreeCache = null;
+  githubTreeRepoCache = null;
+  githubTreeBranchCache = null;
+  githubTreeCacheTime = 0;
+  save();
+  atualizarStatusGithubRepo();
+  showFeedback(valor ? '✅ Repositório salvo: ' + valor : 'ℹ️ Repositório removido');
+  speak(valor ? 'Repositório configurado' : 'Repositório removido');
+}
+
+async function testarGithubRepo() {
+  const repo = (data.githubRotulosRepo || '').trim();
+  if (!repo) { showFeedback('⚠️ Configure e salve um repositório primeiro.'); return; }
+  showFeedback('🔍 Testando repositório...');
+
+  // Invalida caches para o teste ser real
+  manifestRotulosCache = null; manifestRotulosRepoCache = null;
+  githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null;
+  githubTreeCacheTime = 0;
+
+  const arvore = await carregarArvoreGitHub(repo, true);
+  if (arvore && arvore.tree.length) {
+    // Exibe alguns nomes de exemplo
+    const amostra = arvore.tree.slice(0, 5).map(x => x.path.split('/').pop()).join(', ');
+    showFeedback(`✅ Repositório OK! ${arvore.tree.length} imagens (branch ${arvore.branch}). Ex.: ${amostra}`);
+    return;
+  }
+  const manifest = await carregarManifestRotulos(repo);
+  if (manifest && typeof manifest === 'object') {
+    showFeedback(`✅ Manifest acessível com ${Object.keys(manifest).length} rótulo(s).`);
+    return;
+  }
+  showFeedback('❌ Não foi possível acessar o repositório. Verifique se ele é público, se o nome está correto e se você não atingiu o limite de requisições do GitHub (aguarde alguns minutos).');
+}
+
+function atualizarStatusGithubRepo() {
+  const input = document.getElementById('githubRepoInput');
+  const status = document.getElementById('githubRepoStatus');
+  const repo = data.githubRotulosRepo || '';
+  if (input && document.activeElement !== input) input.value = repo;
+  if (status) {
+    if (repo) {
+      status.innerHTML = '✅ Repositório configurado: <b>' + escapeHtml(repo) + '</b>';
+      status.style.color = '#79e9aa';
+    } else {
+      status.textContent = 'Nenhum repositório configurado. A busca usará apenas imagens locais e da internet.';
+      status.style.color = '';
+    }
+  }
+}
+
+function sincronizarEstabelecimentoAtivoManual() {
+  const id = data.estabelecimentoAtivoId;
+  if (!id) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
+  // Invalida o cache da árvore para pegar mudanças do repo
+  githubTreeCache = null;
+  githubTreeRepoCache = null;
+  githubTreeBranchCache = null;
+  githubTreeCacheTime = 0;
+  sincronizandoImagens = false; // reseta flag
+  sincronizandoEstabId = null;
+  sincronizarImagensEstabelecimento(id, true);
+}
+
+// ================================================================
+//  SINCRONIZAÇÃO DE IMAGENS AO SELECIONAR ESTABELECIMENTO
+//  Percorre todos os produtos sem imagem e busca:
+//  1) dispositivo  → 2) GitHub  → 3) internet
+// ================================================================
+function mostrarSyncBadge(mostrar, texto) {
+  const badge = document.getElementById('cardapioSyncBadge');
+  const txt = document.getElementById('cardapioSyncText');
+  if (!badge || !txt) return;
+  if (mostrar) {
+    badge.style.display = 'inline-flex';
+    badge.classList.remove('done');
+    txt.textContent = texto || 'Sincronizando...';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+async function sincronizarImagensEstabelecimento(estabId, forcar) {
+  // Se já está sincronizando outro estabelecimento, aguarda terminar
+  if (sincronizandoImagens && sincronizandoEstabId !== estabId) {
+    let tentativas = 0;
+    while (sincronizandoImagens && tentativas < 60) {
+      await new Promise(r => setTimeout(r, 500));
+      tentativas++;
+    }
+  }
+  if (sincronizandoImagens && sincronizandoEstabId === estabId) {
+    console.log('[Sync] Já sincronizando este estabelecimento, ignorando.');
+    return;
+  }
+
+  const estab = data.estabelecimentos[estabId];
+  if (!estab) return;
+
+  const semImagem = (estab.produtos || []).filter(p => !p.imagem || (forcar === true && !p.imagem));
+  const realmenteSem = (estab.produtos || []).filter(p => !p.imagem);
+  if (realmenteSem.length === 0) {
+    console.log('[Sync] Todos os produtos já têm imagem.');
+    return;
+  }
 
   sincronizandoImagens = true;
-  showFeedback(`🖼️ Buscando imagens para ${semImagem.length} produto(s)...`);
+  sincronizandoEstabId = estabId;
+
+  const total = realmenteSem.length;
+  console.log(`[Sync] Iniciando busca de imagens para ${total} produto(s) em "${estab.nome}"`);
+  mostrarSyncBadge(true, `0/${total}`);
+  showFeedback(`🖼️ Buscando imagens (0/${total})...`);
 
   let encontradas = 0;
   let processados = 0;
 
-  for (const p of semImagem) {
+  for (const p of realmenteSem) {
     if (p.imagem) { processados++; continue; }
+
+    let origem = 'não encontrada';
     try {
-      const dataUrl = await buscarImagemAutomatica(p.nome);
-      if (dataUrl && !p.imagem) {
-        p.imagem = dataUrl;
+      // 1) Dispositivo
+      const local = buscarImagemLocal(p.nome);
+      if (local) {
+        p.imagem = local;
         encontradas++;
+        origem = 'dispositivo';
         save();
+      } else {
+        // 2) GitHub
+        let github = null;
+        try {
+          github = await buscarImagemGitHubRotulos(p.nome);
+        } catch(e) { console.warn('[Sync] Erro GitHub:', e); }
+
+        if (github) {
+          p.imagem = github;
+          encontradas++;
+          origem = 'GitHub';
+          save();
+        } else {
+          // 3) Internet
+          try {
+            const kw = extrairPalavraChaveImagem(p.nome);
+            const lock = hashCode(p.nome) % 9999;
+            const internet = await baixarImagemComoDataURL(
+              `https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`
+            );
+            if (internet) {
+              p.imagem = internet;
+              encontradas++;
+              origem = 'internet';
+              save();
+            }
+          } catch(e) { }
+        }
       }
     } catch (e) {
-      console.warn('Falha ao buscar imagem para', p.nome, e);
+      console.warn('[Sync] Falha ao buscar imagem para', p.nome, e);
     }
+
     processados++;
-    if (processados % 3 === 0 && processados < semImagem.length) {
-      showFeedback(`🖼️ Buscando imagens (${processados}/${semImagem.length})...`);
+    console.log(`[Sync] ${processados}/${total} "${p.nome}" → ${origem}`);
+
+    mostrarSyncBadge(true, `${processados}/${total} • ${encontradas} ✓`);
+    if (processados % 2 === 0 || processados === total) {
+      showFeedback(`🖼️ ${processados}/${total} • ${encontradas} imagem(ns) adicionada(s)`);
     }
-    await new Promise(r => setTimeout(r, 250));
+
+    // Renderiza parcialmente para o usuário ver o progresso
+    if (processados % 3 === 0) {
+      renderCardapio();
+    }
+
+    // Pausa amigável para não estourar APIs
+    await new Promise(r => setTimeout(r, 200));
   }
 
   sincronizandoImagens = false;
+  sincronizandoEstabId = null;
+
+  // Render final
+  renderAll();
 
   if (encontradas > 0) {
-    renderAll();
+    mostrarSyncBadge(true, `${encontradas} ✓`);
+    const badge = document.getElementById('cardapioSyncBadge');
+    if (badge) badge.classList.add('done');
+    setTimeout(() => mostrarSyncBadge(false), 4000);
     showFeedback(`✅ ${encontradas} imagem(ns) adicionada(s) automaticamente.`);
     speak(`${encontradas} imagens adicionadas`);
   } else {
+    mostrarSyncBadge(false);
     showFeedback('ℹ️ Nenhuma imagem nova encontrada.');
   }
 }
@@ -1824,7 +2340,8 @@ async function setEstabelecimentoAtivo(id) {
     const nome = data.estabelecimentos[id].nome;
     speak('Estabelecimento selecionado: ' + nome);
     showFeedback('🏢 Estabelecimento ativo: ' + nome);
-    setTimeout(() => sincronizarImagensEstabelecimento(id), 600);
+    // Dispara varredura de imagens
+    setTimeout(() => sincronizarImagensEstabelecimento(id), 400);
   } else {
     data.estabelecimentoAtivoId = null;
     data.pedido = []; data.contaAtiva = false;
@@ -1832,6 +2349,7 @@ async function setEstabelecimentoAtivo(id) {
     speak('Nenhum estabelecimento selecionado');
   }
 }
+
 function editarEstabelecimento(id) {
   const e = data.estabelecimentos[id];
   if (!e) return;
@@ -1919,7 +2437,10 @@ function trocarEstabelecimentoAtivo() {
   data.pedido = []; data.contaAtiva = false;
   fecharFormProduto(true);
   save(); renderAll();
-  if (id) setTimeout(() => sincronizarImagensEstabelecimento(id), 600);
+  if (id) {
+    showFeedback('🏢 Estabelecimento alterado. Buscando imagens...');
+    setTimeout(() => sincronizarImagensEstabelecimento(id), 400);
+  }
 }
 
 function mostrarMiniCardapio() {
@@ -2034,284 +2555,6 @@ function baixarImagemComoDataURL(url, maxW = 400, maxH = 300, quality = 0.75) {
   });
 }
 
-function buscarImagemLocal(nome) {
-  if (!nome) return null;
-  const norm = normalize(nome);
-  if (!norm) return null;
-  const palavrasAlvo = norm.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
-  let melhor = null;
-  let melhorScore = 0;
-
-  Object.values(data.estabelecimentos).forEach(estab => {
-    (estab.produtos || []).forEach(p => {
-      if (!p.imagem) return;
-      const pNorm = normalize(p.nome);
-      if (!pNorm) return;
-      let score = 0;
-      if (pNorm === norm) score = 1000;
-      else if (pNorm.includes(norm) || norm.includes(pNorm)) score = Math.min(pNorm.length, norm.length) + 20;
-      else {
-        const pWords = pNorm.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
-        const comuns = pWords.filter(w => palavrasAlvo.includes(w));
-        score = comuns.length * 10;
-      }
-      if (score > melhorScore) { melhorScore = score; melhor = p.imagem; }
-    });
-  });
-  return melhorScore >= 10 ? melhor : null;
-}
-
-let manifestRotulosCache = null;
-let manifestRotulosRepoCache = null;
-let githubTreeCache = null;
-let githubTreeRepoCache = null;
-let githubTreeBranchCache = null;
-
-async function carregarManifestRotulos(repo) {
-  if (manifestRotulosCache && manifestRotulosRepoCache === repo) return manifestRotulosCache;
-  const caminhos = ['manifest.json', 'rotulos/manifest.json', 'index.json', 'rotulos/index.json'];
-  for (const branch of ['main', 'master']) {
-    for (const path of caminhos) {
-      try {
-        const url = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
-        const resp = await fetch(url, { cache: 'no-cache' });
-        if (resp.ok) {
-          const json = await resp.json();
-          manifestRotulosCache = json;
-          manifestRotulosRepoCache = repo;
-          return json;
-        }
-      } catch(e) { }
-    }
-  }
-  return null;
-}
-
-// Lista TODOS os arquivos do repositório de uma vez via API do GitHub.
-async function carregarArvoreGitHub(repo, forcarAtualizacao) {
-  if (!forcarAtualizacao && githubTreeCache && githubTreeRepoCache === repo) {
-    return { tree: githubTreeCache, branch: githubTreeBranchCache };
-  }
-  for (const branch of ['main', 'master']) {
-    try {
-      const url = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
-      const resp = await fetch(url, { cache: 'no-cache' });
-      if (!resp.ok) continue;
-      const json = await resp.json();
-      if (!json.tree || !Array.isArray(json.tree)) continue;
-      const blobs = json.tree.filter(item =>
-        item.type === 'blob' && /\.(jpe?g|png|webp|gif|bmp)$/i.test(item.path)
-      );
-      if (blobs.length === 0) continue;
-      githubTreeCache = blobs;
-      githubTreeRepoCache = repo;
-      githubTreeBranchCache = branch;
-      return { tree: blobs, branch };
-    } catch(e) { }
-  }
-  return null;
-}
-
-async function baixarDoGitHub(repo, branch, path) {
-  const url = `https://raw.githubusercontent.com/${repo}/${branch}/${encodeURI(path)}`;
-  return await baixarImagemComoDataURL(url);
-}
-
-async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
-  const repo = (data.githubRotulosRepo || '').trim();
-  if (!repo || !nome) return null;
-
-  const norm = normalize(nome);
-  const slug = norm.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-  const slugSemEspaco = norm.replace(/[^a-z0-9]+/g, '');
-  const palavras = norm.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
-
-  // 1) Manifest primeiro (mapeamento explícito feito pelo usuário)
-  try {
-    const manifest = await carregarManifestRotulos(repo);
-    if (manifest && typeof manifest === 'object') {
-      const chaves = Object.keys(manifest);
-      const candidatosManifest = [...new Set([slug, slugSemEspaco, ...palavras, norm].filter(Boolean))];
-      let match = null;
-      for (const c of candidatosManifest) {
-        match = chaves.find(k => normalize(k) === c);
-        if (match) break;
-      }
-      if (!match) {
-        for (const c of candidatosManifest) {
-          if (!c || c.length < 3) continue;
-          match = chaves.find(k => {
-            const nk = normalize(k);
-            return nk.includes(c) || c.includes(nk);
-          });
-          if (match) break;
-        }
-      }
-      if (match) {
-        const path = String(manifest[match] || '').replace(/^\//, '');
-        if (path) {
-          for (const branch of ['main', 'master']) {
-            const dataUrl = await baixarDoGitHub(repo, branch, path);
-            if (dataUrl) return dataUrl;
-          }
-        }
-      }
-    }
-  } catch (e) { }
-
-  // 2) API de árvore do GitHub — lista todos os arquivos e pontua por similaridade
-  try {
-    const resultado = await carregarArvoreGitHub(repo, forcarAtualizacao);
-    if (resultado && resultado.tree.length) {
-      const { tree, branch } = resultado;
-      let melhorPath = null;
-      let melhorScore = 0;
-
-      tree.forEach(item => {
-        const pathLower = normalize(item.path);
-        const partes = pathLower.split('/');
-        const baseCompleto = partes[partes.length - 1];
-        const baseSemExt = baseCompleto.replace(/\.[^.]+$/, '');
-
-        let score = 0;
-        if (baseSemExt === slug)                        score = 1000;
-        else if (baseSemExt === slugSemEspaco)          score = 950;
-        else if (baseSemExt === norm)                   score = 900;
-        else if (baseSemExt === norm.replace(/\s+/g,''))score = 850;
-        else if (baseSemExt === norm.replace(/\s+/g,'-'))score = 850;
-        else {
-          const palavrasArquivo = baseSemExt.split(/[-_\s]+/).filter(w => w.length >= 3);
-          if (palavras.length && palavrasArquivo.length) {
-            const comuns = palavras.filter(w =>
-              palavrasArquivo.includes(w) ||
-              palavrasArquivo.some(pa => pa.includes(w) || w.includes(pa))
-            ).length;
-            if (comuns > 0) {
-              const cobertura = comuns / palavras.length;
-              if (cobertura >= 0.5) score = Math.round(cobertura * 500 + comuns * 10);
-            }
-          }
-          if (score === 0) {
-            const partesMatch = palavras.filter(w => pathLower.includes(w)).length;
-            if (partesMatch >= Math.max(1, palavras.length)) score = partesMatch * 20;
-          }
-        }
-
-        if (score > melhorScore) {
-          melhorScore = score;
-          melhorPath = item.path;
-        }
-      });
-
-      if (melhorPath && melhorScore >= 100) {
-        const dataUrl = await baixarDoGitHub(repo, branch, melhorPath);
-        if (dataUrl) return dataUrl;
-      }
-    }
-  } catch (e) {
-    console.warn('Erro na busca por árvore do GitHub:', e);
-  }
-
-  // 3) Fallback: tentar URLs diretas em pastas comuns
-  const folders = ['rotulos/', 'imagens/', 'images/', 'img/', ''];
-  const exts = ['jpg', 'jpeg', 'png', 'webp'];
-  const slugs = [...new Set([slug, slugSemEspaco])].filter(Boolean);
-  for (const branch of ['main', 'master']) {
-    for (const folder of folders) {
-      for (const s of slugs) {
-        for (const ext of exts) {
-          const caminho = `${folder}${s}.${ext}`;
-          const url = `https://raw.githubusercontent.com/${repo}/${branch}/${caminho}`;
-          try {
-            const resp = await fetch(url, { method: 'HEAD', cache: 'no-cache' });
-            if (resp.ok) {
-              const dataUrl = await baixarDoGitHub(repo, branch, caminho);
-              if (dataUrl) return dataUrl;
-            }
-          } catch(e) { }
-        }
-      }
-    }
-  }
-  return null;
-}
-
-async function buscarImagemAutomatica(nome) {
-  if (!nome) return null;
-  const local = buscarImagemLocal(nome);
-  if (local) return local;
-  try {
-    const github = await buscarImagemGitHubRotulos(nome);
-    if (github) return github;
-  } catch (e) { }
-  const kw = extrairPalavraChaveImagem(nome);
-  const lock = hashCode(nome) % 9999;
-  const url = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}?lock=${lock}`;
-  const result = await baixarImagemComoDataURL(url);
-  if (result) return result;
-  const url2 = `https://loremflickr.com/400/300/${encodeURIComponent(kw)}`;
-  return await baixarImagemComoDataURL(url2);
-}
-
-function salvarGithubRepo() {
-  const input = document.getElementById('githubRepoInput');
-  if (!input) return;
-  let valor = input.value.trim()
-    .replace(/^https?:\/\/github\.com\//i, '')
-    .replace(/\.git$/i, '')
-    .replace(/\/+$/, '');
-  if (valor && !/^[^\/\s]+\/[^\/\s]+$/.test(valor)) {
-    showFeedback('⚠️ Use o formato usuario/repositorio');
-    return;
-  }
-  data.githubRotulosRepo = valor;
-  manifestRotulosCache = null;
-  manifestRotulosRepoCache = null;
-  githubTreeCache = null;
-  githubTreeRepoCache = null;
-  githubTreeBranchCache = null;
-  save();
-  atualizarStatusGithubRepo();
-  showFeedback(valor ? '✅ Repositório salvo: ' + valor : 'ℹ️ Repositório removido');
-  speak(valor ? 'Repositório configurado' : 'Repositório removido');
-}
-
-async function testarGithubRepo() {
-  const repo = (data.githubRotulosRepo || '').trim();
-  if (!repo) { showFeedback('⚠️ Configure e salve um repositório primeiro.'); return; }
-  showFeedback('🔍 Testando repositório...');
-  manifestRotulosCache = null; manifestRotulosRepoCache = null;
-  githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null;
-
-  const arvore = await carregarArvoreGitHub(repo, true);
-  if (arvore && arvore.tree.length) {
-    showFeedback(`✅ Repositório OK! ${arvore.tree.length} imagens encontradas (branch: ${arvore.branch}).`);
-    return;
-  }
-  const manifest = await carregarManifestRotulos(repo);
-  if (manifest && typeof manifest === 'object') {
-    showFeedback(`✅ Manifest acessível com ${Object.keys(manifest).length} rótulo(s).`);
-    return;
-  }
-  showFeedback('❌ Não foi possível acessar o repositório. Verifique se ele é público e o nome está correto.');
-}
-
-function atualizarStatusGithubRepo() {
-  const input = document.getElementById('githubRepoInput');
-  const status = document.getElementById('githubRepoStatus');
-  const repo = data.githubRotulosRepo || '';
-  if (input && document.activeElement !== input) input.value = repo;
-  if (status) {
-    if (repo) {
-      status.innerHTML = '✅ Repositório configurado: <b>' + escapeHtml(repo) + '</b>';
-      status.style.color = '#79e9aa';
-    } else {
-      status.textContent = 'Nenhum repositório configurado. A busca usará apenas imagens locais e da internet.';
-      status.style.color = '';
-    }
-  }
-}
-
 function comprimirImagem(dataUrl, maxW = 500, maxH = 400, quality = 0.8) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -2402,6 +2645,7 @@ async function buscarImagemGitHubManual() {
   }
   setLoadingPreview(true);
   showFeedback('🐙 Buscando no GitHub...');
+  // Força atualização da árvore para pegar mudanças recentes do repo
   const dataUrl = await buscarImagemGitHubRotulos(nome, true);
   setLoadingPreview(false);
   if (dataUrl) {
@@ -2411,7 +2655,7 @@ async function buscarImagemGitHubManual() {
     showFeedback('✅ Imagem encontrada no GitHub!');
     speak('Imagem encontrada no GitHub');
   } else {
-    showFeedback('❌ Nada encontrado no GitHub. Confira o repositório e o nome do produto.');
+    showFeedback('❌ Nada encontrado no GitHub. Verifique o nome do arquivo no repo.');
   }
 }
 
@@ -4034,12 +4278,18 @@ function importarDados(e) {
         data.historico = data.historico || [];
         data.sinonimos = data.sinonimos || {};
         data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
-        data.githubRotulosRepo = data.githubRotulosRepo || '';
+        if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) {
+          data.githubRotulosRepo = REPO_PADRAO;
+        }
         Object.keys(SINONIMOS_PADRAO).forEach(k => {
           if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) {
             data.sinonimos[k] = [...SINONIMOS_PADRAO[k]];
           }
         });
+        // Invalida caches de árvore/manifest
+        githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null;
+        githubTreeCacheTime = 0;
+        manifestRotulosCache = null; manifestRotulosRepoCache = null;
         save();
         renderAll();
         showFeedback('✅ Dados importados com sucesso!');
@@ -4063,8 +4313,10 @@ async function clearAllData() {
     estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true,
     sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO)),
     sinonimosEstabelecimentos: {},
-    githubRotulosRepo: ''
+    githubRotulosRepo: REPO_PADRAO
   };
+  githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
+  manifestRotulosCache = null; manifestRotulosRepoCache = null;
   renderAll();
   showFeedback('🗑 Todos os dados foram apagados.');
 }
@@ -4108,6 +4360,15 @@ window.onload = function() {
         try { recognizer.activate(); } catch(e) { console.warn('Reativação automática falhou:', e); }
       }
     }, 1500);
+  }
+
+  // Ao iniciar, se há estabelecimento ativo com produtos sem imagem, sincroniza
+  if (data.estabelecimentoAtivoId) {
+    const estab = data.estabelecimentos[data.estabelecimentoAtivoId];
+    if (estab && (estab.produtos || []).some(p => !p.imagem)) {
+      console.log('[Init] Estabelecimento ativo tem produtos sem imagem, iniciando sync...');
+      setTimeout(() => sincronizarImagensEstabelecimento(data.estabelecimentoAtivoId), 2000);
+    }
   }
 };
 </script>
