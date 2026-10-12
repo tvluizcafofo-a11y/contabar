@@ -509,11 +509,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <div class="empty">
         <div class="big">📷</div>
         <div>Sem imagem</div>
-        <div class="small">Use 🔍 Buscar na internet ou 📤 Enviar do dispositivo</div>
+        <div class="small">Use 🔍 Buscar na internet, 🐙 Buscar no GitHub ou 📤 Enviar do dispositivo</div>
       </div>
     </div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;">
       <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar na internet</button>
+      <button type="button" class="secondary small" onclick="buscarImagemGitHubManual()">🐙 Buscar no GitHub</button>
       <button type="button" class="secondary small" onclick="document.getElementById('produtoImagemFile').click()">📤 Enviar do dispositivo</button>
       <button type="button" class="secondary small" id="btnRemoverImg" onclick="removerImagemProduto()" style="display:none;">🗑 Remover imagem</button>
       <input type="file" id="produtoImagemFile" accept="image/*" style="display:none;" onchange="uploadImagemProduto(event)">
@@ -1021,6 +1022,7 @@ let imagemProdutoTemp = null;
 let valoresOriginaisProduto = null;
 let orderFlashTimer = null;
 let ultimoProdutoPedido = null;
+let sincronizandoImagens = false;
 const $ = id => document.getElementById(id);
 
 const speechDiagnostic = {
@@ -1754,6 +1756,52 @@ function getProdutosAtivos() {
   const estab = getEstabelecimentoAtivo();
   return estab ? estab.produtos || [] : [];
 }
+
+// ========== SINCRONIZAÇÃO DE IMAGENS AO SELECIONAR ESTABELECIMENTO ==========
+async function sincronizarImagensEstabelecimento(estabId) {
+  if (sincronizandoImagens) return;
+  const estab = data.estabelecimentos[estabId];
+  if (!estab || !Array.isArray(estab.produtos)) return;
+
+  const semImagem = estab.produtos.filter(p => !p.imagem);
+  if (semImagem.length === 0) return;
+
+  sincronizandoImagens = true;
+  showFeedback(`🖼️ Buscando imagens para ${semImagem.length} produto(s)...`);
+
+  let encontradas = 0;
+  let processados = 0;
+
+  for (const p of semImagem) {
+    if (p.imagem) { processados++; continue; }
+    try {
+      const dataUrl = await buscarImagemAutomatica(p.nome);
+      if (dataUrl && !p.imagem) {
+        p.imagem = dataUrl;
+        encontradas++;
+        save();
+      }
+    } catch (e) {
+      console.warn('Falha ao buscar imagem para', p.nome, e);
+    }
+    processados++;
+    if (processados % 3 === 0 && processados < semImagem.length) {
+      showFeedback(`🖼️ Buscando imagens (${processados}/${semImagem.length})...`);
+    }
+    await new Promise(r => setTimeout(r, 250));
+  }
+
+  sincronizandoImagens = false;
+
+  if (encontradas > 0) {
+    renderAll();
+    showFeedback(`✅ ${encontradas} imagem(ns) adicionada(s) automaticamente.`);
+    speak(`${encontradas} imagens adicionadas`);
+  } else {
+    showFeedback('ℹ️ Nenhuma imagem nova encontrada.');
+  }
+}
+
 async function setEstabelecimentoAtivo(id) {
   if (id && data.estabelecimentos[id]) {
     data.estabelecimentoAtivoId = id;
@@ -1776,6 +1824,7 @@ async function setEstabelecimentoAtivo(id) {
     const nome = data.estabelecimentos[id].nome;
     speak('Estabelecimento selecionado: ' + nome);
     showFeedback('🏢 Estabelecimento ativo: ' + nome);
+    setTimeout(() => sincronizarImagensEstabelecimento(id), 600);
   } else {
     data.estabelecimentoAtivoId = null;
     data.pedido = []; data.contaAtiva = false;
@@ -1870,6 +1919,7 @@ function trocarEstabelecimentoAtivo() {
   data.pedido = []; data.contaAtiva = false;
   fecharFormProduto(true);
   save(); renderAll();
+  if (id) setTimeout(() => sincronizarImagensEstabelecimento(id), 600);
 }
 
 function mostrarMiniCardapio() {
@@ -2013,6 +2063,9 @@ function buscarImagemLocal(nome) {
 
 let manifestRotulosCache = null;
 let manifestRotulosRepoCache = null;
+let githubTreeCache = null;
+let githubTreeRepoCache = null;
+let githubTreeBranchCache = null;
 
 async function carregarManifestRotulos(repo) {
   if (manifestRotulosCache && manifestRotulosRepoCache === repo) return manifestRotulosCache;
@@ -2034,45 +2087,132 @@ async function carregarManifestRotulos(repo) {
   return null;
 }
 
-async function buscarImagemGitHubRotulos(nome) {
+// Lista TODOS os arquivos do repositório de uma vez via API do GitHub.
+async function carregarArvoreGitHub(repo, forcarAtualizacao) {
+  if (!forcarAtualizacao && githubTreeCache && githubTreeRepoCache === repo) {
+    return { tree: githubTreeCache, branch: githubTreeBranchCache };
+  }
+  for (const branch of ['main', 'master']) {
+    try {
+      const url = `https://api.github.com/repos/${repo}/git/trees/${branch}?recursive=1`;
+      const resp = await fetch(url, { cache: 'no-cache' });
+      if (!resp.ok) continue;
+      const json = await resp.json();
+      if (!json.tree || !Array.isArray(json.tree)) continue;
+      const blobs = json.tree.filter(item =>
+        item.type === 'blob' && /\.(jpe?g|png|webp|gif|bmp)$/i.test(item.path)
+      );
+      if (blobs.length === 0) continue;
+      githubTreeCache = blobs;
+      githubTreeRepoCache = repo;
+      githubTreeBranchCache = branch;
+      return { tree: blobs, branch };
+    } catch(e) { }
+  }
+  return null;
+}
+
+async function baixarDoGitHub(repo, branch, path) {
+  const url = `https://raw.githubusercontent.com/${repo}/${branch}/${encodeURI(path)}`;
+  return await baixarImagemComoDataURL(url);
+}
+
+async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
   const repo = (data.githubRotulosRepo || '').trim();
   if (!repo || !nome) return null;
+
   const norm = normalize(nome);
   const slug = norm.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const slugSemEspaco = norm.replace(/[^a-z0-9]+/g, '');
   const palavras = norm.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
-  const candidatos = [...new Set([slug, slugSemEspaco, ...palavras].filter(Boolean))];
 
-  const manifest = await carregarManifestRotulos(repo);
-  if (manifest && typeof manifest === 'object') {
-    const chaves = Object.keys(manifest);
-    let match = null;
-    for (const c of candidatos) {
-      match = chaves.find(k => normalize(k) === c);
-      if (match) break;
-    }
-    if (!match) {
-      for (const c of candidatos) {
-        if (!c || c.length < 3) continue;
-        match = chaves.find(k => {
-          const nk = normalize(k);
-          return nk.includes(c) || c.includes(nk);
-        });
+  // 1) Manifest primeiro (mapeamento explícito feito pelo usuário)
+  try {
+    const manifest = await carregarManifestRotulos(repo);
+    if (manifest && typeof manifest === 'object') {
+      const chaves = Object.keys(manifest);
+      const candidatosManifest = [...new Set([slug, slugSemEspaco, ...palavras, norm].filter(Boolean))];
+      let match = null;
+      for (const c of candidatosManifest) {
+        match = chaves.find(k => normalize(k) === c);
         if (match) break;
       }
-    }
-    if (match) {
-      const path = String(manifest[match] || '').replace(/^\//, '');
-      if (path) {
-        for (const branch of ['main', 'master']) {
-          const url = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
-          const dataUrl = await baixarImagemComoDataURL(url);
-          if (dataUrl) return dataUrl;
+      if (!match) {
+        for (const c of candidatosManifest) {
+          if (!c || c.length < 3) continue;
+          match = chaves.find(k => {
+            const nk = normalize(k);
+            return nk.includes(c) || c.includes(nk);
+          });
+          if (match) break;
+        }
+      }
+      if (match) {
+        const path = String(manifest[match] || '').replace(/^\//, '');
+        if (path) {
+          for (const branch of ['main', 'master']) {
+            const dataUrl = await baixarDoGitHub(repo, branch, path);
+            if (dataUrl) return dataUrl;
+          }
         }
       }
     }
+  } catch (e) { }
+
+  // 2) API de árvore do GitHub — lista todos os arquivos e pontua por similaridade
+  try {
+    const resultado = await carregarArvoreGitHub(repo, forcarAtualizacao);
+    if (resultado && resultado.tree.length) {
+      const { tree, branch } = resultado;
+      let melhorPath = null;
+      let melhorScore = 0;
+
+      tree.forEach(item => {
+        const pathLower = normalize(item.path);
+        const partes = pathLower.split('/');
+        const baseCompleto = partes[partes.length - 1];
+        const baseSemExt = baseCompleto.replace(/\.[^.]+$/, '');
+
+        let score = 0;
+        if (baseSemExt === slug)                        score = 1000;
+        else if (baseSemExt === slugSemEspaco)          score = 950;
+        else if (baseSemExt === norm)                   score = 900;
+        else if (baseSemExt === norm.replace(/\s+/g,''))score = 850;
+        else if (baseSemExt === norm.replace(/\s+/g,'-'))score = 850;
+        else {
+          const palavrasArquivo = baseSemExt.split(/[-_\s]+/).filter(w => w.length >= 3);
+          if (palavras.length && palavrasArquivo.length) {
+            const comuns = palavras.filter(w =>
+              palavrasArquivo.includes(w) ||
+              palavrasArquivo.some(pa => pa.includes(w) || w.includes(pa))
+            ).length;
+            if (comuns > 0) {
+              const cobertura = comuns / palavras.length;
+              if (cobertura >= 0.5) score = Math.round(cobertura * 500 + comuns * 10);
+            }
+          }
+          if (score === 0) {
+            const partesMatch = palavras.filter(w => pathLower.includes(w)).length;
+            if (partesMatch >= Math.max(1, palavras.length)) score = partesMatch * 20;
+          }
+        }
+
+        if (score > melhorScore) {
+          melhorScore = score;
+          melhorPath = item.path;
+        }
+      });
+
+      if (melhorPath && melhorScore >= 100) {
+        const dataUrl = await baixarDoGitHub(repo, branch, melhorPath);
+        if (dataUrl) return dataUrl;
+      }
+    }
+  } catch (e) {
+    console.warn('Erro na busca por árvore do GitHub:', e);
   }
 
+  // 3) Fallback: tentar URLs diretas em pastas comuns
   const folders = ['rotulos/', 'imagens/', 'images/', 'img/', ''];
   const exts = ['jpg', 'jpeg', 'png', 'webp'];
   const slugs = [...new Set([slug, slugSemEspaco])].filter(Boolean);
@@ -2080,11 +2220,12 @@ async function buscarImagemGitHubRotulos(nome) {
     for (const folder of folders) {
       for (const s of slugs) {
         for (const ext of exts) {
-          const url = `https://raw.githubusercontent.com/${repo}/${branch}/${folder}${s}.${ext}`;
+          const caminho = `${folder}${s}.${ext}`;
+          const url = `https://raw.githubusercontent.com/${repo}/${branch}/${caminho}`;
           try {
             const resp = await fetch(url, { method: 'HEAD', cache: 'no-cache' });
             if (resp.ok) {
-              const dataUrl = await baixarImagemComoDataURL(url);
+              const dataUrl = await baixarDoGitHub(repo, branch, caminho);
               if (dataUrl) return dataUrl;
             }
           } catch(e) { }
@@ -2126,6 +2267,9 @@ function salvarGithubRepo() {
   data.githubRotulosRepo = valor;
   manifestRotulosCache = null;
   manifestRotulosRepoCache = null;
+  githubTreeCache = null;
+  githubTreeRepoCache = null;
+  githubTreeBranchCache = null;
   save();
   atualizarStatusGithubRepo();
   showFeedback(valor ? '✅ Repositório salvo: ' + valor : 'ℹ️ Repositório removido');
@@ -2136,15 +2280,20 @@ async function testarGithubRepo() {
   const repo = (data.githubRotulosRepo || '').trim();
   if (!repo) { showFeedback('⚠️ Configure e salve um repositório primeiro.'); return; }
   showFeedback('🔍 Testando repositório...');
-  manifestRotulosCache = null;
-  manifestRotulosRepoCache = null;
+  manifestRotulosCache = null; manifestRotulosRepoCache = null;
+  githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null;
+
+  const arvore = await carregarArvoreGitHub(repo, true);
+  if (arvore && arvore.tree.length) {
+    showFeedback(`✅ Repositório OK! ${arvore.tree.length} imagens encontradas (branch: ${arvore.branch}).`);
+    return;
+  }
   const manifest = await carregarManifestRotulos(repo);
   if (manifest && typeof manifest === 'object') {
-    const total = Object.keys(manifest).length;
-    showFeedback('✅ Repositório acessível! Manifest com ' + total + ' rótulo(s).');
-  } else {
-    showFeedback('ℹ️ Repositório acessível, mas sem manifest.json. Será usada busca direta por URL.');
+    showFeedback(`✅ Manifest acessível com ${Object.keys(manifest).length} rótulo(s).`);
+    return;
   }
+  showFeedback('❌ Não foi possível acessar o repositório. Verifique se ele é público e o nome está correto.');
 }
 
 function atualizarStatusGithubRepo() {
@@ -2195,7 +2344,7 @@ function renderPreviewImagemProduto() {
       <div class="empty">
         <div class="big">📷</div>
         <div>Sem imagem</div>
-        <div class="small">Use 🔍 Buscar na internet ou 📤 Enviar do dispositivo</div>
+        <div class="small">Use 🔍 Buscar na internet, 🐙 Buscar no GitHub ou 📤 Enviar do dispositivo</div>
       </div>`;
     if (btnRemover) btnRemover.style.display = 'none';
   }
@@ -2236,6 +2385,33 @@ async function buscarImagemManual() {
     showFeedback('✅ Imagem encontrada!');
   } else {
     showFeedback('❌ Nada encontrado. Envie uma imagem do dispositivo.');
+  }
+}
+
+async function buscarImagemGitHubManual() {
+  const nome = $('produtoNome').value.trim();
+  if (!nome) {
+    showFeedback('⚠️ Informe o nome do produto primeiro.');
+    $('produtoNome').focus();
+    return;
+  }
+  const repo = (data.githubRotulosRepo || '').trim();
+  if (!repo) {
+    showFeedback('⚠️ Configure um repositório em Configurações → Repositório de Rótulos.');
+    return;
+  }
+  setLoadingPreview(true);
+  showFeedback('🐙 Buscando no GitHub...');
+  const dataUrl = await buscarImagemGitHubRotulos(nome, true);
+  setLoadingPreview(false);
+  if (dataUrl) {
+    imagemProdutoTemp = dataUrl;
+    renderPreviewImagemProduto();
+    verificarAlteracoesProduto();
+    showFeedback('✅ Imagem encontrada no GitHub!');
+    speak('Imagem encontrada no GitHub');
+  } else {
+    showFeedback('❌ Nada encontrado no GitHub. Confira o repositório e o nome do produto.');
   }
 }
 
