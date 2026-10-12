@@ -211,6 +211,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .produto-img-preview .empty .big { font-size: 42px; line-height: 1; }
 .produto-img-preview .empty .small { font-size: 11px; opacity: 0.75; }
 .produto-img-preview.loading::before {content: '';position: absolute;inset: 0;background: rgba(0,0,0,0.55);backdrop-filter: blur(2px);z-index: 1;}
+.produto-img-preview:focus {outline: 3px solid var(--accent);outline-offset: 3px;box-shadow: 0 0 0 6px rgba(57,201,122,0.25), 0 8px 30px rgba(57,201,122,0.4);transition: box-shadow 0.25s ease, outline 0.15s ease;}
 .produto-img-preview .spinner {position: absolute;z-index: 2;width: 34px; height: 34px;border: 3px solid rgba(255,255,255,0.25);border-top-color: var(--accent);border-radius: 50%;animation: spin 0.8s linear infinite;}
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -527,7 +528,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
     </div>
 
     <label>Imagem do produto</label>
-    <div id="produtoImagemPreview" class="produto-img-preview">
+    <div id="produtoImagemPreview" class="produto-img-preview" tabindex="0">
       <div class="empty">
         <div class="big">📷</div>
         <div>Sem imagem</div>
@@ -2276,9 +2277,6 @@ function salvarEstabelecimento() {
   save(); renderAll();
 }
 
-/* ============================================================
-   EXCLUSÃO DE ESTABELECIMENTO COM VERIFICAÇÃO DE MOVIMENTAÇÕES
-   ============================================================ */
 async function excluirEstabelecimento(id) {
   const estab = data.estabelecimentos[id];
   if (!estab) return;
@@ -2694,7 +2692,7 @@ async function addProduto(nome, preco) {
 }
 
 /* ============================================================
-   EDITAR PRODUTO — mostra campos no topo, esconde lista, banner
+   EDITAR PRODUTO — nome e preço em uma linha, foco vai para a imagem
    ============================================================ */
 function editProduto(id) {
   const estab = getEstabelecimentoAtivo();
@@ -2705,7 +2703,7 @@ function editProduto(id) {
   currentEditId = id;
   valoresOriginaisProduto = { nome: p.nome || '', preco: p.preco, imagem: p.imagem || null };
 
-  // Preenche campos — NOME e PREÇO VISÍVEIS
+  // Preenche campos — NOME e PREÇO em uma linha
   $('produtoNome').value = p.nome;
   $('produtoPreco').value = p.preco;
   imagemProdutoTemp = p.imagem || null;
@@ -2716,26 +2714,39 @@ function editProduto(id) {
   form.style.display = 'block';
   form.classList.add('modo-edicao');
 
-  // Esconde a lista e destaca o modo foco
   document.getElementById('cardapio').classList.add('editando');
   const listaProdutos = document.getElementById('listaProdutos');
   if (listaProdutos) listaProdutos.style.display = 'none';
   document.getElementById('btnIncluirProduto').style.display = 'none';
 
-  // Banner com nome do produto sendo editado
   mostrarBannerEdicao(true, '📝 ' + p.nome + '  •  ' + money(p.preco));
 
-  // Vai para a aba cardápio e rola para o topo (após o header)
   showScreen('cardapio');
   verificarAlteracoesProduto();
   showFeedback('✏️ Editando: ' + p.nome);
   rolarParaFormProduto();
-  setTimeout(() => { try { document.getElementById('produtoNome').focus(); } catch(e){} }, 300);
+
+  // Tira o foco de nome/preço e tenta focar na imagem.
+  // Se não for possível focar na imagem, não foca em nenhum campo.
+  setTimeout(() => {
+    try {
+      const nomeEl = document.getElementById('produtoNome');
+      const precoEl = document.getElementById('produtoPreco');
+      if (nomeEl && document.activeElement === nomeEl) nomeEl.blur();
+      if (precoEl && document.activeElement === precoEl) precoEl.blur();
+
+      const previewEl = document.getElementById('produtoImagemPreview');
+      if (previewEl && typeof previewEl.focus === 'function') {
+        previewEl.focus({ preventScroll: true });
+      } else if (document.activeElement && typeof document.activeElement.blur === 'function') {
+        document.activeElement.blur();
+      }
+    } catch (e) {
+      try { if (document.activeElement && typeof document.activeElement.blur === 'function') document.activeElement.blur(); } catch(_) {}
+    }
+  }, 300);
 }
 
-/* ============================================================
-   EXCLUIR PRODUTO COM VERIFICAÇÃO DE MOVIMENTAÇÕES
-   ============================================================ */
 async function deleteProduto(id) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
@@ -3032,9 +3043,6 @@ async function pagarCartao() {
   if (ok) finalizarPagamento();
 }
 
-/* ============================================================
-   SOLICITAR CADASTRO AO ABRIR CONTA
-   ============================================================ */
 async function solicitarCadastroUsuario(motivo) {
   const ok = await confirmar(
     motivo + '\n\nDeseja cadastrar um usuário agora?',
@@ -3623,7 +3631,7 @@ function exportarDados(incluirImagens = true) {
       (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; });
     });
   }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 6, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 7, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
