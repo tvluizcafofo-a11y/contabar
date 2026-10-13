@@ -1000,7 +1000,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo.</p>
   </div>
   <div class="tip-box">
-    <p>📷 <b>Pedido por código de barras:</b> use o botão <b>📷</b> no topo da tela a qualquer momento. Aponte a câmera para o código. Também é possível digitar o código manualmente.</p>
+    <p>📷 <b>Pedido por código de barras:</b> use o botão <b>📷</b> no topo da tela a qualquer momento. Aponte a câmera traseira para o código. Também é possível digitar o código manualmente.</p>
   </div>
 </div>
 </section>
@@ -1269,7 +1269,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <div id="barcodeReader"></div>
     </div>
 
-    <div id="barcodeStatus" class="barcode-status-lido">Aponte a câmera para o código...</div>
+    <div id="barcodeStatus" class="barcode-status-lido">Aponte a câmera traseira para o código...</div>
 
     <label>Ou digite o código manualmente:</label>
     <input id="barcodeInput" placeholder="Digite o código..." inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmarCodigoBarras();}">
@@ -1279,7 +1279,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <button class="secondary" onclick="fecharLeitorCodigoBarras()" style="flex:1;">❌ Cancelar</button>
     </div>
     <div class="barcode-scanner-actions">
-      <button class="secondary small" onclick="alternarCamera()">🔄 Trocar câmera</button>
       <button class="secondary small" onclick="alternarLanterna()">🔦 Lanterna</button>
     </div>
 
@@ -1501,8 +1500,6 @@ let speechExecutionId = 0;
 // Scanner de código de barras
 let html5QrScanner = null;
 let barcodeContexto = 'cadastro';
-let barcodeCameras = [];
-let barcodeCameraIndexAtual = 0;
 let barcodeTorchOn = false;
 let barcodeModalAberto = false;
 let codigoProcessando = false;
@@ -2051,7 +2048,7 @@ function atualizarIconeVoz() {
   }
 }
 
-/* ============ LEITOR DE CÓDIGO DE BARRAS ============ */
+/* ============ LEITOR DE CÓDIGO DE BARRAS (apenas câmera traseira) ============ */
 async function abrirLeitorCodigoBarras(contexto) {
   barcodeContexto = contexto;
   barcodeModalAberto = true;
@@ -2063,7 +2060,7 @@ async function abrirLeitorCodigoBarras(contexto) {
   const input = document.getElementById('barcodeInput');
   if (input) input.value = '';
   const statusEl = document.getElementById('barcodeStatus');
-  if (statusEl) statusEl.textContent = '🔄 Iniciando câmera...';
+  if (statusEl) statusEl.textContent = '🔄 Iniciando câmera traseira...';
 
   await new Promise(r => setTimeout(r, 150));
   await iniciarScanner();
@@ -2086,30 +2083,6 @@ async function iniciarScanner() {
     }
     if (readerEl) readerEl.innerHTML = '';
 
-    if (!barcodeCameras || barcodeCameras.length === 0) {
-      try {
-        barcodeCameras = await Html5Qrcode.getCameras();
-      } catch(e) {
-        console.warn('Erro getCameras:', e);
-        barcodeCameras = [];
-      }
-    }
-
-    if (!barcodeCameras || barcodeCameras.length === 0) {
-      if (statusEl) statusEl.textContent = '⚠️ Nenhuma câmera encontrada. Digite o código abaixo.';
-      return;
-    }
-
-    let cameraId = barcodeCameras[barcodeCameraIndexAtual]?.id || barcodeCameras[0].id;
-    if (barcodeCameras.length > 1 && barcodeCameraIndexAtual === 0) {
-      const traseira = barcodeCameras.find(c => /back|rear|traseira|environment|trás/i.test(c.label || ''));
-      if (traseira) {
-        cameraId = traseira.id;
-        barcodeCameraIndexAtual = barcodeCameras.findIndex(c => c.id === traseira.id);
-        if (barcodeCameraIndexAtual < 0) barcodeCameraIndexAtual = 0;
-      }
-    }
-
     html5QrScanner = new Html5Qrcode('barcodeReader', { verbose: false });
 
     const formatosSuportados = [];
@@ -2120,29 +2093,79 @@ async function iniciarScanner() {
       });
     }
 
-    const config = {
-      fps: 10,
-      qrbox: function(viewfinderWidth, viewfinderHeight) {
-        const min = Math.min(viewfinderWidth, viewfinderHeight);
-        const w = Math.floor(viewfinderWidth * 0.85);
-        const h = Math.floor(min * 0.4);
-        return { width: Math.max(w, 200), height: Math.max(h, 100) };
-      },
-      aspectRatio: 1.777
+    const makeConfig = () => {
+      const config = {
+        fps: 10,
+        qrbox: function(viewfinderWidth, viewfinderHeight) {
+          const min = Math.min(viewfinderWidth, viewfinderHeight);
+          const w = Math.floor(viewfinderWidth * 0.85);
+          const h = Math.floor(min * 0.4);
+          return { width: Math.max(w, 200), height: Math.max(h, 100) };
+        },
+        aspectRatio: 1.777
+      };
+      if (formatosSuportados.length) config.formatsToSupport = formatosSuportados;
+      return config;
     };
-    if (formatosSuportados.length) config.formatsToSupport = formatosSuportados;
 
-    await html5QrScanner.start(
-      { deviceId: { exact: cameraId } },
-      config,
-      (decodedText) => { codigoLido(decodedText); },
-      (err) => { /* erros por frame — ignorar */ }
-    );
+    // ⭐ Sempre câmera TRASEIRA (environment). Sem opção de trocar para a frontal.
+    try {
+      await html5QrScanner.start(
+        { facingMode: { exact: 'environment' } },
+        makeConfig(),
+        (decodedText) => { codigoLido(decodedText); },
+        (err) => { /* erros por frame — ignorar */ }
+      );
+    } catch (errExact) {
+      // Fallback para navegadores que não aceitam "exact"
+      console.warn('facingMode exact falhou, tentando sem exact:', errExact);
+      try {
+        if (html5QrScanner) {
+          try { await html5QrScanner.stop(); } catch(e) {}
+          try { html5QrScanner.clear(); } catch(e) {}
+        }
+        if (readerEl) readerEl.innerHTML = '';
+        html5QrScanner = new Html5Qrcode('barcodeReader', { verbose: false });
+        await html5QrScanner.start(
+          { facingMode: 'environment' },
+          makeConfig(),
+          (decodedText) => { codigoLido(decodedText); },
+          (err) => { /* ignorar */ }
+        );
+      } catch (errEnv) {
+        console.warn('Fallback environment também falhou:', errEnv);
+        // Último recurso: pega a câmera traseira pela lista de dispositivos
+        try {
+          if (html5QrScanner) {
+            try { await html5QrScanner.stop(); } catch(e) {}
+            try { html5QrScanner.clear(); } catch(e) {}
+          }
+          if (readerEl) readerEl.innerHTML = '';
+          html5QrScanner = new Html5Qrcode('barcodeReader', { verbose: false });
+          const cams = await Html5Qrcode.getCameras();
+          const traseira = cams.find(c => /back|rear|traseira|environment|trás/i.test(c.label || ''));
+          if (traseira) {
+            await html5QrScanner.start(
+              { deviceId: { exact: traseira.id } },
+              makeConfig(),
+              (decodedText) => { codigoLido(decodedText); },
+              (err) => { /* ignorar */ }
+            );
+          } else {
+            throw new Error('Nenhuma câmera traseira encontrada');
+          }
+        } catch (errList) {
+          console.warn('Todos os métodos falharam:', errList);
+          if (statusEl) statusEl.textContent = '⚠️ Não foi possível abrir a câmera traseira. Digite o código abaixo.';
+          return;
+        }
+      }
+    }
 
-    if (statusEl) statusEl.textContent = '🟢 Aponte a câmera para o código de barras...';
+    if (statusEl) statusEl.textContent = '🟢 Aponte a câmera traseira para o código de barras...';
   } catch (err) {
     console.warn('Erro ao iniciar scanner:', err);
-    if (statusEl) statusEl.textContent = '⚠️ Não foi possível abrir a câmera. Digite o código abaixo.';
+    if (statusEl) statusEl.textContent = '⚠️ Não foi possível abrir a câmera traseira. Digite o código abaixo.';
   }
 }
 
@@ -2274,25 +2297,6 @@ async function buscarProdutoPorCodigo(codigo) {
   }
 
   addPedido(encontrado.id, 1);
-}
-
-async function alternarCamera() {
-  if (!barcodeCameras || barcodeCameras.length < 2) {
-    showFeedback('⚠️ Sem outras câmeras disponíveis');
-    return;
-  }
-  try {
-    if (html5QrScanner) {
-      try { await html5QrScanner.stop(); } catch(e) {}
-      try { html5QrScanner.clear(); } catch(e) {}
-      html5QrScanner = null;
-    }
-  } catch(e) {}
-  barcodeCameraIndexAtual = (barcodeCameraIndexAtual + 1) % barcodeCameras.length;
-  const statusEl = document.getElementById('barcodeStatus');
-  if (statusEl) statusEl.textContent = '🔄 Trocando câmera...';
-  await new Promise(r => setTimeout(r, 150));
-  await iniciarScanner();
 }
 
 async function alternarLanterna() {
