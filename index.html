@@ -1,4 +1,4 @@
-<!-- Conta Bar 13.10.2026 - Temas Claro/Escuro + Código de Barras -->
+<!-- Conta Bar 13.10.2026 - Temas Claro/Escuro + Código de Barras + Importação entre Estabelecimentos -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -738,12 +738,69 @@ footer{text-align:center;color:var(--muted);padding:25px}
 #cardapio.editando .cardapio-header { opacity:.45; pointer-events:none; }
 #cardapio.editando #listaProdutos { display:none; }
 
-/* Destaque suave para campos preenchidos por leitura de código */
+/* Destaque para campos preenchidos por leitura de código */
 .campo-lido-destaque {animation:campoLidoPulse 1.2s ease;}
 @keyframes campoLidoPulse {
   0% { box-shadow:0 0 0 0 rgba(16,185,129,.7); border-color:var(--green); }
   60% { box-shadow:0 0 0 8px rgba(16,185,129,0); }
   100% { box-shadow:0 0 0 0 rgba(16,185,129,0); }
+}
+
+/* ⭐ Destaque para campos preenchidos por IMPORT de outro estabelecimento */
+.campo-importado-destaque {animation:campoImportadoPulse 1.6s ease;}
+@keyframes campoImportadoPulse {
+  0% { box-shadow:0 0 0 0 rgba(139,92,246,.75); border-color:var(--purple); background:rgba(139,92,246,.08); }
+  60% { box-shadow:0 0 0 10px rgba(139,92,246,0); }
+  100% { box-shadow:0 0 0 0 rgba(139,92,246,0); background:transparent; }
+}
+
+/* ⭐ Aviso de importação entre estabelecimentos */
+.aviso-importacao {
+  display:none;
+  margin:0 0 14px 0;
+  padding:12px 14px;
+  border-radius:12px;
+  background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(139,92,246,.06));
+  border:2px solid rgba(139,92,246,.45);
+  color:var(--text);
+  font-size:13px;
+  line-height:1.5;
+  animation:avisoImportIn .35s ease;
+}
+.aviso-importacao.show { display:block; }
+.aviso-importacao .aviso-titulo {
+  font-weight:bold;
+  color:var(--purple);
+  margin-bottom:4px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+}
+.aviso-importacao .aviso-estab {
+  font-weight:bold;
+  color:var(--estab-name-color);
+  text-shadow:var(--estab-name-shadow);
+}
+.aviso-importacao .aviso-campos {
+  display:inline-flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:6px;
+}
+.aviso-importacao .aviso-chip {
+  display:inline-block;
+  padding:3px 10px;
+  border-radius:14px;
+  background:rgba(139,92,246,.18);
+  color:var(--purple);
+  font-size:11px;
+  font-weight:bold;
+  letter-spacing:.3px;
+}
+@keyframes avisoImportIn {
+  from { opacity:0; transform:translateY(-6px); }
+  to { opacity:1; transform:translateY(0); }
 }
 
 /* ============ SCANNER DE CÓDIGO DE BARRAS ============ */
@@ -958,22 +1015,36 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <div id="formProduto" style="display:none; padding:16px; background:var(--panel-2); border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
     <h3 id="formProdutoTitulo" style="margin-top:0; color:var(--title-color);">➕ Novo produto</h3>
 
+    <!-- ⭐ Aviso de importação entre estabelecimentos -->
+    <div id="avisoImportacao" class="aviso-importacao">
+      <div class="aviso-titulo">
+        <span>📥 Produto encontrado em outro estabelecimento!</span>
+      </div>
+      <div>
+        Dados importados de <span class="aviso-estab" id="avisoEstabNome">—</span>. Você só precisa confirmar ou ajustar.
+      </div>
+      <div class="aviso-campos" id="avisoCamposImportados"></div>
+    </div>
+
     <div id="produtoCamposExtras">
       <div class="produto-form-linha">
         <div class="campo-nome">
           <label>Nome do produto</label>
-          <input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml" oninput="verificarAlteracoesProduto()">
+          <input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml"
+            oninput="verificarAlteracoesProduto(); agendarVerificacaoProdutoEmOutrosEstabs();">
         </div>
         <div class="campo-preco">
           <label>Preço (R$)</label>
-          <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10,00" oninput="verificarAlteracoesProduto()">
+          <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10,00"
+            oninput="verificarAlteracoesProduto();">
         </div>
       </div>
 
       <div class="barcode-field-linha">
         <div class="campo-codigo">
           <label>Código de barras (EAN/UPC)</label>
-          <input id="produtoCodigoBarras" placeholder="Ex.: 7891234567890" inputmode="numeric" oninput="verificarAlteracoesProduto()">
+          <input id="produtoCodigoBarras" placeholder="Ex.: 7891234567890" inputmode="numeric"
+            oninput="verificarAlteracoesProduto(); agendarVerificacaoProdutoEmOutrosEstabs();">
         </div>
         <button type="button" class="secondary btn-ler-codigo" onclick="abrirLeitorCodigoBarras('cadastro')">📷 Ler</button>
       </div>
@@ -1000,6 +1071,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <button class="secondary" onclick="fecharFormProduto()">❌ Cancelar</button>
     </div>
     <p class="note" style="margin-top:8px;">Ao cadastrar, o app busca a imagem automaticamente: <b>1)</b> dispositivo → <b>2)</b> repositório GitHub → <b>3)</b> internet.</p>
+    <p class="note" style="margin-top:4px;">📥 <b>Dica:</b> se este produto já existir em outro estabelecimento seu, os dados (nome, código de barras, preço e imagem) serão preenchidos automaticamente.</p>
   </div>
 
   <div id="listaProdutos"></div>
@@ -1009,6 +1081,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
   <div class="tip-box">
     <p>📷 <b>Pedido por código de barras:</b> use o botão <b>📷</b> no topo da tela a qualquer momento. Aponte a câmera traseira para o código. Também é possível digitar o código manualmente.</p>
+  </div>
+  <div class="tip-box" style="border-color:var(--purple);background:rgba(139,92,246,.08);">
+    <p>📥 <b>Importação automática:</b> se você cadastrar um produto que já existe em outro estabelecimento seu, os dados serão trazidos automaticamente (nome, código de barras, preço e imagem).</p>
+  </div>
+  <div class="tip-box" style="border-color:var(--yellow);background:rgba(251,191,36,.08);">
+    <p>🗑️ <b>Ao excluir um produto já usado em contas anteriores:</b> o produto sai do cadastro e da conta ativa, mas <b>o histórico é preservado</b> para consulta futura.</p>
   </div>
 </div>
 </section>
@@ -1511,6 +1589,9 @@ let barcodeContexto = 'cadastro';
 let barcodeTorchOn = false;
 let barcodeModalAberto = false;
 let codigoProcessando = false;
+
+// ⭐ Importação entre estabelecimentos
+let timeoutVerificarProdutoOutrosEstabs = null;
 
 const $ = id => document.getElementById(id);
 
@@ -2056,7 +2137,7 @@ function atualizarIconeVoz() {
   }
 }
 
-/* ============ LEITOR DE CÓDIGO DE BARRAS (apenas câmera traseira) ============ */
+/* ============ LEITOR DE CÓDIGO DE BARRAS ============ */
 async function abrirLeitorCodigoBarras(contexto) {
   barcodeContexto = contexto;
   barcodeModalAberto = true;
@@ -2116,13 +2197,12 @@ async function iniciarScanner() {
       return config;
     };
 
-    // ⭐ Sempre câmera TRASEIRA (environment). Sem opção de trocar para a frontal.
     try {
       await html5QrScanner.start(
         { facingMode: { exact: 'environment' } },
         makeConfig(),
         (decodedText) => { codigoLido(decodedText); },
-        (err) => { /* erros por frame — ignorar */ }
+        (err) => { }
       );
     } catch (errExact) {
       console.warn('facingMode exact falhou, tentando sem exact:', errExact);
@@ -2137,7 +2217,7 @@ async function iniciarScanner() {
           { facingMode: 'environment' },
           makeConfig(),
           (decodedText) => { codigoLido(decodedText); },
-          (err) => { /* ignorar */ }
+          (err) => { }
         );
       } catch (errEnv) {
         console.warn('Fallback environment também falhou:', errEnv);
@@ -2155,7 +2235,7 @@ async function iniciarScanner() {
               { deviceId: { exact: traseira.id } },
               makeConfig(),
               (decodedText) => { codigoLido(decodedText); },
-              (err) => { /* ignorar */ }
+              (err) => { }
             );
           } else {
             throw new Error('Nenhuma câmera traseira encontrada');
@@ -2176,7 +2256,6 @@ async function iniciarScanner() {
 }
 
 async function codigoLido(codigo) {
-  // Evita processar mais de uma vez pelo mesmo scan (html5-qrcode dispara callback várias vezes)
   if (!codigo || !barcodeModalAberto || codigoProcessando) return;
   codigoProcessando = true;
 
@@ -2188,7 +2267,6 @@ async function codigoLido(codigo) {
   if (speechOn) speak('Código lido');
   if (navigator.vibrate) { try { navigator.vibrate(120); } catch(e){} }
 
-  // Para o scanner IMEDIATAMENTE para evitar leituras duplicadas
   try {
     if (html5QrScanner) {
       try { await html5QrScanner.stop(); } catch(e) {}
@@ -2234,7 +2312,6 @@ async function confirmarCodigoBarras() {
   document.getElementById('barcodeModal').classList.remove('active');
 
   if (barcodeContexto === 'cadastro') {
-    // ⭐ No CADASTRO: bloqueia código já usado em outro produto (evita duplicidade no cardápio)
     const estab = getEstabelecimentoAtivo();
     if (estab) {
       const existente = (estab.produtos || []).find(p =>
@@ -2247,8 +2324,13 @@ async function confirmarCodigoBarras() {
       }
     }
     const field = document.getElementById('produtoCodigoBarras');
-    if (field) field.value = codigo;
+    if (field) {
+      field.value = codigo;
+      try { field.dispatchEvent(new Event('input', { bubbles: true })); } catch(e) {}
+    }
     verificarAlteracoesProduto();
+    // ⭐ Dispara verificação de produto em outros estabelecimentos
+    agendarVerificacaoProdutoEmOutrosEstabs();
     showFeedback('📷 Código aplicado: ' + codigo);
     speak('Código aplicado');
   } else if (barcodeContexto === 'pedido') {
@@ -2268,37 +2350,34 @@ async function buscarProdutoPorCodigo(codigo) {
   const produtos = estab.produtos || [];
   const encontrado = produtos.find(p => String(p.codigoBarras || '').trim() === codigoNorm);
 
-  // ⭐ Código NÃO cadastrado → pergunta se quer incluir e vai direto para o cadastro
   if (!encontrado) {
     showFeedback('❌ Nenhum produto com este código');
     speak('Nenhum produto com este código');
     const ok = await confirmar(
-      `Nenhum produto cadastrado com o código "${codigoNorm}".\n\nDeseja cadastrar um novo produto com este código?`,
+      `Nenhum produto cadastrado com o código "${codigoNorm}" neste estabelecimento.\n\nDeseja cadastrar um novo produto com este código?`,
       { icone: '🆕', titulo: 'Produto não encontrado', textoSim: 'Cadastrar', textoNao: 'Cancelar' }
     );
     if (!ok) return;
 
-    // 1) Vai para a tela de Produtos
     showScreen('cardapio');
 
-    // 2) Abre o formulário em modo de inclusão (limpa estado de edição)
     currentEditId = null;
     valoresOriginaisProduto = null;
     mostrarFormProduto();
 
-    // 3) Aguarda o form estar renderizado e preenche o código + foca no nome
     setTimeout(() => {
       const campoCod = $('produtoCodigoBarras');
       if (campoCod) {
         campoCod.value = codigoNorm;
-        // dispara o "oninput" para atualizar botão salvar
         try { campoCod.dispatchEvent(new Event('input', { bubbles: true })); } catch(e) {}
         campoCod.classList.remove('campo-lido-destaque');
-        // força reflow para reiniciar a animação
         void campoCod.offsetWidth;
         campoCod.classList.add('campo-lido-destaque');
       }
       verificarAlteracoesProduto();
+
+      // ⭐ Verifica se o produto existe em outro estabelecimento
+      agendarVerificacaoProdutoEmOutrosEstabs();
 
       const nomeEl = $('produtoNome');
       if (nomeEl) {
@@ -2312,7 +2391,6 @@ async function buscarProdutoPorCodigo(codigo) {
     return;
   }
 
-  // ⭐ Pedido: pode incluir infinitas vezes o mesmo produto lido
   if (!data.contaAtiva) {
     const ok = await confirmar(
       `Produto encontrado: "${encontrado.nome}".\n\nNenhuma conta aberta. Deseja abrir uma conta agora?`,
@@ -2345,6 +2423,176 @@ async function alternarLanterna() {
   } catch(e) { console.warn(e); showFeedback('⚠️ Lanterna não suportada'); }
 }
 
+/* ============ ⭐ IMPORTAÇÃO ENTRE ESTABELECIMENTOS ============ */
+
+/**
+ * Busca um produto em outros estabelecimentos que corresponda ao nome
+ * e/ou código de barras informados.
+ * Prioridade: código de barras (identificador único), depois nome exato.
+ */
+function buscarProdutoSimilarEmOutrosEstabs(criterios) {
+  const nomeNorm = criterios.nome ? normalize(criterios.nome).trim() : '';
+  const codNorm = criterios.codigoBarras ? String(criterios.codigoBarras).trim() : '';
+  if (!nomeNorm && !codNorm) return null;
+
+  const estabAtualId = data.estabelecimentoAtivoId;
+
+  // 1) Busca prioritária por CÓDIGO DE BARRAS (é o identificador único)
+  if (codNorm) {
+    for (const [id, estab] of Object.entries(data.estabelecimentos)) {
+      if (id === estabAtualId) continue;
+      for (const p of (estab.produtos || [])) {
+        if (String(p.codigoBarras || '').trim() === codNorm) {
+          return { produto: p, estab, matchPor: 'codigo' };
+        }
+      }
+    }
+  }
+
+  // 2) Busca por NOME EXATO
+  if (nomeNorm) {
+    for (const [id, estab] of Object.entries(data.estabelecimentos)) {
+      if (id === estabAtualId) continue;
+      for (const p of (estab.produtos || [])) {
+        if (normalize(p.nome).trim() === nomeNorm) {
+          return { produto: p, estab, matchPor: 'nome' };
+        }
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Aplica os dados de um produto de outro estabelecimento no formulário atual.
+ * Só preenche campos que estiverem VAZIOS (não sobrescreve o que o usuário digitou).
+ * Retorna a lista de campos que foram preenchidos.
+ */
+function aplicarDadosDeOutroEstab(origem) {
+  if (!origem) return [];
+  const preencheu = [];
+
+  const nomeEl = document.getElementById('produtoNome');
+  const precoEl = document.getElementById('produtoPreco');
+  const codEl = document.getElementById('produtoCodigoBarras');
+
+  // Nome (só se vazio)
+  if (nomeEl && !(nomeEl.value || '').trim() && origem.nome) {
+    nomeEl.value = origem.nome;
+    nomeEl.classList.remove('campo-importado-destaque');
+    void nomeEl.offsetWidth;
+    nomeEl.classList.add('campo-importado-destaque');
+    preencheu.push('nome');
+  }
+
+  // Preço (só se vazio)
+  if (precoEl && !String(precoEl.value || '').trim() && origem.preco != null && Number(origem.preco) > 0) {
+    precoEl.value = origem.preco;
+    precoEl.classList.remove('campo-importado-destaque');
+    void precoEl.offsetWidth;
+    precoEl.classList.add('campo-importado-destaque');
+    preencheu.push('preço');
+  }
+
+  // Código de barras (só se vazio)
+  if (codEl && !String(codEl.value || '').trim() && origem.codigoBarras) {
+    codEl.value = origem.codigoBarras;
+    codEl.classList.remove('campo-importado-destaque');
+    void codEl.offsetWidth;
+    codEl.classList.add('campo-importado-destaque');
+    preencheu.push('código de barras');
+  }
+
+  // Imagem (só se ainda não tiver imagem)
+  if (!imagemProdutoTemp && origem.imagem) {
+    imagemProdutoTemp = origem.imagem;
+    renderPreviewImagemProduto();
+    const prev = document.getElementById('produtoImagemPreview');
+    if (prev) {
+      prev.classList.remove('campo-importado-destaque');
+      void prev.offsetWidth;
+      prev.classList.add('campo-importado-destaque');
+    }
+    preencheu.push('imagem');
+  }
+
+  return preencheu;
+}
+
+/**
+ * Mostra o aviso de importação no formulário.
+ */
+function mostrarAvisoImportacao(nomeEstab, camposPreenchidos) {
+  const aviso = document.getElementById('avisoImportacao');
+  const estabEl = document.getElementById('avisoEstabNome');
+  const camposEl = document.getElementById('avisoCamposImportados');
+  if (!aviso) return;
+
+  if (estabEl) estabEl.textContent = nomeEstab;
+  if (camposEl) {
+    if (camposPreenchidos.length) {
+      camposEl.innerHTML = camposPreenchidos.map(c => `<span class="aviso-chip">✓ ${escapeHtml(c)}</span>`).join('');
+    } else {
+      camposEl.innerHTML = '<span class="aviso-chip">nenhum campo novo (você já preencheu tudo)</span>';
+    }
+  }
+  aviso.classList.add('show');
+}
+
+/**
+ * Esconde o aviso de importação.
+ */
+function esconderAvisoImportacao() {
+  const aviso = document.getElementById('avisoImportacao');
+  if (aviso) aviso.classList.remove('show');
+}
+
+/**
+ * Verifica se o nome/código digitado corresponde a um produto de outro
+ * estabelecimento. Se sim, preenche os campos vazios e mostra aviso.
+ */
+function verificarProdutoEmOutrosEstabs() {
+  // Só faz sentido para NOVO produto (não em edição)
+  if (currentEditId !== null) return;
+
+  const nomeEl = document.getElementById('produtoNome');
+  const codEl = document.getElementById('produtoCodigoBarras');
+  const nome = nomeEl ? (nomeEl.value || '').trim() : '';
+  const codigo = codEl ? (codEl.value || '').trim() : '';
+
+  if (!nome && !codigo) {
+    esconderAvisoImportacao();
+    return;
+  }
+
+  const encontrado = buscarProdutoSimilarEmOutrosEstabs({ nome, codigoBarras: codigo });
+  if (!encontrado) {
+    esconderAvisoImportacao();
+    return;
+  }
+
+  const preencheu = aplicarDadosDeOutroEstab(encontrado.produto);
+  mostrarAvisoImportacao(encontrado.estab.nome, preencheu);
+  verificarAlteracoesProduto();
+
+  if (preencheu.length > 0) {
+    const msg = `📥 Dados importados de "${encontrado.estab.nome}": ${preencheu.join(', ')}`;
+    showFeedback(msg);
+    if (speechOn) speak(`Produto ${encontrado.produto.nome} encontrado em ${encontrado.estab.nome}`);
+  }
+}
+
+/**
+ * Wrapper com debounce — evita rodar a busca a cada tecla.
+ */
+function agendarVerificacaoProdutoEmOutrosEstabs() {
+  if (timeoutVerificarProdutoOutrosEstabs) clearTimeout(timeoutVerificarProdutoOutrosEstabs);
+  timeoutVerificarProdutoOutrosEstabs = setTimeout(() => {
+    verificarProdutoEmOutrosEstabs();
+  }, 650);
+}
+
 /* ============ DESLIGAR APP ============ */
 async function desligarApp() {
   const ok = await confirmar(
@@ -2364,11 +2612,9 @@ async function desligarApp() {
     }
   } catch(e) {}
 
-  let fechou = false;
   try {
     window.open('', '_self', '');
     window.close();
-    fechou = true;
   } catch(e) {}
 
   setTimeout(() => {
@@ -3438,6 +3684,7 @@ function mostrarFormProduto() {
   $('produtoCodigoBarras').value = '';
   imagemProdutoTemp = null;
   renderPreviewImagemProduto();
+  esconderAvisoImportacao();
   document.getElementById('formProdutoTitulo').textContent = '➕ Novo produto';
   document.getElementById('formProduto').style.display = 'block';
   document.getElementById('formProduto').classList.remove('modo-edicao');
@@ -3460,6 +3707,7 @@ function fecharFormProduto(silencioso = false) {
   $('produtoNome').value = '';
   $('produtoPreco').value = '';
   $('produtoCodigoBarras').value = '';
+  esconderAvisoImportacao();
 
   const form = document.getElementById('formProduto');
   if (form) { form.style.display = 'none'; form.classList.remove('modo-edicao'); }
@@ -3512,16 +3760,15 @@ async function addProduto(nome, preco) {
   const nomeNorm = normalize(nome).trim();
   const duplicado = estab.produtos.find(p => normalize(p.nome).trim() === nomeNorm && String(p.id) !== String(currentEditId));
   if (duplicado) {
-    showFeedback('⚠️ Produto já existe: ' + duplicado.nome);
-    speak('Esse produto já existe');
+    showFeedback('⚠️ Produto já existe neste estabelecimento: ' + duplicado.nome);
+    speak('Esse produto já existe neste estabelecimento');
     return;
   }
 
-  // ⭐ Bloqueia código de barras duplicado no CADASTRO (evita duplicidade no cardápio)
   if (codigoBarras) {
     const dupCod = estab.produtos.find(p => String(p.codigoBarras || '').trim() === codigoBarras && String(p.id) !== String(currentEditId));
     if (dupCod) {
-      showFeedback('⚠️ Código já cadastrado no produto: ' + dupCod.nome);
+      showFeedback('⚠️ Código já cadastrado neste estabelecimento no produto: ' + dupCod.nome);
       speak('Este código já está cadastrado no produto ' + dupCod.nome);
       return;
     }
@@ -3598,6 +3845,7 @@ function editProduto(id) {
   $('produtoCodigoBarras').value = p.codigoBarras || '';
   imagemProdutoTemp = p.imagem || null;
   renderPreviewImagemProduto();
+  esconderAvisoImportacao();
 
   document.getElementById('formProdutoTitulo').textContent = '✏️ Editando produto';
   const form = document.getElementById('formProduto');
@@ -3637,6 +3885,11 @@ function editProduto(id) {
   }, 300);
 }
 
+/* Exclusão de produto:
+   - Pergunta confirmação se o produto já tem movimentações (conta ativa ou histórico)
+   - Se confirmado: remove do CADASTRO (menu) e da CONTA ATIVA
+   - O HISTÓRICO É PRESERVADO para consulta futura
+*/
 async function deleteProduto(id) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
@@ -3658,29 +3911,26 @@ async function deleteProduto(id) {
 
   if (pedidoVinculado.length > 0 || totalHist > 0) {
     let detalhes = '';
-    if (qtdPedidoVinc > 0) detalhes += `• ${qtdPedidoVinc} unidade(s) na conta atual\n`;
-    if (totalHist > 0) detalhes += `• ${totalHist} conta(s) no histórico\n`;
+    if (qtdPedidoVinc > 0) detalhes += `• ${qtdPedidoVinc} unidade(s) na conta atual (será removido da conta)\n`;
+    if (totalHist > 0) detalhes += `• ${totalHist} conta(s) no histórico (o histórico será mantido)\n`;
 
     const ok = await confirmar(
-      `O produto "${p.nome}" possui movimentações:\n\n${detalhes}\nPara excluir, TODOS os movimentos vinculados serão removidos também (tudo ou nada).\n\nDeseja continuar?`,
-      { icone: '⚠️', titulo: 'Produto com movimentações', textoSim: 'Excluir tudo', textoNao: 'Cancelar' }
+      `O produto "${p.nome}" possui movimentações:\n\n${detalhes}\nO produto será removido do cadastro e da conta ativa.\nO HISTÓRICO SERÁ PRESERVADO.\n\nDeseja continuar?`,
+      { icone: '⚠️', titulo: 'Produto com movimentações', textoSim: 'Excluir', textoNao: 'Cancelar' }
     );
     if (!ok) return;
 
-    data.pedido = data.pedido.filter(item =>
-      !(item.produtoId == id && item.estabId === data.estabelecimentoAtivoId)
-    );
-    data.historico = data.historico.filter(h =>
-      !(h.itens || []).some(it =>
-        (it.produtoId != null && it.produtoId == id && it.estabId === data.estabelecimentoAtivoId) ||
-        (it.produtoId == null && normalize(it.nome) === normalize(p.nome) && h.estabelecimento === estab.nome)
-      )
-    );
-    speak('Produto e movimentações excluídos');
-    showFeedback('🗑️ Tudo excluído');
+    if (qtdPedidoVinc > 0) {
+      data.pedido = data.pedido.filter(item =>
+        !(item.produtoId == id && item.estabId === data.estabelecimentoAtivoId)
+      );
+    }
+
+    speak('Produto removido do cadastro e da conta ativa. Histórico preservado.');
+    showFeedback('🗑️ Produto excluído. Histórico mantido.');
   } else {
     const ok = await confirmar(
-      `Excluir o produto "${p.nome}"?`,
+      `Excluir o produto "${p.nome}" do cadastro?`,
       { icone: '🗑️', titulo: 'Excluir produto', textoSim: 'Excluir', textoNao: 'Cancelar' }
     );
     if (!ok) return;
@@ -4538,7 +4788,7 @@ function exportarDados(incluirImagens = true) {
       (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; });
     });
   }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 9, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 10, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
