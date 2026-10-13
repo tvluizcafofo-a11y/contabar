@@ -1,4 +1,4 @@
-<!-- Conta Bar 10.10.2026 - Temas Claro/Escuro -->
+<!-- Conta Bar 13.10.2026 - Temas Claro/Escuro + Código de Barras -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🍺 FECHA A CONTA - Cardápio por Estabelecimento</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
@@ -621,6 +622,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .cardapio-header {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--yellow),var(--danger)) 1;border-top:0;border-left:0;border-right:0;}
 .cardapio-header h2 {margin:0;font-family:'Anton','Impact','Arial Black',sans-serif;font-size:30px;letter-spacing:2px;color:var(--cardapio-title);text-transform:uppercase;line-height:1.1;display:flex;align-items:baseline;flex-wrap:wrap;gap:12px;}
 .cardapio-header h2 .nome-estab {display:inline;font-family:Arial,Helvetica,sans-serif;font-size:22px;color:var(--estab-name-color);letter-spacing:normal;text-transform:none;font-weight:bold;text-shadow:var(--estab-name-shadow);}
+.cardapio-header .header-actions {display:flex;gap:8px;flex-wrap:wrap;}
 @media(max-width:650px){.cardapio-header h2 { font-size:22px; }.cardapio-header h2 .nome-estab { font-size:17px; }}
 
 .export-buttons {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
@@ -673,7 +675,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .produto-form-linha .campo-nome {flex:3;min-width:0;}
 .produto-form-linha .campo-preco {flex:1;min-width:110px;}
 .produto-form-linha label {display:block;margin-bottom:2px;}
-.produto-form-linha input {margin:0;}
+.produto-form-linha input{margin:0;}
 
 @media(max-width:650px) {
   .produto-form-linha {flex-direction:column;align-items:stretch;}
@@ -712,6 +714,21 @@ footer{text-align:center;color:var(--muted);padding:25px}
 }
 #cardapio.editando .cardapio-header { opacity:.45; pointer-events:none; }
 #cardapio.editando #listaProdutos { display:none; }
+
+/* ============ SCANNER DE CÓDIGO DE BARRAS ============ */
+.barcode-field-linha {display:flex;gap:8px;align-items:flex-end;margin-bottom:12px;}
+.barcode-field-linha .campo-codigo {flex:1;min-width:0;}
+.barcode-field-linha .campo-codigo label {display:block;margin-bottom:2px;}
+.barcode-field-linha .campo-codigo input {margin:0;}
+.barcode-field-linha .btn-ler-codigo {padding:11px 14px;margin-bottom:0;white-space:nowrap;}
+
+#barcodeReaderWrap {width:100%;display:flex;justify-content:center;margin:10px 0;min-height:200px;}
+#barcodeReader {width:100%;max-width:400px;border-radius:12px;overflow:hidden;background:#000;position:relative;}
+#barcodeReader video {width:100%;height:auto;display:block;}
+.barcode-scanner-actions {display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.barcode-scanner-actions button {flex:1;min-width:120px;}
+.barcode-status-lido {background:var(--tip-bg);border:1px solid var(--tip-border);border-radius:8px;padding:10px;margin:10px 0;font-size:14px;text-align:center;color:var(--text);font-weight:bold;}
+.barcode-aviso {background:var(--confirm-tip-bg);border:1px dashed var(--confirm-tip-border);border-radius:8px;padding:10px;margin:10px 0;font-size:12px;color:var(--muted);text-align:center;}
 </style>
 
   <link rel="manifest" href="./manifest.json">
@@ -790,7 +807,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </button>
   <div id="repositorioRotulosContent" class="collapsible-content" style="display:none;">
     <div class="voice" style="margin-top:0;">
-      <p class="note">O repositório deve ser público. O app procura imagens pelo <b>nome do produto sem espaços</b>. Ex.: produto <b>"Cerveja Brahma"</b> → arquivo <code>cervejabrahma.jpg</code>.</p>
+      <p class="note">O repositório deve ser público. O app procura imagens pelo <b>nome do produto sem espaços</b>. Ex.: produto <b>"Cerveja Stella"</b> → arquivo <code>cervejastella.jpg</code>. Precisa ter <b>todas as palavras</b> do produto no nome do arquivo.</p>
       <div class="row">
         <input id="githubRepoInput" placeholder="usuario/repositorio (ex: contabar/rotulos)" style="margin:0;">
       </div>
@@ -893,7 +910,10 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <span class="nome-estab" id="cardapioEstabNome">— nenhum estabelecimento selecionado</span>
       <span id="cardapioSyncBadge" class="sync-badge" style="display:none;"><span class="spin"></span> <span id="cardapioSyncText">Sincronizando...</span></span>
     </h2>
-    <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
+    <div class="header-actions">
+      <button id="btnLerCodigoCardapio" onclick="abrirLeitorCodigoBarras('pedido')" class="secondary" style="display:none;">📷 Ler código</button>
+      <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
+    </div>
   </div>
 
   <div id="editBanner" class="edit-banner" style="display:none;">
@@ -917,6 +937,14 @@ footer{text-align:center;color:var(--muted);padding:25px}
           <label>Preço (R$)</label>
           <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10,00" oninput="verificarAlteracoesProduto()">
         </div>
+      </div>
+
+      <div class="barcode-field-linha">
+        <div class="campo-codigo">
+          <label>Código de barras (EAN/UPC)</label>
+          <input id="produtoCodigoBarras" placeholder="Ex.: 7891234567890" inputmode="numeric" oninput="verificarAlteracoesProduto()">
+        </div>
+        <button type="button" class="secondary btn-ler-codigo" onclick="abrirLeitorCodigoBarras('cadastro')">📷 Ler</button>
       </div>
     </div>
 
@@ -947,6 +975,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
   <div class="tip-box">
     <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo.</p>
+  </div>
+  <div class="tip-box">
+    <p>📷 <b>Pedido por código de barras:</b> clique em <b>Ler código</b> no topo e aponte a câmera. Também é possível digitar o código manualmente.</p>
   </div>
 </div>
 </section>
@@ -1116,6 +1147,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <li><span class="cmd">"Abrir conta"</span><br><span class="desc">Nova conta no estabelecimento ativo</span></li>
   <li><span class="cmd">"Fechar conta"</span><br><span class="desc">Finaliza a conta</span></li>
 </ul>
+<h3>⚙ Controle</h3>
+<ul class="command-list">
+  <li><span class="cmd">"Desativar assistente" / "Desligar voz"</span><br><span class="desc">Desliga apenas o assistente de voz</span></li>
+  <li><span class="cmd">"Desligar app" / "Sair do app" / "Fechar aplicativo"</span><br><span class="desc">Sai completamente do aplicativo</span></li>
+</ul>
 </div>
 </section>
 
@@ -1197,6 +1233,35 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <div class="confirm-actions">
       <button id="confirmBtnSim" onclick="resolverConfirmacao(true)">✅ Sim</button>
       <button id="confirmBtnNao" class="btn-nao" onclick="resolverConfirmacao(false)">❌ Não</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL LEITOR DE CÓDIGO DE BARRAS ============ -->
+<div id="barcodeModal" class="payment-modal">
+  <div class="payment-content" style="max-width:440px;">
+    <h2 style="margin-top:0; text-align:center;">📷 Ler código de barras</h2>
+
+    <div id="barcodeReaderWrap">
+      <div id="barcodeReader"></div>
+    </div>
+
+    <div id="barcodeStatus" class="barcode-status-lido">Aponte a câmera para o código...</div>
+
+    <label>Ou digite o código manualmente:</label>
+    <input id="barcodeInput" placeholder="Digite o código..." inputmode="numeric" onkeydown="if(event.key==='Enter'){event.preventDefault();confirmarCodigoBarras();}">
+
+    <div class="barcode-scanner-actions">
+      <button onclick="confirmarCodigoBarras()" style="flex:1;">✅ Usar este código</button>
+      <button class="secondary" onclick="fecharLeitorCodigoBarras()" style="flex:1;">❌ Cancelar</button>
+    </div>
+    <div class="barcode-scanner-actions">
+      <button class="secondary small" onclick="alternarCamera()">🔄 Trocar câmera</button>
+      <button class="secondary small" onclick="alternarLanterna()">🔦 Lanterna</button>
+    </div>
+
+    <div class="barcode-aviso">
+      💡 <b>Dica:</b> se a câmera não funcionar, digite o código no campo acima e clique em <b>Usar este código</b>.
     </div>
   </div>
 </div>
@@ -1312,7 +1377,8 @@ const SINONIMOS_PADRAO = {
   limparHistorico: ['limpar historico','apagar historico','excluir historico'],
   exportarDados: ['exportar dados','exportar'],
   importarDados: ['importar dados','importar'],
-  desativarVoz: ['desativar comando','desligar assistente','desligar app','desligar voz'],
+  desativarVoz: ['desativar comando','desligar assistente','desligar voz','desativar voz'],
+  desligarApp:  ['desligar app','sair do app','fechar app','fechar aplicativo','encerrar app','sair do aplicativo','desligar aplicativo','fechar o app'],
   pagamentoPix:       ['pix','pics','pique','picks','pixes','pixar','peaks','pic'],
   pagamentoDinheiro:  ['dinheiro','especie','espécie','cash','grana','nota','notas','papel','papelao'],
   pagamentoCartao:    ['cartao','cartão','credito','crédito','debito','débito','card','cards','maquininha']
@@ -1333,7 +1399,8 @@ const COMANDOS_INFO = [
   { key:'limparHistorico', titulo:'🗑 Limpar Histórico',                desc:'Apaga todo o histórico.', categoria:'Histórico' },
   { key:'exportarDados',   titulo:'📤 Exportar Dados',                  desc:'Exporta os dados.', categoria:'Dados' },
   { key:'importarDados',   titulo:'📥 Importar Dados',                  desc:'Abre a tela de importação.', categoria:'Dados' },
-  { key:'desativarVoz',    titulo:'🔴 Desativar Assistente',            desc:'Desliga o assistente.', categoria:'Controle' }
+  { key:'desativarVoz',    titulo:'🔴 Desativar Assistente',            desc:'Desliga o assistente de voz (não fecha o app).', categoria:'Controle' },
+  { key:'desligarApp',     titulo:'🚪 Desligar App',                    desc:'Fecha completamente o aplicativo. Ex: "desligar app".', categoria:'Controle' }
 ];
 
 const ORDEM_CATEGORIAS_SINONIMOS = ['Estabelecimentos','Produtos','Pedidos & Conta','Pagamentos','Histórico','Dados','Controle'];
@@ -1407,6 +1474,15 @@ let sincronizandoImagens = false;
 let sincronizandoEstabId = null;
 let audioTTSAtual = null;
 let speechExecutionId = 0;
+
+// Scanner de código de barras
+let html5QrScanner = null;
+let barcodeContexto = 'cadastro';
+let barcodeCameras = [];
+let barcodeCameraIndexAtual = 0;
+let barcodeTorchOn = false;
+let barcodeModalAberto = false;
+
 const $ = id => document.getElementById(id);
 
 const speechDiagnostic = {
@@ -1613,6 +1689,7 @@ function resolverConfirmacao(resposta) {
   cb(resposta);
 }
 
+/* ============ VOZ / TTS ============ */
 let selectedVoice = null;
 let voiceLoadAttempts = 0;
 
@@ -1950,6 +2027,293 @@ function atualizarIconeVoz() {
   }
 }
 
+/* ============ LEITOR DE CÓDIGO DE BARRAS ============ */
+async function abrirLeitorCodigoBarras(contexto) {
+  barcodeContexto = contexto;
+  barcodeModalAberto = true;
+  const modal = document.getElementById('barcodeModal');
+  if (!modal) return;
+  modal.classList.add('active');
+
+  const input = document.getElementById('barcodeInput');
+  if (input) input.value = '';
+  const statusEl = document.getElementById('barcodeStatus');
+  if (statusEl) statusEl.textContent = '🔄 Iniciando câmera...';
+
+  // Pequeno delay para garantir que o modal está renderizado
+  await new Promise(r => setTimeout(r, 150));
+  await iniciarScanner();
+}
+
+async function iniciarScanner() {
+  const statusEl = document.getElementById('barcodeStatus');
+  const readerEl = document.getElementById('barcodeReader');
+
+  if (typeof Html5Qrcode === 'undefined') {
+    if (statusEl) statusEl.textContent = '⚠️ Biblioteca de leitura não carregada. Digite o código abaixo.';
+    return;
+  }
+
+  try {
+    // Limpa instância anterior
+    if (html5QrScanner) {
+      try { await html5QrScanner.stop(); } catch(e) {}
+      try { html5QrScanner.clear(); } catch(e) {}
+      html5QrScanner = null;
+    }
+    if (readerEl) readerEl.innerHTML = '';
+
+    // Lista câmeras (se ainda não listou)
+    if (!barcodeCameras || barcodeCameras.length === 0) {
+      try {
+        barcodeCameras = await Html5Qrcode.getCameras();
+      } catch(e) {
+        console.warn('Erro getCameras:', e);
+        barcodeCameras = [];
+      }
+    }
+
+    if (!barcodeCameras || barcodeCameras.length === 0) {
+      if (statusEl) statusEl.textContent = '⚠️ Nenhuma câmera encontrada. Digite o código abaixo.';
+      return;
+    }
+
+    // Preferir câmera traseira
+    let cameraId = barcodeCameras[barcodeCameraIndexAtual]?.id || barcodeCameras[0].id;
+    if (barcodeCameras.length > 1 && barcodeCameraIndexAtual === 0) {
+      const traseira = barcodeCameras.find(c => /back|rear|traseira|environment|trás/i.test(c.label || ''));
+      if (traseira) {
+        cameraId = traseira.id;
+        barcodeCameraIndexAtual = barcodeCameras.findIndex(c => c.id === traseira.id);
+        if (barcodeCameraIndexAtual < 0) barcodeCameraIndexAtual = 0;
+      }
+    }
+
+    html5QrScanner = new Html5Qrcode('barcodeReader', { verbose: false });
+
+    const formatosSuportados = [];
+    if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+      const F = Html5QrcodeSupportedFormats;
+      ['EAN_13','EAN_8','UPC_A','UPC_E','CODE_128','CODE_39','CODE_93','ITF','CODABAR','QR_CODE','DATA_MATRIX','PDF_417'].forEach(k => {
+        if (F[k] !== undefined) formatosSuportados.push(F[k]);
+      });
+    }
+
+    const config = {
+      fps: 10,
+      qrbox: function(viewfinderWidth, viewfinderHeight) {
+        const min = Math.min(viewfinderWidth, viewfinderHeight);
+        const w = Math.floor(viewfinderWidth * 0.85);
+        const h = Math.floor(min * 0.4);
+        return { width: Math.max(w, 200), height: Math.max(h, 100) };
+      },
+      aspectRatio: 1.777
+    };
+    if (formatosSuportados.length) config.formatsToSupport = formatosSuportados;
+
+    await html5QrScanner.start(
+      { deviceId: { exact: cameraId } },
+      config,
+      (decodedText) => { codigoLido(decodedText); },
+      (err) => { /* erros por frame — ignorar */ }
+    );
+
+    if (statusEl) statusEl.textContent = '🟢 Aponte a câmera para o código de barras...';
+  } catch (err) {
+    console.warn('Erro ao iniciar scanner:', err);
+    if (statusEl) statusEl.textContent = '⚠️ Não foi possível abrir a câmera. Digite o código abaixo.';
+  }
+}
+
+function codigoLido(codigo) {
+  if (!codigo || !barcodeModalAberto) return;
+  const input = document.getElementById('barcodeInput');
+  const statusEl = document.getElementById('barcodeStatus');
+  if (input) input.value = codigo;
+  if (statusEl) statusEl.innerHTML = '✅ Código lido: <b>' + escapeHtml(codigo) + '</b>';
+
+  if (speechOn) speak('Código lido');
+  if (navigator.vibrate) { try { navigator.vibrate(120); } catch(e){} }
+
+  // Para o scanner e auto-confirma
+  setTimeout(() => {
+    confirmarCodigoBarras();
+  }, 700);
+}
+
+async function fecharLeitorCodigoBarras() {
+  barcodeModalAberto = false;
+  try {
+    if (html5QrScanner) {
+      try { await html5QrScanner.stop(); } catch(e) {}
+      try { html5QrScanner.clear(); } catch(e) {}
+      html5QrScanner = null;
+    }
+  } catch(e) {}
+  const readerEl = document.getElementById('barcodeReader');
+  if (readerEl) readerEl.innerHTML = '';
+  document.getElementById('barcodeModal').classList.remove('active');
+  barcodeTorchOn = false;
+}
+
+async function confirmarCodigoBarras() {
+  const input = document.getElementById('barcodeInput');
+  const codigo = (input?.value || '').trim();
+  if (!codigo) {
+    showFeedback('⚠️ Digite ou leia um código');
+    if (input) input.focus();
+    return;
+  }
+
+  // Para o scanner antes de processar
+  try {
+    if (html5QrScanner) {
+      try { await html5QrScanner.stop(); } catch(e) {}
+      html5QrScanner = null;
+    }
+  } catch(e) {}
+  barcodeModalAberto = false;
+  document.getElementById('barcodeModal').classList.remove('active');
+
+  if (barcodeContexto === 'cadastro') {
+    const field = document.getElementById('produtoCodigoBarras');
+    if (field) field.value = codigo;
+    verificarAlteracoesProduto();
+    showFeedback('📷 Código aplicado: ' + codigo);
+    speak('Código aplicado');
+  } else if (barcodeContexto === 'pedido') {
+    await buscarProdutoPorCodigo(codigo);
+  }
+}
+
+async function buscarProdutoPorCodigo(codigo) {
+  const codigoNorm = String(codigo).trim();
+  const estab = getEstabelecimentoAtivo();
+  if (!estab) {
+    showFeedback('⚠️ Selecione um estabelecimento primeiro');
+    speak('Selecione um estabelecimento primeiro');
+    showScreen('estabelecimentos');
+    return;
+  }
+  const produtos = estab.produtos || [];
+  const encontrado = produtos.find(p => String(p.codigoBarras || '').trim() === codigoNorm);
+
+  if (!encontrado) {
+    showFeedback('❌ Nenhum produto com este código');
+    speak('Nenhum produto com este código');
+    const ok = await confirmar(
+      `Nenhum produto cadastrado com o código "${codigoNorm}".\n\nDeseja cadastrar um novo produto com este código?`,
+      { icone: '🆕', titulo: 'Produto não encontrado', textoSim: 'Cadastrar', textoNao: 'Cancelar' }
+    );
+    if (ok) {
+      mostrarFormProduto();
+      setTimeout(() => {
+        const campo = $('produtoCodigoBarras');
+        if (campo) campo.value = codigoNorm;
+        const nomeEl = $('produtoNome');
+        if (nomeEl) nomeEl.focus();
+      }, 250);
+    }
+    return;
+  }
+
+  // Produto encontrado
+  if (!data.contaAtiva) {
+    const ok = await confirmar(
+      `Produto encontrado: "${encontrado.nome}".\n\nNenhuma conta aberta. Deseja abrir uma conta agora?`,
+      { icone: '🧾', titulo: 'Abrir conta', textoSim: 'Abrir', textoNao: 'Cancelar' }
+    );
+    if (ok) {
+      await abrirContaManual();
+      if (data.contaAtiva) {
+        addPedido(encontrado.id, 1);
+      }
+    }
+    return;
+  }
+
+  addPedido(encontrado.id, 1);
+}
+
+async function alternarCamera() {
+  if (!barcodeCameras || barcodeCameras.length < 2) {
+    showFeedback('⚠️ Sem outras câmeras disponíveis');
+    return;
+  }
+  try {
+    if (html5QrScanner) {
+      try { await html5QrScanner.stop(); } catch(e) {}
+      try { html5QrScanner.clear(); } catch(e) {}
+      html5QrScanner = null;
+    }
+  } catch(e) {}
+  barcodeCameraIndexAtual = (barcodeCameraIndexAtual + 1) % barcodeCameras.length;
+  const statusEl = document.getElementById('barcodeStatus');
+  if (statusEl) statusEl.textContent = '🔄 Trocando câmera...';
+  await new Promise(r => setTimeout(r, 150));
+  await iniciarScanner();
+}
+
+async function alternarLanterna() {
+  if (!html5QrScanner) return;
+  try {
+    const capabilities = html5QrScanner.getRunningTrackCameraCapabilities?.();
+    const torch = capabilities?.torchFeature?.();
+    if (torch && torch.isSupported()) {
+      barcodeTorchOn = !barcodeTorchOn;
+      await torch.apply(barcodeTorchOn);
+      showFeedback('🔦 Lanterna ' + (barcodeTorchOn ? 'ligada' : 'desligada'));
+    } else {
+      showFeedback('⚠️ Lanterna não suportada');
+    }
+  } catch(e) { console.warn(e); showFeedback('⚠️ Lanterna não suportada'); }
+}
+
+/* ============ DESLIGAR APP ============ */
+async function desligarApp() {
+  const ok = await confirmar(
+    'Deseja realmente sair do aplicativo?',
+    { icone: '🚪', titulo: 'Sair do app', textoSim: 'Sair', textoNao: 'Cancelar' }
+  );
+  if (!ok) return;
+
+  if (speechOn) speak('Até logo!');
+  showFeedback('👋 Até logo!');
+  try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch(e){}
+
+  // 1) Bridge nativo Android
+  try {
+    if (window.Android && typeof window.Android.closeApp === 'function') {
+      window.Android.closeApp();
+      return;
+    }
+  } catch(e) {}
+
+  // 2) Tentar fechar a janela do navegador
+  let fechou = false;
+  try {
+    window.open('', '_self', '');
+    window.close();
+    fechou = true;
+  } catch(e) {}
+
+  // 3) Fallback: tela de despedida
+  setTimeout(() => {
+    try {
+      document.body.innerHTML = `
+        <div style="position:fixed;inset:0;background:linear-gradient(135deg,#0d1016,#171d29);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#f4f7fb;font-family:Arial,sans-serif;text-align:center;padding:30px;z-index:99999;">
+          <div style="font-size:90px;line-height:1;">🍺</div>
+          <h1 style="font-family:'Anton','Impact',sans-serif;color:#79e9aa;letter-spacing:5px;font-size:52px;margin:14px 0;text-transform:uppercase;">FECHA A CONTA</h1>
+          <p style="font-size:18px;color:#aeb8c8;margin-top:24px;">Obrigado e até logo! 👋</p>
+          <p style="color:#aeb8c8;font-size:14px;margin-top:30px;max-width:400px;">Se a aba não fechou automaticamente, você pode fechá-la manualmente.</p>
+          <button onclick="location.reload()" style="margin-top:32px;padding:14px 28px;font-size:16px;background:#39c97a;color:#092114;border:0;border-radius:10px;font-weight:bold;cursor:pointer;">🔄 Reabrir o app</button>
+        </div>
+      `;
+    } catch(e) {}
+  }, 1200);
+}
+
+/* ============ SINÔNIMOS ============ */
 function renderSinonimos() {
   const container = document.getElementById('listaSinonimos');
   if (!container) return;
@@ -2119,7 +2483,7 @@ function setSyncStatus(msg, tipo) {
 function exportarSinonimos() {
   try {
     const payload = {
-      app: 'FECHA A CONTA - Sinônimos', versao: 2,
+      app: 'FECHA A CONTA - Sinônimos', versao: 3,
       exportadoEm: new Date().toISOString(),
       sinonimos: data.sinonimos,
       sinonimosEstabelecimentos: data.sinonimosEstabelecimentos
@@ -2165,6 +2529,7 @@ function importarSinonimos(event) {
   reader.readAsText(file);
 }
 
+/* ============ USUÁRIO ============ */
 function acaoPrincipalConta() {
   if (data.contaAtiva) {
     showScreen('conta');
@@ -2324,6 +2689,7 @@ async function excluirBancoUsuario(index) {
   showFeedback('🗑️ Banco removido.');
 }
 
+/* ============ ESTABELECIMENTOS / PRODUTOS ============ */
 function getEstabelecimentoAtivo() {
   if (!data.estabelecimentoAtivoId) return null;
   return data.estabelecimentos[data.estabelecimentoAtivoId] || null;
@@ -2412,7 +2778,7 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
   const nomeNorm = normalize(nome);
   const slug = slugify(nome);
   const slugHifen = slugifyHifen(nome);
-  const palavras = nomeNorm.split(/\s+/).filter(w => w.length >= 2 && !PALAVRAS_IGNORAR.has(w));
+  const palavras = nomeNorm.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
 
   try {
     const manifest = await carregarManifestRotulos(repo);
@@ -2452,23 +2818,27 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
         const baseNorm = normalize(baseSemExt);
         const baseSlug = slugify(baseSemExt);
         const baseSlugHifen = slugifyHifen(baseSemExt);
+
         let score = 0;
         if (baseSlug === slug) score = 1000;
         else if (baseSlugHifen === slugHifen) score = 990;
         else if (baseSlug === slugHifen.replace(/-/g, '')) score = 980;
-        else if (slug.length >= 4 && baseSlug.includes(slug)) score = 700 + Math.round((slug.length / baseSlug.length) * 100);
-        else if (baseSlug.length >= 4 && slug.includes(baseSlug)) score = 600 + Math.round((baseSlug.length / slug.length) * 100);
         else if (palavras.length > 0) {
           const baseWords = baseNorm.split(/[^a-z0-9]+/).filter(w => w.length >= 2);
-          const comuns = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p)).length;
-          if (comuns > 0 && comuns >= Math.ceil(palavras.length * 0.5)) {
-            const cobertura = comuns / palavras.length;
-            score = Math.round(300 + cobertura * 300 + comuns * 30);
+          const encontradas = palavras.filter(p => {
+            if (baseWords.includes(p)) return true;
+            if (baseSlug.includes(p)) return true;
+            return false;
+          }).length;
+          const cobertura = encontradas / palavras.length;
+          if (cobertura === 1 && palavras.length >= 1) {
+            const somaTamanhos = palavras.reduce((s, p) => s + p.length, 0);
+            score = 500 + Math.min(somaTamanhos * 10, 200);
           }
         }
         if (score > melhorScore) { melhorScore = score; melhorPath = path; }
       });
-      if (melhorPath && melhorScore >= 300) {
+      if (melhorPath && melhorScore >= 500) {
         const dataUrl = await baixarDoGitHub(repo, branch, melhorPath);
         if (dataUrl) return dataUrl;
       }
@@ -2477,11 +2847,11 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
 
   const folders = ['', 'rotulos/', 'imagens/', 'images/', 'img/'];
   const exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-  const slugs = [...new Set([slug, slugHifen, slug.replace(/[^a-z0-9]/g, ''), ...palavras])].filter(Boolean);
+  const slugsTentativa = [...new Set([slug, slugHifen, slug.replace(/[^a-z0-9]/g, '')])].filter(Boolean);
   for (const branch of ['main', 'master']) {
     for (const folder of folders) {
-      for (const s of slugs) {
-        if (!s || s.length < 2) continue;
+      for (const s of slugsTentativa) {
+        if (!s || s.length < 3) continue;
         for (const ext of exts) {
           try {
             const dataUrl = await baixarImagemComoDataURL(`https://raw.githubusercontent.com/${repo}/${branch}/${folder}${s}.${ext}`);
@@ -2633,7 +3003,6 @@ async function setEstabelecimentoAtivo(id) {
     const nome = data.estabelecimentos[id].nome;
     speak('Estabelecimento selecionado: ' + nome);
     showFeedback('🏢 Ativo: ' + nome);
-    setTimeout(() => sincronizarImagensEstabelecimento(id), 400);
   } else {
     data.estabelecimentoAtivoId = null;
     data.pedido = []; data.contaAtiva = false;
@@ -2758,10 +3127,6 @@ function trocarEstabelecimentoAtivo() {
   data.pedido = []; data.contaAtiva = false;
   fecharFormProduto(true);
   save(); renderAll();
-  if (id) {
-    showFeedback('🏢 Estabelecimento alterado. Buscando imagens...');
-    setTimeout(() => sincronizarImagensEstabelecimento(id), 400);
-  }
 }
 
 function mostrarMiniCardapio() {
@@ -2997,6 +3362,7 @@ function mostrarFormProduto() {
   valoresOriginaisProduto = null;
   $('produtoNome').value = '';
   $('produtoPreco').value = '';
+  $('produtoCodigoBarras').value = '';
   imagemProdutoTemp = null;
   renderPreviewImagemProduto();
   document.getElementById('formProdutoTitulo').textContent = '➕ Novo produto';
@@ -3020,6 +3386,7 @@ function fecharFormProduto(silencioso = false) {
   imagemProdutoTemp = null;
   $('produtoNome').value = '';
   $('produtoPreco').value = '';
+  $('produtoCodigoBarras').value = '';
 
   const form = document.getElementById('formProduto');
   if (form) { form.style.display = 'none'; form.classList.remove('modo-edicao'); }
@@ -3047,10 +3414,15 @@ function verificarAlteracoesProduto() {
   const orig = valoresOriginaisProduto || {};
   const nomeAtual = ($('produtoNome').value || '').trim();
   const precoAtual = String($('produtoPreco').value || '').trim();
+  const codAtual = String($('produtoCodigoBarras').value || '').trim();
+  const codOrig = String(orig.codigoBarras || '').trim();
   const precoOrig = orig.preco !== undefined && orig.preco !== null ? String(orig.preco) : '';
   const imgAtual = imagemProdutoTemp || null;
   const imgOrig = orig.imagem || null;
-  const mudou = (nomeAtual !== (orig.nome || '')) || (precoAtual !== precoOrig) || (imgAtual !== imgOrig);
+  const mudou = (nomeAtual !== (orig.nome || ''))
+             || (precoAtual !== precoOrig)
+             || (codAtual !== codOrig)
+             || (imgAtual !== imgOrig);
   if (mudou) { btn.disabled = false; btn.textContent = '💾 Salvar alterações'; }
   else { btn.disabled = true; btn.textContent = '💾 Nenhuma alteração'; }
 }
@@ -3060,6 +3432,7 @@ async function addProduto(nome, preco) {
   if (!estab) { showFeedback('⚠️ Nenhum estabelecimento ativo.'); return; }
   nome = capitalizarNome(nome || $('produtoNome').value.trim());
   preco = preco ?? Number($('produtoPreco').value);
+  const codigoBarras = String($('produtoCodigoBarras').value || '').trim();
   if (!nome || isNaN(preco) || preco <= 0) { showFeedback('⚠️ Informe nome e preço válido.'); return; }
   if (!estab.produtos) estab.produtos = [];
 
@@ -3071,22 +3444,51 @@ async function addProduto(nome, preco) {
     return;
   }
 
+  // Verifica duplicidade de código de barras
+  if (codigoBarras) {
+    const dupCod = estab.produtos.find(p => String(p.codigoBarras || '').trim() === codigoBarras && String(p.id) !== String(currentEditId));
+    if (dupCod) {
+      showFeedback('⚠️ Já existe produto com este código: ' + dupCod.nome);
+      speak('Já existe produto com este código');
+      return;
+    }
+  }
+
   const imgAtual = imagemProdutoTemp;
 
   if (currentEditId !== null) {
     const index = estab.produtos.findIndex(p => p.id === currentEditId);
     if (index !== -1) {
+      const nomeAntigo = estab.produtos[index].nome;
       estab.produtos[index].nome = nome;
       estab.produtos[index].preco = Number(preco);
+      estab.produtos[index].codigoBarras = codigoBarras;
       estab.produtos[index].imagem = imgAtual || null;
       speak('Produto atualizado');
       showFeedback('✏️ Atualizado: ' + nome + ' - ' + money(preco));
+
+      const nomeMudou = normalize(nomeAntigo) !== normalize(nome);
+      const prodId = estab.produtos[index].id;
+      if (nomeMudou && !imgAtual) {
+        setTimeout(() => {
+          buscarImagemAutomatica(nome).then((img) => {
+            if (img) {
+              const prod = estab.produtos.find(p => p.id === prodId);
+              if (prod && !prod.imagem) {
+                prod.imagem = img;
+                save(); renderAll();
+                showFeedback('🖼️ Imagem atualizada: ' + nome);
+              }
+            }
+          });
+        }, 200);
+      }
     }
     currentEditId = null;
     valoresOriginaisProduto = null;
     fecharFormProduto(true);
   } else {
-    const novo = { id: Date.now() + Math.random(), nome, preco: Number(preco), imagem: imgAtual || null };
+    const novo = { id: Date.now() + Math.random(), nome, preco: Number(preco), codigoBarras, imagem: imgAtual || null };
     estab.produtos.push(novo);
     speak(nome + ' cadastrado por ' + money(preco));
     showFeedback('✅ Cadastrado: ' + nome + ' - ' + money(preco));
@@ -3116,10 +3518,11 @@ function editProduto(id) {
   if (!p) return;
 
   currentEditId = id;
-  valoresOriginaisProduto = { nome: p.nome || '', preco: p.preco, imagem: p.imagem || null };
+  valoresOriginaisProduto = { nome: p.nome || '', preco: p.preco, codigoBarras: p.codigoBarras || '', imagem: p.imagem || null };
 
   $('produtoNome').value = p.nome;
   $('produtoPreco').value = p.preco;
+  $('produtoCodigoBarras').value = p.codigoBarras || '';
   imagemProdutoTemp = p.imagem || null;
   renderPreviewImagemProduto();
 
@@ -3144,8 +3547,10 @@ function editProduto(id) {
     try {
       const nomeEl = document.getElementById('produtoNome');
       const precoEl = document.getElementById('produtoPreco');
+      const codEl = document.getElementById('produtoCodigoBarras');
       if (nomeEl && document.activeElement === nomeEl) nomeEl.blur();
       if (precoEl && document.activeElement === precoEl) precoEl.blur();
+      if (codEl && document.activeElement === codEl) codEl.blur();
 
       const previewEl = document.getElementById('produtoImagemPreview');
       if (previewEl && typeof previewEl.focus === 'function') {
@@ -3235,7 +3640,7 @@ function addPedido(produtoId, qtd) {
   if (item) item.qtd += qtd;
   else data.pedido.push({ produtoId: p.id, estabId: data.estabelecimentoAtivoId, nome: p.nome, preco: p.preco, qtd });
   save(); renderAll();
-  const msg = qtd + 'x ' + p.nome + ' adicionado à conta';
+  const msg = qtd + ' ' + p.nome + ' adicionado à conta';
   speak(msg);
   showFeedback('🛒 ' + msg);
   mostrarFlashPedido(p, qtd);
@@ -3588,11 +3993,13 @@ function renderCardapio() {
   const estab = getEstabelecimentoAtivo();
   const nomeSpan = document.getElementById('cardapioEstabNome');
   const btnIncluir = document.getElementById('btnIncluirProduto');
+  const btnLerCod = document.getElementById('btnLerCodigoCardapio');
   const form = document.getElementById('formProduto');
 
   if (!estab) {
     if (nomeSpan) nomeSpan.textContent = '— nenhum estabelecimento selecionado';
     if (btnIncluir) btnIncluir.style.display = 'none';
+    if (btnLerCod) btnLerCod.style.display = 'none';
     if (form) form.style.display = 'none';
     const lp = document.getElementById('listaProdutos');
     if (lp) lp.innerHTML = '<div class="empty">Selecione um estabelecimento para ver o cardápio.</div>';
@@ -3607,17 +4014,23 @@ function renderCardapio() {
     btnIncluir.style.display = formAberto ? 'none' : 'inline-block';
   }
 
+  // Mostra o botão de ler código sempre que houver estabelecimento ativo
+  if (btnLerCod) {
+    btnLerCod.style.display = currentEditId ? 'none' : 'inline-block';
+  }
+
   const lista = document.getElementById('listaProdutos');
   if (lista) {
     lista.innerHTML = prods.length ? prods.map(p => {
       const thumb = p.imagem
         ? `<img src="${p.imagem}" class="produto-thumb" alt="${escapeHtml(p.nome)}" onclick="editProduto(${p.id})" title="Clique para editar" style="cursor:pointer;">`
         : `<div class="produto-thumb-placeholder" onclick="editProduto(${p.id})" title="Clique para editar" style="cursor:pointer;">${getEmojiProduto(p.nome)}</div>`;
+      const codInfo = p.codigoBarras ? `<br><span class="note">📊 ${escapeHtml(p.codigoBarras)}</span>` : '';
       return `<div class="list-item with-thumb">
         ${thumb}
         <div class="info">
           <b>${escapeHtml(p.nome)}</b><br>
-          <span class="money">${money(p.preco)}</span>
+          <span class="money">${money(p.preco)}</span>${codInfo}
         </div>
         <div class="actions">
           <button class="secondary small" onclick="editProduto(${p.id})">✏</button>
@@ -3974,6 +4387,15 @@ function processVoice(text) {
     if (/(^|\s)(fechar|cancelar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharMiniCardapio(); return; }
   }
 
+  // Modal do código de barras
+  if (barcodeModalAberto) {
+    if (/(^|\s)(cancelar|fechar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharLeitorCodigoBarras(); return; }
+    if (/(^|\s)(confirmar|usar|ok)([\s.,!?]|$)/.test(norm)) { confirmarCodigoBarras(); return; }
+  }
+
+  // ⭐ DESLIGAR APP — checar ANTES de desativarVoz
+  if (matchSinonimo(norm, 'desligarApp')) { desligarApp(); return; }
+
   if (matchSinonimo(norm, 'desativarVoz')) { recognizer.deactivate(); speak('Assistente desligado'); return; }
 
   const sinAbrir = matchSinonimo(norm, 'abrirConta');
@@ -4043,7 +4465,7 @@ function exportarDados(incluirImagens = true) {
       (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; });
     });
   }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 7, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 9, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -4145,12 +4567,6 @@ window.onload = function() {
   atualizarIconeVoz();
   if (data.voiceAssistantOn === true && recognizer.isSupported()) {
     setTimeout(() => { if (!recognizer.isActive) { try { recognizer.activate(); } catch(e) { } } }, 1500);
-  }
-  if (data.estabelecimentoAtivoId) {
-    const estab = data.estabelecimentos[data.estabelecimentoAtivoId];
-    if (estab && (estab.produtos || []).some(p => !p.imagem)) {
-      setTimeout(() => sincronizarImagensEstabelecimento(data.estabelecimentoAtivoId), 2000);
-    }
   }
 };
 </script>
