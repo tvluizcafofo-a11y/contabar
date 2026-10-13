@@ -426,6 +426,28 @@ header h1{
 .theme-toggle:hover{background:var(--theme-toggle-bg-hover);transform:translateY(-50%) scale(1.08);filter:none}
 .theme-toggle:active{transform:translateY(-50%) scale(.95)}
 
+.header-barcode-btn{
+  position:absolute;
+  top:50%;
+  right:82px;
+  transform:translateY(-50%);
+  width:50px;height:50px;
+  border-radius:50%;
+  background:var(--theme-toggle-bg);
+  color:var(--theme-toggle-color);
+  border:2px solid var(--theme-toggle-border);
+  font-size:22px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  padding:0;
+  box-shadow:0 4px 12px rgba(0,0,0,.18);
+  transition:background .2s,transform .15s;
+  z-index:11;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+}
+.header-barcode-btn:hover{background:var(--theme-toggle-bg-hover);transform:translateY(-50%) scale(1.08);filter:none}
+.header-barcode-btn:active{transform:translateY(-50%) scale(.95)}
+
 .container{max-width:1200px;margin:auto;padding:18px}
 .voice{background:var(--voice-bg);border:1px solid var(--voice-border);border-radius:16px;padding:18px;margin-bottom:18px}
 .voice-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
@@ -464,6 +486,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   header h1{font-size:30px;letter-spacing:2px}
   .header-icon{width:78px;height:78px;border-radius:14px;border-width:2px;}
   .theme-toggle{width:42px;height:42px;right:12px;font-size:19px;}
+  .header-barcode-btn{width:42px;height:42px;right:64px;font-size:19px;}
   .container{padding:12px}.row{flex-direction:column}.row>*{width:100%}table{font-size:13px}th,td{padding:7px}
 }
 .command-list{columns:2;column-gap:30px;}
@@ -742,6 +765,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <header>
   <img src="./chope.png" alt="" class="header-icon" aria-hidden="true" onerror="this.classList.add('hidden');">
   <h1>FECHA A CONTA</h1>
+  <button id="headerBarcodeBtn" class="header-barcode-btn" onclick="abrirLeitorCodigoBarras('pedido')" title="Ler código de barras" aria-label="Ler código de barras">📷</button>
   <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema">🌙</button>
 </header>
 
@@ -911,7 +935,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <span id="cardapioSyncBadge" class="sync-badge" style="display:none;"><span class="spin"></span> <span id="cardapioSyncText">Sincronizando...</span></span>
     </h2>
     <div class="header-actions">
-      <button id="btnLerCodigoCardapio" onclick="abrirLeitorCodigoBarras('pedido')" class="secondary" style="display:none;">📷 Ler código</button>
       <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
     </div>
   </div>
@@ -977,7 +1000,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo.</p>
   </div>
   <div class="tip-box">
-    <p>📷 <b>Pedido por código de barras:</b> clique em <b>Ler código</b> no topo e aponte a câmera. Também é possível digitar o código manualmente.</p>
+    <p>📷 <b>Pedido por código de barras:</b> use o botão <b>📷</b> no topo da tela a qualquer momento. Aponte a câmera para o código. Também é possível digitar o código manualmente.</p>
   </div>
 </div>
 </section>
@@ -1482,6 +1505,7 @@ let barcodeCameras = [];
 let barcodeCameraIndexAtual = 0;
 let barcodeTorchOn = false;
 let barcodeModalAberto = false;
+let codigoProcessando = false;
 
 const $ = id => document.getElementById(id);
 
@@ -2031,6 +2055,7 @@ function atualizarIconeVoz() {
 async function abrirLeitorCodigoBarras(contexto) {
   barcodeContexto = contexto;
   barcodeModalAberto = true;
+  codigoProcessando = false;
   const modal = document.getElementById('barcodeModal');
   if (!modal) return;
   modal.classList.add('active');
@@ -2040,7 +2065,6 @@ async function abrirLeitorCodigoBarras(contexto) {
   const statusEl = document.getElementById('barcodeStatus');
   if (statusEl) statusEl.textContent = '🔄 Iniciando câmera...';
 
-  // Pequeno delay para garantir que o modal está renderizado
   await new Promise(r => setTimeout(r, 150));
   await iniciarScanner();
 }
@@ -2055,7 +2079,6 @@ async function iniciarScanner() {
   }
 
   try {
-    // Limpa instância anterior
     if (html5QrScanner) {
       try { await html5QrScanner.stop(); } catch(e) {}
       try { html5QrScanner.clear(); } catch(e) {}
@@ -2063,7 +2086,6 @@ async function iniciarScanner() {
     }
     if (readerEl) readerEl.innerHTML = '';
 
-    // Lista câmeras (se ainda não listou)
     if (!barcodeCameras || barcodeCameras.length === 0) {
       try {
         barcodeCameras = await Html5Qrcode.getCameras();
@@ -2078,7 +2100,6 @@ async function iniciarScanner() {
       return;
     }
 
-    // Preferir câmera traseira
     let cameraId = barcodeCameras[barcodeCameraIndexAtual]?.id || barcodeCameras[0].id;
     if (barcodeCameras.length > 1 && barcodeCameraIndexAtual === 0) {
       const traseira = barcodeCameras.find(c => /back|rear|traseira|environment|trás/i.test(c.label || ''));
@@ -2125,8 +2146,11 @@ async function iniciarScanner() {
   }
 }
 
-function codigoLido(codigo) {
-  if (!codigo || !barcodeModalAberto) return;
+async function codigoLido(codigo) {
+  // Evita processar mais de uma vez pelo mesmo scan (html5-qrcode dispara callback várias vezes)
+  if (!codigo || !barcodeModalAberto || codigoProcessando) return;
+  codigoProcessando = true;
+
   const input = document.getElementById('barcodeInput');
   const statusEl = document.getElementById('barcodeStatus');
   if (input) input.value = codigo;
@@ -2135,14 +2159,20 @@ function codigoLido(codigo) {
   if (speechOn) speak('Código lido');
   if (navigator.vibrate) { try { navigator.vibrate(120); } catch(e){} }
 
-  // Para o scanner e auto-confirma
-  setTimeout(() => {
-    confirmarCodigoBarras();
-  }, 700);
+  // Para o scanner IMEDIATAMENTE para evitar leituras duplicadas
+  try {
+    if (html5QrScanner) {
+      try { await html5QrScanner.stop(); } catch(e) {}
+      html5QrScanner = null;
+    }
+  } catch(e) {}
+
+  setTimeout(() => { confirmarCodigoBarras(); }, 500);
 }
 
 async function fecharLeitorCodigoBarras() {
   barcodeModalAberto = false;
+  codigoProcessando = false;
   try {
     if (html5QrScanner) {
       try { await html5QrScanner.stop(); } catch(e) {}
@@ -2165,7 +2195,6 @@ async function confirmarCodigoBarras() {
     return;
   }
 
-  // Para o scanner antes de processar
   try {
     if (html5QrScanner) {
       try { await html5QrScanner.stop(); } catch(e) {}
@@ -2217,7 +2246,17 @@ async function buscarProdutoPorCodigo(codigo) {
     return;
   }
 
-  // Produto encontrado
+  // ⭐ Verifica se o produto JÁ está na conta atual — não deixa incluir de novo
+  const itemExistente = data.pedido.find(x =>
+    x.produtoId == encontrado.id && x.estabId === data.estabelecimentoAtivoId
+  );
+  if (itemExistente) {
+    const msg = `"${encontrado.nome}" já está na conta (${itemExistente.qtd}×). Não foi adicionado novamente.`;
+    showFeedback('ℹ️ ' + msg);
+    speak(`${encontrado.nome} já está na conta. Não foi adicionado novamente.`);
+    return;
+  }
+
   if (!data.contaAtiva) {
     const ok = await confirmar(
       `Produto encontrado: "${encontrado.nome}".\n\nNenhuma conta aberta. Deseja abrir uma conta agora?`,
@@ -2281,7 +2320,6 @@ async function desligarApp() {
   showFeedback('👋 Até logo!');
   try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch(e){}
 
-  // 1) Bridge nativo Android
   try {
     if (window.Android && typeof window.Android.closeApp === 'function') {
       window.Android.closeApp();
@@ -2289,7 +2327,6 @@ async function desligarApp() {
     }
   } catch(e) {}
 
-  // 2) Tentar fechar a janela do navegador
   let fechou = false;
   try {
     window.open('', '_self', '');
@@ -2297,7 +2334,6 @@ async function desligarApp() {
     fechou = true;
   } catch(e) {}
 
-  // 3) Fallback: tela de despedida
   setTimeout(() => {
     try {
       document.body.innerHTML = `
@@ -3444,7 +3480,6 @@ async function addProduto(nome, preco) {
     return;
   }
 
-  // Verifica duplicidade de código de barras
   if (codigoBarras) {
     const dupCod = estab.produtos.find(p => String(p.codigoBarras || '').trim() === codigoBarras && String(p.id) !== String(currentEditId));
     if (dupCod) {
@@ -3645,12 +3680,21 @@ function addPedido(produtoId, qtd) {
   showFeedback('🛒 ' + msg);
   mostrarFlashPedido(p, qtd);
 }
-function removePedido(i) {
+
+async function removePedido(i) {
   const item = data.pedido[i];
+  if (!item) return;
+  const ok = await confirmar(
+    `Remover "${item.nome}" (${item.qtd}×) da conta?`,
+    { icone: '🗑️', titulo: 'Remover item', textoSim: 'Remover', textoNao: 'Cancelar' }
+  );
+  if (!ok) return;
   data.pedido.splice(i, 1);
   save(); renderAll();
-  if (item) showFeedback('🗑 Removido: ' + item.nome);
+  showFeedback('🗑 Removido: ' + item.nome);
+  speak(item.nome + ' removido da conta');
 }
+
 function subtotal() { return data.pedido.reduce((s, x) => s + x.preco * x.qtd, 0); }
 function saveGorjetaConfig() { data.gorjetaConfig = Number($('gorjeta').value || 0); save(); }
 
@@ -3993,13 +4037,11 @@ function renderCardapio() {
   const estab = getEstabelecimentoAtivo();
   const nomeSpan = document.getElementById('cardapioEstabNome');
   const btnIncluir = document.getElementById('btnIncluirProduto');
-  const btnLerCod = document.getElementById('btnLerCodigoCardapio');
   const form = document.getElementById('formProduto');
 
   if (!estab) {
     if (nomeSpan) nomeSpan.textContent = '— nenhum estabelecimento selecionado';
     if (btnIncluir) btnIncluir.style.display = 'none';
-    if (btnLerCod) btnLerCod.style.display = 'none';
     if (form) form.style.display = 'none';
     const lp = document.getElementById('listaProdutos');
     if (lp) lp.innerHTML = '<div class="empty">Selecione um estabelecimento para ver o cardápio.</div>';
@@ -4012,11 +4054,6 @@ function renderCardapio() {
   if (btnIncluir && !currentEditId) {
     const formAberto = form && form.style.display === 'block';
     btnIncluir.style.display = formAberto ? 'none' : 'inline-block';
-  }
-
-  // Mostra o botão de ler código sempre que houver estabelecimento ativo
-  if (btnLerCod) {
-    btnLerCod.style.display = currentEditId ? 'none' : 'inline-block';
   }
 
   const lista = document.getElementById('listaProdutos');
@@ -4387,13 +4424,11 @@ function processVoice(text) {
     if (/(^|\s)(fechar|cancelar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharMiniCardapio(); return; }
   }
 
-  // Modal do código de barras
   if (barcodeModalAberto) {
     if (/(^|\s)(cancelar|fechar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharLeitorCodigoBarras(); return; }
     if (/(^|\s)(confirmar|usar|ok)([\s.,!?]|$)/.test(norm)) { confirmarCodigoBarras(); return; }
   }
 
-  // ⭐ DESLIGAR APP — checar ANTES de desativarVoz
   if (matchSinonimo(norm, 'desligarApp')) { desligarApp(); return; }
 
   if (matchSinonimo(norm, 'desativarVoz')) { recognizer.deactivate(); speak('Assistente desligado'); return; }
