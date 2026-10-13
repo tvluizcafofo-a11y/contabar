@@ -765,7 +765,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <header>
   <img src="./chope.png" alt="" class="header-icon" aria-hidden="true" onerror="this.classList.add('hidden');">
   <h1>FECHA A CONTA</h1>
-  <button id="headerBarcodeBtn" class="header-barcode-btn" onclick="abrirLeitorCodigoBarras('pedido')" title="Ler código de barras" aria-label="Ler código de barras">📷</button>
+  <button id="headerBarcodeBtn" class="header-barcode-btn" onclick="abrirLeitorCodigoBarras('pedido')" title="Ler código de barras (adicionar ao pedido)" aria-label="Ler código de barras">📷</button>
   <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema">🌙</button>
 </header>
 
@@ -2205,6 +2205,18 @@ async function confirmarCodigoBarras() {
   document.getElementById('barcodeModal').classList.remove('active');
 
   if (barcodeContexto === 'cadastro') {
+    // ⭐ No CADASTRO: bloqueia código já usado em outro produto (evita duplicidade no cardápio)
+    const estab = getEstabelecimentoAtivo();
+    if (estab) {
+      const existente = (estab.produtos || []).find(p =>
+        String(p.codigoBarras || '').trim() === codigo && String(p.id) !== String(currentEditId)
+      );
+      if (existente) {
+        showFeedback('⚠️ Este código já está cadastrado no produto: ' + existente.nome);
+        speak('Este código já está cadastrado no produto ' + existente.nome + '. Não foi aplicado.');
+        return;
+      }
+    }
     const field = document.getElementById('produtoCodigoBarras');
     if (field) field.value = codigo;
     verificarAlteracoesProduto();
@@ -2246,17 +2258,7 @@ async function buscarProdutoPorCodigo(codigo) {
     return;
   }
 
-  // ⭐ Verifica se o produto JÁ está na conta atual — não deixa incluir de novo
-  const itemExistente = data.pedido.find(x =>
-    x.produtoId == encontrado.id && x.estabId === data.estabelecimentoAtivoId
-  );
-  if (itemExistente) {
-    const msg = `"${encontrado.nome}" já está na conta (${itemExistente.qtd}×). Não foi adicionado novamente.`;
-    showFeedback('ℹ️ ' + msg);
-    speak(`${encontrado.nome} já está na conta. Não foi adicionado novamente.`);
-    return;
-  }
-
+  // ⭐ Pedido: pode incluir infinitas vezes o mesmo produto lido
   if (!data.contaAtiva) {
     const ok = await confirmar(
       `Produto encontrado: "${encontrado.nome}".\n\nNenhuma conta aberta. Deseja abrir uma conta agora?`,
@@ -3480,11 +3482,12 @@ async function addProduto(nome, preco) {
     return;
   }
 
+  // ⭐ Bloqueia código de barras duplicado no CADASTRO (evita duplicidade no cardápio)
   if (codigoBarras) {
     const dupCod = estab.produtos.find(p => String(p.codigoBarras || '').trim() === codigoBarras && String(p.id) !== String(currentEditId));
     if (dupCod) {
-      showFeedback('⚠️ Já existe produto com este código: ' + dupCod.nome);
-      speak('Já existe produto com este código');
+      showFeedback('⚠️ Código já cadastrado no produto: ' + dupCod.nome);
+      speak('Este código já está cadastrado no produto ' + dupCod.nome);
       return;
     }
   }
