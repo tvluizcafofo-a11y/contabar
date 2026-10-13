@@ -738,6 +738,14 @@ footer{text-align:center;color:var(--muted);padding:25px}
 #cardapio.editando .cardapio-header { opacity:.45; pointer-events:none; }
 #cardapio.editando #listaProdutos { display:none; }
 
+/* Destaque suave para campos preenchidos por leitura de código */
+.campo-lido-destaque {animation:campoLidoPulse 1.2s ease;}
+@keyframes campoLidoPulse {
+  0% { box-shadow:0 0 0 0 rgba(16,185,129,.7); border-color:var(--green); }
+  60% { box-shadow:0 0 0 8px rgba(16,185,129,0); }
+  100% { box-shadow:0 0 0 0 rgba(16,185,129,0); }
+}
+
 /* ============ SCANNER DE CÓDIGO DE BARRAS ============ */
 .barcode-field-linha {display:flex;gap:8px;align-items:flex-end;margin-bottom:12px;}
 .barcode-field-linha .campo-codigo {flex:1;min-width:0;}
@@ -2117,7 +2125,6 @@ async function iniciarScanner() {
         (err) => { /* erros por frame — ignorar */ }
       );
     } catch (errExact) {
-      // Fallback para navegadores que não aceitam "exact"
       console.warn('facingMode exact falhou, tentando sem exact:', errExact);
       try {
         if (html5QrScanner) {
@@ -2134,7 +2141,6 @@ async function iniciarScanner() {
         );
       } catch (errEnv) {
         console.warn('Fallback environment também falhou:', errEnv);
-        // Último recurso: pega a câmera traseira pela lista de dispositivos
         try {
           if (html5QrScanner) {
             try { await html5QrScanner.stop(); } catch(e) {}
@@ -2262,6 +2268,7 @@ async function buscarProdutoPorCodigo(codigo) {
   const produtos = estab.produtos || [];
   const encontrado = produtos.find(p => String(p.codigoBarras || '').trim() === codigoNorm);
 
+  // ⭐ Código NÃO cadastrado → pergunta se quer incluir e vai direto para o cadastro
   if (!encontrado) {
     showFeedback('❌ Nenhum produto com este código');
     speak('Nenhum produto com este código');
@@ -2269,15 +2276,39 @@ async function buscarProdutoPorCodigo(codigo) {
       `Nenhum produto cadastrado com o código "${codigoNorm}".\n\nDeseja cadastrar um novo produto com este código?`,
       { icone: '🆕', titulo: 'Produto não encontrado', textoSim: 'Cadastrar', textoNao: 'Cancelar' }
     );
-    if (ok) {
-      mostrarFormProduto();
-      setTimeout(() => {
-        const campo = $('produtoCodigoBarras');
-        if (campo) campo.value = codigoNorm;
-        const nomeEl = $('produtoNome');
-        if (nomeEl) nomeEl.focus();
-      }, 250);
-    }
+    if (!ok) return;
+
+    // 1) Vai para a tela de Produtos
+    showScreen('cardapio');
+
+    // 2) Abre o formulário em modo de inclusão (limpa estado de edição)
+    currentEditId = null;
+    valoresOriginaisProduto = null;
+    mostrarFormProduto();
+
+    // 3) Aguarda o form estar renderizado e preenche o código + foca no nome
+    setTimeout(() => {
+      const campoCod = $('produtoCodigoBarras');
+      if (campoCod) {
+        campoCod.value = codigoNorm;
+        // dispara o "oninput" para atualizar botão salvar
+        try { campoCod.dispatchEvent(new Event('input', { bubbles: true })); } catch(e) {}
+        campoCod.classList.remove('campo-lido-destaque');
+        // força reflow para reiniciar a animação
+        void campoCod.offsetWidth;
+        campoCod.classList.add('campo-lido-destaque');
+      }
+      verificarAlteracoesProduto();
+
+      const nomeEl = $('produtoNome');
+      if (nomeEl) {
+        try { nomeEl.focus({ preventScroll: true }); } catch(e) { nomeEl.focus(); }
+      }
+      rolarParaFormProduto();
+    }, 400);
+
+    speak('Digite o nome e o preço do produto');
+    showFeedback('📝 Digite o nome e o preço do produto');
     return;
   }
 
