@@ -1,4 +1,4 @@
-<!-- Conta Bar 14.10.2026 - Layout Unificado com Estabelecimento Ativo Destacado -->
+<!-- Conta Bar 14.10.2026 - Layout Unificado: Conta + Produtos + Histórico na Início -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -11,7 +11,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
 <style>
-/* ============ TEMA CLARO (DIA) ============ */
 :root{
   --bg-1:#eef3fb;--bg-2:#fdf6e8;
   --panel:#ffffff;--panel-2:#f5f8fd;
@@ -191,7 +190,6 @@
   --theme-toggle-color:#ffffff;
 }
 
-/* ============ TEMA ESCURO (NOITE) ============ */
 [data-theme="dark"]{
   --bg-1:#0d1016;--bg-2:#171d29;
   --panel:#191e28;--panel-2:#222938;
@@ -374,11 +372,7 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 100%);background-attachment:fixed;color:var(--text);min-height:100vh;transition:background .25s ease,color .25s ease}
 
-/* ============ TOPO FIXO (cabeçalho + barra estab em 1 linha cada) ============ */
-.top-sticky{
-  position:sticky;top:0;z-index:10;
-  box-shadow:0 4px 18px rgba(0,0,0,.15);
-}
+.top-sticky{position:sticky;top:0;z-index:10;box-shadow:0 4px 18px rgba(0,0,0,.15);}
 header{
   padding:8px 100px 8px 14px;
   background:var(--header-bg);
@@ -393,37 +387,25 @@ header{
   border:2px solid var(--header-icon-border);
   box-shadow:var(--header-icon-shadow);
   background:var(--header-icon-bg);
-  object-fit:cover;
-  flex-shrink:0;
-  display:block;
+  object-fit:cover;flex-shrink:0;display:block;
 }
 .header-icon.hidden{display:none;}
 header h1{
   margin:0;
   font-family:'Anton','Impact','Arial Black',sans-serif;
-  font-size:30px;
-  font-weight:900;
-  letter-spacing:3px;
+  font-size:30px;font-weight:900;letter-spacing:3px;
   text-transform:uppercase;
   color:var(--header-title);
   text-shadow:var(--header-title-shadow);
-  line-height:1;
-  white-space:nowrap;
+  line-height:1;white-space:nowrap;
 }
 .theme-toggle{
-  position:absolute;
-  top:50%;
-  right:12px;
-  transform:translateY(-50%);
-  width:38px;height:38px;
-  border-radius:50%;
-  background:var(--theme-toggle-bg);
-  color:var(--theme-toggle-color);
+  position:absolute;top:50%;right:12px;transform:translateY(-50%);
+  width:38px;height:38px;border-radius:50%;
+  background:var(--theme-toggle-bg);color:var(--theme-toggle-color);
   border:2px solid var(--theme-toggle-border);
-  font-size:17px;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  padding:0;
+  font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0;
   box-shadow:0 3px 10px rgba(0,0,0,.18);
   transition:background .2s,transform .15s;
   z-index:11;
@@ -433,19 +415,12 @@ header h1{
 .theme-toggle:active{transform:translateY(-50%) scale(.95)}
 
 .header-barcode-btn{
-  position:absolute;
-  top:50%;
-  right:58px;
-  transform:translateY(-50%);
-  width:38px;height:38px;
-  border-radius:50%;
-  background:var(--theme-toggle-bg);
-  color:var(--theme-toggle-color);
+  position:absolute;top:50%;right:58px;transform:translateY(-50%);
+  width:38px;height:38px;border-radius:50%;
+  background:var(--theme-toggle-bg);color:var(--theme-toggle-color);
   border:2px solid var(--theme-toggle-border);
-  font-size:17px;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  padding:0;
+  font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0;
   box-shadow:0 3px 10px rgba(0,0,0,.18);
   transition:background .2s,transform .15s;
   z-index:11;
@@ -454,52 +429,34 @@ header h1{
 .header-barcode-btn:hover{background:var(--theme-toggle-bg-hover);transform:translateY(-50%) scale(1.08);filter:none}
 .header-barcode-btn:active{transform:translateY(-50%) scale(.95)}
 
-/* ============ BARRA DO ESTABELECIMENTO ATIVO ============ */
 .estab-ativo-bar{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  padding:7px 14px;
-  background:var(--accent);
-  color:var(--on-accent);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:8px 14px;
+  background:var(--accent);color:var(--on-accent);
   border-bottom:3px solid var(--header-border-color);
-  font-size:15px;
-  font-weight:bold;
-  text-align:center;
-  min-height:38px;
+  font-size:15px;font-weight:bold;text-align:center;
+  min-height:44px;
   text-shadow:0 1px 2px rgba(0,0,0,.15);
   transition:background .25s ease;
 }
-.estab-ativo-bar .estab-icon{font-size:17px;line-height:1;flex-shrink:0;}
+.estab-ativo-bar .estab-icon{font-size:20px;line-height:1;flex-shrink:0;}
 .estab-ativo-bar .estab-label{
-  font-weight:normal;
-  font-size:11px;
-  text-transform:uppercase;
-  letter-spacing:1.2px;
-  opacity:.85;
-  flex-shrink:0;
+  font-weight:normal;font-size:11px;text-transform:uppercase;
+  letter-spacing:1.2px;opacity:.9;flex-shrink:0;
 }
 .estab-ativo-bar .estab-nome{
-  font-weight:bold;
-  font-size:15px;
-  padding:2px 12px;
-  background:rgba(255,255,255,.22);
-  border-radius:20px;
-  border:2px solid rgba(255,255,255,.45);
-  display:inline-block;
-  line-height:1.25;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  font-weight:900;font-size:22px;
+  padding:3px 18px;
+  background:rgba(255,255,255,.28);
+  border-radius:24px;border:2px solid rgba(255,255,255,.55);
+  display:inline-block;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   max-width:60vw;
+  text-shadow:0 2px 4px rgba(0,0,0,.28);
+  letter-spacing:.3px;
 }
-.estab-ativo-bar.sem-estab{
-  background:linear-gradient(135deg,#64748b,#475569);
-}
-[data-theme="dark"] .estab-ativo-bar.sem-estab{
-  background:linear-gradient(135deg,#3b4557,#293241);
-}
+.estab-ativo-bar.sem-estab{background:linear-gradient(135deg,#64748b,#475569);}
+[data-theme="dark"] .estab-ativo-bar.sem-estab{background:linear-gradient(135deg,#3b4557,#293241);}
 
 @media(max-width:650px){
   header{padding:6px 88px 6px 10px;gap:10px;min-height:48px;}
@@ -507,10 +464,10 @@ header h1{
   .header-icon{width:36px;height:36px;border-radius:9px;border-width:2px;}
   .theme-toggle{width:32px;height:32px;right:10px;font-size:15px;}
   .header-barcode-btn{width:32px;height:32px;right:50px;font-size:15px;}
-  .estab-ativo-bar{padding:5px 10px;gap:6px;font-size:13px;min-height:32px;}
-  .estab-ativo-bar .estab-icon{font-size:14px;}
+  .estab-ativo-bar{padding:6px 10px;gap:7px;min-height:38px;}
+  .estab-ativo-bar .estab-icon{font-size:16px;}
   .estab-ativo-bar .estab-label{font-size:9px;letter-spacing:.8px;}
-  .estab-ativo-bar .estab-nome{font-size:12px;padding:2px 10px;max-width:55vw;}
+  .estab-ativo-bar .estab-nome{font-size:17px;padding:2px 14px;max-width:58vw;}
 }
 
 .container{max-width:1200px;margin:auto;padding:18px}
@@ -605,28 +562,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .collapsible-header .collapsible-arrow {font-size:13px;transition:transform .25s ease;flex-shrink:0;color:var(--collapsible-text);}
 .collapsible-header.open .collapsible-arrow { transform:rotate(180deg); }
 .collapsible-header .collapsible-title-group {display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;}
-.collapsible-header .collapsible-badge {
-  font-size:11px;padding:2px 9px;border-radius:20px;
-  background:var(--collapsible-counter-bg);color:var(--collapsible-counter-text);
-  font-weight:bold;letter-spacing:.2px;
-}
+.collapsible-header .collapsible-badge {font-size:11px;padding:2px 9px;border-radius:20px;background:var(--collapsible-counter-bg);color:var(--collapsible-counter-text);font-weight:bold;letter-spacing:.2px;}
 .collapsible-content {padding:14px;background:var(--panel-2);}
 .collapsible-content.no-pad {padding:0;}
-
-/* ============ INÍCIO ============ */
-.inicio-estab-info{
-  background:var(--panel-2);
-  border:1px solid var(--border);
-  border-left:4px solid var(--accent);
-  border-radius:12px;
-  padding:12px 16px;
-  margin-bottom:14px;
-}
-.inicio-estab-info .linha{
-  display:flex;justify-content:space-between;align-items:center;
-  font-size:14px;padding:3px 0;gap:10px;
-}
-.inicio-estab-info .linha b{color:var(--text-strong);}
 
 .hist-filters {background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;}
 .hist-filters-row {display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
@@ -786,98 +724,30 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
 .voice-visual-fallback {background:var(--voice-visual-bg) !important;padding:10px !important;border-radius:8px !important;font-size:16px !important;transition:all .3s;}
 
-.edit-banner {
-  display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
-  background:var(--edit-banner-bg);
-  border:2px solid var(--edit-banner-border);
-  border-radius:12px;
-  padding:12px 16px;
-  margin-bottom:14px;
-  box-shadow:var(--edit-banner-shadow);
-  animation:editBannerIn .25s ease;
-}
+.edit-banner {display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;background:var(--edit-banner-bg);border:2px solid var(--edit-banner-border);border-radius:12px;padding:12px 16px;margin-bottom:14px;box-shadow:var(--edit-banner-shadow);animation:editBannerIn .25s ease;}
 @keyframes editBannerIn {from {opacity:0;transform:translateY(-8px);}to {opacity:1;transform:translateY(0);}}
-.edit-banner .edit-banner-title {
-  font-family:'Anton','Impact',sans-serif;
-  font-size:20px; letter-spacing:2px; color:var(--edit-banner-title); text-transform:uppercase;
-  display:flex; align-items:center; gap:10px; margin:0;
-}
+.edit-banner .edit-banner-title {font-family:'Anton','Impact',sans-serif;font-size:20px; letter-spacing:2px; color:var(--edit-banner-title); text-transform:uppercase;display:flex; align-items:center; gap:10px; margin:0;}
 .edit-banner .edit-banner-sub {color:var(--edit-banner-sub); font-size:13px; font-weight:normal; letter-spacing:normal; text-transform:none;}
-.edit-banner .edit-banner-close {
-  background:transparent; color:var(--edit-banner-close-text); border:1px solid var(--edit-banner-close-border);
-  padding:6px 12px; font-size:13px; border-radius:8px; cursor:pointer;box-shadow:none;
-}
+.edit-banner .edit-banner-close {background:transparent; color:var(--edit-banner-close-text); border:1px solid var(--edit-banner-close-border);padding:6px 12px; font-size:13px; border-radius:8px; cursor:pointer;box-shadow:none;}
 .edit-banner .edit-banner-close:hover { background:var(--edit-banner-close-hover); filter:none;transform:none;}
 
-#formProduto.modo-edicao {
-  border:2px solid var(--form-edicao-border);
-  box-shadow:var(--form-edicao-shadow);
-  background:var(--form-edicao-bg);
-}
+#formProduto.modo-edicao {border:2px solid var(--form-edicao-border);box-shadow:var(--form-edicao-shadow);background:var(--form-edicao-bg);}
 #cardapio.editando .cardapio-header { opacity:.45; pointer-events:none; }
 #cardapio.editando #listaProdutos { display:none; }
 
 .campo-lido-destaque {animation:campoLidoPulse 1.2s ease;}
-@keyframes campoLidoPulse {
-  0% { box-shadow:0 0 0 0 rgba(16,185,129,.7); border-color:var(--green); }
-  60% { box-shadow:0 0 0 8px rgba(16,185,129,0); }
-  100% { box-shadow:0 0 0 0 rgba(16,185,129,0); }
-}
+@keyframes campoLidoPulse {0% { box-shadow:0 0 0 0 rgba(16,185,129,.7); border-color:var(--green); }60% { box-shadow:0 0 0 8px rgba(16,185,129,0); }100% { box-shadow:0 0 0 0 rgba(16,185,129,0); }}
 
 .campo-importado-destaque {animation:campoImportadoPulse 1.6s ease;}
-@keyframes campoImportadoPulse {
-  0% { box-shadow:0 0 0 0 rgba(139,92,246,.75); border-color:var(--purple); background:rgba(139,92,246,.08); }
-  60% { box-shadow:0 0 0 10px rgba(139,92,246,0); }
-  100% { box-shadow:0 0 0 0 rgba(139,92,246,0); background:transparent; }
-}
+@keyframes campoImportadoPulse {0% { box-shadow:0 0 0 0 rgba(139,92,246,.75); border-color:var(--purple); background:rgba(139,92,246,.08); }60% { box-shadow:0 0 0 10px rgba(139,92,246,0); }100% { box-shadow:0 0 0 0 rgba(139,92,246,0); background:transparent; }}
 
-.aviso-importacao {
-  display:none;
-  margin:0 0 14px 0;
-  padding:12px 14px;
-  border-radius:12px;
-  background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(139,92,246,.06));
-  border:2px solid rgba(139,92,246,.45);
-  color:var(--text);
-  font-size:13px;
-  line-height:1.5;
-  animation:avisoImportIn .35s ease;
-}
+.aviso-importacao {display:none;margin:0 0 14px 0;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(139,92,246,.06));border:2px solid rgba(139,92,246,.45);color:var(--text);font-size:13px;line-height:1.5;animation:avisoImportIn .35s ease;}
 .aviso-importacao.show { display:block; }
-.aviso-importacao .aviso-titulo {
-  font-weight:bold;
-  color:var(--purple);
-  margin-bottom:4px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:14px;
-}
-.aviso-importacao .aviso-estab {
-  font-weight:bold;
-  color:var(--estab-name-color);
-  text-shadow:var(--estab-name-shadow);
-}
-.aviso-importacao .aviso-campos {
-  display:inline-flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:6px;
-}
-.aviso-importacao .aviso-chip {
-  display:inline-block;
-  padding:3px 10px;
-  border-radius:14px;
-  background:rgba(139,92,246,.18);
-  color:var(--purple);
-  font-size:11px;
-  font-weight:bold;
-  letter-spacing:.3px;
-}
-@keyframes avisoImportIn {
-  from { opacity:0; transform:translateY(-6px); }
-  to { opacity:1; transform:translateY(0); }
-}
+.aviso-importacao .aviso-titulo {font-weight:bold;color:var(--purple);margin-bottom:4px;display:flex;align-items:center;gap:8px;font-size:14px;}
+.aviso-importacao .aviso-estab {font-weight:bold;color:var(--estab-name-color);text-shadow:var(--estab-name-shadow);}
+.aviso-importacao .aviso-campos {display:inline-flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.aviso-importacao .aviso-chip {display:inline-block;padding:3px 10px;border-radius:14px;background:rgba(139,92,246,.18);color:var(--purple);font-size:11px;font-weight:bold;letter-spacing:.3px;}
+@keyframes avisoImportIn {from { opacity:0; transform:translateY(-6px); }to { opacity:1; transform:translateY(0); }}
 
 .barcode-field-linha {display:flex;gap:8px;align-items:flex-end;margin-bottom:12px;}
 .barcode-field-linha .campo-codigo {flex:1;min-width:0;}
@@ -903,7 +773,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </head>
 <body>
 
-<!-- ============ TOPO FIXO (cabeçalho + barra estab ativo) ============ -->
 <div class="top-sticky">
   <header>
     <img src="./chope.png" alt="" class="header-icon" aria-hidden="true" onerror="this.classList.add('hidden');">
@@ -913,7 +782,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </header>
   <div class="estab-ativo-bar sem-estab" id="estabAtivoBar">
     <span class="estab-icon">🏢</span>
-    <span class="estab-label">Estabelecimento ativo</span>
+    <span class="estab-label">ATIVO:</span>
     <span class="estab-nome" id="estabAtivoBarNome">Nenhum</span>
   </div>
 </div>
@@ -926,27 +795,64 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
 <nav id="nav">
 <button data-screen="inicio" onclick="showScreen('inicio')" class="active">🏠 Início</button>
-<button data-screen="conta" onclick="showScreen('conta')">🧾 Conta</button>
 <button data-screen="configuracoes" onclick="showScreen('configuracoes')" title="Configurações">⚙️ Configurações</button>
 </nav>
 
-<!-- ============ INÍCIO (Conta atual + Produtos + Histórico) ============ -->
 <section id="inicio" class="screen active">
 
-  <!-- 1) CONTA ATUAL -->
   <div class="card">
-    <h2>📊 Conta atual</h2>
-    <div class="inicio-estab-info">
-      <div class="linha"><span>Estabelecimento ativo:</span><b id="homeEstabAtivo">Nenhum</b></div>
-      <div class="linha"><span>Status:</span><b id="homeStatusConta">Nenhuma conta aberta</b></div>
+    <div class="conta-header-info">
+      <div>
+        <div class="note" id="contaStatus">Status: Nenhuma conta aberta</div>
+        <div class="note">Cliente: <b id="contaClienteNome">Não informado</b></div>
+      </div>
     </div>
-    <div class="note">Subtotal</div>
-    <div class="total" id="homeSubtotal">R$ 0,00</div>
-    <div class="note" id="homeItems">Nenhum item no pedido.</div>
-    <button id="btnAcaoContaHome" onclick="acaoPrincipalConta()" style="margin-top:10px; width:100%;">📂 Abrir conta</button>
+
+    <button onclick="mostrarMiniCardapio()" id="btnVerCardapioConta" style="width:100%; margin-bottom:16px; padding:14px; font-size:15px;">📋 Ver cardápio / Adicionar item</button>
+
+    <h3 style="margin-top:6px;">🧾 Itens Consumidos</h3>
+    <div id="contaItens"></div>
+
+    <hr style="border-color:var(--border); margin:18px 0">
+
+    <div class="conta-resumo-box">
+      <div class="conta-resumo-linha">
+        <span class="label">Subtotal:</span>
+        <span class="money" id="contaSubtotal">R$ 0,00</span>
+      </div>
+      <div class="conta-resumo-linha">
+        <span class="label">Gorjeta:</span>
+        <span class="money" id="contaGorjeta">R$ 0,00</span>
+      </div>
+    </div>
+
+    <div class="conta-total-box">
+      <div class="note">VALOR TOTAL DA CONTA</div>
+      <div class="total" id="contaTotal">R$ 0,00</div>
+    </div>
+
+    <div class="conta-btn-row">
+      <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">✏️ Editar gorjeta</button>
+      <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()">📂 Abrir conta</button>
+    </div>
+
+    <div id="contaExtrasWrapper" style="display:none; margin-top:16px;">
+      <div class="gorjeta-container">
+        <label>Gorjeta / Serviço</label>
+        <select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
+          <option value="0">Sem gorjeta</option>
+          <option value="10">10% - Serviço</option>
+          <option value="15">15%</option>
+          <option value="20">20%</option>
+        </select>
+      </div>
+
+      <hr style="border-color:var(--border); margin:16px 0">
+      <h3>💳 Dados PIX para Pagamento</h3>
+      <div id="pixInfo" class="note">Selecione um estabelecimento para ver os dados PIX.</div>
+    </div>
   </div>
 
-  <!-- 2) PRODUTOS (collapsible) -->
   <div class="collapsible-section">
     <button class="collapsible-header" id="btnHeaderProdutosInicio" onclick="toggleCollapsible('inicioProdutosContent', this)">
       <span class="collapsible-title-group">
@@ -1055,7 +961,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
     </div>
   </div>
 
-  <!-- 3) HISTÓRICO (collapsible) -->
   <div class="collapsible-section">
     <button class="collapsible-header" id="btnHeaderHistoricoInicio" onclick="toggleCollapsible('inicioHistoricoContent', this)">
       <span class="collapsible-title-group">
@@ -1107,64 +1012,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
 </section>
 
-<!-- ============ CONTA ============ -->
-<section id="conta" class="screen">
-<div class="card">
-  <div class="conta-header-info">
-    <div>
-      <div class="note">Estabelecimento: <b id="contaEstabNome">Nenhum</b></div>
-      <div class="note" id="contaStatus">Status: Nenhuma conta aberta</div>
-      <div class="note">Cliente: <b id="contaClienteNome">Não informado</b></div>
-    </div>
-  </div>
-
-  <button onclick="mostrarMiniCardapio()" id="btnVerCardapioConta" style="width:100%; margin-bottom:16px; padding:14px; font-size:15px;">📋 Ver cardápio / Adicionar item</button>
-
-  <h3 style="margin-top:6px;">🧾 Itens Consumidos</h3>
-  <div id="contaItens"></div>
-
-  <hr style="border-color:var(--border); margin:18px 0">
-
-  <div class="conta-resumo-box">
-    <div class="conta-resumo-linha">
-      <span class="label">Subtotal:</span>
-      <span class="money" id="contaSubtotal">R$ 0,00</span>
-    </div>
-    <div class="conta-resumo-linha">
-      <span class="label">Gorjeta:</span>
-      <span class="money" id="contaGorjeta">R$ 0,00</span>
-    </div>
-  </div>
-
-  <div class="conta-total-box">
-    <div class="note">VALOR TOTAL DA CONTA</div>
-    <div class="total" id="contaTotal">R$ 0,00</div>
-  </div>
-
-  <div class="conta-btn-row">
-    <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">✏️ Editar gorjeta</button>
-    <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()">📂 Abrir conta</button>
-  </div>
-
-  <div id="contaExtrasWrapper" style="display:none; margin-top:16px;">
-    <div class="gorjeta-container">
-      <label>Gorjeta / Serviço</label>
-      <select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
-        <option value="0">Sem gorjeta</option>
-        <option value="10">10% - Serviço</option>
-        <option value="15">15%</option>
-        <option value="20">20%</option>
-      </select>
-    </div>
-
-    <hr style="border-color:var(--border); margin:16px 0">
-    <h3>💳 Dados PIX para Pagamento</h3>
-    <div id="pixInfo" class="note">Selecione um estabelecimento para ver os dados PIX.</div>
-  </div>
-</div>
-</section>
-
-<!-- ============ CONFIGURAÇÕES ============ -->
 <section id="configuracoes" class="screen">
 <div class="card">
 <h2>⚙ Configurações</h2>
@@ -1738,7 +1585,7 @@ function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;'
 
 /* ============ NAVEGAÇÃO ============ */
 function showScreen(screenId) {
-  // Compatibilidade: abas movidas para Início
+  if (screenId === 'conta') { screenId = 'inicio'; }
   if (screenId === 'cardapio') { abrirSecaoProdutos(); return; }
   if (screenId === 'historico') { abrirSecaoHistorico(); return; }
 
@@ -1750,7 +1597,6 @@ function showScreen(screenId) {
   if (btn) btn.classList.add('active');
   if (screenId === 'sinonimos') renderSinonimos();
 
-  // Sempre rola para o topo ao trocar de tela
   try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) { window.scrollTo(0, 0); }
 }
 
@@ -1808,7 +1654,6 @@ function toggleCollapsible(contentId, btn) {
   content.style.display = aberto ? 'none' : 'block';
   if (btn) btn.classList.toggle('open', !aberto);
 
-  // Persistir estado das seções do Início
   if (contentId === 'inicioProdutosContent') {
     data.uiSecoesInicio.produtos = !aberto;
     try { save(); } catch(e){}
@@ -2988,7 +2833,7 @@ function importarSinonimos(event) {
 /* ============ USUÁRIO ============ */
 function acaoPrincipalConta() {
   if (data.contaAtiva) {
-    showScreen('conta');
+    showScreen('inicio');
     confirmarFechamento();
   } else {
     abrirContaManual();
@@ -3443,27 +3288,73 @@ async function sincronizarImagensEstabelecimento(estabId, forcar) {
   }
 }
 
+/* ⭐ CORREÇÃO PRINCIPAL: setEstabelecimentoAtivo só altera o id após confirmação */
 async function setEstabelecimentoAtivo(id) {
-  if (id && data.estabelecimentos[id]) {
-    data.estabelecimentoAtivoId = id;
-    if (data.contaAtiva) {
-      const ok = await confirmar('Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar' });
-      if (ok) {
-        callbackAposFechar = function() { data.pedido = []; data.contaAtiva = false; save(); renderAll(); setEstabelecimentoAtivo(id); };
-        showScreen('conta'); setTimeout(confirmarFechamento, 300);
-        return;
-      } else return;
+  // Normaliza: aceita somente id válido ou null
+  const idFinal = (id && data.estabelecimentos[id]) ? id : null;
+
+  // Se já é o ativo atual, apenas garante a atualização visual
+  if (data.estabelecimentoAtivoId === idFinal) {
+    atualizarEstabAtivoBar();
+    return;
+  }
+
+  // Se há conta aberta no estabelecimento atual, precisa confirmar ANTES de trocar
+  if (data.contaAtiva && data.estabelecimentoAtivoId) {
+    const ok = await confirmar(
+      'Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?',
+      { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar' }
+    );
+    if (!ok) {
+      // Cancela a troca — NÃO altera o id ativo
+      return;
     }
-    data.pedido = []; data.contaAtiva = false;
-    save(); renderAll();
-    const nome = data.estabelecimentos[id].nome;
+    // Fecha primeiro; a troca acontece no callback
+    callbackAposFechar = function() {
+      data.pedido = [];
+      data.contaAtiva = false;
+      data.estabelecimentoAtivoId = idFinal;
+      save(); renderAll();
+      if (idFinal && data.estabelecimentos[idFinal]) {
+        const nome = data.estabelecimentos[idFinal].nome;
+        speak('Estabelecimento selecionado: ' + nome);
+        showFeedback('🏢 Ativo: ' + nome);
+      } else {
+        speak('Nenhum estabelecimento selecionado');
+        showFeedback('🏢 Nenhum estabelecimento ativo');
+      }
+    };
+    showScreen('inicio');
+    setTimeout(confirmarFechamento, 300);
+    return;
+  }
+
+  // Troca direta — sem conta aberta
+  data.estabelecimentoAtivoId = idFinal;
+  data.pedido = [];
+  data.contaAtiva = false;
+  save(); renderAll();
+
+  if (idFinal && data.estabelecimentos[idFinal]) {
+    const nome = data.estabelecimentos[idFinal].nome;
     speak('Estabelecimento selecionado: ' + nome);
     showFeedback('🏢 Ativo: ' + nome);
   } else {
-    data.estabelecimentoAtivoId = null;
-    data.pedido = []; data.contaAtiva = false;
-    save(); renderAll();
     speak('Nenhum estabelecimento selecionado');
+    showFeedback('🏢 Nenhum estabelecimento ativo');
+  }
+}
+
+/* ⭐ trocarEstabelecimentoAtivo agora delega ao setEstabelecimentoAtivo
+   e sincroniza o valor visual do <select> caso o usuário cancele. */
+async function trocarEstabelecimentoAtivo() {
+  const select = $('estabAtivoSelect');
+  const id = select.value || null;
+  await setEstabelecimentoAtivo(id);
+  // Sincroniza o select com o estado real (após cancelamento, mantém o antigo)
+  const idReal = data.estabelecimentoAtivoId || '';
+  if (select.value !== idReal) {
+    select.value = idReal;
   }
 }
 
@@ -3572,16 +3463,6 @@ async function excluirEstabelecimento(id) {
     data.estabelecimentoAtivoId = Object.keys(data.estabelecimentos)[0] || null;
   }
   if (currentEditEstabId === id) fecharFormEstabelecimento();
-  save(); renderAll();
-}
-
-function trocarEstabelecimentoAtivo() {
-  const select = $('estabAtivoSelect');
-  const id = select.value;
-  if (id === '') data.estabelecimentoAtivoId = null;
-  else data.estabelecimentoAtivoId = id;
-  data.pedido = []; data.contaAtiva = false;
-  fecharFormProduto(true);
   save(); renderAll();
 }
 
@@ -4368,9 +4249,9 @@ async function abrirContaManual() {
     const ok = await confirmar('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar' });
     if (ok) {
       callbackAposFechar = function() { abrirNovaConta(null); };
-      showScreen('conta');
+      showScreen('inicio');
       setTimeout(confirmarFechamento, 300);
-    } else showScreen('conta');
+    } else showScreen('inicio');
   } else abrirNovaConta(null);
 }
 
@@ -4384,7 +4265,7 @@ async function abrirNovaConta(nomeEstab) {
     const ok = await confirmar('Já existe uma conta aberta. Deseja fechá-la antes de abrir uma nova?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar' });
     if (ok) {
       callbackAposFechar = function() { abrirNovaConta(nomeEstab); };
-      showScreen('conta');
+      showScreen('inicio');
       setTimeout(confirmarFechamento, 300);
     }
     return;
@@ -4410,7 +4291,7 @@ async function abrirNovaConta(nomeEstab) {
   save(); renderAll();
   speak('Nova conta aberta em ' + estabAtivo.nome);
   showFeedback('✅ Nova conta aberta!');
-  showScreen('conta');
+  showScreen('inicio');
 }
 
 async function excluirContaHistorico(id) {
@@ -4509,44 +4390,38 @@ function renderCardapio() {
 
 function renderConta() {
   const estab = getEstabelecimentoAtivo();
-  document.getElementById('contaEstabNome').textContent = estab ? estab.nome : 'Nenhum';
-  document.getElementById('contaClienteNome').textContent = getNomeCliente();
+  const elCliente = document.getElementById('contaClienteNome');
+  if (elCliente) elCliente.textContent = getNomeCliente();
   const statusText = data.contaAtiva ? '✅ Conta aberta' : '❌ Nenhuma conta aberta';
-  document.getElementById('contaStatus').textContent = statusText;
+  const elStatus = document.getElementById('contaStatus');
+  if (elStatus) elStatus.textContent = 'Status: ' + statusText;
 
-  const btnHome = document.getElementById('btnAcaoContaHome');
   const btnResumo = document.getElementById('btnAcaoContaResumo');
-  if (data.contaAtiva) {
-    if (btnHome) btnHome.textContent = '✅ Solicitar fechamento da conta';
-    if (btnResumo) btnResumo.textContent = '✅ Solicitar fechamento da conta';
-  } else {
-    if (btnHome) btnHome.textContent = '📂 Abrir conta';
-    if (btnResumo) btnResumo.textContent = '📂 Abrir conta';
+  if (btnResumo) {
+    if (data.contaAtiva) btnResumo.textContent = '✅ Solicitar fechamento da conta';
+    else btnResumo.textContent = '📂 Abrir conta';
   }
 
   const contaItensDiv = document.getElementById('contaItens');
-  if (data.pedido.length === 0) {
-    contaItensDiv.innerHTML = '<div class="empty">Nenhum item consumido.<br>Toque em <b>📋 Ver cardápio</b>.</div>';
-  } else {
-    contaItensDiv.innerHTML = `<table><tr><th>Produto</th><th>Qtd.</th><th>Total</th><th></th></tr>${
-      data.pedido.map((x, i) => `<tr><td>${escapeHtml(x.nome)}</td><td>${x.qtd}</td><td>${money(x.preco * x.qtd)}</td><td><button class="danger small" onclick="removePedido(${i})">×</button></td></tr>`).join('')
-    }</table>`;
+  if (contaItensDiv) {
+    if (data.pedido.length === 0) {
+      contaItensDiv.innerHTML = '<div class="empty">Nenhum item consumido.<br>Toque em <b>📋 Ver cardápio</b>.</div>';
+    } else {
+      contaItensDiv.innerHTML = `<table><tr><th>Produto</th><th>Qtd.</th><th>Total</th><th></th></tr>${
+        data.pedido.map((x, i) => `<tr><td>${escapeHtml(x.nome)}</td><td>${x.qtd}</td><td>${money(x.preco * x.qtd)}</td><td><button class="danger small" onclick="removePedido(${i})">×</button></td></tr>`).join('')
+      }</table>`;
+    }
   }
 
-  const sub = subtotal();
-  document.getElementById('homeSubtotal').textContent = money(sub);
-  const totalItems = data.pedido.reduce((s, x) => s + x.qtd, 0);
-  document.getElementById('homeItems').textContent = totalItems ? totalItems + ' item(ns) na conta.' : 'Nenhum item na conta.';
-  document.getElementById('homeEstabAtivo').textContent = estab ? estab.nome : 'Nenhum';
-  document.getElementById('homeStatusConta').textContent = statusText;
-
-  if (data.gorjetaConfig) $('gorjeta').value = data.gorjetaConfig;
   calcularTotaisConta();
 
   const e = estab || {};
-  document.getElementById('pixInfo').innerHTML = e.nome ?
-    `<b>${escapeHtml(e.nome)}</b><br>${escapeHtml(e.endereco || '')}<br><br><b>Chave PIX:</b><br>${escapeHtml(e.pix || 'Não informada')}` :
-    'Selecione um estabelecimento.';
+  const pixInfo = document.getElementById('pixInfo');
+  if (pixInfo) {
+    pixInfo.innerHTML = e.nome ?
+      `<b>${escapeHtml(e.nome)}</b><br>${escapeHtml(e.endereco || '')}<br><br><b>Chave PIX:</b><br>${escapeHtml(e.pix || 'Não informada')}` :
+      'Selecione um estabelecimento.';
+  }
 }
 
 function onChangeHistPeriodo() {
@@ -4898,8 +4773,8 @@ function processVoice(text) {
     return;
   }
 
-  if (matchSinonimo(norm, 'fecharConta')) { showScreen('conta'); confirmarFechamento(); return; }
-  if (matchSinonimo(norm, 'verConta')) { showScreen('conta'); return; }
+  if (matchSinonimo(norm, 'fecharConta')) { showScreen('inicio'); confirmarFechamento(); return; }
+  if (matchSinonimo(norm, 'verConta')) { showScreen('inicio'); return; }
   if (matchSinonimo(norm, 'verHistorico')) { abrirSecaoHistorico(); return; }
   if (matchSinonimo(norm, 'verCardapio')) { mostrarMiniCardapio(); return; }
   if (matchSinonimo(norm, 'exportarDados')) { exportarDados(true); return; }
@@ -4936,7 +4811,7 @@ function exportarDados(incluirImagens = true) {
       (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; });
     });
   }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 11, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 13, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -5010,7 +4885,6 @@ async function clearAllData() {
   showFeedback('🗑 Todos os dados apagados.');
 }
 
-/* ============ APLICAR ESTADO DAS SEÇÕES DA INÍCIO ============ */
 function aplicarEstadoSecoesInicio() {
   const cfg = data.uiSecoesInicio || { produtos: false, historico: false };
 
