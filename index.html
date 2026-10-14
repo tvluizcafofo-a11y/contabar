@@ -1,4 +1,4 @@
-<!-- Conta Bar 13.10.2026 - Temas Claro/Escuro + Código de Barras + Importação entre Estabelecimentos -->
+<!-- Conta Bar 14.10.2026 - Layout Unificado com Estabelecimento Ativo Destacado -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -374,18 +374,23 @@
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,var(--bg-1) 0%,var(--bg-2) 100%);background-attachment:fixed;color:var(--text);min-height:100vh;transition:background .25s ease,color .25s ease}
 
-header{
-  padding:20px 22px;
-  background:var(--header-bg);
-  border-bottom:4px solid var(--header-border-color);
+/* ============ TOPO FIXO (cabeçalho + barra estab em 1 linha cada) ============ */
+.top-sticky{
   position:sticky;top:0;z-index:10;
+  box-shadow:0 4px 18px rgba(0,0,0,.15);
+}
+header{
+  padding:8px 100px 8px 14px;
+  background:var(--header-bg);
+  border-bottom:3px solid var(--header-border-color);
   display:flex;justify-content:center;align-items:center;
-  text-align:center;gap:22px;
-  box-shadow:var(--header-shadow);
+  text-align:center;gap:12px;
+  position:relative;
+  min-height:56px;
 }
 .header-icon{
-  width:120px;height:120px;border-radius:20px;
-  border:3px solid var(--header-icon-border);
+  width:44px;height:44px;border-radius:10px;
+  border:2px solid var(--header-icon-border);
   box-shadow:var(--header-icon-shadow);
   background:var(--header-icon-bg);
   object-fit:cover;
@@ -396,29 +401,30 @@ header{
 header h1{
   margin:0;
   font-family:'Anton','Impact','Arial Black',sans-serif;
-  font-size:52px;
+  font-size:30px;
   font-weight:900;
-  letter-spacing:5px;
+  letter-spacing:3px;
   text-transform:uppercase;
   color:var(--header-title);
   text-shadow:var(--header-title-shadow);
   line-height:1;
+  white-space:nowrap;
 }
 .theme-toggle{
   position:absolute;
   top:50%;
-  right:20px;
+  right:12px;
   transform:translateY(-50%);
-  width:50px;height:50px;
+  width:38px;height:38px;
   border-radius:50%;
   background:var(--theme-toggle-bg);
   color:var(--theme-toggle-color);
   border:2px solid var(--theme-toggle-border);
-  font-size:22px;
+  font-size:17px;
   cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   padding:0;
-  box-shadow:0 4px 12px rgba(0,0,0,.18);
+  box-shadow:0 3px 10px rgba(0,0,0,.18);
   transition:background .2s,transform .15s;
   z-index:11;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
@@ -429,24 +435,83 @@ header h1{
 .header-barcode-btn{
   position:absolute;
   top:50%;
-  right:82px;
+  right:58px;
   transform:translateY(-50%);
-  width:50px;height:50px;
+  width:38px;height:38px;
   border-radius:50%;
   background:var(--theme-toggle-bg);
   color:var(--theme-toggle-color);
   border:2px solid var(--theme-toggle-border);
-  font-size:22px;
+  font-size:17px;
   cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   padding:0;
-  box-shadow:0 4px 12px rgba(0,0,0,.18);
+  box-shadow:0 3px 10px rgba(0,0,0,.18);
   transition:background .2s,transform .15s;
   z-index:11;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
 }
 .header-barcode-btn:hover{background:var(--theme-toggle-bg-hover);transform:translateY(-50%) scale(1.08);filter:none}
 .header-barcode-btn:active{transform:translateY(-50%) scale(.95)}
+
+/* ============ BARRA DO ESTABELECIMENTO ATIVO ============ */
+.estab-ativo-bar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:7px 14px;
+  background:var(--accent);
+  color:var(--on-accent);
+  border-bottom:3px solid var(--header-border-color);
+  font-size:15px;
+  font-weight:bold;
+  text-align:center;
+  min-height:38px;
+  text-shadow:0 1px 2px rgba(0,0,0,.15);
+  transition:background .25s ease;
+}
+.estab-ativo-bar .estab-icon{font-size:17px;line-height:1;flex-shrink:0;}
+.estab-ativo-bar .estab-label{
+  font-weight:normal;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:1.2px;
+  opacity:.85;
+  flex-shrink:0;
+}
+.estab-ativo-bar .estab-nome{
+  font-weight:bold;
+  font-size:15px;
+  padding:2px 12px;
+  background:rgba(255,255,255,.22);
+  border-radius:20px;
+  border:2px solid rgba(255,255,255,.45);
+  display:inline-block;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:60vw;
+}
+.estab-ativo-bar.sem-estab{
+  background:linear-gradient(135deg,#64748b,#475569);
+}
+[data-theme="dark"] .estab-ativo-bar.sem-estab{
+  background:linear-gradient(135deg,#3b4557,#293241);
+}
+
+@media(max-width:650px){
+  header{padding:6px 88px 6px 10px;gap:10px;min-height:48px;}
+  header h1{font-size:20px;letter-spacing:2px}
+  .header-icon{width:36px;height:36px;border-radius:9px;border-width:2px;}
+  .theme-toggle{width:32px;height:32px;right:10px;font-size:15px;}
+  .header-barcode-btn{width:32px;height:32px;right:50px;font-size:15px;}
+  .estab-ativo-bar{padding:5px 10px;gap:6px;font-size:13px;min-height:32px;}
+  .estab-ativo-bar .estab-icon{font-size:14px;}
+  .estab-ativo-bar .estab-label{font-size:9px;letter-spacing:.8px;}
+  .estab-ativo-bar .estab-nome{font-size:12px;padding:2px 10px;max-width:55vw;}
+}
 
 .container{max-width:1200px;margin:auto;padding:18px}
 .voice{background:var(--voice-bg);border:1px solid var(--voice-border);border-radius:16px;padding:18px;margin-bottom:18px}
@@ -481,14 +546,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .note{color:var(--muted);font-size:13px}
 .empty{text-align:center;color:var(--muted);padding:25px}
 footer{text-align:center;color:var(--muted);padding:25px}
-@media(max-width:650px){
-  header{padding:14px 16px;gap:14px;}
-  header h1{font-size:30px;letter-spacing:2px}
-  .header-icon{width:78px;height:78px;border-radius:14px;border-width:2px;}
-  .theme-toggle{width:42px;height:42px;right:12px;font-size:19px;}
-  .header-barcode-btn{width:42px;height:42px;right:64px;font-size:19px;}
-  .container{padding:12px}.row{flex-direction:column}.row>*{width:100%}table{font-size:13px}th,td{padding:7px}
-}
+
 .command-list{columns:2;column-gap:30px;}
 .command-list li{break-inside:avoid;margin-bottom:10px;padding:8px;background:var(--command-item-bg);border-radius:8px;border:1px solid var(--command-item-border);}
 .command-list .cmd{color:var(--accent);font-weight:bold;}
@@ -541,13 +599,34 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .back-config-btn {margin-bottom:15px;background:var(--panel);color:var(--text);border:1px solid var(--border);box-shadow:var(--export-btn-shadow);}
 .back-config-btn:hover{background:var(--import-area-hover-bg);border-color:var(--accent);}
 
-.collapsible-section {border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--panel-2);margin-top:14px;}
+.collapsible-section {border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--panel-2);margin-top:16px;box-shadow:0 3px 12px rgba(15,23,42,.06);}
 .collapsible-header {width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;background:var(--collapsible-bg);color:var(--collapsible-text);border:0;border-radius:0;font-size:15px;font-weight:bold;cursor:pointer;text-align:left;letter-spacing:.3px;transition:filter .15s;box-shadow:none;}
 .collapsible-header:hover { filter:brightness(1.05); transform:none; }
 .collapsible-header .collapsible-arrow {font-size:13px;transition:transform .25s ease;flex-shrink:0;color:var(--collapsible-text);}
 .collapsible-header.open .collapsible-arrow { transform:rotate(180deg); }
+.collapsible-header .collapsible-title-group {display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0;}
+.collapsible-header .collapsible-badge {
+  font-size:11px;padding:2px 9px;border-radius:20px;
+  background:var(--collapsible-counter-bg);color:var(--collapsible-counter-text);
+  font-weight:bold;letter-spacing:.2px;
+}
 .collapsible-content {padding:14px;background:var(--panel-2);}
-.collapsible-content .voice { margin-bottom:0 !important; }
+.collapsible-content.no-pad {padding:0;}
+
+/* ============ INÍCIO ============ */
+.inicio-estab-info{
+  background:var(--panel-2);
+  border:1px solid var(--border);
+  border-left:4px solid var(--accent);
+  border-radius:12px;
+  padding:12px 16px;
+  margin-bottom:14px;
+}
+.inicio-estab-info .linha{
+  display:flex;justify-content:space-between;align-items:center;
+  font-size:14px;padding:3px 0;gap:10px;
+}
+.inicio-estab-info .linha b{color:var(--text-strong);}
 
 .hist-filters {background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px;}
 .hist-filters-row {display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
@@ -642,11 +721,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .btn-add-mini:hover { filter:brightness(1.1); transform:scale(1.08); }
 .btn-add-mini:active { transform:scale(.9); }
 
-.cardapio-header {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--yellow),var(--danger)) 1;border-top:0;border-left:0;border-right:0;}
-.cardapio-header h2 {margin:0;font-family:'Anton','Impact','Arial Black',sans-serif;font-size:30px;letter-spacing:2px;color:var(--cardapio-title);text-transform:uppercase;line-height:1.1;display:flex;align-items:baseline;flex-wrap:wrap;gap:12px;}
-.cardapio-header h2 .nome-estab {display:inline;font-family:Arial,Helvetica,sans-serif;font-size:22px;color:var(--estab-name-color);letter-spacing:normal;text-transform:none;font-weight:bold;text-shadow:var(--estab-name-shadow);}
+.cardapio-header {display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--yellow),var(--danger)) 1;border-top:0;border-left:0;border-right:0;}
+.cardapio-header h2 {margin:0;font-family:'Anton','Impact','Arial Black',sans-serif;font-size:22px;letter-spacing:2px;color:var(--cardapio-title);text-transform:uppercase;line-height:1.1;display:flex;align-items:baseline;flex-wrap:wrap;gap:10px;}
+.cardapio-header h2 .nome-estab {display:inline;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:var(--estab-name-color);letter-spacing:normal;text-transform:none;font-weight:bold;text-shadow:var(--estab-name-shadow);}
 .cardapio-header .header-actions {display:flex;gap:8px;flex-wrap:wrap;}
-@media(max-width:650px){.cardapio-header h2 { font-size:22px; }.cardapio-header h2 .nome-estab { font-size:17px; }}
+@media(max-width:650px){.cardapio-header h2 { font-size:18px; }.cardapio-header h2 .nome-estab { font-size:14px; }}
 
 .export-buttons {display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
 @media(max-width:650px){.export-buttons { grid-template-columns:1fr; }}
@@ -738,7 +817,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 #cardapio.editando .cardapio-header { opacity:.45; pointer-events:none; }
 #cardapio.editando #listaProdutos { display:none; }
 
-/* Destaque para campos preenchidos por leitura de código */
 .campo-lido-destaque {animation:campoLidoPulse 1.2s ease;}
 @keyframes campoLidoPulse {
   0% { box-shadow:0 0 0 0 rgba(16,185,129,.7); border-color:var(--green); }
@@ -746,7 +824,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   100% { box-shadow:0 0 0 0 rgba(16,185,129,0); }
 }
 
-/* ⭐ Destaque para campos preenchidos por IMPORT de outro estabelecimento */
 .campo-importado-destaque {animation:campoImportadoPulse 1.6s ease;}
 @keyframes campoImportadoPulse {
   0% { box-shadow:0 0 0 0 rgba(139,92,246,.75); border-color:var(--purple); background:rgba(139,92,246,.08); }
@@ -754,7 +831,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   100% { box-shadow:0 0 0 0 rgba(139,92,246,0); background:transparent; }
 }
 
-/* ⭐ Aviso de importação entre estabelecimentos */
 .aviso-importacao {
   display:none;
   margin:0 0 14px 0;
@@ -803,7 +879,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   to { opacity:1; transform:translateY(0); }
 }
 
-/* ============ SCANNER DE CÓDIGO DE BARRAS ============ */
 .barcode-field-linha {display:flex;gap:8px;align-items:flex-end;margin-bottom:12px;}
 .barcode-field-linha .campo-codigo {flex:1;min-width:0;}
 .barcode-field-linha .campo-codigo label {display:block;margin-bottom:2px;}
@@ -827,12 +902,21 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <link rel="apple-touch-icon" href="./icon-192.png">
 </head>
 <body>
-<header>
-  <img src="./chope.png" alt="" class="header-icon" aria-hidden="true" onerror="this.classList.add('hidden');">
-  <h1>FECHA A CONTA</h1>
-  <button id="headerBarcodeBtn" class="header-barcode-btn" onclick="abrirLeitorCodigoBarras('pedido')" title="Ler código de barras (adicionar ao pedido)" aria-label="Ler código de barras">📷</button>
-  <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema">🌙</button>
-</header>
+
+<!-- ============ TOPO FIXO (cabeçalho + barra estab ativo) ============ -->
+<div class="top-sticky">
+  <header>
+    <img src="./chope.png" alt="" class="header-icon" aria-hidden="true" onerror="this.classList.add('hidden');">
+    <h1>FECHA A CONTA</h1>
+    <button id="headerBarcodeBtn" class="header-barcode-btn" onclick="abrirLeitorCodigoBarras('pedido')" title="Ler código de barras (adicionar ao pedido)" aria-label="Ler código de barras">📷</button>
+    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Alternar tema claro/escuro" aria-label="Alternar tema">🌙</button>
+  </header>
+  <div class="estab-ativo-bar sem-estab" id="estabAtivoBar">
+    <span class="estab-icon">🏢</span>
+    <span class="estab-label">Estabelecimento ativo</span>
+    <span class="estab-nome" id="estabAtivoBarNome">Nenhum</span>
+  </div>
+</div>
 
 <button id="voiceStatusIcon" class="voice-status-icon" onclick="toggleVoiceAssistant()" title="Ativar / Desativar assistente de voz" aria-label="Assistente de voz">
   <span id="voiceStatusIconEmoji">🎙️</span>
@@ -842,23 +926,245 @@ footer{text-align:center;color:var(--muted);padding:25px}
 
 <nav id="nav">
 <button data-screen="inicio" onclick="showScreen('inicio')" class="active">🏠 Início</button>
-<button data-screen="cardapio" onclick="showScreen('cardapio')">🍺 Produtos</button>
 <button data-screen="conta" onclick="showScreen('conta')">🧾 Conta</button>
-<button data-screen="historico" onclick="showScreen('historico')">📜 Histórico</button>
-<button data-screen="configuracoes" onclick="showScreen('configuracoes')" title="Configurações">⚙️</button>
+<button data-screen="configuracoes" onclick="showScreen('configuracoes')" title="Configurações">⚙️ Configurações</button>
 </nav>
 
+<!-- ============ INÍCIO (Conta atual + Produtos + Histórico) ============ -->
 <section id="inicio" class="screen active">
+
+  <!-- 1) CONTA ATUAL -->
+  <div class="card">
+    <h2>📊 Conta atual</h2>
+    <div class="inicio-estab-info">
+      <div class="linha"><span>Estabelecimento ativo:</span><b id="homeEstabAtivo">Nenhum</b></div>
+      <div class="linha"><span>Status:</span><b id="homeStatusConta">Nenhuma conta aberta</b></div>
+    </div>
+    <div class="note">Subtotal</div>
+    <div class="total" id="homeSubtotal">R$ 0,00</div>
+    <div class="note" id="homeItems">Nenhum item no pedido.</div>
+    <button id="btnAcaoContaHome" onclick="acaoPrincipalConta()" style="margin-top:10px; width:100%;">📂 Abrir conta</button>
+  </div>
+
+  <!-- 2) PRODUTOS (collapsible) -->
+  <div class="collapsible-section">
+    <button class="collapsible-header" id="btnHeaderProdutosInicio" onclick="toggleCollapsible('inicioProdutosContent', this)">
+      <span class="collapsible-title-group">
+        <span>🍺 Produtos</span>
+        <span class="collapsible-badge" id="badgeQtdProdutosInicio">0 itens</span>
+      </span>
+      <span class="collapsible-arrow">▼</span>
+    </button>
+    <div id="inicioProdutosContent" class="collapsible-content no-pad" style="display:none;">
+      <div id="cardapio">
+        <div class="card" style="border-radius:0;border-left:0;border-right:0;border-top:0;border-bottom:0;box-shadow:none;">
+          <div class="cardapio-header">
+            <h2>🍺 Cardápio
+              <span class="nome-estab" id="cardapioEstabNome">— nenhum estabelecimento selecionado</span>
+              <span id="cardapioSyncBadge" class="sync-badge" style="display:none;"><span class="spin"></span> <span id="cardapioSyncText">Sincronizando...</span></span>
+            </h2>
+            <div class="header-actions">
+              <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
+            </div>
+          </div>
+
+          <div id="editBanner" class="edit-banner" style="display:none;">
+            <div>
+              <div class="edit-banner-title">✏️ Editando produto</div>
+              <div class="edit-banner-sub" id="editBannerSub">—</div>
+            </div>
+            <button class="edit-banner-close" onclick="fecharFormProduto()">✖ Sair da edição</button>
+          </div>
+
+          <div id="formProduto" style="display:none; padding:16px; background:var(--panel-2); border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
+            <h3 id="formProdutoTitulo" style="margin-top:0; color:var(--title-color);">➕ Novo produto</h3>
+
+            <div id="avisoImportacao" class="aviso-importacao">
+              <div class="aviso-titulo">
+                <span>📥 Produto encontrado em outro estabelecimento!</span>
+              </div>
+              <div>
+                Dados importados de <span class="aviso-estab" id="avisoEstabNome">—</span>. Você só precisa confirmar ou ajustar.
+              </div>
+              <div class="aviso-campos" id="avisoCamposImportados"></div>
+            </div>
+
+            <div id="produtoCamposExtras">
+              <div class="produto-form-linha">
+                <div class="campo-nome">
+                  <label>Nome do produto</label>
+                  <input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml"
+                    oninput="verificarAlteracoesProduto(); agendarVerificacaoProdutoEmOutrosEstabs();">
+                </div>
+                <div class="campo-preco">
+                  <label>Preço (R$)</label>
+                  <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10,00"
+                    oninput="verificarAlteracoesProduto();">
+                </div>
+              </div>
+
+              <div class="barcode-field-linha">
+                <div class="campo-codigo">
+                  <label>Código de barras (EAN/UPC)</label>
+                  <input id="produtoCodigoBarras" placeholder="Ex.: 7891234567890" inputmode="numeric"
+                    oninput="verificarAlteracoesProduto(); agendarVerificacaoProdutoEmOutrosEstabs();">
+                </div>
+                <button type="button" class="secondary btn-ler-codigo" onclick="abrirLeitorCodigoBarras('cadastro')">📷 Ler</button>
+              </div>
+            </div>
+
+            <label>Imagem do produto</label>
+            <div id="produtoImagemPreview" class="produto-img-preview" tabindex="0">
+              <div class="empty">
+                <div class="big">📷</div>
+                <div>Sem imagem</div>
+                <div class="small">Use 🔍 Buscar na internet, 🐙 Buscar no GitHub ou 📤 Enviar do dispositivo</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;">
+              <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar na internet</button>
+              <button type="button" class="secondary small" onclick="buscarImagemGitHubManual()">🐙 Buscar no GitHub</button>
+              <button type="button" class="secondary small" onclick="document.getElementById('produtoImagemFile').click()">📤 Enviar do dispositivo</button>
+              <button type="button" class="secondary small" id="btnRemoverImg" onclick="removerImagemProduto()" style="display:none;">🗑 Remover imagem</button>
+              <input type="file" id="produtoImagemFile" accept="image/*" style="display:none;" onchange="uploadImagemProduto(event)">
+            </div>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button id="btnSalvarProduto" onclick="addProduto()">➕ Cadastrar produto</button>
+              <button class="secondary" onclick="fecharFormProduto()">❌ Cancelar</button>
+            </div>
+            <p class="note" style="margin-top:8px;">Ao cadastrar, o app busca a imagem automaticamente: <b>1)</b> dispositivo → <b>2)</b> repositório GitHub → <b>3)</b> internet.</p>
+          </div>
+
+          <div id="listaProdutos"></div>
+
+          <div class="tip-box">
+            <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo.</p>
+          </div>
+          <div class="tip-box">
+            <p>📷 <b>Pedido por código de barras:</b> use o botão <b>📷</b> no topo da tela a qualquer momento.</p>
+          </div>
+          <div class="tip-box" style="border-color:var(--purple);background:rgba(139,92,246,.08);">
+            <p>📥 <b>Importação automática:</b> ao cadastrar um produto que já existe em outro estabelecimento seu, os dados são trazidos automaticamente.</p>
+          </div>
+          <div class="tip-box" style="border-color:var(--yellow);background:rgba(251,191,36,.08);">
+            <p>🗑️ <b>Ao excluir um produto já usado em contas anteriores:</b> sai do cadastro e da conta ativa, mas <b>o histórico é preservado</b>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3) HISTÓRICO (collapsible) -->
+  <div class="collapsible-section">
+    <button class="collapsible-header" id="btnHeaderHistoricoInicio" onclick="toggleCollapsible('inicioHistoricoContent', this)">
+      <span class="collapsible-title-group">
+        <span>📜 Histórico de Contas</span>
+        <span class="collapsible-badge" id="badgeQtdHistoricoInicio">0 contas</span>
+      </span>
+      <span class="collapsible-arrow">▼</span>
+    </button>
+    <div id="inicioHistoricoContent" class="collapsible-content no-pad" style="display:none;">
+      <div id="historico">
+        <div class="card" style="border-radius:0;border-left:0;border-right:0;border-top:0;border-bottom:0;box-shadow:none;">
+          <div class="hist-filters">
+            <div class="hist-filters-row" style="margin-bottom:10px;">
+              <div style="flex:1; min-width:140px;">
+                <label>📅 Período:</label>
+                <select id="histPeriodo" onchange="onChangeHistPeriodo()">
+                  <option value="mes">No mês</option>
+                  <option value="mesAnterior">Mês anterior</option>
+                  <option value="personalizado">Personalizado</option>
+                </select>
+              </div>
+              <div style="flex:1; min-width:140px;">
+                <label>🗂 Visualização / Agrupamento:</label>
+                <select id="histOrdem" onchange="renderHistorico()">
+                  <option value="data">Por Data (Cronológica)</option>
+                  <option value="estabelecimento">Por Estabelecimento</option>
+                </select>
+              </div>
+            </div>
+            <div id="histDatasPersonalizadas" class="hist-filters-row" style="display:none; margin-top:10px;">
+              <div style="flex:1;">
+                <label>Data Inicial:</label>
+                <input type="date" id="histDataInicio" onchange="renderHistorico()">
+              </div>
+              <div style="flex:1;">
+                <label>Data Final:</label>
+                <input type="date" id="histDataFim" onchange="renderHistorico()">
+              </div>
+            </div>
+          </div>
+
+          <div id="listaHistorico"></div>
+          <div id="totalGeralHistorico" style="margin-top:15px; text-align:right; font-weight:bold; font-size:18px; border-top:2px solid var(--accent); padding-top:10px;"></div>
+          <button class="danger" style="margin-top:15px" onclick="limparHistorico()">🗑 Limpar histórico</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============ CONTA ============ -->
+<section id="conta" class="screen">
 <div class="card">
-<h2>📊 Conta atual</h2>
-<div class="note">Estabelecimento ativo: <b id="homeEstabAtivo">Nenhum</b></div>
-<div class="note">Status: <b id="homeStatusConta">Nenhuma conta aberta</b></div>
-<div class="note">Subtotal</div><div class="total" id="homeSubtotal">R$ 0,00</div>
-<div class="note" id="homeItems">Nenhum item no pedido.</div>
-<button id="btnAcaoContaHome" onclick="acaoPrincipalConta()" style="margin-top:10px; width:100%;">📂 Abrir conta</button>
+  <div class="conta-header-info">
+    <div>
+      <div class="note">Estabelecimento: <b id="contaEstabNome">Nenhum</b></div>
+      <div class="note" id="contaStatus">Status: Nenhuma conta aberta</div>
+      <div class="note">Cliente: <b id="contaClienteNome">Não informado</b></div>
+    </div>
+  </div>
+
+  <button onclick="mostrarMiniCardapio()" id="btnVerCardapioConta" style="width:100%; margin-bottom:16px; padding:14px; font-size:15px;">📋 Ver cardápio / Adicionar item</button>
+
+  <h3 style="margin-top:6px;">🧾 Itens Consumidos</h3>
+  <div id="contaItens"></div>
+
+  <hr style="border-color:var(--border); margin:18px 0">
+
+  <div class="conta-resumo-box">
+    <div class="conta-resumo-linha">
+      <span class="label">Subtotal:</span>
+      <span class="money" id="contaSubtotal">R$ 0,00</span>
+    </div>
+    <div class="conta-resumo-linha">
+      <span class="label">Gorjeta:</span>
+      <span class="money" id="contaGorjeta">R$ 0,00</span>
+    </div>
+  </div>
+
+  <div class="conta-total-box">
+    <div class="note">VALOR TOTAL DA CONTA</div>
+    <div class="total" id="contaTotal">R$ 0,00</div>
+  </div>
+
+  <div class="conta-btn-row">
+    <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">✏️ Editar gorjeta</button>
+    <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()">📂 Abrir conta</button>
+  </div>
+
+  <div id="contaExtrasWrapper" style="display:none; margin-top:16px;">
+    <div class="gorjeta-container">
+      <label>Gorjeta / Serviço</label>
+      <select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
+        <option value="0">Sem gorjeta</option>
+        <option value="10">10% - Serviço</option>
+        <option value="15">15%</option>
+        <option value="20">20%</option>
+      </select>
+    </div>
+
+    <hr style="border-color:var(--border); margin:16px 0">
+    <h3>💳 Dados PIX para Pagamento</h3>
+    <div id="pixInfo" class="note">Selecione um estabelecimento para ver os dados PIX.</div>
+  </div>
 </div>
 </section>
 
+<!-- ============ CONFIGURAÇÕES ============ -->
 <section id="configuracoes" class="screen">
 <div class="card">
 <h2>⚙ Configurações</h2>
@@ -896,7 +1202,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </button>
   <div id="repositorioRotulosContent" class="collapsible-content" style="display:none;">
     <div class="voice" style="margin-top:0;">
-      <p class="note">O repositório deve ser público. O app procura imagens pelo <b>nome do produto sem espaços</b>. Ex.: produto <b>"Cerveja Stella"</b> → arquivo <code>cervejastella.jpg</code>. Precisa ter <b>todas as palavras</b> do produto no nome do arquivo.</p>
+      <p class="note">O repositório deve ser público. O app procura imagens pelo <b>nome do produto sem espaços</b>. Ex.: produto <b>"Cerveja Stella"</b> → arquivo <code>cervejastella.jpg</code>.</p>
       <div class="row">
         <input id="githubRepoInput" placeholder="usuario/repositorio (ex: contabar/rotulos)" style="margin:0;">
       </div>
@@ -989,202 +1295,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <hr style="border-color:var(--border);margin:15px 0">
 <h3>📋 Estabelecimentos cadastrados</h3>
 <div id="listaEstabelecimentos"></div>
-</div>
-</section>
-
-<section id="cardapio" class="screen">
-<div class="card">
-  <div class="cardapio-header">
-    <h2>🍺 Produtos
-      <span class="nome-estab" id="cardapioEstabNome">— nenhum estabelecimento selecionado</span>
-      <span id="cardapioSyncBadge" class="sync-badge" style="display:none;"><span class="spin"></span> <span id="cardapioSyncText">Sincronizando...</span></span>
-    </h2>
-    <div class="header-actions">
-      <button id="btnIncluirProduto" onclick="mostrarFormProduto()" style="display:none;">➕ Incluir novo produto</button>
-    </div>
-  </div>
-
-  <div id="editBanner" class="edit-banner" style="display:none;">
-    <div>
-      <div class="edit-banner-title">✏️ Editando produto</div>
-      <div class="edit-banner-sub" id="editBannerSub">—</div>
-    </div>
-    <button class="edit-banner-close" onclick="fecharFormProduto()">✖ Sair da edição</button>
-  </div>
-
-  <div id="formProduto" style="display:none; padding:16px; background:var(--panel-2); border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
-    <h3 id="formProdutoTitulo" style="margin-top:0; color:var(--title-color);">➕ Novo produto</h3>
-
-    <!-- ⭐ Aviso de importação entre estabelecimentos -->
-    <div id="avisoImportacao" class="aviso-importacao">
-      <div class="aviso-titulo">
-        <span>📥 Produto encontrado em outro estabelecimento!</span>
-      </div>
-      <div>
-        Dados importados de <span class="aviso-estab" id="avisoEstabNome">—</span>. Você só precisa confirmar ou ajustar.
-      </div>
-      <div class="aviso-campos" id="avisoCamposImportados"></div>
-    </div>
-
-    <div id="produtoCamposExtras">
-      <div class="produto-form-linha">
-        <div class="campo-nome">
-          <label>Nome do produto</label>
-          <input id="produtoNome" placeholder="Ex.: Cerveja Brahma 600 ml"
-            oninput="verificarAlteracoesProduto(); agendarVerificacaoProdutoEmOutrosEstabs();">
-        </div>
-        <div class="campo-preco">
-          <label>Preço (R$)</label>
-          <input id="produtoPreco" type="number" step="0.01" min="0" placeholder="10,00"
-            oninput="verificarAlteracoesProduto();">
-        </div>
-      </div>
-
-      <div class="barcode-field-linha">
-        <div class="campo-codigo">
-          <label>Código de barras (EAN/UPC)</label>
-          <input id="produtoCodigoBarras" placeholder="Ex.: 7891234567890" inputmode="numeric"
-            oninput="verificarAlteracoesProduto(); agendarVerificacaoProdutoEmOutrosEstabs();">
-        </div>
-        <button type="button" class="secondary btn-ler-codigo" onclick="abrirLeitorCodigoBarras('cadastro')">📷 Ler</button>
-      </div>
-    </div>
-
-    <label>Imagem do produto</label>
-    <div id="produtoImagemPreview" class="produto-img-preview" tabindex="0">
-      <div class="empty">
-        <div class="big">📷</div>
-        <div>Sem imagem</div>
-        <div class="small">Use 🔍 Buscar na internet, 🐙 Buscar no GitHub ou 📤 Enviar do dispositivo</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;">
-      <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar na internet</button>
-      <button type="button" class="secondary small" onclick="buscarImagemGitHubManual()">🐙 Buscar no GitHub</button>
-      <button type="button" class="secondary small" onclick="document.getElementById('produtoImagemFile').click()">📤 Enviar do dispositivo</button>
-      <button type="button" class="secondary small" id="btnRemoverImg" onclick="removerImagemProduto()" style="display:none;">🗑 Remover imagem</button>
-      <input type="file" id="produtoImagemFile" accept="image/*" style="display:none;" onchange="uploadImagemProduto(event)">
-    </div>
-
-    <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <button id="btnSalvarProduto" onclick="addProduto()">➕ Cadastrar produto</button>
-      <button class="secondary" onclick="fecharFormProduto()">❌ Cancelar</button>
-    </div>
-    <p class="note" style="margin-top:8px;">Ao cadastrar, o app busca a imagem automaticamente: <b>1)</b> dispositivo → <b>2)</b> repositório GitHub → <b>3)</b> internet.</p>
-    <p class="note" style="margin-top:4px;">📥 <b>Dica:</b> se este produto já existir em outro estabelecimento seu, os dados (nome, código de barras, preço e imagem) serão preenchidos automaticamente.</p>
-  </div>
-
-  <div id="listaProdutos"></div>
-
-  <div class="tip-box">
-    <p>💡 <b>Pedido por voz inteligente:</b> você não precisa falar o nome completo.</p>
-  </div>
-  <div class="tip-box">
-    <p>📷 <b>Pedido por código de barras:</b> use o botão <b>📷</b> no topo da tela a qualquer momento. Aponte a câmera traseira para o código. Também é possível digitar o código manualmente.</p>
-  </div>
-  <div class="tip-box" style="border-color:var(--purple);background:rgba(139,92,246,.08);">
-    <p>📥 <b>Importação automática:</b> se você cadastrar um produto que já existe em outro estabelecimento seu, os dados serão trazidos automaticamente (nome, código de barras, preço e imagem).</p>
-  </div>
-  <div class="tip-box" style="border-color:var(--yellow);background:rgba(251,191,36,.08);">
-    <p>🗑️ <b>Ao excluir um produto já usado em contas anteriores:</b> o produto sai do cadastro e da conta ativa, mas <b>o histórico é preservado</b> para consulta futura.</p>
-  </div>
-</div>
-</section>
-
-<section id="conta" class="screen">
-<div class="card">
-  <div class="conta-header-info">
-    <div>
-      <div class="note">Estabelecimento: <b id="contaEstabNome">Nenhum</b></div>
-      <div class="note" id="contaStatus">Status: Nenhuma conta aberta</div>
-      <div class="note">Cliente: <b id="contaClienteNome">Não informado</b></div>
-    </div>
-  </div>
-
-  <button onclick="mostrarMiniCardapio()" id="btnVerCardapioConta" style="width:100%; margin-bottom:16px; padding:14px; font-size:15px;">📋 Ver cardápio / Adicionar item</button>
-
-  <h3 style="margin-top:6px;">🧾 Itens Consumidos</h3>
-  <div id="contaItens"></div>
-
-  <hr style="border-color:var(--border); margin:18px 0">
-
-  <div class="conta-resumo-box">
-    <div class="conta-resumo-linha">
-      <span class="label">Subtotal:</span>
-      <span class="money" id="contaSubtotal">R$ 0,00</span>
-    </div>
-    <div class="conta-resumo-linha">
-      <span class="label">Gorjeta:</span>
-      <span class="money" id="contaGorjeta">R$ 0,00</span>
-    </div>
-  </div>
-
-  <div class="conta-total-box">
-    <div class="note">VALOR TOTAL DA CONTA</div>
-    <div class="total" id="contaTotal">R$ 0,00</div>
-  </div>
-
-  <div class="conta-btn-row">
-    <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">✏️ Editar gorjeta</button>
-    <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()">📂 Abrir conta</button>
-  </div>
-
-  <div id="contaExtrasWrapper" style="display:none; margin-top:16px;">
-    <div class="gorjeta-container">
-      <label>Gorjeta / Serviço</label>
-      <select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
-        <option value="0">Sem gorjeta</option>
-        <option value="10">10% - Serviço</option>
-        <option value="15">15%</option>
-        <option value="20">20%</option>
-      </select>
-    </div>
-
-    <hr style="border-color:var(--border); margin:16px 0">
-    <h3>💳 Dados PIX para Pagamento</h3>
-    <div id="pixInfo" class="note">Selecione um estabelecimento para ver os dados PIX.</div>
-  </div>
-</div>
-</section>
-
-<section id="historico" class="screen">
-<div class="card">
-<h2>📜 Histórico de Contas</h2>
-
-<div class="hist-filters">
-  <div class="hist-filters-row" style="margin-bottom:10px;">
-    <div style="flex:1; min-width:140px;">
-      <label>📅 Período:</label>
-      <select id="histPeriodo" onchange="onChangeHistPeriodo()">
-        <option value="mes">No mês</option>
-        <option value="mesAnterior">Mês anterior</option>
-        <option value="personalizado">Personalizado</option>
-      </select>
-    </div>
-    <div style="flex:1; min-width:140px;">
-      <label>🗂 Visualização / Agrupamento:</label>
-      <select id="histOrdem" onchange="renderHistorico()">
-        <option value="data">Por Data (Cronológica)</option>
-        <option value="estabelecimento">Por Estabelecimento</option>
-      </select>
-    </div>
-  </div>
-  
-  <div id="histDatasPersonalizadas" class="hist-filters-row" style="display:none; margin-top:10px;">
-    <div style="flex:1;">
-      <label>Data Inicial:</label>
-      <input type="date" id="histDataInicio" onchange="renderHistorico()">
-    </div>
-    <div style="flex:1;">
-      <label>Data Final:</label>
-      <input type="date" id="histDataFim" onchange="renderHistorico()">
-    </div>
-  </div>
-</div>
-
-<div id="listaHistorico"></div>
-<div id="totalGeralHistorico" style="margin-top:15px; text-align:right; font-weight:bold; font-size:18px; border-top:2px solid var(--accent); padding-top:10px;"></div>
-<button class="danger" style="margin-top:15px" onclick="limparHistorico()">🗑 Limpar histórico</button>
 </div>
 </section>
 
@@ -1346,7 +1456,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<!-- ============ MODAL LEITOR DE CÓDIGO DE BARRAS ============ -->
 <div id="barcodeModal" class="payment-modal">
   <div class="payment-content" style="max-width:440px;">
     <h2 style="margin-top:0; text-align:center;">📷 Ler código de barras</h2>
@@ -1543,6 +1652,7 @@ data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
 data.theme = data.theme || 'light';
+data.uiSecoesInicio = data.uiSecoesInicio || { produtos: false, historico: false };
 
 if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) {
   data.githubRotulosRepo = REPO_PADRAO;
@@ -1583,14 +1693,11 @@ let sincronizandoEstabId = null;
 let audioTTSAtual = null;
 let speechExecutionId = 0;
 
-// Scanner de código de barras
 let html5QrScanner = null;
 let barcodeContexto = 'cadastro';
 let barcodeTorchOn = false;
 let barcodeModalAberto = false;
 let codigoProcessando = false;
-
-// ⭐ Importação entre estabelecimentos
 let timeoutVerificarProdutoOutrosEstabs = null;
 
 const $ = id => document.getElementById(id);
@@ -1629,7 +1736,12 @@ function slugify(s) { return normalize(s).replace(/[^a-z0-9]+/g, ''); }
 function slugifyHifen(s) { return normalize(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+/* ============ NAVEGAÇÃO ============ */
 function showScreen(screenId) {
+  // Compatibilidade: abas movidas para Início
+  if (screenId === 'cardapio') { abrirSecaoProdutos(); return; }
+  if (screenId === 'historico') { abrirSecaoHistorico(); return; }
+
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   const target = document.getElementById(screenId);
@@ -1637,6 +1749,41 @@ function showScreen(screenId) {
   const btn = document.querySelector(`nav button[data-screen="${screenId}"]`);
   if (btn) btn.classList.add('active');
   if (screenId === 'sinonimos') renderSinonimos();
+
+  // Sempre rola para o topo ao trocar de tela
+  try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) { window.scrollTo(0, 0); }
+}
+
+function abrirSecaoProdutos() {
+  showScreen('inicio');
+  const content = document.getElementById('inicioProdutosContent');
+  const btn = document.getElementById('btnHeaderProdutosInicio');
+  if (content && content.style.display === 'none') {
+    content.style.display = 'block';
+    if (btn) btn.classList.add('open');
+    data.uiSecoesInicio.produtos = true;
+    try { save(); } catch(e){}
+  }
+  setTimeout(() => {
+    const sec = document.getElementById('inicioProdutosContent');
+    if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
+}
+
+function abrirSecaoHistorico() {
+  showScreen('inicio');
+  const content = document.getElementById('inicioHistoricoContent');
+  const btn = document.getElementById('btnHeaderHistoricoInicio');
+  if (content && content.style.display === 'none') {
+    content.style.display = 'block';
+    if (btn) btn.classList.add('open');
+    data.uiSecoesInicio.historico = true;
+    try { save(); } catch(e){}
+  }
+  setTimeout(() => {
+    const sec = document.getElementById('inicioHistoricoContent');
+    if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 200);
 }
 
 function getNomeCliente() {
@@ -1660,6 +1807,30 @@ function toggleCollapsible(contentId, btn) {
   const aberto = content.style.display !== 'none';
   content.style.display = aberto ? 'none' : 'block';
   if (btn) btn.classList.toggle('open', !aberto);
+
+  // Persistir estado das seções do Início
+  if (contentId === 'inicioProdutosContent') {
+    data.uiSecoesInicio.produtos = !aberto;
+    try { save(); } catch(e){}
+  } else if (contentId === 'inicioHistoricoContent') {
+    data.uiSecoesInicio.historico = !aberto;
+    try { save(); } catch(e){}
+  }
+}
+
+/* ============ BARRA ESTAB ATIVO ============ */
+function atualizarEstabAtivoBar() {
+  const bar = document.getElementById('estabAtivoBar');
+  const el = document.getElementById('estabAtivoBarNome');
+  if (!el) return;
+  const estab = getEstabelecimentoAtivo();
+  if (estab && estab.nome) {
+    el.textContent = estab.nome;
+    if (bar) bar.classList.remove('sem-estab');
+  } else {
+    el.textContent = 'Nenhum';
+    if (bar) bar.classList.add('sem-estab');
+  }
 }
 
 function mostrarFlashPedido(produto, qtd) {
@@ -2329,7 +2500,6 @@ async function confirmarCodigoBarras() {
       try { field.dispatchEvent(new Event('input', { bubbles: true })); } catch(e) {}
     }
     verificarAlteracoesProduto();
-    // ⭐ Dispara verificação de produto em outros estabelecimentos
     agendarVerificacaoProdutoEmOutrosEstabs();
     showFeedback('📷 Código aplicado: ' + codigo);
     speak('Código aplicado');
@@ -2359,7 +2529,7 @@ async function buscarProdutoPorCodigo(codigo) {
     );
     if (!ok) return;
 
-    showScreen('cardapio');
+    abrirSecaoProdutos();
 
     currentEditId = null;
     valoresOriginaisProduto = null;
@@ -2375,8 +2545,6 @@ async function buscarProdutoPorCodigo(codigo) {
         campoCod.classList.add('campo-lido-destaque');
       }
       verificarAlteracoesProduto();
-
-      // ⭐ Verifica se o produto existe em outro estabelecimento
       agendarVerificacaoProdutoEmOutrosEstabs();
 
       const nomeEl = $('produtoNome');
@@ -2423,13 +2591,7 @@ async function alternarLanterna() {
   } catch(e) { console.warn(e); showFeedback('⚠️ Lanterna não suportada'); }
 }
 
-/* ============ ⭐ IMPORTAÇÃO ENTRE ESTABELECIMENTOS ============ */
-
-/**
- * Busca um produto em outros estabelecimentos que corresponda ao nome
- * e/ou código de barras informados.
- * Prioridade: código de barras (identificador único), depois nome exato.
- */
+/* ============ IMPORTAÇÃO ENTRE ESTABELECIMENTOS ============ */
 function buscarProdutoSimilarEmOutrosEstabs(criterios) {
   const nomeNorm = criterios.nome ? normalize(criterios.nome).trim() : '';
   const codNorm = criterios.codigoBarras ? String(criterios.codigoBarras).trim() : '';
@@ -2437,7 +2599,6 @@ function buscarProdutoSimilarEmOutrosEstabs(criterios) {
 
   const estabAtualId = data.estabelecimentoAtivoId;
 
-  // 1) Busca prioritária por CÓDIGO DE BARRAS (é o identificador único)
   if (codNorm) {
     for (const [id, estab] of Object.entries(data.estabelecimentos)) {
       if (id === estabAtualId) continue;
@@ -2449,7 +2610,6 @@ function buscarProdutoSimilarEmOutrosEstabs(criterios) {
     }
   }
 
-  // 2) Busca por NOME EXATO
   if (nomeNorm) {
     for (const [id, estab] of Object.entries(data.estabelecimentos)) {
       if (id === estabAtualId) continue;
@@ -2464,11 +2624,6 @@ function buscarProdutoSimilarEmOutrosEstabs(criterios) {
   return null;
 }
 
-/**
- * Aplica os dados de um produto de outro estabelecimento no formulário atual.
- * Só preenche campos que estiverem VAZIOS (não sobrescreve o que o usuário digitou).
- * Retorna a lista de campos que foram preenchidos.
- */
 function aplicarDadosDeOutroEstab(origem) {
   if (!origem) return [];
   const preencheu = [];
@@ -2477,7 +2632,6 @@ function aplicarDadosDeOutroEstab(origem) {
   const precoEl = document.getElementById('produtoPreco');
   const codEl = document.getElementById('produtoCodigoBarras');
 
-  // Nome (só se vazio)
   if (nomeEl && !(nomeEl.value || '').trim() && origem.nome) {
     nomeEl.value = origem.nome;
     nomeEl.classList.remove('campo-importado-destaque');
@@ -2486,7 +2640,6 @@ function aplicarDadosDeOutroEstab(origem) {
     preencheu.push('nome');
   }
 
-  // Preço (só se vazio)
   if (precoEl && !String(precoEl.value || '').trim() && origem.preco != null && Number(origem.preco) > 0) {
     precoEl.value = origem.preco;
     precoEl.classList.remove('campo-importado-destaque');
@@ -2495,7 +2648,6 @@ function aplicarDadosDeOutroEstab(origem) {
     preencheu.push('preço');
   }
 
-  // Código de barras (só se vazio)
   if (codEl && !String(codEl.value || '').trim() && origem.codigoBarras) {
     codEl.value = origem.codigoBarras;
     codEl.classList.remove('campo-importado-destaque');
@@ -2504,7 +2656,6 @@ function aplicarDadosDeOutroEstab(origem) {
     preencheu.push('código de barras');
   }
 
-  // Imagem (só se ainda não tiver imagem)
   if (!imagemProdutoTemp && origem.imagem) {
     imagemProdutoTemp = origem.imagem;
     renderPreviewImagemProduto();
@@ -2520,9 +2671,6 @@ function aplicarDadosDeOutroEstab(origem) {
   return preencheu;
 }
 
-/**
- * Mostra o aviso de importação no formulário.
- */
 function mostrarAvisoImportacao(nomeEstab, camposPreenchidos) {
   const aviso = document.getElementById('avisoImportacao');
   const estabEl = document.getElementById('avisoEstabNome');
@@ -2540,20 +2688,12 @@ function mostrarAvisoImportacao(nomeEstab, camposPreenchidos) {
   aviso.classList.add('show');
 }
 
-/**
- * Esconde o aviso de importação.
- */
 function esconderAvisoImportacao() {
   const aviso = document.getElementById('avisoImportacao');
   if (aviso) aviso.classList.remove('show');
 }
 
-/**
- * Verifica se o nome/código digitado corresponde a um produto de outro
- * estabelecimento. Se sim, preenche os campos vazios e mostra aviso.
- */
 function verificarProdutoEmOutrosEstabs() {
-  // Só faz sentido para NOVO produto (não em edição)
   if (currentEditId !== null) return;
 
   const nomeEl = document.getElementById('produtoNome');
@@ -2583,9 +2723,6 @@ function verificarProdutoEmOutrosEstabs() {
   }
 }
 
-/**
- * Wrapper com debounce — evita rodar a busca a cada tecla.
- */
 function agendarVerificacaoProdutoEmOutrosEstabs() {
   if (timeoutVerificarProdutoOutrosEstabs) clearTimeout(timeoutVerificarProdutoOutrosEstabs);
   timeoutVerificarProdutoOutrosEstabs = setTimeout(() => {
@@ -3660,11 +3797,11 @@ function mostrarBannerEdicao(mostrar, subtitulo) {
 function rolarParaFormProduto() {
   setTimeout(() => {
     try {
-      const header = document.querySelector('header');
-      const headerH = header ? header.offsetHeight : 0;
-      const cardapio = document.getElementById('cardapio');
-      if (cardapio) {
-        const topo = cardapio.getBoundingClientRect().top + window.scrollY - headerH - 8;
+      const wrapper = document.querySelector('.top-sticky');
+      const wrapperH = wrapper ? wrapper.offsetHeight : 0;
+      const formProd = document.getElementById('formProduto');
+      if (formProd) {
+        const topo = formProd.getBoundingClientRect().top + window.scrollY - wrapperH - 12;
         window.scrollTo({ top: Math.max(0, topo), behavior: 'smooth' });
       } else {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -3676,6 +3813,8 @@ function rolarParaFormProduto() {
 function mostrarFormProduto() {
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Selecione um estabelecimento primeiro.'); return; }
+
+  abrirSecaoProdutos();
 
   currentEditId = null;
   valoresOriginaisProduto = null;
@@ -3837,6 +3976,8 @@ function editProduto(id) {
   const p = estab.produtos.find(x => x.id === id);
   if (!p) return;
 
+  abrirSecaoProdutos();
+
   currentEditId = id;
   valoresOriginaisProduto = { nome: p.nome || '', preco: p.preco, codigoBarras: p.codigoBarras || '', imagem: p.imagem || null };
 
@@ -3859,7 +4000,6 @@ function editProduto(id) {
 
   mostrarBannerEdicao(true, '📝 ' + p.nome + '  •  ' + money(p.preco));
 
-  showScreen('cardapio');
   verificarAlteracoesProduto();
   showFeedback('✏️ Editando: ' + p.nome);
   rolarParaFormProduto();
@@ -3885,11 +4025,6 @@ function editProduto(id) {
   }, 300);
 }
 
-/* Exclusão de produto:
-   - Pergunta confirmação se o produto já tem movimentações (conta ativa ou histórico)
-   - Se confirmado: remove do CADASTRO (menu) e da CONTA ATIVA
-   - O HISTÓRICO É PRESERVADO para consulta futura
-*/
 async function deleteProduto(id) {
   const estab = getEstabelecimentoAtivo();
   if (!estab) return;
@@ -4326,6 +4461,12 @@ function renderCardapio() {
   const nomeSpan = document.getElementById('cardapioEstabNome');
   const btnIncluir = document.getElementById('btnIncluirProduto');
   const form = document.getElementById('formProduto');
+  const badge = document.getElementById('badgeQtdProdutosInicio');
+
+  if (badge) {
+    const qtd = (estab && estab.produtos) ? estab.produtos.length : 0;
+    badge.textContent = qtd + ' ' + (qtd === 1 ? 'item' : 'itens');
+  }
 
   if (!estab) {
     if (nomeSpan) nomeSpan.textContent = '— nenhum estabelecimento selecionado';
@@ -4427,6 +4568,12 @@ function parseDataConta(dataStr, idFallback) {
 
 function renderHistorico() {
   const lista = document.getElementById('listaHistorico');
+  const badge = document.getElementById('badgeQtdHistoricoInicio');
+  if (badge) {
+    const qtd = (data.historico || []).length;
+    badge.textContent = qtd + ' ' + (qtd === 1 ? 'conta' : 'contas');
+  }
+
   if (!data.historico || data.historico.length === 0) {
     lista.innerHTML = '<div class="empty">Nenhuma conta no histórico.</div>';
     document.getElementById('totalGeralHistorico').textContent = '';
@@ -4524,6 +4671,7 @@ function renderAll() {
   renderHistorico();
   carregarUsuario();
   renderSinonimos();
+  atualizarEstabAtivoBar();
   document.getElementById('resumoEstabs').textContent = Object.keys(data.estabelecimentos).length;
   document.getElementById('resumoProdutos').textContent = getProdutosAtivos().length;
   document.getElementById('resumoPedido').textContent = data.pedido.reduce((s, x) => s + x.qtd, 0);
@@ -4752,7 +4900,7 @@ function processVoice(text) {
 
   if (matchSinonimo(norm, 'fecharConta')) { showScreen('conta'); confirmarFechamento(); return; }
   if (matchSinonimo(norm, 'verConta')) { showScreen('conta'); return; }
-  if (matchSinonimo(norm, 'verHistorico')) { showScreen('historico'); return; }
+  if (matchSinonimo(norm, 'verHistorico')) { abrirSecaoHistorico(); return; }
   if (matchSinonimo(norm, 'verCardapio')) { mostrarMiniCardapio(); return; }
   if (matchSinonimo(norm, 'exportarDados')) { exportarDados(true); return; }
   if (matchSinonimo(norm, 'importarDados')) { showScreen('dados'); return; }
@@ -4788,7 +4936,7 @@ function exportarDados(incluirImagens = true) {
       (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; });
     });
   }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 10, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 11, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -4827,6 +4975,7 @@ function importarDados(e) {
         data.historico = data.historico || [];
         data.sinonimos = data.sinonimos || {};
         data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
+        data.uiSecoesInicio = data.uiSecoesInicio || { produtos: false, historico: false };
         if (typeof data.theme === 'undefined') data.theme = 'light';
         if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) data.githubRotulosRepo = REPO_PADRAO;
         Object.keys(SINONIMOS_PADRAO).forEach(k => {
@@ -4836,6 +4985,7 @@ function importarDados(e) {
         manifestRotulosCache = null; manifestRotulosRepoCache = null;
         applyTheme(data.theme || 'light');
         save(); renderAll();
+        aplicarEstadoSecoesInicio();
         showFeedback('✅ Dados importados!');
       } else showFeedback('⚠️ Arquivo inválido.');
     } catch (err) { showFeedback('⚠️ Erro ao ler JSON.'); }
@@ -4850,12 +5000,33 @@ async function clearAllData() {
     estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true,
     sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO)),
     sinonimosEstabelecimentos: {}, githubRotulosRepo: REPO_PADRAO,
-    theme: data.theme || 'light'
+    theme: data.theme || 'light',
+    uiSecoesInicio: { produtos: false, historico: false }
   };
   githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
   manifestRotulosCache = null; manifestRotulosRepoCache = null;
   renderAll();
+  aplicarEstadoSecoesInicio();
   showFeedback('🗑 Todos os dados apagados.');
+}
+
+/* ============ APLICAR ESTADO DAS SEÇÕES DA INÍCIO ============ */
+function aplicarEstadoSecoesInicio() {
+  const cfg = data.uiSecoesInicio || { produtos: false, historico: false };
+
+  const cp = document.getElementById('inicioProdutosContent');
+  const bp = document.getElementById('btnHeaderProdutosInicio');
+  if (cp && bp) {
+    cp.style.display = cfg.produtos ? 'block' : 'none';
+    bp.classList.toggle('open', !!cfg.produtos);
+  }
+
+  const ch = document.getElementById('inicioHistoricoContent');
+  const bh = document.getElementById('btnHeaderHistoricoInicio');
+  if (ch && bh) {
+    ch.style.display = cfg.historico ? 'block' : 'none';
+    bh.classList.toggle('open', !!cfg.historico);
+  }
 }
 
 window.onload = function() {
@@ -4863,9 +5034,9 @@ window.onload = function() {
   renderAll();
   renderPreviewImagemProduto();
   atualizarStatusGithubRepo();
+  aplicarEstadoSecoesInicio();
 
-  if (data.contaAtiva) showScreen('conta');
-  else showScreen('inicio');
+  showScreen('inicio');
 
   const dropArea = document.getElementById('dropArea');
   if (dropArea) {
