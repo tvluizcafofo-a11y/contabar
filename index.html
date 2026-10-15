@@ -917,6 +917,14 @@ footer{text-align:center;color:var(--muted);padding:25px}
                 </div>
                 <button type="button" class="secondary btn-ler-codigo" onclick="abrirLeitorCodigoBarras('cadastro')">📷 Ler</button>
               </div>
+
+              <div class="produto-form-linha">
+                <div class="campo-nome">
+                  <label>Apelido (opcional) — como você chama este produto por voz</label>
+                  <input id="produtoApelido" placeholder="Ex.: Tereza, Brahma, Cerva gelada"
+                    oninput="verificarAlteracoesProduto();">
+                </div>
+              </div>
             </div>
 
             <label>Imagem do produto</label>
@@ -952,6 +960,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
           </div>
           <div class="tip-box" style="border-color:var(--purple);background:rgba(139,92,246,.08);">
             <p>📥 <b>Importação automática:</b> ao cadastrar um produto que já existe em outro estabelecimento seu, os dados são trazidos automaticamente.</p>
+          </div>
+          <div class="tip-box" style="border-color:var(--green);background:rgba(16,185,129,.08);">
+            <p>🏷️ <b>Apelido:</b> cadastre um apelido (ex.: "Tereza") e peça por voz — o app entende como o nome oficial (ex.: "Cerveja Therezópolis").</p>
           </div>
           <div class="tip-box" style="border-color:var(--yellow);background:rgba(251,191,36,.08);">
             <p>🗑️ <b>Ao excluir um produto já usado em contas anteriores:</b> sai do cadastro e da conta ativa, mas <b>o histórico é preservado</b>.</p>
@@ -1207,6 +1218,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <h3>🛒 Pedidos & Conta</h3>
 <ul class="command-list">
   <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Sinônimos: pedir, pega, me dá, desce, traz...</span></li>
+  <li><span class="cmd">"Pedir [apelido]"</span><br><span class="desc">Ex: "me dá uma tereza" (apelido cadastrado no produto)</span></li>
 </ul>
 <h3>💰 Conta</h3>
 <ul class="command-list">
@@ -1452,7 +1464,7 @@ const COMANDOS_INFO = [
   { key:'selecionar',      titulo:'🏢 Selecionar Estabelecimento',      desc:'Muda o estabelecimento ativo.', categoria:'Estabelecimentos' },
   { key:'verCardapio',     titulo:'🍺 Ver Cardápio',                    desc:'Exibe o cardápio do estabelecimento ativo.', categoria:'Estabelecimentos' },
   { key:'incluirProduto',  titulo:'➕ Incluir Produto no Cardápio',     desc:'Cadastra um novo produto.', categoria:'Produtos' },
-  { key:'pedir',           titulo:'🛒 Pedir / Adicionar Item à Conta',  desc:'Adiciona produtos à conta atual.', categoria:'Pedidos & Conta' },
+  { key:'pedir',           titulo:'🛒 Pedir / Adicionar Item à Conta',  desc:'Adiciona produtos à conta atual. Aceita apelido cadastrado.', categoria:'Pedidos & Conta' },
   { key:'abrirConta',      titulo:'📂 Abrir Conta',                     desc:'Inicia uma nova conta.', categoria:'Pedidos & Conta' },
   { key:'fecharConta',     titulo:'✅ Fechar Conta',                    desc:'Finaliza a conta atual.', categoria:'Pedidos & Conta' },
   { key:'verConta',        titulo:'🧾 Ver Conta',                       desc:'Abre a tela da conta.', categoria:'Pedidos & Conta' },
@@ -1777,22 +1789,48 @@ function construirPalavrasComando() {
 
 function encontrarProdutoPorNome(textoNorm, produtos) {
   if (!produtos || !produtos.length) return null;
+
+  // 1) Match exato pelo nome oficial
   const exato = produtos.find(p => textoNorm.includes(normalize(p.nome)));
   if (exato) return { produto: exato };
+
+  // 2) Match exato pelo apelido
+  const exatoApelido = produtos.find(p => {
+    if (!p.apelido) return false;
+    const ap = normalize(p.apelido).trim();
+    if (!ap) return false;
+    const escaped = ap.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp('(?:^|\\s)' + escaped + '(?=\\s|$)', 'i');
+    return re.test(textoNorm);
+  });
+  if (exatoApelido) return { produto: exatoApelido };
+
+  // 3) Busca difusa (palavras-chave) — considera nome E apelido
   const palavrasComando = construirPalavrasComando();
-  const palavrasChave = textoNorm.split(/\s+/).filter(w => w.length >= 3).filter(w => !PALAVRAS_IGNORAR.has(w) && !palavrasComando.has(w));
+  const palavrasChave = textoNorm.split(/\s+/)
+    .filter(w => w.length >= 3)
+    .filter(w => !PALAVRAS_IGNORAR.has(w) && !palavrasComando.has(w));
   if (!palavrasChave.length) return null;
+
   const candidatos = produtos.filter(p => {
     const nomeNorm = normalize(p.nome);
-    return palavrasChave.some(kw => nomeNorm.includes(kw));
+    const apelidoNorm = p.apelido ? normalize(p.apelido) : '';
+    return palavrasChave.some(kw =>
+      nomeNorm.includes(kw) || (apelidoNorm && apelidoNorm.includes(kw))
+    );
   });
   if (!candidatos.length) return null;
   if (candidatos.length === 1) return { produto: candidatos[0] };
+
   const pontuados = candidatos.map(p => {
     const nomeNorm = normalize(p.nome);
-    const score = palavrasChave.filter(kw => nomeNorm.includes(kw)).length;
+    const apelidoNorm = p.apelido ? normalize(p.apelido) : '';
+    const score = palavrasChave.filter(kw =>
+      nomeNorm.includes(kw) || (apelidoNorm && apelidoNorm.includes(kw))
+    ).length;
     return { p, score };
-  }).sort((a,b) => b.score - a.score);
+  }).sort((a, b) => b.score - a.score);
+
   if (pontuados[0].score > pontuados[1].score) return { produto: pontuados[0].p };
   return { ambiguo: candidatos };
 }
@@ -2509,6 +2547,15 @@ function aplicarDadosDeOutroEstab(origem) {
     void codEl.offsetWidth;
     codEl.classList.add('campo-importado-destaque');
     preencheu.push('código de barras');
+  }
+
+  const apelidoEl = document.getElementById('produtoApelido');
+  if (apelidoEl && !String(apelidoEl.value || '').trim() && origem.apelido) {
+    apelidoEl.value = origem.apelido;
+    apelidoEl.classList.remove('campo-importado-destaque');
+    void apelidoEl.offsetWidth;
+    apelidoEl.classList.add('campo-importado-destaque');
+    preencheu.push('apelido');
   }
 
   if (!imagemProdutoTemp && origem.imagem) {
@@ -3478,8 +3525,9 @@ function mostrarMiniCardapio() {
       const thumb = p.imagem
         ? `<img src="${p.imagem}" class="produto-thumb-mini" alt="">`
         : `<span class="produto-thumb-mini-placeholder">${getEmojiProduto(p.nome)}</span>`;
+      const apelidoTxt = p.apelido ? ` <span style="color:var(--muted);font-size:12px;">(${escapeHtml(p.apelido)})</span>` : '';
       return `<div class="menu-mini-item">
-        <span><span>${thumb}</span><span>${escapeHtml(p.nome)}</span></span>
+        <span><span>${thumb}</span><span>${escapeHtml(p.nome)}${apelidoTxt}</span></span>
         <span style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
           <span style="color:var(--money-color);font-weight:bold;">${money(p.preco)}</span>
           <button class="btn-add-mini" onclick="addPedido(${p.id}, 1); fecharMiniCardapio();" title="Adicionar à conta">+</button>
@@ -3701,6 +3749,7 @@ function mostrarFormProduto() {
   $('produtoNome').value = '';
   $('produtoPreco').value = '';
   $('produtoCodigoBarras').value = '';
+  $('produtoApelido').value = '';
   imagemProdutoTemp = null;
   renderPreviewImagemProduto();
   esconderAvisoImportacao();
@@ -3726,6 +3775,7 @@ function fecharFormProduto(silencioso = false) {
   $('produtoNome').value = '';
   $('produtoPreco').value = '';
   $('produtoCodigoBarras').value = '';
+  $('produtoApelido').value = '';
   esconderAvisoImportacao();
 
   const form = document.getElementById('formProduto');
@@ -3756,12 +3806,15 @@ function verificarAlteracoesProduto() {
   const precoAtual = String($('produtoPreco').value || '').trim();
   const codAtual = String($('produtoCodigoBarras').value || '').trim();
   const codOrig = String(orig.codigoBarras || '').trim();
+  const apelidoAtual = String($('produtoApelido').value || '').trim();
+  const apelidoOrig = String(orig.apelido || '').trim();
   const precoOrig = orig.preco !== undefined && orig.preco !== null ? String(orig.preco) : '';
   const imgAtual = imagemProdutoTemp || null;
   const imgOrig = orig.imagem || null;
   const mudou = (nomeAtual !== (orig.nome || ''))
              || (precoAtual !== precoOrig)
              || (codAtual !== codOrig)
+             || (apelidoAtual !== apelidoOrig)
              || (imgAtual !== imgOrig);
   if (mudou) { btn.disabled = false; btn.textContent = '💾 Salvar alterações'; }
   else { btn.disabled = true; btn.textContent = '💾 Nenhuma alteração'; }
@@ -3773,6 +3826,7 @@ async function addProduto(nome, preco) {
   nome = capitalizarNome(nome || $('produtoNome').value.trim());
   preco = preco ?? Number($('produtoPreco').value);
   const codigoBarras = String($('produtoCodigoBarras').value || '').trim();
+  const apelido = String($('produtoApelido').value || '').trim();
   if (!nome || isNaN(preco) || preco <= 0) { showFeedback('⚠️ Informe nome e preço válido.'); return; }
   if (!estab.produtos) estab.produtos = [];
 
@@ -3802,6 +3856,7 @@ async function addProduto(nome, preco) {
       estab.produtos[index].nome = nome;
       estab.produtos[index].preco = Number(preco);
       estab.produtos[index].codigoBarras = codigoBarras;
+      estab.produtos[index].apelido = apelido;
       estab.produtos[index].imagem = imgAtual || null;
       speak('Produto atualizado');
       showFeedback('✏️ Atualizado: ' + nome + ' - ' + money(preco));
@@ -3827,7 +3882,7 @@ async function addProduto(nome, preco) {
     valoresOriginaisProduto = null;
     fecharFormProduto(true);
   } else {
-    const novo = { id: Date.now() + Math.random(), nome, preco: Number(preco), codigoBarras, imagem: imgAtual || null };
+    const novo = { id: Date.now() + Math.random(), nome, preco: Number(preco), codigoBarras, apelido, imagem: imgAtual || null };
     estab.produtos.push(novo);
     speak(nome + ' cadastrado por ' + money(preco));
     showFeedback('✅ Cadastrado: ' + nome + ' - ' + money(preco));
@@ -3859,11 +3914,18 @@ function editProduto(id) {
   abrirSecaoProdutos();
 
   currentEditId = id;
-  valoresOriginaisProduto = { nome: p.nome || '', preco: p.preco, codigoBarras: p.codigoBarras || '', imagem: p.imagem || null };
+  valoresOriginaisProduto = {
+    nome: p.nome || '',
+    preco: p.preco,
+    codigoBarras: p.codigoBarras || '',
+    apelido: p.apelido || '',
+    imagem: p.imagem || null
+  };
 
   $('produtoNome').value = p.nome;
   $('produtoPreco').value = p.preco;
   $('produtoCodigoBarras').value = p.codigoBarras || '';
+  $('produtoApelido').value = p.apelido || '';
   imagemProdutoTemp = p.imagem || null;
   renderPreviewImagemProduto();
   esconderAvisoImportacao();
@@ -4372,10 +4434,11 @@ function renderCardapio() {
         ? `<img src="${p.imagem}" class="produto-thumb" alt="${escapeHtml(p.nome)}" onclick="editProduto(${p.id})" title="Clique para editar" style="cursor:pointer;">`
         : `<div class="produto-thumb-placeholder" onclick="editProduto(${p.id})" title="Clique para editar" style="cursor:pointer;">${getEmojiProduto(p.nome)}</div>`;
       const codInfo = p.codigoBarras ? `<br><span class="note">📊 ${escapeHtml(p.codigoBarras)}</span>` : '';
+      const apelidoInfo = p.apelido ? `<br><span class="note">🏷️ <i>${escapeHtml(p.apelido)}</i></span>` : '';
       return `<div class="list-item with-thumb">
         ${thumb}
         <div class="info">
-          <b>${escapeHtml(p.nome)}</b><br>
+          <b>${escapeHtml(p.nome)}</b>${apelidoInfo}<br>
           <span class="money">${money(p.preco)}</span>${codInfo}
         </div>
         <div class="actions">
