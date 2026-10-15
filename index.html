@@ -1,4 +1,4 @@
-<!-- Conta Bar 14.10.2026 - Layout Unificado: Conta + Produtos + Histórico na Início -->
+<!-- Conta Bar 14.10.2026 - Layout Unificado (seções sempre fechadas) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1499,7 +1499,7 @@ data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
 data.theme = data.theme || 'light';
-data.uiSecoesInicio = data.uiSecoesInicio || { produtos: false, historico: false };
+// ⚠️ Não persistimos mais o estado das seções — sempre começam fechadas.
 
 if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) {
   data.githubRotulosRepo = REPO_PADRAO;
@@ -1584,11 +1584,21 @@ function slugifyHifen(s) { return normalize(s).replace(/[^a-z0-9]+/g, '-').repla
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 /* ============ NAVEGAÇÃO ============ */
-function showScreen(screenId) {
-  if (screenId === 'conta') { screenId = 'inicio'; }
-  if (screenId === 'cardapio') { abrirSecaoProdutos(); return; }
-  if (screenId === 'historico') { abrirSecaoHistorico(); return; }
+/* ⭐ Fechar sempre as seções colapsáveis do Início */
+function fecharSecoesInicio() {
+  const cp = document.getElementById('inicioProdutosContent');
+  const bp = document.getElementById('btnHeaderProdutosInicio');
+  if (cp) cp.style.display = 'none';
+  if (bp) bp.classList.remove('open');
 
+  const ch = document.getElementById('inicioHistoricoContent');
+  const bh = document.getElementById('btnHeaderHistoricoInicio');
+  if (ch) ch.style.display = 'none';
+  if (bh) bh.classList.remove('open');
+}
+
+/* Núcleo: mostra a tela sem mexer nas seções (uso interno) */
+function _mostrarTela(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
   const target = document.getElementById(screenId);
@@ -1596,19 +1606,28 @@ function showScreen(screenId) {
   const btn = document.querySelector(`nav button[data-screen="${screenId}"]`);
   if (btn) btn.classList.add('active');
   if (screenId === 'sinonimos') renderSinonimos();
-
   try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) { window.scrollTo(0, 0); }
 }
 
+/* Wrapper público: sempre fecha as seções ao entrar na Início */
+function showScreen(screenId) {
+  if (screenId === 'conta') { screenId = 'inicio'; }
+  if (screenId === 'cardapio') { abrirSecaoProdutos(); return; }
+  if (screenId === 'historico') { abrirSecaoHistorico(); return; }
+
+  if (screenId === 'inicio') fecharSecoesInicio();
+
+  _mostrarTela(screenId);
+}
+
+/* Abrir por solicitação explícita (voz, atalhos internos) */
 function abrirSecaoProdutos() {
-  showScreen('inicio');
+  _mostrarTela('inicio');
   const content = document.getElementById('inicioProdutosContent');
   const btn = document.getElementById('btnHeaderProdutosInicio');
   if (content && content.style.display === 'none') {
     content.style.display = 'block';
     if (btn) btn.classList.add('open');
-    data.uiSecoesInicio.produtos = true;
-    try { save(); } catch(e){}
   }
   setTimeout(() => {
     const sec = document.getElementById('inicioProdutosContent');
@@ -1617,14 +1636,12 @@ function abrirSecaoProdutos() {
 }
 
 function abrirSecaoHistorico() {
-  showScreen('inicio');
+  _mostrarTela('inicio');
   const content = document.getElementById('inicioHistoricoContent');
   const btn = document.getElementById('btnHeaderHistoricoInicio');
   if (content && content.style.display === 'none') {
     content.style.display = 'block';
     if (btn) btn.classList.add('open');
-    data.uiSecoesInicio.historico = true;
-    try { save(); } catch(e){}
   }
   setTimeout(() => {
     const sec = document.getElementById('inicioHistoricoContent');
@@ -1653,14 +1670,7 @@ function toggleCollapsible(contentId, btn) {
   const aberto = content.style.display !== 'none';
   content.style.display = aberto ? 'none' : 'block';
   if (btn) btn.classList.toggle('open', !aberto);
-
-  if (contentId === 'inicioProdutosContent') {
-    data.uiSecoesInicio.produtos = !aberto;
-    try { save(); } catch(e){}
-  } else if (contentId === 'inicioHistoricoContent') {
-    data.uiSecoesInicio.historico = !aberto;
-    try { save(); } catch(e){}
-  }
+  // ⚠️ Não persistimos mais o estado das seções do Início.
 }
 
 /* ============ BARRA ESTAB ATIVO ============ */
@@ -3288,28 +3298,21 @@ async function sincronizarImagensEstabelecimento(estabId, forcar) {
   }
 }
 
-/* ⭐ CORREÇÃO PRINCIPAL: setEstabelecimentoAtivo só altera o id após confirmação */
 async function setEstabelecimentoAtivo(id) {
-  // Normaliza: aceita somente id válido ou null
   const idFinal = (id && data.estabelecimentos[id]) ? id : null;
 
-  // Se já é o ativo atual, apenas garante a atualização visual
   if (data.estabelecimentoAtivoId === idFinal) {
     atualizarEstabAtivoBar();
     return;
   }
 
-  // Se há conta aberta no estabelecimento atual, precisa confirmar ANTES de trocar
   if (data.contaAtiva && data.estabelecimentoAtivoId) {
     const ok = await confirmar(
       'Há uma conta aberta. Deseja fechá-la antes de trocar de estabelecimento?',
       { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim, fechar', textoNao: 'Cancelar' }
     );
-    if (!ok) {
-      // Cancela a troca — NÃO altera o id ativo
-      return;
-    }
-    // Fecha primeiro; a troca acontece no callback
+    if (!ok) return;
+
     callbackAposFechar = function() {
       data.pedido = [];
       data.contaAtiva = false;
@@ -3329,7 +3332,6 @@ async function setEstabelecimentoAtivo(id) {
     return;
   }
 
-  // Troca direta — sem conta aberta
   data.estabelecimentoAtivoId = idFinal;
   data.pedido = [];
   data.contaAtiva = false;
@@ -3345,13 +3347,10 @@ async function setEstabelecimentoAtivo(id) {
   }
 }
 
-/* ⭐ trocarEstabelecimentoAtivo agora delega ao setEstabelecimentoAtivo
-   e sincroniza o valor visual do <select> caso o usuário cancele. */
 async function trocarEstabelecimentoAtivo() {
   const select = $('estabAtivoSelect');
   const id = select.value || null;
   await setEstabelecimentoAtivo(id);
-  // Sincroniza o select com o estado real (após cancelamento, mantém o antigo)
   const idReal = data.estabelecimentoAtivoId || '';
   if (select.value !== idReal) {
     select.value = idReal;
@@ -4811,7 +4810,7 @@ function exportarDados(incluirImagens = true) {
       (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; });
     });
   }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 13, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 14, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -4850,7 +4849,6 @@ function importarDados(e) {
         data.historico = data.historico || [];
         data.sinonimos = data.sinonimos || {};
         data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
-        data.uiSecoesInicio = data.uiSecoesInicio || { produtos: false, historico: false };
         if (typeof data.theme === 'undefined') data.theme = 'light';
         if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) data.githubRotulosRepo = REPO_PADRAO;
         Object.keys(SINONIMOS_PADRAO).forEach(k => {
@@ -4860,7 +4858,6 @@ function importarDados(e) {
         manifestRotulosCache = null; manifestRotulosRepoCache = null;
         applyTheme(data.theme || 'light');
         save(); renderAll();
-        aplicarEstadoSecoesInicio();
         showFeedback('✅ Dados importados!');
       } else showFeedback('⚠️ Arquivo inválido.');
     } catch (err) { showFeedback('⚠️ Erro ao ler JSON.'); }
@@ -4875,32 +4872,12 @@ async function clearAllData() {
     estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true,
     sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO)),
     sinonimosEstabelecimentos: {}, githubRotulosRepo: REPO_PADRAO,
-    theme: data.theme || 'light',
-    uiSecoesInicio: { produtos: false, historico: false }
+    theme: data.theme || 'light'
   };
   githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
   manifestRotulosCache = null; manifestRotulosRepoCache = null;
   renderAll();
-  aplicarEstadoSecoesInicio();
   showFeedback('🗑 Todos os dados apagados.');
-}
-
-function aplicarEstadoSecoesInicio() {
-  const cfg = data.uiSecoesInicio || { produtos: false, historico: false };
-
-  const cp = document.getElementById('inicioProdutosContent');
-  const bp = document.getElementById('btnHeaderProdutosInicio');
-  if (cp && bp) {
-    cp.style.display = cfg.produtos ? 'block' : 'none';
-    bp.classList.toggle('open', !!cfg.produtos);
-  }
-
-  const ch = document.getElementById('inicioHistoricoContent');
-  const bh = document.getElementById('btnHeaderHistoricoInicio');
-  if (ch && bh) {
-    ch.style.display = cfg.historico ? 'block' : 'none';
-    bh.classList.toggle('open', !!cfg.historico);
-  }
 }
 
 window.onload = function() {
@@ -4908,8 +4885,8 @@ window.onload = function() {
   renderAll();
   renderPreviewImagemProduto();
   atualizarStatusGithubRepo();
-  aplicarEstadoSecoesInicio();
 
+  // ⭐ Sempre abre Início com as seções fechadas
   showScreen('inicio');
 
   const dropArea = document.getElementById('dropArea');
