@@ -1217,7 +1217,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </ul>
 <h3>🛒 Pedidos & Conta</h3>
 <ul class="command-list">
-  <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Sinônimos: pedir, pega, me dá, desce, traz...</span></li>
+  <li><span class="cmd">"Pedir [qtd] [produto]"</span><br><span class="desc">Sinônimos: pedir, pede, pega, me dá, desce, traz, manda, quero...</span></li>
   <li><span class="cmd">"Pedir [apelido]"</span><br><span class="desc">Ex: "me dá uma tereza" (apelido cadastrado no produto)</span></li>
 </ul>
 <h3>💰 Conta</h3>
@@ -1442,7 +1442,7 @@ const hasWebSTT = ('webkitSpeechRecognition' in window) || ('SpeechRecognition' 
 const REPO_PADRAO = 'contabar/rotulos';
 
 const SINONIMOS_PADRAO = {
-  pedir: ['pedir','pede','fazer pedido','solicitar','solicita','mais um','mais uma'],
+  pedir: ['pedir','pede','pega','pegar','me da','me ve','desce','descer','traz','trazer','manda','mandar','quero','queria','vou querer','vou de','fazer pedido','solicitar','solicita','mais um','mais uma'],
   abrirConta: ['abrir conta','nova conta','iniciar conta','começar conta'],
   fecharConta: ['fechar conta','encerrar conta','finalizar conta'],
   verConta: ['ver conta','mostrar conta','conta atual','ver a conta'],
@@ -1523,6 +1523,21 @@ Object.keys(SINONIMOS_PADRAO).forEach(k => {
     data.sinonimos[k] = [...SINONIMOS_PADRAO[k]];
   }
 });
+
+/* ⭐ Migração: adiciona novos sinônimos padrão sem apagar os customizados do usuário.
+   Roda UMA vez por versão (incrementar sinonimosMergedVersion quando adicionar novos defaults). */
+const SINONIMOS_MERGE_VERSAO = 2;
+if ((data.sinonimosMergedVersion || 0) < SINONIMOS_MERGE_VERSAO) {
+  Object.keys(SINONIMOS_PADRAO).forEach(k => {
+    if (!Array.isArray(data.sinonimos[k])) return;
+    const existentes = new Set(data.sinonimos[k].map(s => normalize(s)));
+    SINONIMOS_PADRAO[k].forEach(s => {
+      if (!existentes.has(normalize(s))) data.sinonimos[k].push(s);
+    });
+  });
+  data.sinonimosMergedVersion = SINONIMOS_MERGE_VERSAO;
+  try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e) {}
+}
 
 if (typeof data.speechOn === 'undefined') { data.speechOn = true; }
 if (typeof data.voiceAssistantOn === 'undefined') { data.voiceAssistantOn = false; }
@@ -1790,12 +1805,13 @@ function construirPalavrasComando() {
 function encontrarProdutoPorNome(textoNorm, produtos) {
   if (!produtos || !produtos.length) return null;
 
-  // 1) Match exato pelo nome oficial
-  const exato = produtos.find(p => textoNorm.includes(normalize(p.nome)));
+  // 1) Match exato pelo nome oficial (mais longo primeiro)
+  const ordenados = [...produtos].sort((a,b) => (b.nome||'').length - (a.nome||'').length);
+  const exato = ordenados.find(p => textoNorm.includes(normalize(p.nome)));
   if (exato) return { produto: exato };
 
-  // 2) Match exato pelo apelido
-  const exatoApelido = produtos.find(p => {
+  // 2) Match exato pelo apelido (respeita limite de palavra)
+  const apelidoMatch = produtos.find(p => {
     if (!p.apelido) return false;
     const ap = normalize(p.apelido).trim();
     if (!ap) return false;
@@ -1803,9 +1819,18 @@ function encontrarProdutoPorNome(textoNorm, produtos) {
     const re = new RegExp('(?:^|\\s)' + escaped + '(?=\\s|$)', 'i');
     return re.test(textoNorm);
   });
-  if (exatoApelido) return { produto: exatoApelido };
+  if (apelidoMatch) return { produto: apelidoMatch };
 
-  // 3) Busca difusa (palavras-chave) — considera nome E apelido
+  // 2b) Match do apelido por SUBSTRING (tolera plurais/variações: "tereza" em "terezas")
+  const apelidoSubstring = produtos.find(p => {
+    if (!p.apelido) return false;
+    const ap = normalize(p.apelido).trim();
+    if (!ap || ap.length < 4) return false; // evita falsos positivos com apelidos curtos
+    return textoNorm.includes(ap) || textoNorm.includes(ap + 's') || textoNorm.includes(ap.replace(/s$/, ''));
+  });
+  if (apelidoSubstring) return { produto: apelidoSubstring };
+
+  // 3) Match por palavras-chave (nome OU apelido)
   const palavrasComando = construirPalavrasComando();
   const palavrasChave = textoNorm.split(/\s+/)
     .filter(w => w.length >= 3)
@@ -1825,9 +1850,11 @@ function encontrarProdutoPorNome(textoNorm, produtos) {
   const pontuados = candidatos.map(p => {
     const nomeNorm = normalize(p.nome);
     const apelidoNorm = p.apelido ? normalize(p.apelido) : '';
-    const score = palavrasChave.filter(kw =>
-      nomeNorm.includes(kw) || (apelidoNorm && apelidoNorm.includes(kw))
-    ).length;
+    let score = 0;
+    palavrasChave.forEach(kw => {
+      if (apelidoNorm && apelidoNorm.includes(kw)) score += 3; // apelido pesa mais
+      if (nomeNorm.includes(kw)) score += 1;
+    });
     return { p, score };
   }).sort((a, b) => b.score - a.score);
 
@@ -3133,16 +3160,30 @@ async function baixarDoGitHub(repo, branch, path) {
 async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
   const repo = (data.githubRotulosRepo || '').trim();
   if (!repo || !nome) return null;
+
   const nomeNorm = normalize(nome);
   const slug = slugify(nome);
   const slugHifen = slugifyHifen(nome);
   const palavras = nomeNorm.split(/\s+/).filter(w => w.length >= 3 && !PALAVRAS_IGNORAR.has(w));
 
+  // ---- 1) Manifest ----
   try {
     const manifest = await carregarManifestRotulos(repo);
-    if (manifest && typeof manifest === 'object') {
-      const chaves = Object.keys(manifest);
-      const candidatos = [...new Set([slug, slugHifen, slug.replace(/-/g, ''), ...palavras, nomeNorm].filter(Boolean))];
+    if (manifest) {
+      // Aceita { "chave": "arquivo.jpg" } ou [ {nome:"X", arquivo:"Y"} ] ou ["arquivo.jpg"]
+      let manifestObj = {};
+      if (Array.isArray(manifest)) {
+        manifest.forEach(item => {
+          if (typeof item === 'string') manifestObj[item] = item;
+          else if (item && (item.nome || item.name)) {
+            manifestObj[item.nome || item.name] = item.arquivo || item.file || item.path || item.image;
+          }
+        });
+      } else if (typeof manifest === 'object') {
+        manifestObj = manifest;
+      }
+      const chaves = Object.keys(manifestObj);
+      const candidatos = [...new Set([slug, slugHifen, slug.replace(/-/g,''), ...palavras, nomeNorm].filter(Boolean))];
       let match = null;
       for (const c of candidatos) { match = chaves.find(k => slugify(k) === slugify(c)); if (match) break; }
       if (!match) {
@@ -3153,7 +3194,10 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
         }
       }
       if (match) {
-        const path = String(manifest[match] || '').replace(/^\//, '');
+        const valor = manifestObj[match];
+        const path = typeof valor === 'string'
+          ? valor.replace(/^\//, '')
+          : (valor && (valor.arquivo || valor.file || valor.path || valor.image));
         if (path) {
           for (const branch of ['main', 'master']) {
             const dataUrl = await baixarDoGitHub(repo, branch, path);
@@ -3162,13 +3206,15 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
         }
       }
     }
-  } catch (e) { }
+  } catch (e) { console.warn('manifest err', e); }
 
+  // ---- 2) Árvore completa do GitHub ----
   try {
     const resultado = await carregarArvoreGitHub(repo, forcarAtualizacao);
     if (resultado && resultado.tree && resultado.tree.length) {
       const { tree, branch } = resultado;
       let melhorPath = null, melhorScore = 0;
+
       tree.forEach(item => {
         const path = item.path;
         const partes = path.split('/');
@@ -3178,41 +3224,71 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
         const baseSlugHifen = slugifyHifen(baseSemExt);
 
         let score = 0;
+
+        // Match forte (slug completo)
         if (baseSlug === slug) score = 1000;
         else if (baseSlugHifen === slugHifen) score = 990;
         else if (baseSlug === slugHifen.replace(/-/g, '')) score = 980;
-        else if (palavras.length > 0) {
+
+        // Match por substring de slug (ex: "stella" ⊂ "cervejastella")
+        if (score === 0 && slug.length >= 4 && baseSlug.length >= 4) {
+          if (slug.includes(baseSlug)) score = 850;
+          else if (baseSlug.includes(slug)) score = 830;
+        }
+
+        // Match por palavras (com cobertura parcial >= 50%)
+        if (score === 0 && palavras.length > 0) {
           const baseWords = baseNorm.split(/[^a-z0-9]+/).filter(w => w.length >= 2);
-          const encontradas = palavras.filter(p => {
-            if (baseWords.includes(p)) return true;
-            if (baseSlug.includes(p)) return true;
-            return false;
-          }).length;
+          const encontradas = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p)).length;
           const cobertura = encontradas / palavras.length;
-          if (cobertura === 1 && palavras.length >= 1) {
-            const somaTamanhos = palavras.reduce((s, p) => s + p.length, 0);
-            score = 500 + Math.min(somaTamanhos * 10, 200);
+          if (cobertura === 1) {
+            const soma = palavras.reduce((s, p) => s + p.length, 0);
+            score = 500 + Math.min(soma * 10, 200);
+          } else if (cobertura >= 0.5 && encontradas >= 1) {
+            const soma = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p))
+                                 .reduce((s, p) => s + p.length, 0);
+            score = 350 + encontradas * 50 + Math.min(soma * 5, 100);
+          } else if (encontradas >= 1) {
+            score = 200 + encontradas * 30; // aceita match fraco (último recurso)
           }
         }
+
         if (score > melhorScore) { melhorScore = score; melhorPath = path; }
       });
-      if (melhorPath && melhorScore >= 500) {
+
+      if (melhorPath && melhorScore >= 200) {
         const dataUrl = await baixarDoGitHub(repo, branch, melhorPath);
         if (dataUrl) return dataUrl;
       }
     }
-  } catch (e) { }
+  } catch (e) { console.warn('tree err', e); }
 
-  const folders = ['', 'rotulos/', 'imagens/', 'images/', 'img/'];
+  // ---- 3) Tentativas diretas de URL (raw) ----
+  // Gera variações: slug completo, hífen, + cada palavra individual + combinações de 2
+  const slugsTentativa = new Set();
+  [slug, slugHifen, slug.replace(/[^a-z0-9]/g, '')].forEach(s => { if (s) slugsTentativa.add(s); });
+  palavras.forEach(p => slugsTentativa.add(p));
+  if (palavras.length >= 2) {
+    for (let i = 0; i < palavras.length; i++) {
+      for (let j = i + 1; j < palavras.length; j++) {
+        slugsTentativa.add(palavras[i] + palavras[j]);
+        slugsTentativa.add(palavras[i] + '-' + palavras[j]);
+      }
+    }
+  }
+  const slugList = [...slugsTentativa].filter(s => s && s.length >= 3);
+
+  const folders = ['', 'rotulos/', 'Rotulos/', 'rótulos/', 'imagens/', 'Imagens/', 'images/', 'img/'];
   const exts = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
-  const slugsTentativa = [...new Set([slug, slugHifen, slug.replace(/[^a-z0-9]/g, '')])].filter(Boolean);
+
   for (const branch of ['main', 'master']) {
     for (const folder of folders) {
-      for (const s of slugsTentativa) {
-        if (!s || s.length < 3) continue;
+      for (const s of slugList) {
         for (const ext of exts) {
           try {
-            const dataUrl = await baixarImagemComoDataURL(`https://raw.githubusercontent.com/${repo}/${branch}/${folder}${s}.${ext}`);
+            const dataUrl = await baixarImagemComoDataURL(
+              `https://raw.githubusercontent.com/${repo}/${branch}/${folder}${s}.${ext}`
+            );
             if (dataUrl) return dataUrl;
           } catch(e) { }
         }
@@ -3255,12 +3331,24 @@ async function testarGithubRepo() {
   showFeedback('🔍 Testando...');
   manifestRotulosCache = null; manifestRotulosRepoCache = null;
   githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
+
   const arvore = await carregarArvoreGitHub(repo, true);
   if (arvore && arvore.tree.length) {
-    const amostra = arvore.tree.slice(0, 5).map(x => x.path.split('/').pop()).join(', ');
-    showFeedback(`✅ OK! ${arvore.tree.length} imagens. Ex.: ${amostra}`);
+    const porPasta = {};
+    arvore.tree.forEach(item => {
+      const partes = item.path.split('/');
+      const pasta = partes.length > 1 ? partes.slice(0, -1).join('/') + '/' : '(raiz)';
+      porPasta[pasta] = (porPasta[pasta] || 0) + 1;
+    });
+    const resumoPastas = Object.entries(porPasta).map(([p, n]) => `${p} → ${n}`).join('\n');
+    const amostra = arvore.tree.slice(0, 8).map(x => x.path).join('\n');
+    const msg = `✅ ${arvore.tree.length} imagens em "${repo}" (branch: ${arvore.branch || '?'}).\n\n📁 Pastas:\n${resumoPastas}\n\n📄 Exemplos:\n${amostra}`;
+    console.log(msg);
+    alert(msg);
+    showFeedback(`✅ OK! ${arvore.tree.length} imagens.`);
     return;
   }
+  alert('❌ Não foi possível acessar o repositório.\n\nPossíveis causas:\n• Repositório privado (o app só acessa públicos)\n• Rate limit do GitHub (60 req/h sem login) — aguarde 1 hora\n• Nome do repositório incorreto\n• Repositório sem imagens');
   showFeedback('❌ Não foi possível acessar.');
 }
 
@@ -4873,7 +4961,7 @@ function exportarDados(incluirImagens = true) {
       (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; });
     });
   }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 14, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 15, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -4935,7 +5023,8 @@ async function clearAllData() {
     estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true,
     sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO)),
     sinonimosEstabelecimentos: {}, githubRotulosRepo: REPO_PADRAO,
-    theme: data.theme || 'light'
+    theme: data.theme || 'light',
+    sinonimosMergedVersion: SINONIMOS_MERGE_VERSAO
   };
   githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
   manifestRotulosCache = null; manifestRotulosRepoCache = null;
