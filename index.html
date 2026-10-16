@@ -390,6 +390,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
               <div class="empty"><div class="big">📷</div><div>Sem imagem</div></div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;">
+              <button type="button" class="secondary small" onclick="buscarImagemDispositivoManual()">📱 Buscar no dispositivo</button>
               <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar na internet</button>
               <button type="button" class="secondary small" onclick="buscarImagemGitHubManual()">🐙 Buscar no GitHub</button>
               <button type="button" class="secondary small" onclick="document.getElementById('produtoImagemFile').click()">📤 Enviar</button>
@@ -2221,6 +2222,21 @@ function setLoadingPreview(loading) {
   if (loading) { c.classList.add('loading'); if (!c.querySelector('.spinner')) { const sp = document.createElement('div'); sp.className = 'spinner'; c.appendChild(sp); } }
   else { c.classList.remove('loading'); const sp = c.querySelector('.spinner'); if (sp) sp.remove(); }
 }
+/* ⭐ NOVO — busca de imagem apenas no dispositivo */
+async function buscarImagemDispositivoManual() {
+  const nome = $('produtoNome').value.trim();
+  if (!nome) { showFeedback('⚠️ Informe o nome.'); return; }
+  const dataUrl = buscarImagemLocal(nome);
+  if (dataUrl) {
+    imagemProdutoTemp = dataUrl;
+    renderPreviewImagemProduto();
+    verificarAlteracoesProduto();
+    showFeedback('✅ Imagem encontrada no dispositivo!');
+    if (speechOn) speak('Imagem do dispositivo aplicada');
+  } else {
+    showFeedback('❌ Nada encontrado no dispositivo.');
+  }
+}
 async function buscarImagemManual() {
   const nome = $('produtoNome').value.trim();
   if (!nome) { showFeedback('⚠️ Informe o nome.'); return; }
@@ -2374,57 +2390,31 @@ function editProduto(id) {
   rolarParaFormProduto();
 }
 
-/* ⭐⭐⭐ DELETE PRODUTO — AVISA USO EM CONTA ATUAL E HISTÓRICO ⭐⭐⭐ */
 async function deleteProduto(id) {
   const estab = getEstabelecimentoAtivo(); if (!estab) return;
   const p = estab.produtos.find(x => x.id === id); if (!p) return;
-
-  // 1) Itens na CONTA ATUAL
-  const pedidoVinculado = data.pedido.filter(item =>
-    item.produtoId == id && item.estabId === data.estabelecimentoAtivoId
-  );
+  const pedidoVinculado = data.pedido.filter(item => item.produtoId == id && item.estabId === data.estabelecimentoAtivoId);
   const qtdPedidoVinc = pedidoVinculado.reduce((s, i) => s + (i.qtd || 0), 0);
-
-  // 2) Itens no HISTÓRICO — por id do produto OU nome (compatível com registros antigos)
-  const historicoVinculado = data.historico.filter(h =>
-    (h.itens || []).some(it =>
-      (it.produtoId != null && it.produtoId == id && it.estabId === data.estabelecimentoAtivoId) ||
-      (it.produtoId == null && normalize(it.nome) === normalize(p.nome) && h.estabelecimento === estab.nome)
-    )
-  );
+  const historicoVinculado = data.historico.filter(h => (h.itens || []).some(it => (it.produtoId != null && it.produtoId == id && it.estabId === data.estabelecimentoAtivoId) || (it.produtoId == null && normalize(it.nome) === normalize(p.nome) && h.estabelecimento === estab.nome)));
   const totalHist = historicoVinculado.length;
-
-  // Se possui movimentações → avisa detalhadamente
   if (pedidoVinculado.length > 0 || totalHist > 0) {
     let detalhes = '';
     if (qtdPedidoVinc > 0) detalhes += `• ${qtdPedidoVinc} unidade(s) na CONTA ATUAL (será removido da conta)\n`;
     if (totalHist > 0) detalhes += `• ${totalHist} conta(s) no HISTÓRICO (o histórico será mantido)\n`;
-
     const ok = await confirmar(
       `O produto "${p.nome}" já foi utilizado:\n\n${detalhes}\nO produto será removido do cadastro e da conta ativa.\nO HISTÓRICO SERÁ PRESERVADO.\n\nDeseja continuar?`,
       { icone: '⚠️', titulo: 'Produto com movimentações', textoSim: 'Excluir', textoNao: 'Não' }
     );
     if (!ok) return;
-
-    if (qtdPedidoVinc > 0) {
-      data.pedido = data.pedido.filter(item =>
-        !(item.produtoId == id && item.estabId === data.estabelecimentoAtivoId)
-      );
-    }
-
+    if (qtdPedidoVinc > 0) { data.pedido = data.pedido.filter(item => !(item.produtoId == id && item.estabId === data.estabelecimentoAtivoId)); }
     speak('Produto removido do cadastro e da conta ativa. Histórico preservado.');
     showFeedback('🗑️ Produto excluído. Histórico mantido.');
   } else {
-    const ok = await confirmar(
-      `Excluir o produto "${p.nome}" do cadastro?`,
-      { icone: '🗑️', titulo: 'Excluir produto', textoSim: 'Excluir', textoNao: 'Não' }
-    );
+    const ok = await confirmar(`Excluir o produto "${p.nome}" do cadastro?`, { icone: '🗑️', titulo: 'Excluir produto', textoSim: 'Excluir', textoNao: 'Não' });
     if (!ok) return;
     speak('Produto ' + p.nome + ' excluído');
     showFeedback('🗑️ ' + p.nome + ' removido');
   }
-
-  // Remove apenas do CADASTRO (não toca no histórico)
   estab.produtos = estab.produtos.filter(x => x.id !== id);
   if (currentEditId === id) fecharFormProduto(true);
   save(); renderAll();
