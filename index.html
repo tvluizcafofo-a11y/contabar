@@ -20,9 +20,7 @@ header{padding:8px 100px 8px 14px;background:var(--header-bg);border-bottom:3px 
 .header-icon.hidden{display:none}
 header h1{margin:0;font-family:'Anton','Impact','Arial Black',sans-serif;font-size:30px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--header-title);text-shadow:var(--header-title-shadow);line-height:1;white-space:nowrap}
 .theme-toggle{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:var(--theme-toggle-bg);color:var(--theme-toggle-color);border:2px solid var(--theme-toggle-border);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 3px 10px rgba(0,0,0,.18);transition:background .2s,transform .15s;z-index:11;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.theme-toggle:hover{background:var(--theme-toggle-bg-hover);transform:translateY(-50%) scale(1.08);filter:none}
 .header-barcode-btn{position:absolute;top:50%;right:58px;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:var(--theme-toggle-bg);color:var(--theme-toggle-color);border:2px solid var(--theme-toggle-border);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 3px 10px rgba(0,0,0,.18);transition:background .2s,transform .15s;z-index:11;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.header-barcode-btn:hover{background:var(--theme-toggle-bg-hover);transform:translateY(-50%) scale(1.08);filter:none}
 .estab-ativo-bar{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;background:var(--accent);color:var(--on-accent);border-bottom:3px solid var(--header-border-color);font-size:15px;font-weight:bold;text-align:center;min-height:44px;text-shadow:0 1px 2px rgba(0,0,0,.15);transition:background .25s ease}
 .estab-ativo-bar .estab-icon{font-size:20px;line-height:1;flex-shrink:0}
 .estab-ativo-bar .estab-label{font-weight:normal;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;opacity:.9;flex-shrink:0}
@@ -41,7 +39,6 @@ button.secondary:hover{background:var(--btn-secondary-hover);filter:none}
 button.danger{background:var(--danger);color:#fff;box-shadow:var(--btn-danger-shadow)}
 button.small{padding:7px 10px;font-size:12px}
 button:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.5)}
-button:disabled:hover{filter:grayscale(.5);transform:none}
 .status{color:var(--voice-status);font-weight:bold}
 .command{margin-top:10px;color:var(--voice-command)}
 nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
@@ -75,7 +72,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .feedback-modal{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--feedback-bg);color:var(--feedback-text);padding:16px 24px;border-radius:12px;box-shadow:var(--feedback-shadow);z-index:9999;max-width:90%;min-width:280px;text-align:center;font-weight:bold;font-size:16px;backdrop-filter:blur(4px);border:1px solid var(--feedback-border);transition:opacity .3s ease,transform .3s ease;opacity:0;transform:translateX(-50%) translateY(-20px);pointer-events:none}
 .feedback-modal.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
 .feedback-modal .close-btn{position:absolute;top:6px;right:12px;background:none;border:none;color:var(--feedback-text);font-size:20px;cursor:pointer;padding:0 4px;font-weight:bold;opacity:.75;box-shadow:none}
-.feedback-modal .close-btn:hover{opacity:1;transform:none}
 .feedback-modal .dismiss-check{margin-top:10px;font-size:13px;font-weight:normal;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer}
 .feedback-modal .dismiss-check input[type="checkbox"]{width:18px;height:18px;margin:0;accent-color:var(--feedback-text);cursor:pointer}
 .feedback-modal .dismiss-check label{cursor:pointer;color:var(--feedback-text);opacity:.9}
@@ -104,10 +100,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .config-card h3{margin:0 0 8px 0;color:var(--text);display:flex;align-items:center;gap:10px}
 .config-card p{margin:0;color:var(--muted);font-size:13px;line-height:1.4}
 .back-config-btn{margin-bottom:15px;background:var(--panel);color:var(--text);border:1px solid var(--border);box-shadow:var(--export-btn-shadow)}
-.back-config-btn:hover{background:var(--import-area-hover-bg);border-color:var(--accent)}
 .collapsible-section{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--panel-2);margin-top:16px;box-shadow:0 3px 12px rgba(15,23,42,.06)}
-.collapsible-header{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;background:var(--collapsible-bg);color:var(--collapsible-text);border:0;border-radius:0;font-size:15px;font-weight:bold;cursor:pointer;text-align:left;letter-spacing:.3px;transition:filter .15s;box-shadow:none}
-.collapsible-header:hover{filter:brightness(1.05);transform:none}
+.collapsible-header{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;background:var(--collapsible-bg);color:var(--collapsible-text);border:0;border-radius:0;font-size:15px;font-weight:bold;cursor:pointer;text-align:left;letter-spacing:.3px;box-shadow:none}
 .collapsible-header .collapsible-arrow{font-size:13px;transition:transform .25s ease;flex-shrink:0;color:var(--collapsible-text)}
 .collapsible-header.open .collapsible-arrow{transform:rotate(180deg)}
 .collapsible-header .collapsible-title-group{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
@@ -119,7 +113,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .hist-filters-row select,.hist-filters-row input{margin:0;border-radius:8px;padding:8px 12px;font-size:14px}
 .estab-group-header{background:var(--estab-group-header-bg);padding:10px 14px;border-radius:8px;margin:16px 0 10px;border-left:4px solid var(--accent);display:flex;justify-content:space-between;align-items:center}
 .sinonimo-categoria{margin-bottom:22px;padding-bottom:8px}
-.sinonimo-categoria-titulo{font-size:15px;color:var(--sinonimo-cat-text);margin:12px 0;padding:8px 12px;background:var(--sinonimo-cat-bg);border-left:4px solid var(--accent);border-radius:8px;font-weight:bold;letter-spacing:.5px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sinonimo-categoria-titulo{font-size:15px;color:var(--sinonimo-cat-text);margin:12px 0;padding:8px 12px;background:var(--sinonimo-cat-bg);border-left:4px solid var(--accent);border-radius:8px;font-weight:bold;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .sinonimo-categoria-titulo .contador-cat{background:var(--sinonimo-counter-bg);padding:2px 10px;border-radius:20px;font-size:12px;color:var(--sinonimo-counter-text);font-weight:bold;flex-shrink:0}
 .sinonimo-group{background:var(--panel-2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;border-left:3px solid var(--accent)}
 .sinonimo-group h3{margin:0 0 4px 0;font-size:15px;color:var(--text);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -127,10 +121,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sinonimo-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}
 .sinonimo-chip{display:inline-flex;align-items:center;gap:6px;background:var(--sinonimo-chip-bg);border:1px solid var(--border);color:var(--text);padding:5px 6px 5px 12px;border-radius:20px;font-size:13px}
 .sinonimo-chip button{background:transparent;border:0;color:var(--danger);cursor:pointer;font-size:16px;padding:0 4px;line-height:1;font-weight:bold;border-radius:50%;box-shadow:none}
-.sinonimo-chip button:hover{background:rgba(239,68,68,.15);transform:none;filter:none}
 .sinonimo-add{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .sinonimo-add input{flex:1;min-width:150px;margin:0;padding:8px 12px;border-radius:8px}
-.confirm-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);z-index:10010;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(3px)}
+.confirm-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);z-index:10100;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(3px)}
 .confirm-modal.active{display:flex}
 .confirm-content{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:22px;max-width:440px;width:100%;box-shadow:var(--modal-shadow-lg);animation:confirmIn .2s ease;color:var(--text)}
 @keyframes confirmIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
@@ -139,7 +132,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .confirm-content .confirm-msg{text-align:center;font-size:15px;color:var(--text);margin:0 0 12px 0;line-height:1.45;white-space:pre-line}
 .confirm-content .confirm-dica{text-align:center;font-size:12px;color:var(--muted);background:var(--confirm-tip-bg);border:1px dashed var(--confirm-tip-border);border-radius:8px;padding:8px;margin:0 0 14px 0}
 .confirm-content .confirm-actions{display:flex;gap:12px}
-.confirm-content .confirm-actions button{flex:1;padding:14px;font-size:16px}
+.confirm-content .confirm-actions button{flex:1;padding:16px 14px;font-size:16px;font-weight:bold;min-height:52px}
 .confirm-content .confirm-actions .btn-nao{background:var(--btn-secondary-bg);color:var(--btn-secondary-text);box-shadow:0 2px 6px rgba(15,23,42,.08)}
 .tip-box{background:var(--tip-bg);border:1px solid var(--tip-border);border-radius:10px;padding:12px;margin:12px 0}
 .tip-box p{margin:0;color:var(--text);font-size:13px}
@@ -148,9 +141,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sync-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
 .sync-actions button{flex:1;min-width:150px;padding:12px}
 .sync-actions .btn-export{background:var(--sync-export-bg);color:var(--on-accent)}
-.sync-actions .btn-export:hover{background:var(--sync-export-hover);filter:none}
 .sync-actions .btn-import{background:var(--sync-import-bg);color:var(--on-accent)}
-.sync-actions .btn-import:hover{background:var(--sync-import-hover);filter:none}
 .sync-status{margin-top:10px;font-size:13px;color:var(--muted);min-height:18px}
 .sync-status.ok{color:var(--sync-status-ok);font-weight:bold}
 .sync-status.err{color:var(--sync-status-err);font-weight:bold}
@@ -166,7 +157,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 #reciboBody .recibo-item .qtd{color:var(--muted);margin-right:8px}
 #reciboBody .recibo-item .preco{color:var(--recibo-preco)}
 .share-option{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;background:var(--panel-2);border:1px solid var(--border);margin-bottom:10px;cursor:pointer;transition:all .15s;color:var(--text);text-align:left;font-weight:normal;width:100%;box-shadow:none}
-.share-option:hover{background:var(--share-option-hover-bg);border-color:var(--accent);transform:translateY(-1px);filter:none}
 .share-option .share-icon{font-size:26px;width:34px;text-align:center;flex-shrink:0}
 .share-option .share-info .share-title{font-weight:bold;font-size:15px}
 .share-option .share-info .share-desc{font-size:12px;color:var(--muted);margin-top:2px}
@@ -174,9 +164,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .produto-img-preview img{width:100%;height:100%;object-fit:cover;display:block}
 .produto-img-preview .empty{color:var(--muted);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:12px}
 .produto-img-preview .empty .big{font-size:42px;line-height:1}
-.produto-img-preview .empty .small{font-size:11px;opacity:.75}
 .produto-img-preview.loading::before{content:'';position:absolute;inset:0;background:var(--produto-loading-bg);backdrop-filter:blur(2px);z-index:1}
-.produto-img-preview:focus{outline:3px solid var(--accent);outline-offset:3px;box-shadow:var(--produto-focus-ring);transition:box-shadow .25s ease,outline .15s ease}
+.produto-img-preview:focus{outline:3px solid var(--accent);outline-offset:3px;box-shadow:var(--produto-focus-ring)}
 .produto-img-preview .spinner{position:absolute;z-index:2;width:34px;height:34px;border:3px solid var(--produto-spinner-track);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .produto-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;background:var(--produto-thumb-bg);border:1px solid var(--border);flex-shrink:0;display:block}
@@ -188,8 +177,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .produto-thumb-mini-placeholder{width:38px;height:38px;border-radius:6px;background:var(--produto-thumb-bg);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .menu-mini-item > span:first-child{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
 .menu-mini-item > span:first-child > span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.btn-add-mini{width:34px;height:34px;border-radius:50%;background:var(--flash-add-bg);color:var(--flash-add-text);font-size:22px;font-weight:bold;border:0;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:var(--flash-add-shadow);transition:transform .12s,filter .12s}
-.btn-add-mini:hover{filter:brightness(1.1);transform:scale(1.08)}
+.btn-add-mini{width:34px;height:34px;border-radius:50%;background:var(--flash-add-bg);color:var(--flash-add-text);font-size:22px;font-weight:bold;border:0;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0;box-shadow:var(--flash-add-shadow)}
 .cardapio-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--yellow),var(--danger)) 1;border-top:0;border-left:0;border-right:0}
 .cardapio-header h2{margin:0;font-family:'Anton','Impact','Arial Black',sans-serif;font-size:22px;letter-spacing:2px;text-transform:uppercase;line-height:1.1;display:flex;align-items:baseline;flex-wrap:wrap;gap:10px}
 .cardapio-header h2 .nome-estab{display:inline;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:var(--estab-name-color);letter-spacing:normal;text-transform:none;font-weight:bold;text-shadow:var(--estab-name-shadow)}
@@ -197,15 +185,10 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .export-buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 @media(max-width:650px){.export-buttons{grid-template-columns:1fr}}
 .export-btn{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;border:2px solid var(--border);background:var(--export-btn-bg);color:var(--text);text-align:left;font-weight:normal;cursor:pointer;transition:all .15s;box-shadow:var(--export-btn-shadow)}
-.export-btn:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--export-btn-hover-shadow)}
 .export-btn .icon{font-size:24px;flex-shrink:0}
 .export-btn .info .title{font-weight:bold;font-size:14px}
 .export-btn .info .desc{font-size:11px;color:var(--muted);margin-top:2px}
-.export-btn.full{border-color:rgba(37,99,235,.5)}
-.export-btn.light{border-color:rgba(14,165,233,.4)}
-[data-theme="dark"] .export-btn.full{border-color:rgba(57,201,122,.5)}
-[data-theme="dark"] .export-btn.light{border-color:rgba(79,195,247,.4)}
-.order-flash-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.7);opacity:0;z-index:10050;pointer-events:none;transition:opacity .25s ease,transform .25s cubic-bezier(.22,1,.36,1);background:var(--flash-bg);border:3px solid var(--flash-border);border-radius:20px;padding:20px 20px 76px;box-shadow:var(--flash-shadow);max-width:320px;width:85%;text-align:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:var(--text)}
+.order-flash-modal{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.7);opacity:0;z-index:10050;pointer-events:none;transition:opacity .25s ease,transform .25s cubic-bezier(.22,1,.36,1);background:var(--flash-bg);border:3px solid var(--flash-border);border-radius:20px;padding:20px 20px 76px;box-shadow:var(--flash-shadow);max-width:320px;width:85%;text-align:center;color:var(--text)}
 .order-flash-modal.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto}
 .order-flash-modal .flash-img-wrap{width:100%;height:180px;border-radius:14px;overflow:hidden;background:var(--flash-img-bg);display:flex;align-items:center;justify-content:center;margin-bottom:12px;border:2px solid var(--flash-img-border)}
 .order-flash-modal .flash-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
@@ -214,9 +197,9 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .order-flash-modal .flash-info{font-size:14px;color:var(--muted);margin-top:6px}
 .order-flash-modal .flash-badge{display:inline-block;margin-top:10px;padding:5px 14px;border-radius:20px;background:var(--flash-badge-bg);color:var(--flash-badge-text);font-size:13px;font-weight:bold}
 .order-flash-modal .flash-check{position:absolute;top:-16px;right:-16px;width:44px;height:44px;border-radius:50%;background:var(--flash-check-bg);color:var(--flash-check-text);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:bold;box-shadow:var(--flash-check-shadow);animation:popCheck .35s ease-out .1s backwards}
-.order-flash-modal .flash-add-btn{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:54px;height:54px;border-radius:50%;background:var(--flash-add-bg);color:var(--flash-add-text);font-size:32px;font-weight:bold;border:0;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:var(--flash-add-shadow)}
+.order-flash-modal .flash-add-btn{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);width:54px;height:54px;border-radius:50%;background:var(--flash-add-bg);color:var(--flash-add-text);font-size:32px;font-weight:bold;border:0;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;box-shadow:var(--flash-add-shadow)}
 @keyframes popCheck{from{transform:scale(0)}60%{transform:scale(1.25)}to{transform:scale(1)}}
-@media(max-width:650px){.order-flash-modal{max-width:270px;padding:16px 16px 68px}.order-flash-modal .flash-img-wrap{height:150px}.order-flash-modal .flash-nome{font-size:17px}.order-flash-modal .flash-check{width:38px;height:38px;font-size:20px;top:-12px;right:-12px}.order-flash-modal .flash-add-btn{width:48px;height:48px;font-size:28px;bottom:14px}}
+@media(max-width:650px){.order-flash-modal{max-width:270px;padding:16px 16px 68px}.order-flash-modal .flash-img-wrap{height:150px}.order-flash-modal .flash-nome{font-size:17px}}
 .conta-header-info{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .conta-total-box{text-align:center;padding:8px 0}
 .conta-btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
@@ -237,7 +220,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .edit-banner{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--edit-banner-bg);border:2px solid var(--edit-banner-border);border-radius:12px;padding:12px 16px;margin-bottom:14px;box-shadow:var(--edit-banner-shadow);animation:editBannerIn .25s ease}
 @keyframes editBannerIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .edit-banner .edit-banner-title{font-family:'Anton','Impact',sans-serif;font-size:20px;letter-spacing:2px;color:var(--edit-banner-title);text-transform:uppercase;display:flex;align-items:center;gap:10px;margin:0}
-.edit-banner .edit-banner-sub{color:var(--edit-banner-sub);font-size:13px;font-weight:normal;letter-spacing:normal;text-transform:none}
+.edit-banner .edit-banner-sub{color:var(--edit-banner-sub);font-size:13px;font-weight:normal;text-transform:none}
 .edit-banner .edit-banner-close{background:transparent;color:var(--edit-banner-close-text);border:1px solid var(--edit-banner-close-border);padding:6px 12px;font-size:13px;border-radius:8px;cursor:pointer;box-shadow:none}
 #formProduto.modo-edicao{border:2px solid var(--form-edicao-border);box-shadow:var(--form-edicao-shadow);background:var(--form-edicao-bg)}
 #cardapio.editando .cardapio-header{opacity:.45;pointer-events:none}
@@ -266,30 +249,62 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .barcode-status-lido{background:var(--tip-bg);border:1px solid var(--tip-border);border-radius:8px;padding:10px;margin:10px 0;font-size:14px;text-align:center;color:var(--text);font-weight:bold}
 .barcode-aviso{background:var(--confirm-tip-bg);border:1px dashed var(--confirm-tip-border);border-radius:8px;padding:10px;margin:10px 0;font-size:12px;color:var(--muted);text-align:center}
 .escolha-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--panel-2);border:2px solid var(--border);margin-bottom:10px;cursor:pointer;transition:all .15s;color:var(--text);text-align:left;width:100%;font-weight:normal;box-shadow:none}
-.escolha-item:hover{border-color:var(--accent);background:var(--share-option-hover-bg);transform:translateY(-1px);filter:none}
 .escolha-item .num{font-family:'Anton','Impact',sans-serif;font-size:22px;color:var(--accent);flex-shrink:0;width:36px;text-align:center;line-height:1}
 .escolha-item .info{flex:1;min-width:0}
 .escolha-item .info .nome{font-weight:bold;font-size:15px;word-break:break-word;line-height:1.25}
 .escolha-item .info .preco{font-size:13px;color:var(--money-color);font-weight:bold;margin-top:2px}
 .escolha-item .info .apelidos{font-size:11px;color:var(--muted);margin-top:2px}
 .apelido-tag{display:inline-block;background:rgba(217,119,6,.12);color:var(--estab-name-color);font-size:11px;padding:2px 8px;border-radius:12px;margin-right:4px;margin-top:2px;font-weight:bold}
-/* NOVO: overlay de busca de código de barras */
-.barcode-search-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);z-index:10060;display:none;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+.barcode-search-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(8,15,30,.92);z-index:10060;display:none;justify-content:center;align-items:center;overflow-y:auto;padding:16px}
 .barcode-search-overlay.active{display:flex}
-.barcode-search-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:400px;width:90%;box-shadow:var(--modal-shadow-lg);text-align:center;color:var(--text)}
-.barcode-search-card h3{margin:0 0 14px 0;color:var(--accent)}
-.barcode-search-card .codigo-display{background:var(--panel-2);padding:10px;border-radius:10px;font-family:monospace;font-size:15px;border:1px solid var(--border);margin-bottom:16px;word-break:break-all;color:var(--text);font-weight:bold}
-.barcode-search-step{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:var(--panel-2);border:1px solid var(--border);margin-bottom:8px;text-align:left;font-size:14px;transition:all .2s}
-.barcode-search-step .step-icon{font-size:20px;flex-shrink:0;width:28px;text-align:center}
-.barcode-search-step .step-text{flex:1}
-.barcode-search-step .step-status{font-size:12px;color:var(--muted);margin-top:2px}
-.barcode-search-step.ativo{border-color:var(--accent);background:var(--share-option-hover-bg);animation:pulseBarcode 1.4s infinite}
-.barcode-search-step.sucesso{border-color:var(--green);background:rgba(16,185,129,.1)}
+.barcode-search-card{background:var(--panel);border:3px solid var(--accent);border-radius:24px;padding:24px 20px 18px;max-width:440px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 0 6px rgba(37,99,235,.15);text-align:center;color:var(--text);animation:bcSearchIn .35s cubic-bezier(.22,1,.36,1)}
+@keyframes bcSearchIn{from{transform:scale(.85) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.bc-hero{position:relative;width:120px;height:120px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+.bc-hero-ring{position:absolute;inset:0;border-radius:50%;border:4px dashed var(--accent);opacity:.5;animation:bcRingSpin 4s linear infinite}
+@keyframes bcRingSpin{to{transform:rotate(360deg)}}
+.bc-hero-ring.paused{animation-play-state:paused;border-style:solid;border-color:var(--green);opacity:.8}
+.bc-hero-icon{position:relative;z-index:2;font-size:56px;line-height:1;display:flex;align-items:center;justify-content:center;width:96px;height:96px;background:linear-gradient(135deg,var(--panel-2),var(--panel));border-radius:50%;border:2px solid var(--border);box-shadow:0 8px 24px rgba(37,99,235,.25);transition:transform .3s ease}
+.bc-hero-icon svg{width:52px;height:52px;color:var(--text);display:block}
+.bc-hero-icon.pulse{animation:bcPulse 1s ease-in-out infinite}
+.bc-hero-icon.bounce{animation:bcBounce 1s ease-in-out infinite}
+.bc-hero-icon.spin{animation:bcSpin 1.6s linear infinite}
+.bc-hero-icon.success{animation:bcSuccess .6s ease}
+@keyframes bcPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes bcBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-8px) scale(1.05)}}
+@keyframes bcSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+@keyframes bcSuccess{0%{transform:scale(.5) rotate(-20deg)}60%{transform:scale(1.2) rotate(10deg)}100%{transform:scale(1) rotate(0deg)}}
+.bc-message{font-family:'Anton','Impact',sans-serif;font-size:22px;letter-spacing:1.5px;color:var(--accent);margin:4px 0 6px;text-transform:uppercase;line-height:1.15;min-height:28px}
+.bc-message .bc-dots{display:inline-flex;gap:4px;margin-left:4px;vertical-align:middle}
+.bc-message .bc-dots span{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:bcDots 1.2s infinite}
+.bc-message .bc-dots span:nth-child(2){animation-delay:.2s}
+.bc-message .bc-dots span:nth-child(3){animation-delay:.4s}
+@keyframes bcDots{0%,60%,100%{opacity:.25;transform:scale(.8)}30%{opacity:1;transform:scale(1.4)}}
+.bc-submessage{font-size:13px;color:var(--muted);margin-bottom:14px;min-height:18px;line-height:1.35}
+.bc-codigo-display{background:var(--panel-2);padding:10px 14px;border-radius:10px;font-family:monospace;font-size:15px;border:1px solid var(--border);margin-bottom:14px;word-break:break-all;color:var(--text);font-weight:bold;letter-spacing:2px;position:relative;overflow:hidden}
+.bc-codigo-display::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(37,99,235,.15),transparent);animation:bcShine 2s infinite}
+@keyframes bcShine{0%{left:-100%}100%{left:100%}}
+.bc-progress{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
+.bc-progress-step{width:44px;height:6px;border-radius:3px;background:var(--border);transition:all .4s ease}
+.bc-progress-step.done{background:var(--green)}
+.bc-progress-step.ativo{background:var(--accent);animation:bcProgressPulse 1s infinite}
+@keyframes bcProgressPulse{0%,100%{opacity:1;transform:scaleX(1)}50%{opacity:.6;transform:scaleX(1.25)}}
+.bc-progress-label{font-size:12px;color:var(--muted);margin-left:8px;font-weight:bold;min-width:32px}
+.barcode-search-step{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--panel-2);border:2px solid var(--border);margin-bottom:10px;text-align:left;font-size:14px;transition:all .4s ease;opacity:.45}
+.barcode-search-step .step-icon{font-size:24px;flex-shrink:0;width:34px;height:34px;display:flex;align-items:center;justify-content:center}
+.barcode-search-step .step-icon svg{width:26px;height:26px;color:var(--text);display:block}
+.barcode-search-step .step-text{flex:1;min-width:0}
+.barcode-search-step .step-text > div:first-child{font-weight:bold;font-size:14px;color:var(--text)}
+.barcode-search-step .step-status{font-size:12px;color:var(--muted);margin-top:2px;min-height:16px;line-height:1.3}
+.barcode-search-step.ativo{opacity:1;border-color:var(--accent);background:linear-gradient(135deg,rgba(37,99,235,.12),rgba(37,99,235,.04));transform:scale(1.03);box-shadow:0 6px 20px rgba(37,99,235,.3)}
+.barcode-search-step.ativo .step-icon{animation:bcStepBounce 1s ease-in-out infinite}
+@keyframes bcStepBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.15)}}
+.barcode-search-step.sucesso{opacity:1;border-color:var(--green);background:linear-gradient(135deg,rgba(16,185,129,.14),rgba(16,185,129,.05))}
 .barcode-search-step.sucesso .step-status{color:var(--green);font-weight:bold}
-.barcode-search-step.falha{opacity:.55}
-.barcode-search-step.falha .step-status{color:var(--muted)}
-@keyframes pulseBarcode{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.3)}50%{box-shadow:0 0 0 6px rgba(37,99,235,0)}}
-.barcode-search-spin{display:inline-block;width:16px;height:16px;border:2px solid var(--produto-spinner-track);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;vertical-align:middle}
+.barcode-search-step.sucesso .step-icon{animation:bcStepSuccess .6s ease}
+@keyframes bcStepSuccess{0%{transform:scale(.4)}60%{transform:scale(1.35)}100%{transform:scale(1)}}
+.barcode-search-step.falha{opacity:.4;border-color:var(--border)}
+.barcode-search-step.falha .step-icon{opacity:.5}
+.bc-spin{display:inline-block;width:14px;height:14px;border:2px solid var(--produto-spinner-track);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
 </style>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#2563eb">
@@ -304,8 +319,8 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <header>
     <img src="./chope.png" alt="" class="header-icon" aria-hidden="true" onerror="this.classList.add('hidden');">
     <h1>FECHA A CONTA</h1>
-    <button id="headerBarcodeBtn" class="header-barcode-btn" onclick="abrirLeitorCodigoBarras('pedido')" title="Ler código de barras" aria-label="Ler código de barras">📷</button>
-    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Alternar tema" aria-label="Alternar tema">🌙</button>
+    <button id="headerBarcodeBtn" class="header-barcode-btn" onclick="abrirLeitorCodigoBarras('pedido')" title="Ler código de barras">📷</button>
+    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">🌙</button>
   </header>
   <div class="estab-ativo-bar sem-estab" id="estabAtivoBar">
     <span class="estab-icon">🏢</span>
@@ -319,7 +334,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </button>
 
 <div class="container">
-
 <nav id="nav">
 <button data-screen="inicio" onclick="showScreen('inicio')" class="active">🏠 Início</button>
 <button data-screen="configuracoes" onclick="showScreen('configuracoes')">⚙️ Configurações</button>
@@ -385,7 +399,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
             <h3 id="formProdutoTitulo" style="margin-top:0; color:var(--title-color);">➕ Novo produto</h3>
             <div id="avisoImportacao" class="aviso-importacao">
               <div class="aviso-titulo"><span>📥 Produto encontrado em outro estabelecimento!</span></div>
-              <div>Dados importados de <span class="aviso-estab" id="avisoEstabNome">—</span>. Você só precisa confirmar ou ajustar.</div>
+              <div>Dados importados de <span class="aviso-estab" id="avisoEstabNome">—</span>.</div>
               <div class="aviso-campos" id="avisoCamposImportados"></div>
             </div>
             <div id="produtoCamposExtras">
@@ -398,7 +412,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
                 <button type="button" class="secondary btn-ler-codigo" onclick="abrirLeitorCodigoBarras('cadastro')">📷 Ler</button>
               </div>
               <div class="produto-form-linha">
-                <div class="campo-nome"><label>Apelidos (opcional) — separe vários por vírgula</label><input id="produtoApelido" placeholder="Ex.: Tereza, Terezinha, Cerva gelada" oninput="verificarAlteracoesProduto();"><div class="note" style="margin-top:4px;">💡 Ex.: <b>churrasquinho de boi</b> pode ter apelidos <b>churrasquinho, churras, boi</b></div></div>
+                <div class="campo-nome"><label>Apelidos (opcional) — separe vários por vírgula</label><input id="produtoApelido" placeholder="Ex.: Tereza, Terezinha, Cerva gelada" oninput="verificarAlteracoesProduto();"></div>
               </div>
             </div>
             <label>Imagem do produto</label>
@@ -416,14 +430,10 @@ footer{text-align:center;color:var(--muted);padding:25px}
               <button id="btnSalvarProduto" onclick="addProduto()">➕ Cadastrar produto</button>
               <button class="secondary" onclick="fecharFormProduto()">❌ Cancelar</button>
             </div>
-            <p class="note" style="margin-top:8px;">Ao cadastrar, o app busca a imagem automaticamente: <b>1)</b> repositório GitHub → <b>2)</b> dispositivo → <b>3)</b> internet.</p>
           </div>
           <div id="listaProdutos"></div>
           <div class="tip-box"><p>💡 <b>Pedido por voz inteligente:</b> tolera erros de reconhecimento (ex.: "cerva" ≈ "cerveja").</p></div>
-          <div class="tip-box"><p>📷 <b>Pedido por código de barras:</b> busca em <b>1)</b> dispositivo, <b>2)</b> GitHub, <b>3)</b> internet.</p></div>
-          <div class="tip-box" style="border-color:var(--purple);background:rgba(139,92,246,.08);"><p>📥 <b>Importação automática:</b> produtos já cadastrados em outros estabelecimentos são trazidos automaticamente.</p></div>
-          <div class="tip-box" style="border-color:var(--green);background:rgba(16,185,129,.08);"><p>🏷️ <b>Apelidos:</b> cadastre vários separados por vírgula. Se houver mais de um compatível, o app mostra uma lista.</p></div>
-          <div class="tip-box" style="border-color:var(--yellow);background:rgba(251,191,36,.08);"><p>🗑️ <b>Produtos excluídos:</b> saem do cadastro mas <b>o histórico é preservado</b>.</p></div>
+          <div class="tip-box"><p>📷 <b>Pedido por código de barras:</b> se já cadastrado, lança imediatamente. Caso contrário, busca em GitHub e internet.</p></div>
         </div>
       </div>
     </div>
@@ -490,7 +500,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   <button class="collapsible-header" id="btnHeaderRepositorio" onclick="toggleCollapsible('repositorioRotulosContent', this)"><span>🖼️ Repositório de Rótulos (GitHub)</span><span class="collapsible-arrow">▼</span></button>
   <div id="repositorioRotulosContent" class="collapsible-content" style="display:none;">
     <div class="voice" style="margin-top:0;">
-      <p class="note">O repositório deve ser público. Para <b>busca por código de barras</b>, crie um arquivo <code>codigos.json</code> com o formato abaixo:</p>
+      <p class="note">O repositório deve ser público. Para <b>busca por código de barras</b>, crie um arquivo <code>codigos.json</code>:</p>
       <pre style="background:var(--panel-2);padding:10px;border-radius:8px;font-size:11px;overflow:auto;border:1px solid var(--border);">{
   "7891234567890": { "nome": "Cerveja Therezópolis", "imagem": "therezopolis.jpg" },
   "7899876543210": "brahma.jpg"
@@ -661,7 +671,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <div class="confirm-icon" id="confirmIcon">❓</div>
     <h3 id="confirmTitulo">Confirmação</h3>
     <p class="confirm-msg" id="confirmMensagem">Tem certeza?</p>
-    <p class="confirm-dica" id="confirmDicaVoz">Diga <b>"sim"</b> ou <b>"não"</b>.</p>
+    <p class="confirm-dica" id="confirmDicaVoz">Diga <b>"sim"</b> ou <b>"não"</b>, ou toque em um botão.</p>
     <div class="confirm-actions">
       <button id="confirmBtnSim" onclick="resolverConfirmacao(true)">✅ Sim</button>
       <button id="confirmBtnNao" class="btn-nao" onclick="resolverConfirmacao(false)">❌ Não</button>
@@ -678,11 +688,23 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<!-- NOVO: overlay de busca em cascata do código de barras -->
 <div id="barcodeSearchOverlay" class="barcode-search-overlay">
   <div class="barcode-search-card">
-    <h3>🔍 Identificando produto</h3>
-    <div class="codigo-display" id="barcodeSearchCodigo">—</div>
+    <div class="bc-hero">
+      <div class="bc-hero-ring" id="bcHeroRing"></div>
+      <div class="bc-hero-icon pulse" id="bcBigIcon">🔍</div>
+    </div>
+    <div class="bc-message" id="bcMensagem">Iniciando busca<span class="bc-dots"><span></span><span></span><span></span></span></div>
+    <div class="bc-submessage" id="bcSubmensagem">Aguarde enquanto identificamos o produto</div>
+    <div class="bc-codigo-display" id="barcodeSearchCodigo">—</div>
+
+    <div class="bc-progress">
+      <span class="bc-progress-step ativo" id="bcProg1"></span>
+      <span class="bc-progress-step" id="bcProg2"></span>
+      <span class="bc-progress-step" id="bcProg3"></span>
+      <span class="bc-progress-label" id="bcProgLabel">1/3</span>
+    </div>
+
     <div class="barcode-search-step" id="bcStepDispositivo">
       <span class="step-icon">📱</span>
       <span class="step-text">
@@ -691,7 +713,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
       </span>
     </div>
     <div class="barcode-search-step" id="bcStepGitHub">
-      <span class="step-icon">🐙</span>
+      <span class="step-icon">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </span>
       <span class="step-text">
         <div>GitHub</div>
         <div class="step-status" id="bcStepGitHubStatus">Aguardando...</div>
@@ -704,7 +730,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
         <div class="step-status" id="bcStepInternetStatus">Aguardando...</div>
       </span>
     </div>
-    <button class="secondary" onclick="cancelarBuscaCodigoBarras()" style="width:100%;margin-top:12px;">❌ Cancelar</button>
+    <button class="secondary" onclick="cancelarBuscaCodigoBarras()" style="width:100%;margin-top:14px;">❌ Cancelar</button>
   </div>
 </div>
 
@@ -720,7 +746,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
       <button class="secondary" onclick="fecharLeitorCodigoBarras()" style="flex:1;">❌ Cancelar</button>
     </div>
     <div class="barcode-scanner-actions"><button class="secondary small" onclick="alternarLanterna()">🔦 Lanterna</button></div>
-    <div class="barcode-aviso">💡 Busca em: <b>1)</b> dispositivo → <b>2)</b> GitHub → <b>3)</b> internet.</div>
+    <div class="barcode-aviso">💡 Se já cadastrado, lança imediatamente. Caso contrário, busca em GitHub e internet.</div>
   </div>
 </div>
 
@@ -781,25 +807,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </div>
 
 <script>
-/* ============ TEMA ============ */
 function applyTheme(theme){
   const root = document.documentElement;
-  if (theme === 'dark') {
-    root.setAttribute('data-theme','dark');
-    const btn = document.getElementById('themeToggle'); if (btn) btn.textContent = '☀️';
-    const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content','#0d1016');
-  } else {
-    root.removeAttribute('data-theme');
-    const btn = document.getElementById('themeToggle'); if (btn) btn.textContent = '🌙';
-    const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content','#2563eb');
-  }
+  if (theme === 'dark') { root.setAttribute('data-theme','dark'); const btn = document.getElementById('themeToggle'); if (btn) btn.textContent = '☀️'; const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content','#0d1016'); }
+  else { root.removeAttribute('data-theme'); const btn = document.getElementById('themeToggle'); if (btn) btn.textContent = '🌙'; const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content','#2563eb'); }
 }
-function toggleTheme(){
-  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-  try { data.theme = next; save(); } catch(e){}
-}
+function toggleTheme(){ const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'; const next = current === 'dark' ? 'light' : 'dark'; applyTheme(next); try { data.theme = next; save(); } catch(e){} }
 
 const ua = navigator.userAgent || '';
 const isAndroid = /Android/i.test(ua);
@@ -812,6 +825,7 @@ const hasWebSpeech = typeof window.speechSynthesis !== 'undefined' && typeof win
 const hasWebSTT = ('webkitSpeechRecognition' in window) || ('SpeechRecognition' in window);
 
 const REPO_PADRAO = 'contabar/rotulos';
+const GITHUB_SVG = '<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" style="width:1em;height:1em;display:inline-block;vertical-align:middle;"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>';
 
 const SINONIMOS_PADRAO = {
   pedir:['pedir','pede','pega','pegar','me da','me ve','desce','descer','traz','trazer','manda','mandar','quero','queria','vou querer','vou de','fazer pedido','solicitar','solicita','mais um','mais uma'],
@@ -853,22 +867,7 @@ const COMANDOS_INFO = [
 
 const ORDEM_CATEGORIAS_SINONIMOS = ['Estabelecimentos','Produtos','Pedidos & Conta','Pagamentos','Histórico','Dados','Controle'];
 
-const TRADUCAO_IMAGEM = {
-  'cerveja':'beer','cerva':'beer','chopp':'draft beer','chope':'draft beer',
-  'agua':'water bottle','refrigerante':'soda drink','coca':'coca cola',
-  'guarana':'guarana soda','pepsi':'pepsi','suco':'juice',
-  'whisky':'whisky','vodka':'vodka','cachaca':'cachaca','gin':'gin tonic',
-  'rum':'rum','tequila':'tequila','vinho':'wine glass','espumante':'champagne',
-  'energetico':'energy drink','redbull':'red bull','caipirinha':'caipirinha',
-  'porcao':'bar snack food','batata':'french fries','fritas':'french fries',
-  'frango':'chicken wings','asa':'chicken wings','calabresa':'sausage',
-  'linguica':'sausage','carne':'steak plate','picanha':'steak',
-  'churrasco':'barbecue','bolinho':'fried snack','pastel':'pastel pastry',
-  'sanduiche':'sandwich','hamburguer':'burger','burger':'burger',
-  'pizza':'pizza','petisco':'bar snack','amendoim':'peanuts',
-  'castanha':'nuts','azeitona':'olives','queijo':'cheese plate',
-  'torresmo':'pork crackling','camarao':'shrimp','salmao':'salmon'
-};
+const TRADUCAO_IMAGEM = {'cerveja':'beer','cerva':'beer','chopp':'draft beer','chope':'draft beer','agua':'water bottle','refrigerante':'soda drink','coca':'coca cola','guarana':'guarana soda','pepsi':'pepsi','suco':'juice','whisky':'whisky','vodka':'vodka','cachaca':'cachaca','gin':'gin tonic','rum':'rum','tequila':'tequila','vinho':'wine glass','espumante':'champagne','energetico':'energy drink','redbull':'red bull','caipirinha':'caipirinha','porcao':'bar snack food','batata':'french fries','fritas':'french fries','frango':'chicken wings','asa':'chicken wings','calabresa':'sausage','linguica':'sausage','carne':'steak plate','picanha':'steak','churrasco':'barbecue','bolinho':'fried snack','pastel':'pastel pastry','sanduiche':'sandwich','hamburguer':'burger','burger':'burger','pizza':'pizza','petisco':'bar snack','amendoim':'peanuts','castanha':'nuts','azeitona':'olives','queijo':'cheese plate','torresmo':'pork crackling','camarao':'shrimp','salmao':'salmon'};
 
 const KEY='contaBarVoz_v1';
 let data=JSON.parse(localStorage.getItem(KEY)||'{}');
@@ -938,7 +937,6 @@ let codigoProcessando = false;
 let timeoutVerificarProdutoOutrosEstabs = null;
 
 const $ = id => document.getElementById(id);
-
 const speechDiagnostic = { lastText:null, lastError:null, succeeded:false, usedNative:false, usedWebSpeech:false, usedAudioFallback:false, usedVisual:false, lastAttempt:null };
 
 function save() {
@@ -960,13 +958,8 @@ function slugify(s) { return normalize(s).replace(/[^a-z0-9]+/g, ''); }
 function slugifyHifen(s) { return normalize(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-/* ============ APELIDOS MÚLTIPLOS ============ */
-function getApelidos(produto) {
-  if (!produto || !produto.apelido) return [];
-  return String(produto.apelido).split(',').map(s => s.trim()).filter(s => s.length > 0);
-}
+function getApelidos(produto) { if (!produto || !produto.apelido) return []; return String(produto.apelido).split(',').map(s => s.trim()).filter(s => s.length > 0); }
 
-/* ============ LEVENSHTEIN ============ */
 function levenshtein(a, b) {
   if (a === b) return 0;
   if (!a.length) return b.length;
@@ -974,22 +967,10 @@ function levenshtein(a, b) {
   const m = [];
   for (let i = 0; i <= b.length; i++) m[i] = [i];
   for (let j = 0; j <= a.length; j++) m[0][j] = j;
-  for (let i = 1; i <= b.length; i++) {
-    for (let j = 1; j <= a.length; j++) {
-      m[i][j] = b.charAt(i-1) === a.charAt(j-1) ? m[i-1][j-1] : Math.min(m[i-1][j-1]+1, m[i][j-1]+1, m[i-1][j]+1);
-    }
-  }
+  for (let i = 1; i <= b.length; i++) for (let j = 1; j <= a.length; j++) m[i][j] = b.charAt(i-1) === a.charAt(j-1) ? m[i-1][j-1] : Math.min(m[i-1][j-1]+1, m[i][j-1]+1, m[i-1][j]+1);
   return m[b.length][a.length];
 }
-function similarWords(a, b, maxRatio = 0.35) {
-  if (!a || !b) return false;
-  if (a === b) return true;
-  const maxLen = Math.max(a.length, b.length);
-  if (maxLen < 4) return false;
-  return levenshtein(a, b) / maxLen <= maxRatio;
-}
 
-/* ============ NAVEGAÇÃO ============ */
 function fecharSecoesInicio() {
   const cp = document.getElementById('inicioProdutosContent'); const bp = document.getElementById('btnHeaderProdutosInicio');
   if (cp) cp.style.display = 'none'; if (bp) bp.classList.remove('open');
@@ -1013,15 +994,13 @@ function showScreen(screenId) {
 }
 function abrirSecaoProdutos() {
   _mostrarTela('inicio');
-  const content = document.getElementById('inicioProdutosContent');
-  const btn = document.getElementById('btnHeaderProdutosInicio');
+  const content = document.getElementById('inicioProdutosContent'); const btn = document.getElementById('btnHeaderProdutosInicio');
   if (content && content.style.display === 'none') { content.style.display = 'block'; if (btn) btn.classList.add('open'); }
   setTimeout(() => { const sec = document.getElementById('inicioProdutosContent'); if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
 }
 function abrirSecaoHistorico() {
   _mostrarTela('inicio');
-  const content = document.getElementById('inicioHistoricoContent');
-  const btn = document.getElementById('btnHeaderHistoricoInicio');
+  const content = document.getElementById('inicioHistoricoContent'); const btn = document.getElementById('btnHeaderHistoricoInicio');
   if (content && content.style.display === 'none') { content.style.display = 'block'; if (btn) btn.classList.add('open'); }
   setTimeout(() => { const sec = document.getElementById('inicioHistoricoContent'); if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
 }
@@ -1031,10 +1010,7 @@ function getNomeCliente() {
   return 'Não informado';
 }
 function usuarioCadastrado() { return !!(data.usuario && data.usuario.nome && data.usuario.nome.trim() !== ''); }
-function capitalizarNome(nome) {
-  if (!nome) return '';
-  return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
-}
+function capitalizarNome(nome) { if (!nome) return ''; return nome.split(' ').map(p => p.length === 0 ? p : p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' '); }
 function toggleCollapsible(contentId, btn) {
   const content = document.getElementById(contentId); if (!content) return;
   const aberto = content.style.display !== 'none';
@@ -1042,7 +1018,6 @@ function toggleCollapsible(contentId, btn) {
   if (btn) btn.classList.toggle('open', !aberto);
 }
 
-/* ============ BARRA ESTAB ============ */
 function atualizarEstabAtivoBar() {
   const bar = document.getElementById('estabAtivoBar');
   const el = document.getElementById('estabAtivoBarNome'); if (!el) return;
@@ -1178,7 +1153,6 @@ function encontrarProdutoPorNome(textoNorm, produtos) {
   return { ambiguo: empatados };
 }
 
-/* ============ MODAL DE ESCOLHA ============ */
 function mostrarEscolhaProduto(candidatos, qtd) {
   escolhaProdutoPendente = { candidatos: [...candidatos], qtd: Number(qtd) || 1 };
   const modal = document.getElementById('escolhaProdutoModal');
@@ -1199,7 +1173,6 @@ function mostrarEscolhaProduto(candidatos, qtd) {
 function escolherProduto(id, qtd) { const q = Number(qtd) || 1; fecharEscolhaProduto(); addPedido(id, q); }
 function fecharEscolhaProduto() { escolhaProdutoPendente = null; const modal = document.getElementById('escolhaProdutoModal'); if (modal) modal.classList.remove('active'); }
 
-/* ============ CONFIRMAÇÃO ============ */
 function confirmar(mensagem, opcoes = {}) {
   return new Promise((resolve) => {
     confirmacaoPendente = { resolve };
@@ -1209,8 +1182,8 @@ function confirmar(mensagem, opcoes = {}) {
     document.getElementById('confirmBtnSim').textContent = '✅ ' + (opcoes.textoSim || 'Sim');
     document.getElementById('confirmBtnNao').textContent = '❌ ' + (opcoes.textoNao || 'Não');
     const dica = document.getElementById('confirmDicaVoz');
-    if (recognizer && recognizer.isActive) dica.innerHTML = 'Diga <b>"sim"</b> ou <b>"não"</b>.';
-    else dica.innerHTML = 'Clique em <b>Sim</b> ou <b>Não</b>.';
+    if (recognizer && recognizer.isActive) dica.innerHTML = 'Diga <b>"sim"</b> ou <b>"não"</b>, ou toque em um botão.';
+    else dica.innerHTML = 'Toque em <b>Sim</b> ou <b>Não</b>.';
     document.getElementById('confirmModal').classList.add('active');
     if (speechOn) speak(mensagem + ' Diga sim ou não.');
   });
@@ -1224,22 +1197,9 @@ function resolverConfirmacao(resposta) {
   cb(resposta);
 }
 
-/* ============ VOZ / TTS ============ */
 let selectedVoice = null; let voiceLoadAttempts = 0;
-function tentarCarregarVozes() {
-  voiceLoadAttempts++;
-  if (!window.speechSynthesis) return;
-  const voices = speechSynthesis.getVoices();
-  if (voices.length > 0) loadVoices();
-  else if (voiceLoadAttempts < 20) setTimeout(tentarCarregarVozes, 300);
-}
-function loadVoices() {
-  if (!window.speechSynthesis) return;
-  const voices = speechSynthesis.getVoices();
-  if (voices.length === 0) { setTimeout(loadVoices, 200); return; }
-  const pref = (document.getElementById('voiceSelect') || {}).value || 'default';
-  selectVoiceByPreference(pref);
-}
+function tentarCarregarVozes() { voiceLoadAttempts++; if (!window.speechSynthesis) return; const voices = speechSynthesis.getVoices(); if (voices.length > 0) loadVoices(); else if (voiceLoadAttempts < 20) setTimeout(tentarCarregarVozes, 300); }
+function loadVoices() { if (!window.speechSynthesis) return; const voices = speechSynthesis.getVoices(); if (voices.length === 0) { setTimeout(loadVoices, 200); return; } const pref = (document.getElementById('voiceSelect') || {}).value || 'default'; selectVoiceByPreference(pref); }
 function selectVoiceByPreference(pref) {
   if (!window.speechSynthesis) return;
   const voices = speechSynthesis.getVoices(); if (voices.length === 0) return;
@@ -1251,10 +1211,7 @@ function selectVoiceByPreference(pref) {
   selectedVoice = found;
 }
 if (window.speechSynthesis) { if (speechSynthesis.getVoices().length > 0) tentarCarregarVozes(); else { speechSynthesis.onvoiceschanged = tentarCarregarVozes; tentarCarregarVozes(); } }
-function changeVoice() {
-  const pref = document.getElementById('voiceSelect').value; data.voicePreference = pref; save();
-  if (window.speechSynthesis) { if (speechSynthesis.getVoices().length === 0) speechSynthesis.onvoiceschanged = () => { selectVoiceByPreference(pref); speechSynthesis.onvoiceschanged = null; }; else selectVoiceByPreference(pref); }
-}
+function changeVoice() { const pref = document.getElementById('voiceSelect').value; data.voicePreference = pref; save(); if (window.speechSynthesis) { if (speechSynthesis.getVoices().length === 0) speechSynthesis.onvoiceschanged = () => { selectVoiceByPreference(pref); speechSynthesis.onvoiceschanged = null; }; else selectVoiceByPreference(pref); } }
 function resetSpeechDiagnostic() { speechDiagnostic.lastAttempt = new Date().toISOString(); speechDiagnostic.lastError = null; speechDiagnostic.succeeded = false; speechDiagnostic.usedNative = false; speechDiagnostic.usedWebSpeech = false; speechDiagnostic.usedAudioFallback = false; speechDiagnostic.usedVisual = false; }
 function speak(text) {
   if (!speechOn || !text) return;
@@ -1301,14 +1258,7 @@ function tentarTocarAudio(url) {
     } catch (e) { resolve(false); }
   });
 }
-function mostrarFallbackVisual(text) {
-  speechDiagnostic.usedVisual = true;
-  const lastCmd = document.getElementById('lastCommand'); if (!lastCmd) return;
-  lastCmd.innerHTML = '🔊 <b>' + escapeHtml(text) + '</b>';
-  lastCmd.classList.add('voice-visual-fallback');
-  clearTimeout(window._visualTTS);
-  window._visualTTS = setTimeout(() => lastCmd.classList.remove('voice-visual-fallback'), 4000);
-}
+function mostrarFallbackVisual(text) { speechDiagnostic.usedVisual = true; const lastCmd = document.getElementById('lastCommand'); if (!lastCmd) return; lastCmd.innerHTML = '🔊 <b>' + escapeHtml(text) + '</b>'; lastCmd.classList.add('voice-visual-fallback'); clearTimeout(window._visualTTS); window._visualTTS = setTimeout(() => lastCmd.classList.remove('voice-visual-fallback'), 4000); }
 function toggleSpeak() {
   speechOn = !speechOn;
   document.getElementById('speakToggle').textContent = '🔊 Voz: ' + (speechOn ? 'ATIVADA' : 'DESATIVADA');
@@ -1316,17 +1266,7 @@ function toggleSpeak() {
   if (speechOn) { tentarCarregarVozes(); setTimeout(() => speak('Respostas por voz ativadas'), 300); }
   else { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch(e){} if (audioTTSAtual) { try { audioTTSAtual.pause(); } catch(e){} audioTTSAtual = null; } }
 }
-function testarFalaFallback() {
-  resetSpeechDiagnostic(); speak('Teste de voz. Um, dois, três.');
-  setTimeout(() => {
-    const usados = [];
-    if (speechDiagnostic.usedNative) usados.push('Bridge');
-    if (speechDiagnostic.usedWebSpeech) usados.push('Web Speech');
-    if (speechDiagnostic.usedAudioFallback) usados.push('Áudio');
-    if (speechDiagnostic.usedVisual) usados.push('Visual');
-    showFeedback('🔊 Método: ' + (usados.length ? usados.join(' + ') : 'Nenhum'));
-  }, 2000);
-}
+function testarFalaFallback() { resetSpeechDiagnostic(); speak('Teste de voz. Um, dois, três.'); setTimeout(() => { const usados = []; if (speechDiagnostic.usedNative) usados.push('Bridge'); if (speechDiagnostic.usedWebSpeech) usados.push('Web Speech'); if (speechDiagnostic.usedAudioFallback) usados.push('Áudio'); if (speechDiagnostic.usedVisual) usados.push('Visual'); showFeedback('🔊 Método: ' + (usados.length ? usados.join(' + ') : 'Nenhum')); }, 2000); }
 function diagnosticarVoz() {
   const voices = window.speechSynthesis ? speechSynthesis.getVoices() : [];
   const ptVoices = voices.filter(v => v.lang.startsWith('pt'));
@@ -1376,21 +1316,11 @@ class VoiceRecognizer {
       };
     }
   }
-  startListening() {
-    if (!this.isActive || this.permissionDenied || this.isListening) return;
-    if (this.recognitionMethod === 'web' && this.recognition) { try { this.isListening = true; this.recognition.start(); } catch (e) { this.isListening = false; } }
-    else if (this.recognitionMethod === 'native' && hasNativeSTT) { try { this.isListening = true; window.Android.startVoiceRecognition(); } catch (e) { this.isListening = false; } }
-  }
+  startListening() { if (!this.isActive || this.permissionDenied || this.isListening) return; if (this.recognitionMethod === 'web' && this.recognition) { try { this.isListening = true; this.recognition.start(); } catch (e) { this.isListening = false; } } else if (this.recognitionMethod === 'native' && hasNativeSTT) { try { this.isListening = true; window.Android.startVoiceRecognition(); } catch (e) { this.isListening = false; } } }
   stopListening() { if (this.recognitionMethod === 'web' && this.recognition) { try { this.recognition.stop(); } catch (e) {} } this.isListening = false; }
   activate() { this.isActive = true; this.permissionDenied = false; const el = document.getElementById('voiceStatus'); if (el) el.textContent = '🟢 Ativando...'; this.updateUI(); setTimeout(() => { if (this.isActive && !this.permissionDenied) this.startListening(); }, 500); }
   deactivate() { this.isActive = false; this.isListening = false; this.stopListening(); const el = document.getElementById('voiceStatus'); if (el) el.textContent = 'Assistente desligado.'; this.updateUI(); }
-  updateUI() {
-    const btn = document.getElementById('voiceBtn');
-    if (btn) { if (this.isActive) { btn.textContent = '🔴 DESLIGAR ASSISTENTE DE VOZ'; btn.classList.add('danger'); } else { btn.textContent = '🎤 ATIVAR ASSISTENTE DE VOZ'; btn.classList.remove('danger'); } }
-    keepScreenOn(this.isActive); atualizarIconeVoz();
-    data.voiceAssistantOn = this.isActive;
-    try { save(); } catch(e) {}
-  }
+  updateUI() { const btn = document.getElementById('voiceBtn'); if (btn) { if (this.isActive) { btn.textContent = '🔴 DESLIGAR ASSISTENTE DE VOZ'; btn.classList.add('danger'); } else { btn.textContent = '🎤 ATIVAR ASSISTENTE DE VOZ'; btn.classList.remove('danger'); } } keepScreenOn(this.isActive); atualizarIconeVoz(); data.voiceAssistantOn = this.isActive; try { save(); } catch(e) {} }
   isSupported() { return this.recognitionMethod !== 'none'; }
   processNativeResult(text) { processVoice(text); if (this.isActive && !this.permissionDenied) setTimeout(() => this.startListening(), 500); }
 }
@@ -1494,10 +1424,7 @@ async function confirmarCodigoBarras() {
     verificarAlteracoesProduto();
     agendarVerificacaoProdutoEmOutrosEstabs();
     showFeedback('📷 Código aplicado: ' + codigo);
-    // NOVO: dispara cascata de busca (só no cadastro novo)
-    if (currentEditId === null) {
-      setTimeout(() => { preencherDadosPorCodigo(codigo); }, 300);
-    }
+    if (currentEditId === null) { setTimeout(() => { preencherDadosPorCodigo(codigo); }, 300); }
   } else if (barcodeContexto === 'pedido') {
     await buscarProdutoPorCodigo(codigo);
   }
@@ -1507,35 +1434,23 @@ async function alternarLanterna() {
   try { const capabilities = html5QrScanner.getRunningTrackCameraCapabilities?.(); const torch = capabilities?.torchFeature?.(); if (torch && torch.isSupported()) { barcodeTorchOn = !barcodeTorchOn; await torch.apply(barcodeTorchOn); showFeedback('🔦 ' + (barcodeTorchOn ? 'ligada' : 'desligada')); } else showFeedback('⚠️ Lanterna não suportada'); } catch(e) { showFeedback('⚠️ Lanterna não suportada'); }
 }
 
-/* ============ ⭐ CASCATA DE BUSCA POR CÓDIGO DE BARRAS ============ */
-
+/* ============ CASCATA DE BUSCA ============ */
 let manifestCodigosCache = null, manifestCodigosRepoCache = null;
 
 async function carregarManifestCodigos(repo) {
   if (manifestCodigosCache && manifestCodigosRepoCache === repo) return manifestCodigosCache;
-  const caminhos = [
-    'codigos.json','barcodes.json','codigo-barras.json','codigos-barras.json','barcode-manifest.json','manifest-codigos.json',
-    'rotulos/codigos.json','rotulos/barcodes.json','rotulos/codigo-barras.json'
-  ];
+  const caminhos = ['codigos.json','barcodes.json','codigo-barras.json','codigos-barras.json','barcode-manifest.json','manifest-codigos.json','rotulos/codigos.json','rotulos/barcodes.json','rotulos/codigo-barras.json'];
   for (const branch of ['main', 'master']) {
     for (const path of caminhos) {
       try {
         const url = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
         const resp = await fetch(url, { cache: 'no-cache' });
-        if (resp.ok) {
-          const json = await resp.json();
-          if (json && typeof json === 'object' && !Array.isArray(json)) {
-            manifestCodigosCache = json; manifestCodigosRepoCache = repo;
-            console.log('[barcode] Manifest:', path, '— itens:', Object.keys(json).length);
-            return json;
-          }
-        }
+        if (resp.ok) { const json = await resp.json(); if (json && typeof json === 'object' && !Array.isArray(json)) { manifestCodigosCache = json; manifestCodigosRepoCache = repo; return json; } }
       } catch(e) {}
     }
   }
   return null;
 }
-
 async function buscarProdutoPorCodigoGitHub(codigo) {
   const repo = (data.githubRotulosRepo || '').trim();
   if (!repo || !codigo) return null;
@@ -1546,29 +1461,20 @@ async function buscarProdutoPorCodigoGitHub(codigo) {
     const entry = manifest[key] || manifest[codigo];
     if (!entry) return null;
     let nome = null, imagemPath = null;
-    if (typeof entry === 'string') {
-      if (/\.(jpe?g|png|webp|gif|bmp)$/i.test(entry)) imagemPath = entry;
-      else nome = entry;
-    } else if (entry && typeof entry === 'object') {
-      nome = entry.nome || entry.name || entry.produto || entry.product || null;
-      imagemPath = entry.imagem || entry.image || entry.arquivo || entry.file || entry.path || entry.img || null;
-    }
+    if (typeof entry === 'string') { if (/\.(jpe?g|png|webp|gif|bmp)$/i.test(entry)) imagemPath = entry; else nome = entry; }
+    else if (entry && typeof entry === 'object') { nome = entry.nome || entry.name || entry.produto || entry.product || null; imagemPath = entry.imagem || entry.image || entry.arquivo || entry.file || entry.path || entry.img || null; }
     let imagem = null;
     if (imagemPath) {
       const paths = [imagemPath, `rotulos/${imagemPath}`, `imagens/${imagemPath}`, `images/${imagemPath}`, `img/${imagemPath}`];
       outer: for (const branch of ['main', 'master']) {
-        for (const p of paths) {
-          const dataUrl = await baixarImagemComoDataURL(`https://raw.githubusercontent.com/${repo}/${branch}/${encodeURI(p)}`);
-          if (dataUrl) { imagem = dataUrl; break outer; }
-        }
+        for (const p of paths) { const dataUrl = await baixarImagemComoDataURL(`https://raw.githubusercontent.com/${repo}/${branch}/${encodeURI(p)}`); if (dataUrl) { imagem = dataUrl; break outer; } }
       }
     }
     if (nome && !imagem) { try { imagem = await buscarImagemGitHubRotulos(nome); } catch(e) {} }
     if (!nome && !imagem) return null;
     return { nome, imagem, fonte: 'GitHub', codigo };
-  } catch (e) { console.warn('[barcode] Erro GitHub:', e); return null; }
+  } catch (e) { return null; }
 }
-
 async function buscarProdutoOpenFoodFacts(codigo) {
   if (!codigo) return null;
   try {
@@ -1588,91 +1494,100 @@ async function buscarProdutoOpenFoodFacts(codigo) {
     const imgUrl = p.image_front_url || p.image_url || p.image_small_url || p.image_thumb_url;
     if (imgUrl) { try { imagem = await baixarImagemComoDataURL(imgUrl, 400, 300, 0.8); } catch(e) {} }
     return { nome: nomeCompleto, imagem, fonte: 'Open Food Facts', codigo };
-  } catch (e) { console.warn('[barcode] Erro OFF:', e); return null; }
+  } catch (e) { return null; }
 }
-
 function buscarProdutoPorCodigoNoDispositivo(codigo) {
   for (const [id, estab] of Object.entries(data.estabelecimentos)) {
     for (const p of (estab.produtos || [])) {
-      if (String(p.codigoBarras || '').trim() === codigo) {
-        return { produto: p, estab, estabId: id };
-      }
+      if (String(p.codigoBarras || '').trim() === codigo) return { produto: p, estab, estabId: id };
     }
   }
   return null;
 }
 
-/* Orquestrador: 1) dispositivo → 2) GitHub → 3) Internet */
-async function buscarDadosProdutoPorCodigo(codigo) {
+function _bcSetIcon(htmlOrEmoji, animacao) {
+  const el = document.getElementById('bcBigIcon'); if (!el) return;
+  el.innerHTML = htmlOrEmoji; el.className = 'bc-hero-icon';
+  if (animacao) el.classList.add(animacao);
+}
+function _bcSetRingPaused(paused) {
+  const ring = document.getElementById('bcHeroRing'); if (!ring) return;
+  if (paused) ring.classList.add('paused'); else ring.classList.remove('paused');
+}
+function _bcSetMensagem(txt) { const el = document.getElementById('bcMensagem'); if (el) el.innerHTML = escapeHtml(txt) + '<span class="bc-dots"><span></span><span></span><span></span></span>'; }
+function _bcSetMensagemFinal(txt) { const el = document.getElementById('bcMensagem'); if (el) el.textContent = txt; }
+function _bcSetSubmensagem(txt) { const el = document.getElementById('bcSubmensagem'); if (el) el.textContent = txt || ''; }
+function _bcSetProgresso(n) {
+  ['bcProg1','bcProg2','bcProg3'].forEach((id, i) => { const el = document.getElementById(id); if (!el) return; el.className = 'bc-progress-step' + (i + 1 < n ? ' done' : i + 1 === n ? ' ativo' : ''); });
+  const lbl = document.getElementById('bcProgLabel'); if (lbl) lbl.textContent = n + '/3';
+}
+function _bcResetPassos() {
+  ['bcStepDispositivo','bcStepGitHub','bcStepInternet'].forEach(id => { const el = document.getElementById(id); if (el) el.className = 'barcode-search-step'; });
+  ['bcStepDispositivoStatus','bcStepGitHubStatus','bcStepInternetStatus'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = 'Aguardando...'; });
+}
+function _bcAtivarPasso(stepId, statusId, texto) { const s = document.getElementById(stepId); if (s) s.className = 'barcode-search-step ativo'; const st = document.getElementById(statusId); if (st) st.innerHTML = `<span class="bc-spin"></span> ${escapeHtml(texto)}`; }
+function _bcMarcarSucesso(stepId, statusId, texto) { const s = document.getElementById(stepId); if (s) s.className = 'barcode-search-step sucesso'; const st = document.getElementById(statusId); if (st) st.textContent = texto; }
+function _bcMarcarFalha(stepId, statusId, texto) { const s = document.getElementById(stepId); if (s) s.className = 'barcode-search-step falha'; const st = document.getElementById(statusId); if (st) st.textContent = texto; }
+const sleepBC = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function buscarDadosProdutoRemotoComAnimacao(codigo) {
   const codigoStr = String(codigo).trim();
-  if (!codigoStr) return null;
-  const passo1 = document.getElementById('bcStepDispositivo');
-  const passo2 = document.getElementById('bcStepGitHub');
-  const passo3 = document.getElementById('bcStepInternet');
-  const status1 = document.getElementById('bcStepDispositivoStatus');
-  const status2 = document.getElementById('bcStepGitHubStatus');
-  const status3 = document.getElementById('bcStepInternetStatus');
   const overlay = document.getElementById('barcodeSearchOverlay');
   const codigoDisplay = document.getElementById('barcodeSearchCodigo');
   if (codigoDisplay) codigoDisplay.textContent = codigoStr;
-  if (passo1) passo1.className = 'barcode-search-step';
-  if (passo2) passo2.className = 'barcode-search-step';
-  if (passo3) passo3.className = 'barcode-search-step';
-  if (status1) status1.innerHTML = 'Aguardando...';
-  if (status2) status2.innerHTML = 'Aguardando...';
-  if (status3) status3.innerHTML = 'Aguardando...';
+  _bcResetPassos(); _bcSetRingPaused(false); _bcSetIcon('🔍', 'pulse');
+  _bcSetMensagem('Consultando fontes externas');
+  _bcSetSubmensagem('Verificando GitHub e internet');
   if (overlay) overlay.classList.add('active');
   buscaCodigoCancelada = false;
 
-  const renderStatus = (el, statusEl, texto, spin) => {
-    if (statusEl) statusEl.innerHTML = spin ? `<span class="barcode-search-spin"></span> ${texto}` : texto;
-  };
-
-  // Passo 1: Dispositivo
-  if (passo1) passo1.classList.add('ativo');
-  renderStatus(null, status1, 'Procurando em produtos cadastrados...', true);
-  await new Promise(r => setTimeout(r, 350));
-  const local = buscarProdutoPorCodigoNoDispositivo(codigoStr);
-  if (local && local.produto) {
-    if (passo1) { passo1.classList.remove('ativo'); passo1.classList.add('sucesso'); }
-    renderStatus(null, status1, `✓ Encontrado em "${local.estab.nome}"`, false);
-    await new Promise(r => setTimeout(r, 600));
-    if (overlay) overlay.classList.remove('active');
-    return { nome: local.produto.nome, imagem: local.produto.imagem, apelido: local.produto.apelido, preco: local.produto.preco, fonte: 'Dispositivo', produtoExistente: local.produto, estabNome: local.estab.nome };
-  }
-  if (passo1) { passo1.classList.remove('ativo'); passo1.classList.add('falha'); }
-  renderStatus(null, status1, 'Não encontrado localmente', false);
+  _bcSetProgresso(1);
+  _bcMarcarFalha('bcStepDispositivo', 'bcStepDispositivoStatus', 'Não encontrado localmente');
+  await sleepBC(350);
   if (buscaCodigoCancelada) { if (overlay) overlay.classList.remove('active'); return null; }
 
-  // Passo 2: GitHub
-  if (passo2) passo2.classList.add('ativo');
-  renderStatus(null, status2, 'Consultando repositório de rótulos...', true);
+  _bcSetProgresso(2);
+  _bcSetIcon(GITHUB_SVG, 'pulse');
+  _bcSetMensagem('Procurando no GitHub');
+  _bcSetSubmensagem('Consultando o repositório de rótulos');
+  _bcAtivarPasso('bcStepGitHub', 'bcStepGitHubStatus', 'Consultando repositório...');
+  const t2 = Date.now();
   const gh = await buscarProdutoPorCodigoGitHub(codigoStr);
+  await sleepBC(Math.max(0, 1100 - (Date.now() - t2)));
   if (gh && (gh.nome || gh.imagem)) {
-    if (passo2) { passo2.classList.remove('ativo'); passo2.classList.add('sucesso'); }
-    renderStatus(null, status2, `✓ ${gh.nome ? 'Encontrado' : 'Imagem localizada'}`, false);
-    await new Promise(r => setTimeout(r, 600));
+    _bcMarcarSucesso('bcStepGitHub', 'bcStepGitHubStatus', gh.nome ? `✓ ${gh.nome}` : '✓ Imagem localizada');
+    _bcSetRingPaused(true); _bcSetIcon('✅', 'success');
+    _bcSetMensagemFinal('Encontrado no GitHub!');
+    _bcSetSubmensagem(gh.nome || '(apenas imagem)');
+    await sleepBC(900);
     if (overlay) overlay.classList.remove('active');
     return gh;
   }
-  if (passo2) { passo2.classList.remove('ativo'); passo2.classList.add('falha'); }
-  renderStatus(null, status2, 'Não encontrado no GitHub', false);
+  _bcMarcarFalha('bcStepGitHub', 'bcStepGitHubStatus', 'Não encontrado no GitHub');
   if (buscaCodigoCancelada) { if (overlay) overlay.classList.remove('active'); return null; }
 
-  // Passo 3: Internet (Open Food Facts)
-  if (passo3) passo3.classList.add('ativo');
-  renderStatus(null, status3, 'Consultando base de dados aberta...', true);
+  _bcSetProgresso(3);
+  _bcSetIcon('🌐', 'spin');
+  _bcSetMensagem('Procurando na internet');
+  _bcSetSubmensagem('Consultando Open Food Facts');
+  _bcAtivarPasso('bcStepInternet', 'bcStepInternetStatus', 'Consultando base mundial...');
+  const t3 = Date.now();
   const off = await buscarProdutoOpenFoodFacts(codigoStr);
+  await sleepBC(Math.max(0, 1100 - (Date.now() - t3)));
   if (off && (off.nome || off.imagem)) {
-    if (passo3) { passo3.classList.remove('ativo'); passo3.classList.add('sucesso'); }
-    renderStatus(null, status3, `✓ Encontrado na internet`, false);
-    await new Promise(r => setTimeout(r, 600));
+    _bcMarcarSucesso('bcStepInternet', 'bcStepInternetStatus', off.nome ? `✓ ${off.nome}` : '✓ Imagem localizada');
+    _bcSetRingPaused(true); _bcSetIcon('✅', 'success');
+    _bcSetMensagemFinal('Encontrado na internet!');
+    _bcSetSubmensagem(off.nome || '(apenas imagem)');
+    await sleepBC(1000);
     if (overlay) overlay.classList.remove('active');
     return off;
   }
-  if (passo3) { passo3.classList.remove('ativo'); passo3.classList.add('falha'); }
-  renderStatus(null, status3, 'Não encontrado na internet', false);
-  await new Promise(r => setTimeout(r, 700));
+  _bcMarcarFalha('bcStepInternet', 'bcStepInternetStatus', 'Não encontrado na internet');
+  _bcSetRingPaused(true); _bcSetIcon('😕', 'pulse');
+  _bcSetMensagemFinal('Produto não identificado');
+  _bcSetSubmensagem('Não foi encontrado nas fontes externas');
+  await sleepBC(1200);
   if (overlay) overlay.classList.remove('active');
   return null;
 }
@@ -1684,117 +1599,57 @@ function cancelarBuscaCodigoBarras() {
   showFeedback('Busca cancelada.');
 }
 
-/* Preenche o formulário de cadastro com dados obtidos */
 async function preencherDadosPorCodigo(codigo) {
-  const dados = await buscarDadosProdutoPorCodigo(codigo);
-  if (!dados) {
-    showFeedback('ℹ️ Produto não identificado. Digite nome e preço.');
-    const nomeEl = $('produtoNome'); if (nomeEl) nomeEl.focus();
+  const codigoStr = String(codigo).trim();
+  const localOutro = buscarProdutoPorCodigoNoDispositivo(codigoStr);
+  if (localOutro) {
+    const preencheu = [];
+    const nomeEl = $('produtoNome');
+    if (nomeEl && !(nomeEl.value || '').trim() && localOutro.produto.nome) { nomeEl.value = capitalizarNome(localOutro.produto.nome); nomeEl.classList.add('campo-lido-destaque'); preencheu.push('nome'); }
+    const precoEl = $('produtoPreco');
+    if (precoEl && !String(precoEl.value || '').trim() && localOutro.produto.preco) { precoEl.value = localOutro.produto.preco; precoEl.classList.add('campo-lido-destaque'); preencheu.push('preço'); }
+    const apelidoEl = $('produtoApelido');
+    if (apelidoEl && !String(apelidoEl.value || '').trim() && localOutro.produto.apelido) { apelidoEl.value = localOutro.produto.apelido; apelidoEl.classList.add('campo-lido-destaque'); preencheu.push('apelido(s)'); }
+    if (!imagemProdutoTemp && localOutro.produto.imagem) { imagemProdutoTemp = localOutro.produto.imagem; renderPreviewImagemProduto(); const prev = document.getElementById('produtoImagemPreview'); if (prev) prev.classList.add('campo-importado-destaque'); preencheu.push('imagem'); }
+    verificarAlteracoesProduto();
+    showFeedback(preencheu.length ? `✅ Dados do dispositivo: ${preencheu.join(', ')}` : 'ℹ️ Produto já existe em outro estabelecimento');
     return;
   }
+  const dados = await buscarDadosProdutoRemotoComAnimacao(codigo);
+  if (!dados) { showFeedback('ℹ️ Produto não identificado. Digite nome e preço.'); const nomeEl = $('produtoNome'); if (nomeEl) nomeEl.focus(); return; }
   const preencheu = [];
   const nomeEl = $('produtoNome');
-  if (nomeEl && !(nomeEl.value || '').trim() && dados.nome) {
-    nomeEl.value = capitalizarNome(dados.nome);
-    nomeEl.classList.remove('campo-lido-destaque'); void nomeEl.offsetWidth; nomeEl.classList.add('campo-lido-destaque');
-    preencheu.push('nome');
-  }
+  if (nomeEl && !(nomeEl.value || '').trim() && dados.nome) { nomeEl.value = capitalizarNome(dados.nome); nomeEl.classList.add('campo-lido-destaque'); preencheu.push('nome'); }
   const precoEl = $('produtoPreco');
-  if (precoEl && !String(precoEl.value || '').trim() && dados.preco != null && Number(dados.preco) > 0) {
-    precoEl.value = dados.preco; precoEl.classList.add('campo-lido-destaque'); preencheu.push('preço');
-  }
+  if (precoEl && !String(precoEl.value || '').trim() && dados.preco != null && Number(dados.preco) > 0) { precoEl.value = dados.preco; precoEl.classList.add('campo-lido-destaque'); preencheu.push('preço'); }
   const apelidoEl = $('produtoApelido');
-  if (apelidoEl && !String(apelidoEl.value || '').trim() && dados.apelido) {
-    apelidoEl.value = dados.apelido; apelidoEl.classList.add('campo-lido-destaque'); preencheu.push('apelido(s)');
-  }
-  if (!imagemProdutoTemp && dados.imagem) {
-    imagemProdutoTemp = dados.imagem; renderPreviewImagemProduto();
-    const prev = document.getElementById('produtoImagemPreview');
-    if (prev) { prev.classList.remove('campo-importado-destaque'); void prev.offsetWidth; prev.classList.add('campo-importado-destaque'); }
-    preencheu.push('imagem');
-  }
+  if (apelidoEl && !String(apelidoEl.value || '').trim() && dados.apelido) { apelidoEl.value = dados.apelido; apelidoEl.classList.add('campo-lido-destaque'); preencheu.push('apelido(s)'); }
+  if (!imagemProdutoTemp && dados.imagem) { imagemProdutoTemp = dados.imagem; renderPreviewImagemProduto(); const prev = document.getElementById('produtoImagemPreview'); if (prev) prev.classList.add('campo-importado-destaque'); preencheu.push('imagem'); }
   verificarAlteracoesProduto();
   if (preencheu.length > 0) {
     showFeedback(`✅ Dados de "${dados.fonte}": ${preencheu.join(', ')}`);
     if (speechOn && dados.nome) speak('Produto identificado: ' + dados.nome);
     if (!preencheu.includes('preço')) { const p = $('produtoPreco'); if (p && !String(p.value||'').trim()) p.focus(); }
     else if (!preencheu.includes('nome')) { const n = $('produtoNome'); if (n && !n.value.trim()) n.focus(); }
-  } else {
-    showFeedback(`ℹ️ Fonte: ${dados.fonte} (campos já preenchidos)`);
-  }
+  } else showFeedback(`ℹ️ Fonte: ${dados.fonte} (campos já preenchidos)`);
 }
 
-/* Busca no contexto "pedido" (adicionar à conta) com cascata completa */
+/* ⭐ PEDIDO POR CÓDIGO DE BARRAS — fluxo principal */
 async function buscarProdutoPorCodigo(codigo) {
   const codigoNorm = String(codigo).trim();
   const estab = getEstabelecimentoAtivo();
   if (!estab) { showFeedback('⚠️ Selecione um estabelecimento primeiro'); showScreen('estabelecimentos'); return; }
 
-  // 1) Local (mesmo estab)
   const produtos = estab.produtos || [];
-  let encontrado = produtos.find(p => String(p.codigoBarras || '').trim() === codigoNorm);
 
-  // 2) Outros estabs (mesmo dispositivo)
-  if (!encontrado) {
-    const localOutro = buscarProdutoPorCodigoNoDispositivo(codigoNorm);
-    if (localOutro) {
-      const nomeNorm = normalize(localOutro.produto.nome);
-      const similar = produtos.find(p => normalize(p.nome) === nomeNorm);
-      if (similar) encontrado = similar;
-      else {
-        const ok = await confirmar(`Produto "${localOutro.produto.nome}" está em "${localOutro.estab.nome}".\n\nCopiar para este estabelecimento?`, { icone: '📦', titulo: 'Produto em outro estabelecimento', textoSim: 'Copiar', textoNao: 'Cancelar' });
-        if (ok) {
-          const novo = { id: Date.now() + Math.random(), nome: localOutro.produto.nome, preco: localOutro.produto.preco, codigoBarras: codigoNorm, apelido: localOutro.produto.apelido || '', imagem: localOutro.produto.imagem || null };
-          estab.produtos.push(novo); save(); encontrado = novo; renderAll();
-        } else return;
-      }
-    }
-  }
-
-  // 3) GitHub
-  if (!encontrado) {
-    const gh = await buscarProdutoPorCodigoGitHub(codigoNorm);
-    if (gh && gh.nome) {
-      const nomeNorm = normalize(gh.nome);
-      const similar = produtos.find(p => { const n = normalize(p.nome); return n === nomeNorm || (n.length >= 4 && nomeNorm.includes(n)) || (nomeNorm.length >= 4 && n.includes(nomeNorm)); });
-      if (similar) encontrado = similar;
-      else {
-        const ok = await confirmar(`Produto identificado no GitHub: "${gh.nome}".\n\nCadastrar neste estabelecimento?`, { icone: '🐙', titulo: 'Produto no GitHub', textoSim: 'Cadastrar', textoNao: 'Cancelar' });
-        if (ok) {
-          const novo = { id: Date.now() + Math.random(), nome: capitalizarNome(gh.nome), preco: 0, codigoBarras: codigoNorm, apelido: '', imagem: gh.imagem || null };
-          estab.produtos.push(novo); save(); renderAll();
-          showFeedback('✅ Cadastrado. Defina o preço.');
-          setTimeout(() => editProduto(novo.id), 300);
-          return;
-        }
-      }
-    }
-  }
-
-  // 4) Internet (Open Food Facts)
-  if (!encontrado) {
-    const off = await buscarProdutoOpenFoodFacts(codigoNorm);
-    if (off && off.nome) {
-      const nomeNorm = normalize(off.nome);
-      const similar = produtos.find(p => { const n = normalize(p.nome); return n === nomeNorm || (n.length >= 4 && nomeNorm.includes(n)); });
-      if (similar) encontrado = similar;
-      else {
-        const ok = await confirmar(`Produto identificado na internet: "${off.nome}".\n\nCadastrar neste estabelecimento?`, { icone: '🌐', titulo: 'Produto na internet', textoSim: 'Cadastrar', textoNao: 'Cancelar' });
-        if (ok) {
-          const novo = { id: Date.now() + Math.random(), nome: capitalizarNome(off.nome), preco: 0, codigoBarras: codigoNorm, apelido: '', imagem: off.imagem || null };
-          estab.produtos.push(novo); save(); renderAll();
-          showFeedback('✅ Cadastrado. Defina o preço.');
-          setTimeout(() => editProduto(novo.id), 300);
-          return;
-        }
-      }
-    }
-  }
-
-  // 5) Se encontrou, adiciona
+  // ===== 1) JÁ EXISTE NO ESTABELECIMENTO ATIVO → LANÇA IMEDIATAMENTE =====
+  const encontrado = produtos.find(p => String(p.codigoBarras || '').trim() === codigoNorm);
   if (encontrado) {
     if (!data.contaAtiva) {
-      const ok = await confirmar(`Produto: "${encontrado.nome}".\n\nNenhuma conta aberta. Abrir agora?`, { icone: '🧾', titulo: 'Abrir conta', textoSim: 'Abrir', textoNao: 'Cancelar' });
+      const ok = await confirmar(
+        `Produto: "${encontrado.nome}".\n\nNenhuma conta aberta. Abrir uma agora?`,
+        { icone: '🧾', titulo: 'Abrir conta', textoSim: 'Abrir', textoNao: 'Não' }
+      );
       if (ok) { await abrirContaManual(); if (data.contaAtiva) addPedido(encontrado.id, 1); }
       return;
     }
@@ -1802,10 +1657,81 @@ async function buscarProdutoPorCodigo(codigo) {
     return;
   }
 
-  // 6) Nada encontrado em nenhuma fonte
+  // ===== 2) NÃO EXISTE NO ESTAB ATIVO — buscar em outras fontes =====
+  let nomeEncontrado = null;
+  let fonteEncontrada = '';
+  let imagemEncontrada = null;
+  let apelidoEncontrado = '';
+  let precoEncontrado = 0;
+
+  // 2a) Outro estabelecimento local
+  const localOutro = buscarProdutoPorCodigoNoDispositivo(codigoNorm);
+  if (localOutro) {
+    nomeEncontrado = localOutro.produto.nome;
+    fonteEncontrada = 'Dispositivo';
+    imagemEncontrada = localOutro.produto.imagem || null;
+    apelidoEncontrado = localOutro.produto.apelido || '';
+    precoEncontrado = localOutro.produto.preco || 0;
+  }
+
+  // 2b) GitHub + Internet (com animação)
+  if (!nomeEncontrado) {
+    const dados = await buscarDadosProdutoRemotoComAnimacao(codigoNorm);
+    if (dados && dados.nome) {
+      nomeEncontrado = dados.nome;
+      fonteEncontrada = dados.fonte;
+      imagemEncontrada = dados.imagem || null;
+    }
+  }
+
+  // ===== 3) ENCONTROU EM OUTRA FONTE → PERGUNTA SIM/NÃO =====
+  if (nomeEncontrado) {
+    const icone = fonteEncontrada === 'GitHub' ? '🐙' : fonteEncontrada === 'Open Food Facts' ? '🌐' : '📦';
+    const titulo = fonteEncontrada === 'Dispositivo' ? 'Produto em outro estabelecimento' : `Produto encontrado em ${fonteEncontrada}`;
+    const ok = await confirmar(
+      `Produto identificado:\n\n"${nomeEncontrado}"\n\nDeseja salvar este produto no estabelecimento ativo e adicionar à conta?`,
+      { icone, titulo, textoSim: 'Sim', textoNao: 'Não' }
+    );
+    if (!ok) { showFeedback('Cancelado.'); return; }
+
+    // Salva no estab ativo
+    const novo = {
+      id: Date.now() + Math.random(),
+      nome: capitalizarNome(nomeEncontrado),
+      preco: precoEncontrado || 0,
+      codigoBarras: codigoNorm,
+      apelido: apelidoEncontrado,
+      imagem: imagemEncontrada
+    };
+    estab.produtos.push(novo);
+    save(); renderAll();
+    showFeedback('✅ Produto salvo: ' + novo.nome);
+
+    // Adiciona ao pedido
+    if (!data.contaAtiva) {
+      const okAbrir = await confirmar(
+        `Produto salvo: "${novo.nome}".\n\nNenhuma conta aberta. Abrir uma agora e adicionar?`,
+        { icone: '🧾', titulo: 'Abrir conta', textoSim: 'Abrir', textoNao: 'Não' }
+      );
+      if (okAbrir) { await abrirContaManual(); if (data.contaAtiva) addPedido(novo.id, 1); }
+    } else {
+      addPedido(novo.id, 1);
+    }
+
+    if (precoEncontrado === 0) {
+      showFeedback('💡 Defina o preço do produto.');
+      setTimeout(() => editProduto(novo.id), 500);
+    }
+    return;
+  }
+
+  // ===== 4) NÃO ENCONTRADO EM NENHUMA FONTE =====
   showFeedback('❌ Produto não encontrado em nenhuma fonte');
   speak('Produto não encontrado');
-  const ok = await confirmar(`Nenhum produto com o código "${codigoNorm}" foi localizado.\n\nDeseja cadastrar manualmente?`, { icone: '🆕', titulo: 'Não encontrado', textoSim: 'Cadastrar', textoNao: 'Cancelar' });
+  const ok = await confirmar(
+    `Nenhum produto com o código "${codigoNorm}" foi localizado.\n\nDeseja cadastrar manualmente?`,
+    { icone: '🆕', titulo: 'Não encontrado', textoSim: 'Sim, cadastrar', textoNao: 'Não' }
+  );
   if (!ok) return;
   abrirSecaoProdutos();
   currentEditId = null; valoresOriginaisProduto = null; mostrarFormProduto();
@@ -1819,7 +1745,6 @@ async function buscarProdutoPorCodigo(codigo) {
   showFeedback('📝 Digite o nome e o preço');
 }
 
-/* ============ IMPORTAÇÃO ENTRE ESTABS ============ */
 function buscarProdutoSimilarEmOutrosEstabs(criterios) {
   const nomeNorm = criterios.nome ? normalize(criterios.nome).trim() : '';
   const codNorm = criterios.codigoBarras ? String(criterios.codigoBarras).trim() : '';
@@ -1872,9 +1797,8 @@ function agendarVerificacaoProdutoEmOutrosEstabs() {
   timeoutVerificarProdutoOutrosEstabs = setTimeout(() => { verificarProdutoEmOutrosEstabs(); }, 650);
 }
 
-/* ============ DESLIGAR APP ============ */
 async function desligarApp() {
-  const ok = await confirmar('Sair do aplicativo?', { icone: '🚪', titulo: 'Sair', textoSim: 'Sair', textoNao: 'Cancelar' });
+  const ok = await confirmar('Sair do aplicativo?', { icone: '🚪', titulo: 'Sair', textoSim: 'Sair', textoNao: 'Não' });
   if (!ok) return;
   if (speechOn) speak('Até logo!');
   showFeedback('👋 Até logo!');
@@ -1884,7 +1808,6 @@ async function desligarApp() {
   setTimeout(() => { try { document.body.innerHTML = `<div style="position:fixed;inset:0;background:linear-gradient(135deg,#0d1016,#171d29);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#f4f7fb;font-family:Arial,sans-serif;text-align:center;padding:30px;z-index:99999;"><div style="font-size:90px">🍺</div><h1 style="font-family:Anton,Impact,sans-serif;color:#79e9aa;letter-spacing:5px;font-size:52px;margin:14px 0">FECHA A CONTA</h1><p style="font-size:18px;color:#aeb8c8;margin-top:24px">Até logo! 👋</p><button onclick="location.reload()" style="margin-top:32px;padding:14px 28px;font-size:16px;background:#39c97a;color:#092114;border:0;border-radius:10px;font-weight:bold;cursor:pointer">🔄 Reabrir</button></div>`; } catch(e) {} }, 1200);
 }
 
-/* ============ SINÔNIMOS ============ */
 function renderSinonimos() {
   const container = document.getElementById('listaSinonimos'); if (!container) return;
   const grupos = {};
@@ -1927,17 +1850,17 @@ async function adicionarSinonimo(key) {
 }
 async function removerSinonimo(key, index) {
   const valor = (data.sinonimos[key] || [])[index]; if (valor === undefined) return;
-  const ok = await confirmar(`Remover "${valor}"?`, { icone: '🗑️', titulo: 'Remover', textoSim: 'Remover', textoNao: 'Cancelar' });
+  const ok = await confirmar(`Remover "${valor}"?`, { icone: '🗑️', titulo: 'Remover', textoSim: 'Remover', textoNao: 'Não' });
   if (!ok) return;
   data.sinonimos[key].splice(index, 1); save(); renderSinonimos();
 }
 async function restaurarSinonimosComando(key) {
-  const ok = await confirmar('Restaurar padrões?', { icone: '↩️', titulo: 'Restaurar', textoSim: 'Restaurar', textoNao: 'Cancelar' });
+  const ok = await confirmar('Restaurar padrões?', { icone: '↩️', titulo: 'Restaurar', textoSim: 'Restaurar', textoNao: 'Não' });
   if (!ok) return;
   data.sinonimos[key] = [...SINONIMOS_PADRAO[key]]; save(); renderSinonimos();
 }
 async function restaurarTodosSinonimos() {
-  const ok = await confirmar('Restaurar TODOS?', { icone: '🔄', titulo: 'Restaurar', textoSim: 'Restaurar', textoNao: 'Cancelar' });
+  const ok = await confirmar('Restaurar TODOS?', { icone: '🔄', titulo: 'Restaurar', textoSim: 'Restaurar', textoNao: 'Não' });
   if (!ok) return;
   data.sinonimos = JSON.parse(JSON.stringify(SINONIMOS_PADRAO)); save(); renderSinonimos();
 }
@@ -1950,12 +1873,12 @@ async function adicionarSinonimoEstab(idEstab) {
 }
 async function removerSinonimoEstab(idEstab, index) {
   const valor = (data.sinonimosEstabelecimentos[idEstab] || [])[index]; if (valor === undefined) return;
-  const ok = await confirmar(`Remover "${valor}"?`, { icone: '🗑️', titulo: 'Remover', textoSim: 'Remover', textoNao: 'Cancelar' });
+  const ok = await confirmar(`Remover "${valor}"?`, { icone: '🗑️', titulo: 'Remover', textoSim: 'Remover', textoNao: 'Não' });
   if (!ok) return;
   data.sinonimosEstabelecimentos[idEstab].splice(index, 1); save(); renderSinonimos();
 }
 async function restaurarSinonimosEstab(idEstab) {
-  const ok = await confirmar('Limpar sinônimos?', { icone: '↩️', titulo: 'Limpar', textoSim: 'Limpar', textoNao: 'Cancelar' });
+  const ok = await confirmar('Limpar sinônimos?', { icone: '↩️', titulo: 'Limpar', textoSim: 'Limpar', textoNao: 'Não' });
   if (!ok) return;
   data.sinonimosEstabelecimentos[idEstab] = []; save(); renderSinonimos();
 }
@@ -1985,7 +1908,7 @@ function importarSinonimos(event) {
       let total = 0;
       Object.keys(importados).forEach(k => { if (Array.isArray(importados[k])) total += importados[k].length; });
       if (total === 0) throw new Error('Nenhum sinônimo.');
-      const ok = await confirmar(`Aplicar ${total} sinônimos?`, { icone: '📥', titulo: 'Importar', textoSim: 'Aplicar', textoNao: 'Cancelar' });
+      const ok = await confirmar(`Aplicar ${total} sinônimos?`, { icone: '📥', titulo: 'Importar', textoSim: 'Aplicar', textoNao: 'Não' });
       if (!ok) { event.target.value = ''; return; }
       Object.keys(SINONIMOS_PADRAO).forEach(k => { if (Array.isArray(importados[k]) && importados[k].length > 0) data.sinonimos[k] = importados[k]; });
       if (parsed.sinonimosEstabelecimentos) data.sinonimosEstabelecimentos = parsed.sinonimosEstabelecimentos;
@@ -1997,7 +1920,6 @@ function importarSinonimos(event) {
   reader.readAsText(file);
 }
 
-/* ============ USUÁRIO ============ */
 function acaoPrincipalConta() { if (data.contaAtiva) { showScreen('inicio'); confirmarFechamento(); } else abrirContaManual(); }
 function salvarUsuarioAutomatico() {
   const nome = $('userNome').value.trim();
@@ -2012,7 +1934,7 @@ function salvarUsuarioAutomatico() {
   save(); atualizarResumoUsuario();
 }
 async function excluirUsuario() {
-  const ok = await confirmar('Excluir seu cadastro?', { icone: '🗑️', titulo: 'Excluir', textoSim: 'Excluir', textoNao: 'Cancelar' });
+  const ok = await confirmar('Excluir seu cadastro?', { icone: '🗑️', titulo: 'Excluir', textoSim: 'Excluir', textoNao: 'Não' });
   if (!ok) return;
   data.usuario = null; save(); renderAll();
 }
@@ -2069,7 +1991,7 @@ function editarBancoUsuario(index) {
   document.getElementById('btnAdicionarBanco').style.display = 'none';
 }
 async function excluirBancoUsuario(index) {
-  const ok = await confirmar('Remover banco?', { icone:'🗑️', titulo:'Remover', textoSim:'Remover', textoNao:'Cancelar' });
+  const ok = await confirmar('Remover banco?', { icone:'🗑️', titulo:'Remover', textoSim:'Remover', textoNao:'Não' });
   if (!ok) return;
   const u = data.usuario; if (!u || !u.bancos || index >= u.bancos.length) return;
   const removido = u.bancos[index];
@@ -2078,7 +2000,6 @@ async function excluirBancoUsuario(index) {
   save(); renderUsuario();
 }
 
-/* ============ ESTABS / PRODUTOS ============ */
 function getEstabelecimentoAtivo() { if (!data.estabelecimentoAtivoId) return null; return data.estabelecimentos[data.estabelecimentoAtivoId] || null; }
 function getProdutosAtivos() { const estab = getEstabelecimentoAtivo(); return estab ? estab.produtos || [] : []; }
 
@@ -2157,11 +2078,7 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
       let match = null;
       for (const c of candidatos) { match = chaves.find(k => slugify(k) === slugify(c)); if (match) break; }
       if (!match) { for (const c of candidatos) { if (!c || c.length < 3) continue; match = chaves.find(k => { const nk = slugify(k); const nc = slugify(c); return nk.includes(nc) || nc.includes(nk); }); if (match) break; } }
-      if (match) {
-        const valor = manifestObj[match];
-        const path = typeof valor === 'string' ? valor.replace(/^\//, '') : (valor && (valor.arquivo || valor.file || valor.path || valor.image));
-        if (path) { for (const branch of ['main', 'master']) { const dataUrl = await baixarDoGitHub(repo, branch, path); if (dataUrl) return dataUrl; } }
-      }
+      if (match) { const valor = manifestObj[match]; const path = typeof valor === 'string' ? valor.replace(/^\//, '') : (valor && (valor.arquivo || valor.file || valor.path || valor.image)); if (path) { for (const branch of ['main', 'master']) { const dataUrl = await baixarDoGitHub(repo, branch, path); if (dataUrl) return dataUrl; } } }
     }
   } catch (e) { }
   try {
@@ -2181,14 +2098,7 @@ async function buscarImagemGitHubRotulos(nome, forcarAtualizacao) {
         else if (baseSlugHifen === slugHifen) score = 990;
         else if (baseSlug === slugHifen.replace(/-/g, '')) score = 980;
         if (score === 0 && slug.length >= 4 && baseSlug.length >= 4) { if (slug.includes(baseSlug)) score = 850; else if (baseSlug.includes(slug)) score = 830; }
-        if (score === 0 && palavras.length > 0) {
-          const baseWords = baseNorm.split(/[^a-z0-9]+/).filter(w => w.length >= 2);
-          const encontradas = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p)).length;
-          const cobertura = encontradas / palavras.length;
-          if (cobertura === 1) { const soma = palavras.reduce((s, p) => s + p.length, 0); score = 500 + Math.min(soma * 10, 200); }
-          else if (cobertura >= 0.5 && encontradas >= 1) { const soma = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p)).reduce((s, p) => s + p.length, 0); score = 350 + encontradas * 50 + Math.min(soma * 5, 100); }
-          else if (encontradas >= 1) score = 200 + encontradas * 30;
-        }
+        if (score === 0 && palavras.length > 0) { const baseWords = baseNorm.split(/[^a-z0-9]+/).filter(w => w.length >= 2); const encontradas = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p)).length; const cobertura = encontradas / palavras.length; if (cobertura === 1) { const soma = palavras.reduce((s, p) => s + p.length, 0); score = 500 + Math.min(soma * 10, 200); } else if (cobertura >= 0.5 && encontradas >= 1) { const soma = palavras.filter(p => baseWords.includes(p) || baseSlug.includes(p)).reduce((s, p) => s + p.length, 0); score = 350 + encontradas * 50 + Math.min(soma * 5, 100); } else if (encontradas >= 1) score = 200 + encontradas * 30; }
         if (score > melhorScore) { melhorScore = score; melhorPath = path; }
       });
       if (melhorPath && melhorScore >= 200) { const dataUrl = await baixarDoGitHub(repo, branch, melhorPath); if (dataUrl) return dataUrl; }
@@ -2238,19 +2148,10 @@ async function testarGithubRepo() {
   const arvore = await carregarArvoreGitHub(repo, true);
   const manifestCod = await carregarManifestCodigos(repo);
   let msg = '';
-  if (arvore && arvore.tree.length) {
-    const porPasta = {};
-    arvore.tree.forEach(item => { const partes = item.path.split('/'); const pasta = partes.length > 1 ? partes.slice(0, -1).join('/') + '/' : '(raiz)'; porPasta[pasta] = (porPasta[pasta] || 0) + 1; });
-    const resumoPastas = Object.entries(porPasta).map(([p, n]) => `${p} → ${n}`).join('\n');
-    msg = `✅ ${arvore.tree.length} imagens em "${repo}" (branch: ${arvore.branch || '?'}).\n\n📁 Pastas:\n${resumoPastas}`;
-  } else {
-    msg = '❌ Não foi possível acessar as imagens.';
-  }
-  if (manifestCod) {
-    msg += `\n\n✅ Manifest de códigos (codigos.json): ${Object.keys(manifestCod).length} entradas.`;
-  } else {
-    msg += `\n\n⚠️ Arquivo codigos.json não encontrado (opcional).`;
-  }
+  if (arvore && arvore.tree.length) { const porPasta = {}; arvore.tree.forEach(item => { const partes = item.path.split('/'); const pasta = partes.length > 1 ? partes.slice(0, -1).join('/') + '/' : '(raiz)'; porPasta[pasta] = (porPasta[pasta] || 0) + 1; }); const resumoPastas = Object.entries(porPasta).map(([p, n]) => `${p} → ${n}`).join('\n'); msg = `✅ ${arvore.tree.length} imagens em "${repo}" (branch: ${arvore.branch || '?'}).\n\n📁 Pastas:\n${resumoPastas}`; }
+  else msg = '❌ Não foi possível acessar as imagens.';
+  if (manifestCod) msg += `\n\n✅ Manifest de códigos (codigos.json): ${Object.keys(manifestCod).length} entradas.`;
+  else msg += `\n\n⚠️ Arquivo codigos.json não encontrado (opcional).`;
   alert(msg);
   showFeedback('✅ Testado.');
 }
@@ -2303,7 +2204,7 @@ async function setEstabelecimentoAtivo(id) {
   const idFinal = (id && data.estabelecimentos[id]) ? id : null;
   if (data.estabelecimentoAtivoId === idFinal) { atualizarEstabAtivoBar(); return; }
   if (data.contaAtiva && data.estabelecimentoAtivoId) {
-    const ok = await confirmar('Conta aberta. Fechá-la?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Fechar', textoNao: 'Cancelar' });
+    const ok = await confirmar('Conta aberta. Fechá-la?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Fechar', textoNao: 'Não' });
     if (!ok) return;
     callbackAposFechar = function() { data.pedido = []; data.contaAtiva = false; data.estabelecimentoAtivoId = idFinal; save(); renderAll(); if (idFinal) showFeedback('🏢 Ativo: ' + data.estabelecimentos[idFinal].nome); };
     showScreen('inicio'); setTimeout(confirmarFechamento, 300); return;
@@ -2361,12 +2262,12 @@ async function excluirEstabelecimento(id) {
     let detalhes = '';
     if (qtdPedidoVinc > 0) detalhes += `• ${qtdPedidoVinc} item(ns) na conta atual\n`;
     if (totalMovimentos > 0) detalhes += `• ${totalMovimentos} conta(s) no histórico\n`;
-    const ok = await confirmar(`"${nome}" possui movimentações:\n\n${detalhes}\nTodos os movimentos serão removidos.\n\nContinuar?`, { icone: '⚠️', titulo: 'Excluir', textoSim: 'Excluir tudo', textoNao: 'Cancelar' });
+    const ok = await confirmar(`"${nome}" possui movimentações:\n\n${detalhes}\nTodos os movimentos serão removidos.\n\nContinuar?`, { icone: '⚠️', titulo: 'Excluir', textoSim: 'Sim', textoNao: 'Não' });
     if (!ok) return;
     data.pedido = data.pedido.filter(item => item.estabId !== id);
     data.historico = data.historico.filter(h => h.estabelecimento !== nome && !(h.itens || []).some(it => it.estabId === id));
   } else {
-    const ok = await confirmar(`Excluir "${nome}"?`, { icone: '🗑️', titulo: 'Excluir', textoSim: 'Excluir', textoNao: 'Cancelar' });
+    const ok = await confirmar(`Excluir "${nome}"?`, { icone: '🗑️', titulo: 'Excluir', textoSim: 'Sim', textoNao: 'Não' });
     if (!ok) return;
   }
   delete data.estabelecimentos[id]; delete data.sinonimosEstabelecimentos[id];
@@ -2654,11 +2555,11 @@ async function deleteProduto(id) {
     let detalhes = '';
     if (qtdPedidoVinc > 0) detalhes += `• ${qtdPedidoVinc} unidade(s) na conta atual\n`;
     if (totalHist > 0) detalhes += `• ${totalHist} conta(s) no histórico\n`;
-    const ok = await confirmar(`"${p.nome}" possui movimentações:\n\n${detalhes}\nHistórico será preservado.\n\nContinuar?`, { icone: '⚠️', titulo: 'Produto com movimentações', textoSim: 'Excluir', textoNao: 'Cancelar' });
+    const ok = await confirmar(`"${p.nome}" possui movimentações:\n\n${detalhes}\nHistórico será preservado.\n\nContinuar?`, { icone: '⚠️', titulo: 'Produto com movimentações', textoSim: 'Sim', textoNao: 'Não' });
     if (!ok) return;
     if (qtdPedidoVinc > 0) data.pedido = data.pedido.filter(item => !(item.produtoId == id && item.estabId === data.estabelecimentoAtivoId));
   } else {
-    const ok = await confirmar(`Excluir "${p.nome}"?`, { icone: '🗑️', titulo: 'Excluir', textoSim: 'Excluir', textoNao: 'Cancelar' });
+    const ok = await confirmar(`Excluir "${p.nome}"?`, { icone: '🗑️', titulo: 'Excluir', textoSim: 'Sim', textoNao: 'Não' });
     if (!ok) return;
   }
   estab.produtos = estab.produtos.filter(x => x.id !== id);
@@ -2683,7 +2584,7 @@ function addPedido(produtoId, qtd) {
 }
 async function removePedido(i) {
   const item = data.pedido[i]; if (!item) return;
-  const ok = await confirmar(`Remover "${item.nome}" (${item.qtd}×)?`, { icone: '🗑️', titulo: 'Remover', textoSim: 'Remover', textoNao: 'Cancelar' });
+  const ok = await confirmar(`Remover "${item.nome}" (${item.qtd}×)?`, { icone: '🗑️', titulo: 'Remover', textoSim: 'Sim', textoNao: 'Não' });
   if (!ok) return;
   data.pedido.splice(i, 1); save(); renderAll(); showFeedback('🗑 Removido');
 }
@@ -2707,7 +2608,7 @@ function toggleContaExtras() {
 }
 async function confirmarFechamento() {
   if (!data.contaAtiva) { showFeedback('⚠️ Nenhuma conta aberta'); return; }
-  if (!data.pedido.length) { const ok = await confirmar('A conta está vazia. Fechar?', { icone: '⚠️', titulo: 'Conta vazia', textoSim: 'Fechar', textoNao: 'Cancelar' }); if (ok) fecharContaVazia(); return; }
+  if (!data.pedido.length) { const ok = await confirmar('A conta está vazia. Fechar?', { icone: '⚠️', titulo: 'Conta vazia', textoSim: 'Sim', textoNao: 'Não' }); if (ok) fecharContaVazia(); return; }
   const estab = getEstabelecimentoAtivo(); if (!estab) { showFeedback('⚠ Nenhum estabelecimento ativo.'); return; }
   const sub = subtotal();
   const perc = Number($('gorjeta').value || 0);
@@ -2817,17 +2718,17 @@ function finalizarPagamento() {
 async function pagarDinheiro() {
   if (!contaFechada) return;
   metodoPagamento = 'Dinheiro';
-  const ok = await confirmar(`Confirmar pagamento em DINHEIRO de ${money(contaFechada.total)}?`, { icone: '💰', titulo: 'Pagamento', textoSim: 'Confirmar', textoNao: 'Cancelar' });
+  const ok = await confirmar(`Confirmar pagamento em DINHEIRO de ${money(contaFechada.total)}?`, { icone: '💰', titulo: 'Pagamento', textoSim: 'Sim', textoNao: 'Não' });
   if (ok) finalizarPagamento();
 }
 async function pagarCartao() {
   if (!contaFechada) return;
   metodoPagamento = 'Cartão';
-  const ok = await confirmar(`Confirmar pagamento em CARTÃO de ${money(contaFechada.total)}?`, { icone: '💳', titulo: 'Pagamento', textoSim: 'Confirmar', textoNao: 'Cancelar' });
+  const ok = await confirmar(`Confirmar pagamento em CARTÃO de ${money(contaFechada.total)}?`, { icone: '💳', titulo: 'Pagamento', textoSim: 'Sim', textoNao: 'Não' });
   if (ok) finalizarPagamento();
 }
 async function solicitarCadastroUsuario(motivo) {
-  const ok = await confirmar(motivo + '\n\nDeseja cadastrar agora?', { icone: '👤', titulo: 'Usuário não cadastrado', textoSim: 'Cadastrar', textoNao: 'Cancelar' });
+  const ok = await confirmar(motivo + '\n\nDeseja cadastrar agora?', { icone: '👤', titulo: 'Usuário não cadastrado', textoSim: 'Sim', textoNao: 'Não' });
   if (!ok) return false;
   showScreen('usuario');
   const wrapper = document.getElementById('usuarioFormWrapper');
@@ -2842,7 +2743,7 @@ async function abrirContaManual() {
   if (!usuarioCadastrado()) { await solicitarCadastroUsuario('Para abrir uma conta, é necessário um usuário.'); return; }
   if (!estabAtivo) { showFeedback('🏢 Selecione um estabelecimento primeiro.'); showScreen('estabelecimentos'); return; }
   if (data.contaAtiva) {
-    const ok = await confirmar('Conta aberta. Fechá-la?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Fechar', textoNao: 'Cancelar' });
+    const ok = await confirmar('Conta aberta. Fechá-la?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim', textoNao: 'Não' });
     if (ok) { callbackAposFechar = function() { abrirNovaConta(null); }; showScreen('inicio'); setTimeout(confirmarFechamento, 300); }
     else showScreen('inicio');
   } else abrirNovaConta(null);
@@ -2850,7 +2751,7 @@ async function abrirContaManual() {
 async function abrirNovaConta(nomeEstab) {
   if (!usuarioCadastrado()) { await solicitarCadastroUsuario('Para abrir uma conta, é necessário um usuário.'); return; }
   if (data.contaAtiva) {
-    const ok = await confirmar('Conta aberta. Fechá-la?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Fechar', textoNao: 'Cancelar' });
+    const ok = await confirmar('Conta aberta. Fechá-la?', { icone: '⚠️', titulo: 'Conta aberta', textoSim: 'Sim', textoNao: 'Não' });
     if (ok) { callbackAposFechar = function() { abrirNovaConta(nomeEstab); }; showScreen('inicio'); setTimeout(confirmarFechamento, 300); }
     return;
   }
@@ -2872,13 +2773,13 @@ async function abrirNovaConta(nomeEstab) {
   showScreen('inicio');
 }
 async function excluirContaHistorico(id) {
-  const ok = await confirmar('Excluir esta conta?', { icone: '🗑️', titulo: 'Excluir', textoSim: 'Excluir', textoNao: 'Cancelar' });
+  const ok = await confirmar('Excluir esta conta?', { icone: '🗑️', titulo: 'Excluir', textoSim: 'Sim', textoNao: 'Não' });
   if (!ok) return;
   data.historico = data.historico.filter(item => item.id !== id);
   save(); renderHistorico();
 }
 async function limparHistorico() {
-  const ok = await confirmar('Limpar TODO o histórico?', { icone: '⚠️', titulo: 'Limpar', textoSim: 'Limpar', textoNao: 'Cancelar' });
+  const ok = await confirmar('Limpar TODO o histórico?', { icone: '⚠️', titulo: 'Limpar', textoSim: 'Sim', textoNao: 'Não' });
   if (!ok) return;
   data.historico = []; save(); renderHistorico();
 }
@@ -2886,12 +2787,7 @@ function renderEstabelecimentos() {
   const select = $('estabAtivoSelect');
   const currentId = data.estabelecimentoAtivoId;
   select.innerHTML = '<option value="">Nenhum</option>';
-  Object.keys(data.estabelecimentos).forEach(id => {
-    const opt = document.createElement('option');
-    opt.value = id; opt.textContent = data.estabelecimentos[id].nome;
-    if (id === currentId) opt.selected = true;
-    select.appendChild(opt);
-  });
+  Object.keys(data.estabelecimentos).forEach(id => { const opt = document.createElement('option'); opt.value = id; opt.textContent = data.estabelecimentos[id].nome; if (id === currentId) opt.selected = true; select.appendChild(opt); });
   const lista = document.getElementById('listaEstabelecimentos');
   const ids = Object.keys(data.estabelecimentos);
   if (ids.length === 0) { lista.innerHTML = '<div class="empty">Nenhum cadastrado.</div>'; return; }
@@ -2981,31 +2877,13 @@ function renderHistorico() {
   }
   let totalGeral = 0;
   const modoOrdem = $('histOrdem').value;
-  if (modoOrdem === 'data') {
-    let html = '';
-    hist.forEach(h => { totalGeral += h.total || 0; html += criarCardConta(h); });
-    lista.innerHTML = html;
-  } else {
-    const grupos = {};
-    hist.forEach(h => { totalGeral += h.total || 0; const nomeEstab = h.estabelecimento || 'Não informado'; if (!grupos[nomeEstab]) grupos[nomeEstab] = { itens: [], subtotal: 0 }; grupos[nomeEstab].itens.push(h); grupos[nomeEstab].subtotal += (h.total || 0); });
-    let html = '';
-    Object.keys(grupos).sort().forEach(nomeEstab => {
-      const g = grupos[nomeEstab];
-      html += `<div class="estab-group-header"><h3 style="margin:0;font-size:16px">🏢 ${escapeHtml(nomeEstab)}</h3><span class="money" style="font-size:16px">Subtotal: ${money(g.subtotal)}</span></div>`;
-      g.itens.forEach(h => { html += criarCardConta(h); });
-    });
-    lista.innerHTML = html;
-  }
+  if (modoOrdem === 'data') { let html = ''; hist.forEach(h => { totalGeral += h.total || 0; html += criarCardConta(h); }); lista.innerHTML = html; }
+  else { const grupos = {}; hist.forEach(h => { totalGeral += h.total || 0; const nomeEstab = h.estabelecimento || 'Não informado'; if (!grupos[nomeEstab]) grupos[nomeEstab] = { itens: [], subtotal: 0 }; grupos[nomeEstab].itens.push(h); grupos[nomeEstab].subtotal += (h.total || 0); }); let html = ''; Object.keys(grupos).sort().forEach(nomeEstab => { const g = grupos[nomeEstab]; html += `<div class="estab-group-header"><h3 style="margin:0;font-size:16px">🏢 ${escapeHtml(nomeEstab)}</h3><span class="money" style="font-size:16px">Subtotal: ${money(g.subtotal)}</span></div>`; g.itens.forEach(h => { html += criarCardConta(h); }); }); lista.innerHTML = html; }
   document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral: ${money(totalGeral)}`;
 }
 function renderAll() {
-  renderEstabelecimentos();
-  renderCardapio();
-  renderConta();
-  renderHistorico();
-  carregarUsuario();
-  renderSinonimos();
-  atualizarEstabAtivoBar();
+  renderEstabelecimentos(); renderCardapio(); renderConta(); renderHistorico();
+  carregarUsuario(); renderSinonimos(); atualizarEstabAtivoBar();
   document.getElementById('resumoEstabs').textContent = Object.keys(data.estabelecimentos).length;
   document.getElementById('resumoProdutos').textContent = getProdutosAtivos().length;
   document.getElementById('resumoPedido').textContent = data.pedido.reduce((s, x) => s + x.qtd, 0);
@@ -3029,10 +2907,7 @@ function showFeedback(mensagem) {
   modal.classList.add('show');
   feedbackTimer = setTimeout(fecharFeedback, 3000);
 }
-function fecharFeedback() {
-  document.getElementById('feedbackModal').classList.remove('show');
-  if (feedbackTimer) { clearTimeout(feedbackTimer); feedbackTimer = null; }
-}
+function fecharFeedback() { document.getElementById('feedbackModal').classList.remove('show'); if (feedbackTimer) { clearTimeout(feedbackTimer); feedbackTimer = null; } }
 function toggleFeedbackDismiss() { feedbackDismissed = document.getElementById('dismissFeedback').checked; if (feedbackDismissed) fecharFeedback(); }
 function abrirRecibo(id) { const h = data.historico.find(c => c.id === id); if (!h) return; contaReciboAtual = h; renderRecibo(h); document.getElementById('reciboModal').classList.add('active'); }
 function fecharRecibo() { document.getElementById('reciboModal').classList.remove('active'); contaReciboAtual = null; }
@@ -3094,7 +2969,7 @@ function processVoice(text) {
   document.getElementById('lastCommand').textContent = 'Você disse: "' + text + '"';
   const norm = normalize(text);
   if (confirmacaoPendente) {
-    if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar)([\s.,!?]|$)/.test(norm)) { resolverConfirmacao(true); return; }
+    if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar|salvar|salva)([\s.,!?]|$)/.test(norm)) { resolverConfirmacao(true); return; }
     if (/(^|\s)(nao|cancela|cancelar|negativo|no|recusar|recuso)([\s.,!?]|$)/.test(norm)) { resolverConfirmacao(false); return; }
     showFeedback('⚠️ Diga "sim" ou "não".');
     return;
@@ -3104,11 +2979,7 @@ function processVoice(text) {
     const nums = { '1':0,'um':0,'uma':0,'primeiro':0,'primeira':0,'2':1,'dois':1,'duas':1,'segundo':1,'segunda':1,'3':2,'tres':2,'terceiro':2,'terceira':2,'4':3,'quatro':3,'quarto':3,'quarta':3,'5':4,'cinco':4,'quinto':4,'quinta':4 };
     for (const [k, v] of Object.entries(nums)) {
       if (new RegExp('(?:^|\\s)' + k + '(?=\\s|$)', 'i').test(norm)) {
-        if (v < escolhaProdutoPendente.candidatos.length) {
-          const escolhido = escolhaProdutoPendente.candidatos[v]; const qtdP = escolhaProdutoPendente.qtd;
-          fecharEscolhaProduto(); addPedido(escolhido.id, qtdP);
-          return;
-        }
+        if (v < escolhaProdutoPendente.candidatos.length) { const escolhido = escolhaProdutoPendente.candidatos[v]; const qtdP = escolhaProdutoPendente.qtd; fecharEscolhaProduto(); addPedido(escolhido.id, qtdP); return; }
       }
     }
     showFeedback('⚠️ Diga o número (1, 2, ...) ou toque.');
@@ -3122,9 +2993,7 @@ function processVoice(text) {
     if (/(^|\s)(cancelar|voltar|sair|fechar|desistir)([\s.,!?]|$)/.test(norm)) { fecharPaymentModal(); return; }
   }
   const miniModal = document.getElementById('miniCardapioModal');
-  if (miniModal && miniModal.style.display === 'block') {
-    if (/(^|\s)(fechar|cancelar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharMiniCardapio(); return; }
-  }
+  if (miniModal && miniModal.style.display === 'block') { if (/(^|\s)(fechar|cancelar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharMiniCardapio(); return; } }
   if (barcodeModalAberto) {
     if (/(^|\s)(cancelar|fechar|sair|voltar)([\s.,!?]|$)/.test(norm)) { fecharLeitorCodigoBarras(); return; }
     if (/(^|\s)(confirmar|usar|ok)([\s.,!?]|$)/.test(norm)) { confirmarCodigoBarras(); return; }
@@ -3132,22 +3001,11 @@ function processVoice(text) {
   if (matchSinonimo(norm, 'desligarApp')) { desligarApp(); return; }
   if (matchSinonimo(norm, 'desativarVoz')) { recognizer.deactivate(); speak('Assistente desligado'); return; }
   const sinAbrir = matchSinonimo(norm, 'abrirConta');
-  if (sinAbrir) {
-    const resto = extrairResto(norm, sinAbrir);
-    if (resto) { const matchEstab = encontrarEstabelecimentoPorTexto(resto); if (matchEstab) { setEstabelecimentoAtivo(matchEstab.id); abrirContaManual(); } else abrirNovaConta(resto); }
-    else abrirContaManual();
-    return;
-  }
+  if (sinAbrir) { const resto = extrairResto(norm, sinAbrir); if (resto) { const matchEstab = encontrarEstabelecimentoPorTexto(resto); if (matchEstab) { setEstabelecimentoAtivo(matchEstab.id); abrirContaManual(); } else abrirNovaConta(resto); } else abrirContaManual(); return; }
   const sinSel = matchSinonimo(norm, 'selecionar');
   if (sinSel) { const nome = extrairResto(norm, sinSel); const matchEstab = encontrarEstabelecimentoPorTexto(nome); if (matchEstab) setEstabelecimentoAtivo(matchEstab.id); else showFeedback('⚠️ Estabelecimento não encontrado.'); return; }
   const sinInc = matchSinonimo(norm, 'incluirProduto');
-  if (sinInc) {
-    let rest = extrairResto(norm, sinInc);
-    let m = rest.match(/(.*?)\s+(\d+(?:[.,]\d+)?)\s*(?:reais|real)?$/);
-    if (m) addProduto(m[1].trim(), parseFloat(m[2].replace(',', '.')));
-    else { mostrarFormProduto(); $('produtoNome').value = rest; $('produtoNome').focus(); }
-    return;
-  }
+  if (sinInc) { let rest = extrairResto(norm, sinInc); let m = rest.match(/(.*?)\s+(\d+(?:[.,]\d+)?)\s*(?:reais|real)?$/); if (m) addProduto(m[1].trim(), parseFloat(m[2].replace(',', '.'))); else { mostrarFormProduto(); $('produtoNome').value = rest; $('produtoNome').focus(); } return; }
   if (matchSinonimo(norm, 'fecharConta')) { showScreen('inicio'); confirmarFechamento(); return; }
   if (matchSinonimo(norm, 'verConta')) { showScreen('inicio'); return; }
   if (matchSinonimo(norm, 'verHistorico')) { abrirSecaoHistorico(); return; }
@@ -3172,7 +3030,7 @@ function exportarDados(incluirImagens = true) {
   let dadosExport, totalImagens = 0;
   if (incluirImagens) { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; }); }); }
   else { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; }); }); }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 18, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 22, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -3221,7 +3079,7 @@ function importarDados(e) {
   reader.readAsText(file);
 }
 async function clearAllData() {
-  const ok = await confirmar('Apagar TODOS os dados?', { icone: '⚠️', titulo: 'Apagar tudo', textoSim: 'Apagar', textoNao: 'Cancelar' });
+  const ok = await confirmar('Apagar TODOS os dados?', { icone: '⚠️', titulo: 'Apagar tudo', textoSim: 'Sim', textoNao: 'Não' });
   if (!ok) return;
   localStorage.removeItem(KEY);
   data = { estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true, sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO)), sinonimosEstabelecimentos: {}, githubRotulosRepo: REPO_PADRAO, theme: data.theme || 'light', sinonimosMergedVersion: SINONIMOS_MERGE_VERSAO };
