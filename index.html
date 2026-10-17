@@ -134,11 +134,15 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sync-status{margin-top:10px;font-size:13px;color:var(--muted);min-height:18px}
 .sync-status.ok{color:#047857;font-weight:bold}
 .sync-status.err{color:#b91c1c;font-weight:bold}
-.voice-status-icon{position:fixed;bottom:22px;right:6px;width:56px;height:56px;border-radius:50%;background:var(--voice-icon-bg);border:2px solid var(--voice-icon-border);display:flex;align-items:center;justify-content:center;font-size:26px;padding:0;z-index:9998;transition:all .3s ease;box-shadow:var(--voice-icon-shadow);cursor:pointer;opacity:.9;color:var(--voice-icon-color)}
+/* ⭐ BOTÕES FLUTUANTES ARRASTÁVEIS */
+.voice-status-icon{position:fixed;bottom:22px;right:6px;width:56px;height:56px;border-radius:50%;background:var(--voice-icon-bg);border:2px solid var(--voice-icon-border);display:flex;align-items:center;justify-content:center;font-size:26px;padding:0;z-index:9998;transition:background .3s ease,box-shadow .3s ease,opacity .3s ease;box-shadow:var(--voice-icon-shadow);cursor:grab;opacity:.9;color:var(--voice-icon-color);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .voice-status-icon.active{background:var(--voice-icon-active-bg);border-color:var(--voice-icon-active-border);opacity:1;animation:voicePulse 2s infinite;color:var(--on-accent)}
 @keyframes voicePulse{0%,100%{box-shadow:var(--voice-icon-active-shadow)}50%{box-shadow:var(--voice-icon-pulse-shadow)}}
-.camera-status-icon{position:fixed;bottom:90px;right:6px;width:56px;height:56px;border-radius:50%;background:var(--voice-icon-bg);border:2px solid var(--voice-icon-border);display:flex;align-items:center;justify-content:center;font-size:26px;padding:0;z-index:9998;transition:all .3s ease;box-shadow:var(--voice-icon-shadow);cursor:pointer;opacity:.9;color:var(--voice-icon-color)}
+.camera-status-icon{position:fixed;bottom:90px;right:6px;width:56px;height:56px;border-radius:50%;background:var(--voice-icon-bg);border:2px solid var(--voice-icon-border);display:flex;align-items:center;justify-content:center;font-size:26px;padding:0;z-index:9998;transition:background .3s ease,box-shadow .3s ease,opacity .3s ease;box-shadow:var(--voice-icon-shadow);cursor:grab;opacity:.9;color:var(--voice-icon-color);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .camera-status-icon:active{transform:scale(.95)}
+/* ⭐ Estado de arraste */
+.voice-status-icon.dragging,.camera-status-icon.dragging{transition:none !important;cursor:grabbing !important;opacity:1 !important;z-index:10001 !important;box-shadow:0 12px 40px rgba(0,0,0,.35) !important;transform:scale(1.08) !important}
+.voice-status-icon.dragging:active,.camera-status-icon.dragging:active{transform:scale(1.08) !important}
 @media(max-width:650px){
   .voice-status-icon{bottom:16px;right:4px;width:54px;height:54px;font-size:24px}
   .camera-status-icon{bottom:80px;right:4px;width:54px;height:54px;font-size:24px}
@@ -163,58 +167,45 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .produto-thumb-mini-placeholder{width:38px;height:38px;border-radius:6px;background:var(--produto-thumb-bg);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .btn-add-mini{width:34px;height:34px;border-radius:50%;background:var(--flash-add-bg);color:var(--flash-add-text);font-size:22px;font-weight:bold;border:0;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--flash-add-shadow)}
 /* ⭐ CARDÁPIO — FORÇADO EM UMA ÚNICA LINHA */
-.prod-row{
-  display:flex !important;
-  flex-wrap:nowrap !important;
-  align-items:center !important;
-  gap:8px !important;
-  padding:10px 12px !important;
-  border-bottom:1px solid var(--border) !important;
-  cursor:pointer;
-  transition:background .15s ease;
-  overflow:hidden !important;
-  min-width:0 !important;
-  width:100% !important;
-  box-sizing:border-box !important;
-}
+.prod-row{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;padding:10px 12px !important;border-bottom:1px solid var(--border) !important;cursor:pointer;transition:background .15s ease;overflow:hidden !important;min-width:0 !important;width:100% !important;box-sizing:border-box !important}
 .prod-row:hover{background:var(--panel-2)}
 .prod-row:last-child{border-bottom:0 !important}
-.prod-row > *{min-width:0;}
-.prod-thumb{flex:0 0 48px !important;width:48px !important;height:48px !important;border-radius:8px !important;overflow:hidden !important;display:flex !important;align-items:center !important;justify-content:center !important;background:var(--produto-thumb-bg) !important;border:1px solid var(--border) !important;}
-.prod-thumb-img{width:100% !important;height:100% !important;object-fit:cover !important;display:block !important;}
-.prod-thumb-emoji{font-size:26px !important;line-height:1 !important;}
-.prod-main{flex:1 1 0% !important;min-width:0 !important;display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;overflow:hidden !important;white-space:nowrap !important;}
-.prod-main > *{min-width:0;}
-.prod-name{flex:1 1 0% !important;min-width:0 !important;font-weight:bold !important;font-size:15px !important;color:var(--text) !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.2 !important;}
-.prod-price{flex:0 0 auto !important;color:var(--money-color) !important;font-weight:bold !important;font-size:14px !important;white-space:nowrap !important;line-height:1.2 !important;}
-.prod-apelido{flex:0 1 auto !important;min-width:0 !important;max-width:100px !important;font-size:11px !important;color:var(--estab-name-color) !important;background:rgba(217,119,6,.12) !important;padding:2px 8px !important;border-radius:12px !important;font-weight:bold !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.4 !important;}
-.prod-cod{flex:0 1 auto !important;min-width:0 !important;max-width:110px !important;font-size:10px !important;color:var(--muted) !important;background:var(--panel-2) !important;padding:2px 6px !important;border-radius:6px !important;font-family:monospace !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.4 !important;}
-.prod-actions{flex:0 0 auto !important;display:flex !important;gap:4px !important;align-items:center !important;}
-.prod-actions button{width:32px !important;height:32px !important;padding:0 !important;font-size:14px !important;border-radius:8px !important;display:flex !important;align-items:center !important;justify-content:center !important;border:1px solid var(--border) !important;box-shadow:none !important;background:var(--panel-2) !important;color:var(--text) !important;min-width:0 !important;}
-.prod-actions button:hover{transform:none !important;filter:brightness(.95) !important;}
-.prod-btn-del{background:rgba(239,68,68,.1) !important;color:var(--danger) !important;border-color:rgba(239,68,68,.3) !important;}
+.prod-row > *{min-width:0}
+.prod-thumb{flex:0 0 48px !important;width:48px !important;height:48px !important;border-radius:8px !important;overflow:hidden !important;display:flex !important;align-items:center !important;justify-content:center !important;background:var(--produto-thumb-bg) !important;border:1px solid var(--border) !important}
+.prod-thumb-img{width:100% !important;height:100% !important;object-fit:cover !important;display:block !important}
+.prod-thumb-emoji{font-size:26px !important;line-height:1 !important}
+.prod-main{flex:1 1 0% !important;min-width:0 !important;display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;overflow:hidden !important;white-space:nowrap !important}
+.prod-main > *{min-width:0}
+.prod-name{flex:1 1 0% !important;min-width:0 !important;font-weight:bold !important;font-size:15px !important;color:var(--text) !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.2 !important}
+.prod-price{flex:0 0 auto !important;color:var(--money-color) !important;font-weight:bold !important;font-size:14px !important;white-space:nowrap !important;line-height:1.2 !important}
+.prod-apelido{flex:0 1 auto !important;min-width:0 !important;max-width:100px !important;font-size:11px !important;color:var(--estab-name-color) !important;background:rgba(217,119,6,.12) !important;padding:2px 8px !important;border-radius:12px !important;font-weight:bold !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.4 !important}
+.prod-cod{flex:0 1 auto !important;min-width:0 !important;max-width:110px !important;font-size:10px !important;color:var(--muted) !important;background:var(--panel-2) !important;padding:2px 6px !important;border-radius:6px !important;font-family:monospace !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.4 !important}
+.prod-actions{flex:0 0 auto !important;display:flex !important;gap:4px !important;align-items:center !important}
+.prod-actions button{width:32px !important;height:32px !important;padding:0 !important;font-size:14px !important;border-radius:8px !important;display:flex !important;align-items:center !important;justify-content:center !important;border:1px solid var(--border) !important;box-shadow:none !important;background:var(--panel-2) !important;color:var(--text) !important;min-width:0 !important}
+.prod-actions button:hover{transform:none !important;filter:brightness(.95) !important}
+.prod-btn-del{background:rgba(239,68,68,.1) !important;color:var(--danger) !important;border-color:rgba(239,68,68,.3) !important}
 @media(max-width:650px){
-  .prod-row{padding:8px 6px !important;gap:6px !important;}
-  .prod-thumb{flex:0 0 40px !important;width:40px !important;height:40px !important;border-radius:6px !important;}
-  .prod-thumb-emoji{font-size:22px !important;}
-  .prod-main{gap:6px !important;}
-  .prod-name{font-size:13px !important;}
-  .prod-price{font-size:12px !important;}
-  .prod-apelido{max-width:70px !important;font-size:10px !important;padding:1px 6px !important;}
-  .prod-cod{max-width:80px !important;font-size:9px !important;}
-  .prod-actions button{width:28px !important;height:28px !important;font-size:12px !important;}
+  .prod-row{padding:8px 6px !important;gap:6px !important}
+  .prod-thumb{flex:0 0 40px !important;width:40px !important;height:40px !important;border-radius:6px !important}
+  .prod-thumb-emoji{font-size:22px !important}
+  .prod-main{gap:6px !important}
+  .prod-name{font-size:13px !important}
+  .prod-price{font-size:12px !important}
+  .prod-apelido{max-width:70px !important;font-size:10px !important;padding:1px 6px !important}
+  .prod-cod{max-width:80px !important;font-size:9px !important}
+  .prod-actions button{width:28px !important;height:28px !important;font-size:12px !important}
 }
 @media(max-width:420px){
-  .prod-apelido{display:none !important;}
-  .prod-cod{display:none !important;}
+  .prod-apelido{display:none !important}
+  .prod-cod{display:none !important}
 }
 /* ⭐ MINI CARDÁPIO — TAMBÉM EM UMA LINHA */
-.menu-mini-item{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;padding:10px 4px !important;border-bottom:1px solid var(--border) !important;overflow:hidden !important;min-width:0 !important;}
-.menu-mini-item:last-child{border-bottom:0 !important;}
-.menu-mini-item > span:first-child{flex:1 1 0% !important;min-width:0 !important;display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;overflow:hidden !important;white-space:nowrap !important;}
-.menu-mini-item > span:first-child > span:first-child{flex:0 0 auto !important;}
-.menu-mini-item > span:first-child > span:last-child{flex:1 1 0% !important;min-width:0 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;font-weight:bold !important;font-size:14px !important;color:var(--text) !important;}
-.menu-mini-item > span:last-child{flex:0 0 auto !important;}
+.menu-mini-item{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;padding:10px 4px !important;border-bottom:1px solid var(--border) !important;overflow:hidden !important;min-width:0 !important}
+.menu-mini-item:last-child{border-bottom:0 !important}
+.menu-mini-item > span:first-child{flex:1 1 0% !important;min-width:0 !important;display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;overflow:hidden !important;white-space:nowrap !important}
+.menu-mini-item > span:first-child > span:first-child{flex:0 0 auto !important}
+.menu-mini-item > span:first-child > span:last-child{flex:1 1 0% !important;min-width:0 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;font-weight:bold !important;font-size:14px !important;color:var(--text) !important}
+.menu-mini-item > span:last-child{flex:0 0 auto !important;display:flex !important;align-items:center !important;gap:8px !important}
 .cardapio-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--yellow),var(--danger)) 1;border-top:0;border-left:0;border-right:0}
 .cardapio-header h2{margin:0;font-family:'Anton','Impact','Arial Black',sans-serif;font-size:22px;letter-spacing:2px;text-transform:uppercase;line-height:1.1;display:flex;align-items:baseline;flex-wrap:wrap;gap:10px}
 .cardapio-header h2 .nome-estab{display:inline;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:var(--estab-name-color);text-transform:none;font-weight:bold}
@@ -346,11 +337,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<button id="cameraStatusIcon" class="camera-status-icon" onclick="abrirLeitorCodigoBarras('pedido')" title="Ler código de barras" aria-label="Ler código de barras">
+<button id="cameraStatusIcon" class="camera-status-icon" title="Ler código de barras (arraste para mover; segure 1,2s para resetar)" aria-label="Ler código de barras" onclick="if(!this._wasDragged){abrirLeitorCodigoBarras('pedido')}">
   <span>📷</span>
 </button>
 
-<button id="voiceStatusIcon" class="voice-status-icon" onclick="toggleVoiceAssistant()" title="Assistente de voz">
+<button id="voiceStatusIcon" class="voice-status-icon" title="Assistente de voz (arraste para mover; segure 1,2s para resetar)" onclick="if(!this._wasDragged){toggleVoiceAssistant()}">
   <span id="voiceStatusIconEmoji">🎙️</span>
 </button>
 
@@ -900,6 +891,8 @@ data.contaAtiva = data.contaAtiva || false;
 data.cliente = data.cliente || { nome: '', telefone: '', banco: '' };
 data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
 data.theme = data.theme || 'light';
+data.voiceBtnPos = data.voiceBtnPos || null;
+data.cameraBtnPos = data.cameraBtnPos || null;
 
 if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) data.githubRotulosRepo = REPO_PADRAO;
 
@@ -975,6 +968,12 @@ function slugifyHifen(s) { return normalize(s).replace(/[^a-z0-9]+/g, '-').repla
 function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function getApelidos(produto) { if (!produto || !produto.apelido) return []; return String(produto.apelido).split(',').map(s => s.trim()).filter(s => s.length > 0); }
+
+function ordenarProdutosPorNome(produtos) {
+  return [...(produtos || [])].sort((a, b) =>
+    (a.nome || '').localeCompare(b.nome || '', 'pt-BR', { sensitivity: 'base', numeric: true })
+  );
+}
 
 function levenshtein(a, b) {
   if (a === b) return 0; if (!a.length) return b.length; if (!b.length) return a.length;
@@ -1344,9 +1343,124 @@ function atualizarIconeVoz() {
   const icon = document.getElementById('voiceStatusIcon');
   const emoji = document.getElementById('voiceStatusIconEmoji');
   if (!icon || !emoji) return;
-  if (recognizer && recognizer.isActive) { icon.classList.add('active'); emoji.textContent = '🎤'; icon.title = 'Assistente ATIVO'; }
-  else { icon.classList.remove('active'); emoji.textContent = '🎙️'; icon.title = 'Assistente INATIVO'; }
+  if (recognizer && recognizer.isActive) { icon.classList.add('active'); emoji.textContent = '🎤'; icon.title = 'Assistente ATIVO (arraste para mover)'; }
+  else { icon.classList.remove('active'); emoji.textContent = '🎙️'; icon.title = 'Assistente INATIVO (arraste para mover)'; }
 }
+
+/* ⭐ ========== BOTÕES ARRASTÁVEIS ========== */
+function makeDraggable(el, storageKey) {
+  if (!el) return;
+
+  let isDragging = false;
+  let hasMoved = false;
+  let startX = 0, startY = 0;
+  let longPressTimer = null;
+  let savedPos = null;
+
+  const THRESHOLD = 6;
+  const LONG_PRESS_MS = 1200;
+
+  function pos(e) {
+    if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    if (e.changedTouches && e.changedTouches[0]) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+    return { x: e.clientX, y: e.clientY };
+  }
+
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  function aplicarPosicao(left, top) {
+    const maxL = Math.max(0, window.innerWidth - el.offsetWidth - 4);
+    const maxT = Math.max(0, window.innerHeight - el.offsetHeight - 4);
+    el.style.left = clamp(left, 0, maxL) + 'px';
+    el.style.top = clamp(top, 0, maxT) + 'px';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+  }
+
+  function resetarPosicao() {
+    el.style.left = '';
+    el.style.top = '';
+    el.style.right = '';
+    el.style.bottom = '';
+    delete data[storageKey];
+    try { save(); } catch(e) {}
+    if (navigator.vibrate) { try { navigator.vibrate(80); } catch(e) {} }
+    showFeedback('🔄 Botão resetado');
+  }
+
+  function onDown(e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    const p = pos(e);
+    const rect = el.getBoundingClientRect();
+    el.style.left = rect.left + 'px';
+    el.style.top = rect.top + 'px';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+    savedPos = { left: rect.left, top: rect.top };
+    startX = p.x; startY = p.y;
+    isDragging = true;
+    hasMoved = false;
+    el.classList.add('dragging');
+    if (longPressTimer) clearTimeout(longPressTimer);
+    longPressTimer = setTimeout(() => {
+      if (isDragging && !hasMoved) {
+        resetarPosicao();
+        hasMoved = true;
+        el._wasDragged = true;
+        isDragging = false;
+        el.classList.remove('dragging');
+        setTimeout(() => { el._wasDragged = false; }, 300);
+      }
+    }, LONG_PRESS_MS);
+  }
+
+  function onMove(e) {
+    if (!isDragging) return;
+    const p = pos(e);
+    const dx = p.x - startX;
+    const dy = p.y - startY;
+    if (!hasMoved && Math.hypot(dx, dy) > THRESHOLD) {
+      hasMoved = true;
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    }
+    if (hasMoved) {
+      if (e.cancelable) e.preventDefault();
+      aplicarPosicao(savedPos.left + dx, savedPos.top + dy);
+    }
+  }
+
+  function onUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+    el.classList.remove('dragging');
+    if (hasMoved) {
+      const rect = el.getBoundingClientRect();
+      data[storageKey] = { left: Math.round(rect.left), top: Math.round(rect.top) };
+      try { save(); } catch(e) {}
+      el._wasDragged = true;
+      setTimeout(() => { el._wasDragged = false; }, 100);
+      setTimeout(() => { hasMoved = false; }, 150);
+    }
+  }
+
+  el.addEventListener('pointerdown', onDown);
+  document.addEventListener('pointermove', onMove, { passive: false });
+  document.addEventListener('pointerup', onUp);
+  document.addEventListener('pointercancel', onUp);
+
+  const saved = data[storageKey];
+  if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
+    requestAnimationFrame(() => aplicarPosicao(saved.left, saved.top));
+  }
+
+  window.addEventListener('resize', () => {
+    if (el.style.left && el.style.top) {
+      aplicarPosicao(parseFloat(el.style.left), parseFloat(el.style.top));
+    }
+  });
+}
+/* ========== FIM BOTÕES ARRASTÁVEIS ========== */
 
 async function abrirLeitorCodigoBarras(contexto) {
   barcodeContexto = contexto; barcodeModalAberto = true; codigoProcessando = false;
@@ -2191,7 +2305,8 @@ function mostrarMiniCardapio() {
   const lista = document.getElementById('modalCardapioLista');
   if (!estab.produtos || estab.produtos.length === 0) lista.innerHTML = '<p class="note">Nenhum produto.</p>';
   else {
-    lista.innerHTML = estab.produtos.map(p => {
+    const prodsOrdenados = ordenarProdutosPorNome(estab.produtos);
+    lista.innerHTML = prodsOrdenados.map(p => {
       const thumb = p.imagem ? `<img src="${p.imagem}" class="produto-thumb-mini" alt="">` : `<span class="produto-thumb-mini-placeholder">${getEmojiProduto(p.nome)}</span>`;
       const apelidos = getApelidos(p);
       const apelidoTxt = apelidos.length ? ` <span style="color:var(--muted);font-size:12px">(${apelidos.map(a => escapeHtml(a)).join(', ')})</span>` : '';
@@ -2731,7 +2846,6 @@ function renderEstabelecimentos() {
     return `<div class="list-item"><span><b>${ativo}${escapeHtml(e.nome)}</b><br><span class="note">${e.produtos?.length || 0} produtos</span></span><div class="actions"><button class="secondary small" onclick="editarEstabelecimento('${id}')">✏️</button><button class="secondary small" onclick="setEstabelecimentoAtivo('${id}')">Selecionar</button><button class="danger small" onclick="excluirEstabelecimento('${id}')">🗑</button></div></div>`;
   }).join('');
 }
-/* ⭐ CARDÁPIO — FORÇADO EM 1 LINHA: thumb | nome | preço | apelido | cod | botões */
 function renderCardapio() {
   const estab = getEstabelecimentoAtivo();
   const nomeSpan = document.getElementById('cardapioEstabNome');
@@ -2747,7 +2861,7 @@ function renderCardapio() {
     return;
   }
   if (nomeSpan) nomeSpan.textContent = '— ' + estab.nome;
-  const prods = estab.produtos || [];
+  const prods = ordenarProdutosPorNome(estab.produtos || []);
   if (btnIncluir && !currentEditId) { const formAberto = form && form.style.display === 'block'; btnIncluir.style.display = formAberto ? 'none' : 'inline-block'; }
   const lista = document.getElementById('listaProdutos');
   if (lista) {
@@ -2992,7 +3106,7 @@ function exportarDados(incluirImagens = true) {
   let dadosExport, totalImagens = 0;
   if (incluirImagens) { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; }); }); }
   else { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; }); }); }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 28, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 29, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -3024,6 +3138,8 @@ function importarDados(e) {
         data.historico = data.historico || [];
         data.sinonimos = data.sinonimos || {};
         data.sinonimosEstabelecimentos = data.sinonimosEstabelecimentos || {};
+        data.voiceBtnPos = data.voiceBtnPos || null;
+        data.cameraBtnPos = data.cameraBtnPos || null;
         if (typeof data.theme === 'undefined') data.theme = 'light';
         if (typeof data.githubRotulosRepo === 'undefined' || data.githubRotulosRepo === null) data.githubRotulosRepo = REPO_PADRAO;
         Object.keys(SINONIMOS_PADRAO).forEach(k => { if (!Array.isArray(data.sinonimos[k]) || data.sinonimos[k].length === 0) data.sinonimos[k] = [...SINONIMOS_PADRAO[k]]; });
@@ -3032,6 +3148,23 @@ function importarDados(e) {
         manifestCodigosCache = null; manifestCodigosRepoCache = null;
         applyTheme(data.theme || 'light');
         save(); renderAll();
+        // Reposicionar botões após importação
+        ['voiceStatusIcon','cameraStatusIcon'].forEach((id, i) => {
+          const el = document.getElementById(id); if (!el) return;
+          const saved = i === 0 ? data.voiceBtnPos : data.cameraBtnPos;
+          if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
+            requestAnimationFrame(() => {
+              const maxL = Math.max(0, window.innerWidth - el.offsetWidth - 4);
+              const maxT = Math.max(0, window.innerHeight - el.offsetHeight - 4);
+              el.style.left = Math.max(0, Math.min(maxL, saved.left)) + 'px';
+              el.style.top = Math.max(0, Math.min(maxT, saved.top)) + 'px';
+              el.style.right = 'auto';
+              el.style.bottom = 'auto';
+            });
+          } else {
+            el.style.left = ''; el.style.top = ''; el.style.right = ''; el.style.bottom = '';
+          }
+        });
         showFeedback('✅ Dados importados!');
       } else showFeedback('⚠️ Arquivo inválido.');
     } catch (err) { showFeedback('⚠️ Erro ao ler JSON.'); }
@@ -3042,10 +3175,14 @@ async function clearAllData() {
   const ok = await confirmar('Apagar TODOS os dados?', { icone: '⚠️', titulo: 'Apagar tudo', textoSim: 'Sim', textoNao: 'Não' });
   if (!ok) return;
   localStorage.removeItem(KEY);
-  data = { estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true, sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO)), sinonimosEstabelecimentos: {}, githubRotulosRepo: REPO_PADRAO, theme: data.theme || 'light', sinonimosMergedVersion: SINONIMOS_MERGE_VERSAO };
+  data = { estabelecimentos: {}, pedido: [], historico: [], contaAtiva: false, speechOn: true, sinonimos: JSON.parse(JSON.stringify(SINONIMOS_PADRAO)), sinonimosEstabelecimentos: {}, githubRotulosRepo: REPO_PADRAO, theme: data.theme || 'light', sinonimosMergedVersion: SINONIMOS_MERGE_VERSAO, voiceBtnPos: null, cameraBtnPos: null };
   githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
   manifestRotulosCache = null; manifestRotulosRepoCache = null;
   manifestCodigosCache = null; manifestCodigosRepoCache = null;
+  ['voiceStatusIcon','cameraStatusIcon'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    el.style.left = ''; el.style.top = ''; el.style.right = ''; el.style.bottom = '';
+  });
   renderAll();
   showFeedback('🗑 Todos os dados apagados.');
 }
@@ -3064,6 +3201,9 @@ window.onload = function() {
     dropArea.addEventListener('drop', e => { const files = e.dataTransfer.files; if (files.length > 0) { document.getElementById('fileInput').files = files; importarDados({ target: { files: files } }); } }, false);
   }
   atualizarIconeVoz();
+  // Ativar drag nos botões flutuantes
+  makeDraggable(document.getElementById('voiceStatusIcon'), 'voiceBtnPos');
+  makeDraggable(document.getElementById('cameraStatusIcon'), 'cameraBtnPos');
   if (data.voiceAssistantOn === true && recognizer.isSupported()) { setTimeout(() => { if (!recognizer.isActive) { try { recognizer.activate(); } catch(e) { } } }, 1500); }
 };
 </script>
