@@ -134,7 +134,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sync-status{margin-top:10px;font-size:13px;color:var(--muted);min-height:18px}
 .sync-status.ok{color:#047857;font-weight:bold}
 .sync-status.err{color:#b91c1c;font-weight:bold}
-/* ⭐ BOTÕES FLUTUANTES — mais abaixo e o mais à direita possível */
 .voice-status-icon{position:fixed;bottom:22px;right:6px;width:56px;height:56px;border-radius:50%;background:var(--voice-icon-bg);border:2px solid var(--voice-icon-border);display:flex;align-items:center;justify-content:center;font-size:26px;padding:0;z-index:9998;transition:all .3s ease;box-shadow:var(--voice-icon-shadow);cursor:pointer;opacity:.9;color:var(--voice-icon-color)}
 .voice-status-icon.active{background:var(--voice-icon-active-bg);border-color:var(--voice-icon-active-border);opacity:1;animation:voicePulse 2s infinite;color:var(--on-accent)}
 @keyframes voicePulse{0%,100%{box-shadow:var(--voice-icon-active-shadow)}50%{box-shadow:var(--voice-icon-pulse-shadow)}}
@@ -160,13 +159,62 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .produto-img-preview.loading::before{content:'';position:absolute;inset:0;background:var(--produto-loading-bg);z-index:1}
 .produto-img-preview .spinner{position:absolute;z-index:2;width:34px;height:34px;border:3px solid var(--produto-spinner-track);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.produto-thumb{width:56px;height:56px;border-radius:8px;object-fit:cover;background:var(--produto-thumb-bg);border:1px solid var(--border);flex-shrink:0;display:block}
-.produto-thumb-placeholder{width:56px;height:56px;border-radius:8px;background:var(--produto-thumb-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
-.list-item.with-thumb{gap:12px;align-items:center}
-.list-item.with-thumb > .info{flex:1;min-width:0}
 .produto-thumb-mini{width:38px;height:38px;border-radius:6px;object-fit:cover;background:var(--produto-thumb-bg);border:1px solid var(--border);display:inline-block;flex-shrink:0}
 .produto-thumb-mini-placeholder{width:38px;height:38px;border-radius:6px;background:var(--produto-thumb-bg);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .btn-add-mini{width:34px;height:34px;border-radius:50%;background:var(--flash-add-bg);color:var(--flash-add-text);font-size:22px;font-weight:bold;border:0;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--flash-add-shadow)}
+/* ⭐ CARDÁPIO — FORÇADO EM UMA ÚNICA LINHA */
+.prod-row{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  align-items:center !important;
+  gap:8px !important;
+  padding:10px 12px !important;
+  border-bottom:1px solid var(--border) !important;
+  cursor:pointer;
+  transition:background .15s ease;
+  overflow:hidden !important;
+  min-width:0 !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+.prod-row:hover{background:var(--panel-2)}
+.prod-row:last-child{border-bottom:0 !important}
+.prod-row > *{min-width:0;}
+.prod-thumb{flex:0 0 48px !important;width:48px !important;height:48px !important;border-radius:8px !important;overflow:hidden !important;display:flex !important;align-items:center !important;justify-content:center !important;background:var(--produto-thumb-bg) !important;border:1px solid var(--border) !important;}
+.prod-thumb-img{width:100% !important;height:100% !important;object-fit:cover !important;display:block !important;}
+.prod-thumb-emoji{font-size:26px !important;line-height:1 !important;}
+.prod-main{flex:1 1 0% !important;min-width:0 !important;display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;overflow:hidden !important;white-space:nowrap !important;}
+.prod-main > *{min-width:0;}
+.prod-name{flex:1 1 0% !important;min-width:0 !important;font-weight:bold !important;font-size:15px !important;color:var(--text) !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.2 !important;}
+.prod-price{flex:0 0 auto !important;color:var(--money-color) !important;font-weight:bold !important;font-size:14px !important;white-space:nowrap !important;line-height:1.2 !important;}
+.prod-apelido{flex:0 1 auto !important;min-width:0 !important;max-width:100px !important;font-size:11px !important;color:var(--estab-name-color) !important;background:rgba(217,119,6,.12) !important;padding:2px 8px !important;border-radius:12px !important;font-weight:bold !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.4 !important;}
+.prod-cod{flex:0 1 auto !important;min-width:0 !important;max-width:110px !important;font-size:10px !important;color:var(--muted) !important;background:var(--panel-2) !important;padding:2px 6px !important;border-radius:6px !important;font-family:monospace !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1.4 !important;}
+.prod-actions{flex:0 0 auto !important;display:flex !important;gap:4px !important;align-items:center !important;}
+.prod-actions button{width:32px !important;height:32px !important;padding:0 !important;font-size:14px !important;border-radius:8px !important;display:flex !important;align-items:center !important;justify-content:center !important;border:1px solid var(--border) !important;box-shadow:none !important;background:var(--panel-2) !important;color:var(--text) !important;min-width:0 !important;}
+.prod-actions button:hover{transform:none !important;filter:brightness(.95) !important;}
+.prod-btn-del{background:rgba(239,68,68,.1) !important;color:var(--danger) !important;border-color:rgba(239,68,68,.3) !important;}
+@media(max-width:650px){
+  .prod-row{padding:8px 6px !important;gap:6px !important;}
+  .prod-thumb{flex:0 0 40px !important;width:40px !important;height:40px !important;border-radius:6px !important;}
+  .prod-thumb-emoji{font-size:22px !important;}
+  .prod-main{gap:6px !important;}
+  .prod-name{font-size:13px !important;}
+  .prod-price{font-size:12px !important;}
+  .prod-apelido{max-width:70px !important;font-size:10px !important;padding:1px 6px !important;}
+  .prod-cod{max-width:80px !important;font-size:9px !important;}
+  .prod-actions button{width:28px !important;height:28px !important;font-size:12px !important;}
+}
+@media(max-width:420px){
+  .prod-apelido{display:none !important;}
+  .prod-cod{display:none !important;}
+}
+/* ⭐ MINI CARDÁPIO — TAMBÉM EM UMA LINHA */
+.menu-mini-item{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;padding:10px 4px !important;border-bottom:1px solid var(--border) !important;overflow:hidden !important;min-width:0 !important;}
+.menu-mini-item:last-child{border-bottom:0 !important;}
+.menu-mini-item > span:first-child{flex:1 1 0% !important;min-width:0 !important;display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;overflow:hidden !important;white-space:nowrap !important;}
+.menu-mini-item > span:first-child > span:first-child{flex:0 0 auto !important;}
+.menu-mini-item > span:first-child > span:last-child{flex:1 1 0% !important;min-width:0 !important;overflow:hidden !important;text-overflow:ellipsis !important;white-space:nowrap !important;font-weight:bold !important;font-size:14px !important;color:var(--text) !important;}
+.menu-mini-item > span:last-child{flex:0 0 auto !important;}
 .cardapio-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:3px solid transparent;border-image:linear-gradient(90deg,var(--accent),var(--yellow),var(--danger)) 1;border-top:0;border-left:0;border-right:0}
 .cardapio-header h2{margin:0;font-family:'Anton','Impact','Arial Black',sans-serif;font-size:22px;letter-spacing:2px;text-transform:uppercase;line-height:1.1;display:flex;align-items:baseline;flex-wrap:wrap;gap:10px}
 .cardapio-header h2 .nome-estab{display:inline;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:var(--estab-name-color);text-transform:none;font-weight:bold}
@@ -390,12 +438,12 @@ footer{text-align:center;color:var(--muted);padding:25px}
               <div class="empty"><div class="big">📷</div><div>Sem imagem</div></div>
             </div>
             <div style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;">
-              <button type="button" class="secondary small" onclick="buscarImagemDispositivoManual()">📱 Buscar no dispositivo</button>
+              <button type="button" class="secondary small" onclick="abrirEscolherImagem()">📱 Buscar no dispositivo</button>
               <button type="button" class="secondary small" onclick="buscarImagemManual()">🔍 Buscar na internet</button>
               <button type="button" class="secondary small" onclick="buscarImagemGitHubManual()">🐙 Buscar no GitHub</button>
-              <button type="button" class="secondary small" onclick="document.getElementById('produtoImagemFile').click()">📤 Enviar</button>
               <button type="button" class="secondary small" id="btnRemoverImg" onclick="removerImagemProduto()" style="display:none;">🗑 Remover</button>
               <input type="file" id="produtoImagemFile" accept="image/*" style="display:none;" onchange="uploadImagemProduto(event)">
+              <input type="file" id="produtoFotoCamera" accept="image/*" capture="environment" style="display:none;" onchange="uploadImagemProduto(event)">
             </div>
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
               <button id="btnSalvarProduto" onclick="addProduto()">➕ Cadastrar produto</button>
@@ -643,6 +691,26 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
+<div id="escolherImagemModal" class="payment-modal">
+  <div class="payment-content" style="max-width:400px;">
+    <h2 style="text-align:center;margin-top:0;">📷 Imagem do produto</h2>
+    <p class="note" style="text-align:center;margin-bottom:16px;">Como deseja obter a imagem?</p>
+    <button class="share-option" onclick="tirarFotoProduto()" type="button">
+      <span class="share-icon">📷</span>
+      <span class="share-info"><div class="share-title">Tirar foto</div><div class="share-desc">Usar a câmera agora</div></span>
+    </button>
+    <button class="share-option" onclick="escolherArquivoProduto()" type="button">
+      <span class="share-icon">📁</span>
+      <span class="share-info"><div class="share-title">Escolher arquivo</div><div class="share-desc">Da galeria ou armazenamento</div></span>
+    </button>
+    <button class="share-option" onclick="buscarImagemDispositivoSalva()" type="button">
+      <span class="share-icon">🗄️</span>
+      <span class="share-info"><div class="share-title">Buscar nas salvas</div><div class="share-desc">Reutilizar imagem de outro produto</div></span>
+    </button>
+    <button class="secondary" onclick="fecharEscolherImagem()" style="width:100%;margin-top:12px;" type="button">❌ Cancelar</button>
+  </div>
+</div>
+
 <div id="escolhaProdutoModal" class="payment-modal">
   <div class="payment-content">
     <h2 style="text-align:center;">🤔 Qual produto?</h2>
@@ -700,7 +768,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
-<div id="miniCardapioModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;z-index:10000;max-width:90%;max-height:80%;overflow-y:auto;box-shadow:var(--modal-shadow);min-width:300px;color:var(--text);">
+<div id="miniCardapioModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:20px;z-index:10000;max-width:90%;max-height:80%;overflow-y:auto;box-shadow:var(--modal-shadow);min-width:300px;color:var(--text);">
   <h3 style="margin-top:0;">📋 Cardápio de <span id="modalCardapioNome"></span></h3>
   <div id="modalCardapioLista" style="margin:15px 0;"></div>
   <button onclick="fecharMiniCardapio()" style="width:100%;">Fechar</button>
@@ -872,8 +940,6 @@ let imagemProdutoTemp = null;
 let valoresOriginaisProduto = null;
 let orderFlashTimer = null;
 let ultimoProdutoPedido = null;
-let sincronizandoImagens = false;
-let sincronizandoEstabId = null;
 let audioTTSAtual = null;
 let speechExecutionId = 0;
 let escolhaProdutoPendente = null;
@@ -1282,7 +1348,6 @@ function atualizarIconeVoz() {
   else { icon.classList.remove('active'); emoji.textContent = '🎙️'; icon.title = 'Assistente INATIVO'; }
 }
 
-/* ============ CÓDIGO DE BARRAS ============ */
 async function abrirLeitorCodigoBarras(contexto) {
   barcodeContexto = contexto; barcodeModalAberto = true; codigoProcessando = false;
   const modal = document.getElementById('barcodeModal'); if (!modal) return;
@@ -1397,7 +1462,6 @@ async function alternarLanterna() {
   try { const capabilities = html5QrScanner.getRunningTrackCameraCapabilities?.(); const torch = capabilities?.torchFeature?.(); if (torch && torch.isSupported()) { barcodeTorchOn = !barcodeTorchOn; await torch.apply(barcodeTorchOn); showFeedback('🔦 ' + (barcodeTorchOn ? 'ligada' : 'desligada')); } else showFeedback('⚠️ Lanterna não suportada'); } catch(e) { showFeedback('⚠️ Lanterna não suportada'); }
 }
 
-/* ============ CASCATA DE BUSCA ============ */
 let manifestCodigosCache = null, manifestCodigosRepoCache = null;
 async function carregarManifestCodigos(repo) {
   if (manifestCodigosCache && manifestCodigosRepoCache === repo) return manifestCodigosCache;
@@ -2092,7 +2156,6 @@ function salvarEstabelecimento() {
   else { const id = Date.now() + Math.random(); data.estabelecimentos[id] = { nome, endereco: endereco || '', pix: pix || '', produtos: [] }; if (!data.estabelecimentoAtivoId) data.estabelecimentoAtivoId = id; }
   fecharFormEstabelecimento(); save(); renderAll();
 }
-/* ⭐ NOVO — criação por voz */
 async function criarEstabelecimentoPorVoz(nome) {
   const nomeCap = capitalizarNome((nome || '').trim());
   if (!nomeCap) { showScreen('estabelecimentos'); mostrarFormEstabelecimento(); return; }
@@ -2132,7 +2195,7 @@ function mostrarMiniCardapio() {
       const thumb = p.imagem ? `<img src="${p.imagem}" class="produto-thumb-mini" alt="">` : `<span class="produto-thumb-mini-placeholder">${getEmojiProduto(p.nome)}</span>`;
       const apelidos = getApelidos(p);
       const apelidoTxt = apelidos.length ? ` <span style="color:var(--muted);font-size:12px">(${apelidos.map(a => escapeHtml(a)).join(', ')})</span>` : '';
-      return `<div class="menu-mini-item"><span><span>${thumb}</span><span>${escapeHtml(p.nome)}${apelidoTxt}</span></span><span style="display:flex;align-items:center;gap:10px;flex-shrink:0"><span style="color:var(--money-color);font-weight:bold">${money(p.preco)}</span><button class="btn-add-mini" onclick="addPedido(${p.id}, 1); fecharMiniCardapio();">+</button></span></div>`;
+      return `<div class="menu-mini-item"><span><span>${thumb}</span><span>${escapeHtml(p.nome)}${apelidoTxt}</span></span><span><span style="color:var(--money-color);font-weight:bold">${money(p.preco)}</span><button class="btn-add-mini" onclick="addPedido(${p.id}, 1); fecharMiniCardapio();">+</button></span></div>`;
     }).join('');
   }
   modal.style.display = 'block';
@@ -2222,19 +2285,35 @@ function setLoadingPreview(loading) {
   if (loading) { c.classList.add('loading'); if (!c.querySelector('.spinner')) { const sp = document.createElement('div'); sp.className = 'spinner'; c.appendChild(sp); } }
   else { c.classList.remove('loading'); const sp = c.querySelector('.spinner'); if (sp) sp.remove(); }
 }
-/* ⭐ NOVO — busca de imagem apenas no dispositivo */
-async function buscarImagemDispositivoManual() {
+function abrirEscolherImagem() {
+  const modal = document.getElementById('escolherImagemModal'); if (modal) modal.classList.add('active');
+}
+function fecharEscolherImagem() {
+  const modal = document.getElementById('escolherImagemModal'); if (modal) modal.classList.remove('active');
+}
+function tirarFotoProduto() {
+  fecharEscolherImagem();
+  const inp = document.getElementById('produtoFotoCamera');
+  if (inp) { inp.value = ''; inp.click(); }
+}
+function escolherArquivoProduto() {
+  fecharEscolherImagem();
+  const inp = document.getElementById('produtoImagemFile');
+  if (inp) { inp.value = ''; inp.click(); }
+}
+async function buscarImagemDispositivoSalva() {
+  fecharEscolherImagem();
   const nome = $('produtoNome').value.trim();
-  if (!nome) { showFeedback('⚠️ Informe o nome.'); return; }
+  if (!nome) { showFeedback('⚠️ Informe o nome do produto primeiro.'); return; }
   const dataUrl = buscarImagemLocal(nome);
   if (dataUrl) {
     imagemProdutoTemp = dataUrl;
     renderPreviewImagemProduto();
     verificarAlteracoesProduto();
-    showFeedback('✅ Imagem encontrada no dispositivo!');
+    showFeedback('✅ Imagem encontrada nas salvas!');
     if (speechOn) speak('Imagem do dispositivo aplicada');
   } else {
-    showFeedback('❌ Nada encontrado no dispositivo.');
+    showFeedback('❌ Nenhuma imagem salva corresponde ao nome.');
   }
 }
 async function buscarImagemManual() {
@@ -2265,6 +2344,7 @@ function uploadImagemProduto(event) {
     setLoadingPreview(false);
     imagemProdutoTemp = compressed || e.target.result;
     renderPreviewImagemProduto(); verificarAlteracoesProduto();
+    showFeedback('✅ Imagem aplicada.');
   };
   reader.readAsDataURL(file);
   event.target.value = '';
@@ -2328,7 +2408,10 @@ function verificarAlteracoesProduto() {
   const apelidoAtual = String($('produtoApelido').value || '').trim();
   const apelidoOrig = String(orig.apelido || '').trim();
   const precoOrig = orig.preco !== undefined ? String(orig.preco) : '';
-  const mudou = (nomeAtual !== (orig.nome || '')) || (precoAtual !== precoOrig) || (codAtual !== codOrig) || (apelidoAtual !== apelidoOrig);
+  const imgAtual = imagemProdutoTemp || null;
+  const imgOrig = orig.imagem || null;
+  const imgMudou = (imgAtual !== imgOrig);
+  const mudou = (nomeAtual !== (orig.nome || '')) || (precoAtual !== precoOrig) || (codAtual !== codOrig) || (apelidoAtual !== apelidoOrig) || imgMudou;
   if (mudou) { btn.disabled = false; btn.textContent = '💾 Salvar alterações'; }
   else { btn.disabled = true; btn.textContent = '💾 Nenhuma alteração'; }
 }
@@ -2648,6 +2731,7 @@ function renderEstabelecimentos() {
     return `<div class="list-item"><span><b>${ativo}${escapeHtml(e.nome)}</b><br><span class="note">${e.produtos?.length || 0} produtos</span></span><div class="actions"><button class="secondary small" onclick="editarEstabelecimento('${id}')">✏️</button><button class="secondary small" onclick="setEstabelecimentoAtivo('${id}')">Selecionar</button><button class="danger small" onclick="excluirEstabelecimento('${id}')">🗑</button></div></div>`;
   }).join('');
 }
+/* ⭐ CARDÁPIO — FORÇADO EM 1 LINHA: thumb | nome | preço | apelido | cod | botões */
 function renderCardapio() {
   const estab = getEstabelecimentoAtivo();
   const nomeSpan = document.getElementById('cardapioEstabNome');
@@ -2668,11 +2752,29 @@ function renderCardapio() {
   const lista = document.getElementById('listaProdutos');
   if (lista) {
     lista.innerHTML = prods.length ? prods.map(p => {
-      const thumb = p.imagem ? `<img src="${p.imagem}" class="produto-thumb" onclick="editProduto(${p.id})" style="cursor:pointer">` : `<div class="produto-thumb-placeholder" onclick="editProduto(${p.id})" style="cursor:pointer">${getEmojiProduto(p.nome)}</div>`;
-      const codInfo = p.codigoBarras ? `<br><span class="note">📊 ${escapeHtml(p.codigoBarras)}</span>` : '';
+      const thumbInner = p.imagem
+        ? `<img src="${p.imagem}" class="prod-thumb-img" alt="">`
+        : `<span class="prod-thumb-emoji">${getEmojiProduto(p.nome)}</span>`;
       const apelidos = getApelidos(p);
-      const apelidoInfo = apelidos.length ? `<br>${apelidos.map(a => `<span class="apelido-tag">🏷️ ${escapeHtml(a)}</span>`).join(' ')}` : '';
-      return `<div class="list-item with-thumb">${thumb}<div class="info"><b>${escapeHtml(p.nome)}</b>${apelidoInfo}<br><span class="money">${money(p.preco)}</span>${codInfo}</div><div class="actions"><button class="secondary small" onclick="editProduto(${p.id})">✏</button><button class="danger small" onclick="deleteProduto(${p.id})">🗑</button></div></div>`;
+      const apelidoHtml = apelidos.length
+        ? `<span class="prod-apelido" title="${escapeHtml(apelidos.join(', '))}">🏷️ ${escapeHtml(apelidos[0])}${apelidos.length > 1 ? ' +' + (apelidos.length - 1) : ''}</span>`
+        : '';
+      const codHtml = p.codigoBarras
+        ? `<span class="prod-cod" title="${escapeHtml(p.codigoBarras)}">📊 ${escapeHtml(p.codigoBarras)}</span>`
+        : '';
+      return `<div class="prod-row" onclick="editProduto(${p.id})">
+        <div class="prod-thumb">${thumbInner}</div>
+        <div class="prod-main">
+          <span class="prod-name" title="${escapeHtml(p.nome)}">${escapeHtml(p.nome)}</span>
+          <span class="prod-price">${money(p.preco)}</span>
+          ${apelidoHtml}
+          ${codHtml}
+        </div>
+        <div class="prod-actions" onclick="event.stopPropagation()">
+          <button onclick="editProduto(${p.id})" title="Editar">✏</button>
+          <button class="prod-btn-del" onclick="deleteProduto(${p.id})" title="Excluir">🗑</button>
+        </div>
+      </div>`;
     }).join('') : '<div class="empty">Nenhum produto.</div>';
   }
 }
@@ -2852,7 +2954,6 @@ function processVoice(text) {
   if (sinAbrir) { const resto = extrairResto(norm, sinAbrir); if (resto) { const matchEstab = encontrarEstabelecimentoPorTexto(resto); if (matchEstab) { setEstabelecimentoAtivo(matchEstab.id); abrirContaManual(); } else abrirNovaConta(resto); } else abrirContaManual(); return; }
   const sinSel = matchSinonimo(norm, 'selecionar');
   if (sinSel) { const nome = extrairResto(norm, sinSel); const matchEstab = encontrarEstabelecimentoPorTexto(nome); if (matchEstab) setEstabelecimentoAtivo(matchEstab.id); return; }
-  // ⭐ Incluir Estabelecimento por voz
   const sinIncEstab = matchSinonimo(norm, 'incluirEstabelecimento');
   if (sinIncEstab) {
     const nomeEstab = extrairResto(norm, sinIncEstab);
@@ -2891,7 +2992,7 @@ function exportarDados(incluirImagens = true) {
   let dadosExport, totalImagens = 0;
   if (incluirImagens) { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; }); }); }
   else { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; }); }); }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 25, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 28, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
