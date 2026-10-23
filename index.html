@@ -20,7 +20,9 @@ header{padding:8px 100px 8px 14px;background:var(--header-bg);border-bottom:3px 
 .header-icon.hidden{display:none}
 header h1{margin:0;font-family:'Anton','Impact','Arial Black',sans-serif;font-size:30px;font-weight:900;letter-spacing:3px;text-transform:uppercase;color:var(--header-title);text-shadow:var(--header-title-shadow);line-height:1;white-space:nowrap}
 .theme-toggle{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;background:var(--theme-toggle-bg);color:var(--theme-toggle-color);border:2px solid var(--theme-toggle-border);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;box-shadow:0 3px 10px rgba(0,0,0,.18);transition:background .2s,transform .15s;z-index:11;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.estab-ativo-bar{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;background:var(--accent);color:var(--on-accent);border-bottom:3px solid var(--header-border-color);font-size:15px;font-weight:bold;text-align:center;min-height:44px;text-shadow:0 1px 2px rgba(0,0,0,.15);transition:background .25s ease}
+.estab-ativo-bar{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;background:var(--accent);color:var(--on-accent);border-bottom:3px solid var(--header-border-color);font-size:15px;font-weight:bold;text-align:center;min-height:44px;text-shadow:0 1px 2px rgba(0,0,0,.15);transition:background .25s ease,filter .15s ease;cursor:pointer}
+.estab-ativo-bar:hover{filter:brightness(1.08)}
+.estab-ativo-bar:active{filter:brightness(.95)}
 .estab-ativo-bar .estab-icon{font-size:20px;line-height:1;flex-shrink:0}
 .estab-ativo-bar .estab-label{font-weight:normal;font-size:11px;text-transform:uppercase;letter-spacing:1.2px;opacity:.9;flex-shrink:0}
 .estab-ativo-bar .estab-nome{font-weight:900;font-size:22px;padding:3px 18px;background:rgba(255,255,255,.28);border-radius:24px;border:2px solid rgba(255,255,255,.55);display:inline-block;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw;text-shadow:0 2px 4px rgba(0,0,0,.28)}
@@ -93,6 +95,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .config-card p{margin:0;color:var(--muted);font-size:13px}
 .back-config-btn{margin-bottom:15px;background:var(--panel);color:var(--text);border:1px solid var(--border);box-shadow:var(--export-btn-shadow)}
 .collapsible-section{border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--panel-2);margin-top:16px}
+.collapsible-section:first-child{margin-top:0}
 .collapsible-header{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 18px;background:var(--collapsible-bg);color:var(--collapsible-text);border:0;border-radius:0;font-size:15px;font-weight:bold;cursor:pointer;text-align:left;box-shadow:none}
 .collapsible-header .collapsible-arrow{font-size:13px;transition:transform .25s ease;flex-shrink:0}
 .collapsible-header.open .collapsible-arrow{transform:rotate(180deg)}
@@ -134,13 +137,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .sync-status{margin-top:10px;font-size:13px;color:var(--muted);min-height:18px}
 .sync-status.ok{color:#047857;font-weight:bold}
 .sync-status.err{color:#b91c1c;font-weight:bold}
-/* ⭐ BOTÕES FLUTUANTES ARRASTÁVEIS */
 .voice-status-icon{position:fixed;bottom:22px;right:6px;width:56px;height:56px;border-radius:50%;background:var(--voice-icon-bg);border:2px solid var(--voice-icon-border);display:flex;align-items:center;justify-content:center;font-size:26px;padding:0;z-index:9998;transition:background .3s ease,box-shadow .3s ease,opacity .3s ease;box-shadow:var(--voice-icon-shadow);cursor:grab;opacity:.9;color:var(--voice-icon-color);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .voice-status-icon.active{background:var(--voice-icon-active-bg);border-color:var(--voice-icon-active-border);opacity:1;animation:voicePulse 2s infinite;color:var(--on-accent)}
 @keyframes voicePulse{0%,100%{box-shadow:var(--voice-icon-active-shadow)}50%{box-shadow:var(--voice-icon-pulse-shadow)}}
 .camera-status-icon{position:fixed;bottom:90px;right:6px;width:56px;height:56px;border-radius:50%;background:var(--voice-icon-bg);border:2px solid var(--voice-icon-border);display:flex;align-items:center;justify-content:center;font-size:26px;padding:0;z-index:9998;transition:background .3s ease,box-shadow .3s ease,opacity .3s ease;box-shadow:var(--voice-icon-shadow);cursor:grab;opacity:.9;color:var(--voice-icon-color);touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .camera-status-icon:active{transform:scale(.95)}
-/* ⭐ Estado de arraste */
 .voice-status-icon.dragging,.camera-status-icon.dragging{transition:none !important;cursor:grabbing !important;opacity:1 !important;z-index:10001 !important;box-shadow:0 12px 40px rgba(0,0,0,.35) !important;transform:scale(1.08) !important}
 .voice-status-icon.dragging:active,.camera-status-icon.dragging:active{transform:scale(1.08) !important}
 @media(max-width:650px){
@@ -166,7 +167,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .produto-thumb-mini{width:38px;height:38px;border-radius:6px;object-fit:cover;background:var(--produto-thumb-bg);border:1px solid var(--border);display:inline-block;flex-shrink:0}
 .produto-thumb-mini-placeholder{width:38px;height:38px;border-radius:6px;background:var(--produto-thumb-bg);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
 .btn-add-mini{width:34px;height:34px;border-radius:50%;background:var(--flash-add-bg);color:var(--flash-add-text);font-size:22px;font-weight:bold;border:0;cursor:pointer;padding:0;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:var(--flash-add-shadow)}
-/* ⭐ CARDÁPIO — FORÇADO EM UMA ÚNICA LINHA */
 .prod-row{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;padding:10px 12px !important;border-bottom:1px solid var(--border) !important;cursor:pointer;transition:background .15s ease;overflow:hidden !important;min-width:0 !important;width:100% !important;box-sizing:border-box !important}
 .prod-row:hover{background:var(--panel-2)}
 .prod-row:last-child{border-bottom:0 !important}
@@ -199,7 +199,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
   .prod-apelido{display:none !important}
   .prod-cod{display:none !important}
 }
-/* ⭐ MINI CARDÁPIO — TAMBÉM EM UMA LINHA */
 .menu-mini-item{display:flex !important;flex-wrap:nowrap !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;padding:10px 4px !important;border-bottom:1px solid var(--border) !important;overflow:hidden !important;min-width:0 !important}
 .menu-mini-item:last-child{border-bottom:0 !important}
 .menu-mini-item > span:first-child{flex:1 1 0% !important;min-width:0 !important;display:flex !important;flex-wrap:nowrap !important;align-items:center !important;gap:8px !important;overflow:hidden !important;white-space:nowrap !important}
@@ -330,7 +329,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <h1>FECHA A CONTA</h1>
     <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">🌙</button>
   </header>
-  <div class="estab-ativo-bar sem-estab" id="estabAtivoBar">
+  <div class="estab-ativo-bar sem-estab" id="estabAtivoBar" onclick="showScreen('estabelecimentos')" title="Toque para escolher/incluir estabelecimento">
     <span class="estab-icon">🏢</span>
     <span class="estab-label">ATIVO:</span>
     <span class="estab-nome" id="estabAtivoBarNome">Nenhum</span>
@@ -352,47 +351,56 @@ footer{text-align:center;color:var(--muted);padding:25px}
 </nav>
 
 <section id="inicio" class="screen active">
-  <div class="card">
-    <div class="conta-header-info">
-      <div>
-        <div class="note" id="contaStatus">Status: Nenhuma conta aberta</div>
-        <div class="note">Cliente: <b id="contaClienteNome">Não informado</b></div>
+
+  <div class="collapsible-section">
+    <button class="collapsible-header open" id="btnHeaderContaInicio" onclick="toggleCollapsibleInicio('inicioContaContent', this)">
+      <span class="collapsible-title-group"><span>🧾 Conta</span><span class="collapsible-badge" id="badgeContaInicio">Fechada</span></span>
+      <span class="collapsible-arrow">▼</span>
+    </button>
+    <div id="inicioContaContent" class="collapsible-content no-pad" style="display:block;">
+      <div class="card" style="border-radius:0;box-shadow:none">
+        <div class="conta-header-info">
+          <div>
+            <div class="note" id="contaStatus">Status: Nenhuma conta aberta</div>
+            <div class="note">Cliente: <b id="contaClienteNome">Não informado</b></div>
+          </div>
+        </div>
+        <button onclick="mostrarMiniCardapio()" id="btnVerCardapioConta" style="width:100%; margin-bottom:16px; padding:14px; font-size:15px;">📋 Ver cardápio / Adicionar item</button>
+        <h3 style="margin-top:6px;">🧾 Itens Consumidos</h3>
+        <div id="contaItens"></div>
+        <hr style="border-color:var(--border); margin:18px 0">
+        <div class="conta-resumo-box">
+          <div class="conta-resumo-linha"><span class="label">Subtotal:</span><span class="money" id="contaSubtotal">R$ 0,00</span></div>
+          <div class="conta-resumo-linha"><span class="label">Gorjeta:</span><span class="money" id="contaGorjeta">R$ 0,00</span></div>
+        </div>
+        <div class="conta-total-box">
+          <div class="note">VALOR TOTAL DA CONTA</div>
+          <div class="total" id="contaTotal">R$ 0,00</div>
+        </div>
+        <div class="conta-btn-row">
+          <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">✏️ Editar gorjeta</button>
+          <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()">📂 Abrir conta</button>
+        </div>
+        <div id="contaExtrasWrapper" style="display:none; margin-top:16px;">
+          <div class="gorjeta-container">
+            <label>Gorjeta / Serviço</label>
+            <select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
+              <option value="0">Sem gorjeta</option>
+              <option value="10">10% - Serviço</option>
+              <option value="15">15%</option>
+              <option value="20">20%</option>
+            </select>
+          </div>
+          <hr style="border-color:var(--border); margin:16px 0">
+          <h3>💳 Dados PIX para Pagamento</h3>
+          <div id="pixInfo" class="note">Selecione um estabelecimento.</div>
+        </div>
       </div>
-    </div>
-    <button onclick="mostrarMiniCardapio()" id="btnVerCardapioConta" style="width:100%; margin-bottom:16px; padding:14px; font-size:15px;">📋 Ver cardápio / Adicionar item</button>
-    <h3 style="margin-top:6px;">🧾 Itens Consumidos</h3>
-    <div id="contaItens"></div>
-    <hr style="border-color:var(--border); margin:18px 0">
-    <div class="conta-resumo-box">
-      <div class="conta-resumo-linha"><span class="label">Subtotal:</span><span class="money" id="contaSubtotal">R$ 0,00</span></div>
-      <div class="conta-resumo-linha"><span class="label">Gorjeta:</span><span class="money" id="contaGorjeta">R$ 0,00</span></div>
-    </div>
-    <div class="conta-total-box">
-      <div class="note">VALOR TOTAL DA CONTA</div>
-      <div class="total" id="contaTotal">R$ 0,00</div>
-    </div>
-    <div class="conta-btn-row">
-      <button onclick="toggleContaExtras()" class="secondary" id="btnContaExtras">✏️ Editar gorjeta</button>
-      <button id="btnAcaoContaResumo" onclick="acaoPrincipalConta()">📂 Abrir conta</button>
-    </div>
-    <div id="contaExtrasWrapper" style="display:none; margin-top:16px;">
-      <div class="gorjeta-container">
-        <label>Gorjeta / Serviço</label>
-        <select id="gorjeta" onchange="saveGorjetaConfig(); calcularTotaisConta();">
-          <option value="0">Sem gorjeta</option>
-          <option value="10">10% - Serviço</option>
-          <option value="15">15%</option>
-          <option value="20">20%</option>
-        </select>
-      </div>
-      <hr style="border-color:var(--border); margin:16px 0">
-      <h3>💳 Dados PIX para Pagamento</h3>
-      <div id="pixInfo" class="note">Selecione um estabelecimento.</div>
     </div>
   </div>
 
   <div class="collapsible-section">
-    <button class="collapsible-header" id="btnHeaderProdutosInicio" onclick="toggleCollapsible('inicioProdutosContent', this)">
+    <button class="collapsible-header" id="btnHeaderProdutosInicio" onclick="toggleCollapsibleInicio('inicioProdutosContent', this)">
       <span class="collapsible-title-group"><span>🍺 Produtos</span><span class="collapsible-badge" id="badgeQtdProdutosInicio">0 itens</span></span>
       <span class="collapsible-arrow">▼</span>
     </button>
@@ -449,7 +457,7 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 
   <div class="collapsible-section">
-    <button class="collapsible-header" id="btnHeaderHistoricoInicio" onclick="toggleCollapsible('inicioHistoricoContent', this)">
+    <button class="collapsible-header" id="btnHeaderHistoricoInicio" onclick="toggleCollapsibleInicio('inicioHistoricoContent', this)">
       <span class="collapsible-title-group"><span>📜 Histórico de Contas</span><span class="collapsible-badge" id="badgeQtdHistoricoInicio">0 contas</span></span>
       <span class="collapsible-arrow">▼</span>
     </button>
@@ -989,6 +997,8 @@ function fecharSecoesInicio() {
   if (cp) cp.style.display = 'none'; if (bp) bp.classList.remove('open');
   const ch = document.getElementById('inicioHistoricoContent'); const bh = document.getElementById('btnHeaderHistoricoInicio');
   if (ch) ch.style.display = 'none'; if (bh) bh.classList.remove('open');
+  const cc = document.getElementById('inicioContaContent'); const bc = document.getElementById('btnHeaderContaInicio');
+  if (cc) cc.style.display = 'block'; if (bc) bc.classList.add('open');
 }
 function _mostrarTela(screenId) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -1007,14 +1017,18 @@ function showScreen(screenId) {
 }
 function abrirSecaoProdutos() {
   _mostrarTela('inicio');
-  const content = document.getElementById('inicioProdutosContent'); const btn = document.getElementById('btnHeaderProdutosInicio');
-  if (content && content.style.display === 'none') { content.style.display = 'block'; if (btn) btn.classList.add('open'); }
+  const content = document.getElementById('inicioProdutosContent');
+  if (content && content.style.display === 'none') {
+    toggleCollapsibleInicio('inicioProdutosContent', document.getElementById('btnHeaderProdutosInicio'));
+  }
   setTimeout(() => { const sec = document.getElementById('inicioProdutosContent'); if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
 }
 function abrirSecaoHistorico() {
   _mostrarTela('inicio');
-  const content = document.getElementById('inicioHistoricoContent'); const btn = document.getElementById('btnHeaderHistoricoInicio');
-  if (content && content.style.display === 'none') { content.style.display = 'block'; if (btn) btn.classList.add('open'); }
+  const content = document.getElementById('inicioHistoricoContent');
+  if (content && content.style.display === 'none') {
+    toggleCollapsibleInicio('inicioHistoricoContent', document.getElementById('btnHeaderHistoricoInicio'));
+  }
   setTimeout(() => { const sec = document.getElementById('inicioHistoricoContent'); if (sec && sec.scrollIntoView) sec.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 200);
 }
 function getNomeCliente() {
@@ -1029,6 +1043,26 @@ function toggleCollapsible(contentId, btn) {
   const aberto = content.style.display !== 'none';
   content.style.display = aberto ? 'none' : 'block';
   if (btn) btn.classList.toggle('open', !aberto);
+}
+function toggleCollapsibleInicio(contentId, btn) {
+  const sections = [
+    { content: 'inicioContaContent',     header: 'btnHeaderContaInicio' },
+    { content: 'inicioProdutosContent',  header: 'btnHeaderProdutosInicio' },
+    { content: 'inicioHistoricoContent', header: 'btnHeaderHistoricoInicio' }
+  ];
+  const target = document.getElementById(contentId);
+  const wasOpen = target && target.style.display !== 'none';
+  if (wasOpen) return;
+  sections.forEach(s => {
+    const c = document.getElementById(s.content);
+    const b = document.getElementById(s.header);
+    if (c) c.style.display = 'none';
+    if (b) b.classList.remove('open');
+  });
+  if (target) {
+    target.style.display = 'block';
+    if (btn) btn.classList.add('open');
+  }
 }
 
 function atualizarEstabAtivoBar() {
@@ -1347,27 +1381,21 @@ function atualizarIconeVoz() {
   else { icon.classList.remove('active'); emoji.textContent = '🎙️'; icon.title = 'Assistente INATIVO (arraste para mover)'; }
 }
 
-/* ⭐ ========== BOTÕES ARRASTÁVEIS ========== */
 function makeDraggable(el, storageKey) {
   if (!el) return;
-
   let isDragging = false;
   let hasMoved = false;
   let startX = 0, startY = 0;
   let longPressTimer = null;
   let savedPos = null;
-
   const THRESHOLD = 6;
   const LONG_PRESS_MS = 1200;
-
   function pos(e) {
     if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
     if (e.changedTouches && e.changedTouches[0]) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
     return { x: e.clientX, y: e.clientY };
   }
-
   function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
-
   function aplicarPosicao(left, top) {
     const maxL = Math.max(0, window.innerWidth - el.offsetWidth - 4);
     const maxT = Math.max(0, window.innerHeight - el.offsetHeight - 4);
@@ -1376,18 +1404,13 @@ function makeDraggable(el, storageKey) {
     el.style.right = 'auto';
     el.style.bottom = 'auto';
   }
-
   function resetarPosicao() {
-    el.style.left = '';
-    el.style.top = '';
-    el.style.right = '';
-    el.style.bottom = '';
+    el.style.left = ''; el.style.top = ''; el.style.right = ''; el.style.bottom = '';
     delete data[storageKey];
     try { save(); } catch(e) {}
     if (navigator.vibrate) { try { navigator.vibrate(80); } catch(e) {} }
     showFeedback('🔄 Botão resetado');
   }
-
   function onDown(e) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     const p = pos(e);
@@ -1413,7 +1436,6 @@ function makeDraggable(el, storageKey) {
       }
     }, LONG_PRESS_MS);
   }
-
   function onMove(e) {
     if (!isDragging) return;
     const p = pos(e);
@@ -1428,7 +1450,6 @@ function makeDraggable(el, storageKey) {
       aplicarPosicao(savedPos.left + dx, savedPos.top + dy);
     }
   }
-
   function onUp() {
     if (!isDragging) return;
     isDragging = false;
@@ -1443,24 +1464,20 @@ function makeDraggable(el, storageKey) {
       setTimeout(() => { hasMoved = false; }, 150);
     }
   }
-
   el.addEventListener('pointerdown', onDown);
   document.addEventListener('pointermove', onMove, { passive: false });
   document.addEventListener('pointerup', onUp);
   document.addEventListener('pointercancel', onUp);
-
   const saved = data[storageKey];
   if (saved && typeof saved.left === 'number' && typeof saved.top === 'number') {
     requestAnimationFrame(() => aplicarPosicao(saved.left, saved.top));
   }
-
   window.addEventListener('resize', () => {
     if (el.style.left && el.style.top) {
       aplicarPosicao(parseFloat(el.style.left), parseFloat(el.style.top));
     }
   });
 }
-/* ========== FIM BOTÕES ARRASTÁVEIS ========== */
 
 async function abrirLeitorCodigoBarras(contexto) {
   barcodeContexto = contexto; barcodeModalAberto = true; codigoProcessando = false;
@@ -2893,6 +2910,9 @@ function renderCardapio() {
   }
 }
 function renderConta() {
+  const badgeConta = document.getElementById('badgeContaInicio');
+  if (badgeConta) badgeConta.textContent = data.contaAtiva ? 'Aberta' : 'Fechada';
+
   const estab = getEstabelecimentoAtivo();
   const elCliente = document.getElementById('contaClienteNome'); if (elCliente) elCliente.textContent = getNomeCliente();
   const elStatus = document.getElementById('contaStatus');
@@ -3106,7 +3126,7 @@ function exportarDados(incluirImagens = true) {
   let dadosExport, totalImagens = 0;
   if (incluirImagens) { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; }); }); }
   else { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; }); }); }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 29, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 30, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -3148,7 +3168,6 @@ function importarDados(e) {
         manifestCodigosCache = null; manifestCodigosRepoCache = null;
         applyTheme(data.theme || 'light');
         save(); renderAll();
-        // Reposicionar botões após importação
         ['voiceStatusIcon','cameraStatusIcon'].forEach((id, i) => {
           const el = document.getElementById(id); if (!el) return;
           const saved = i === 0 ? data.voiceBtnPos : data.cameraBtnPos;
@@ -3201,7 +3220,6 @@ window.onload = function() {
     dropArea.addEventListener('drop', e => { const files = e.dataTransfer.files; if (files.length > 0) { document.getElementById('fileInput').files = files; importarDados({ target: { files: files } }); } }, false);
   }
   atualizarIconeVoz();
-  // Ativar drag nos botões flutuantes
   makeDraggable(document.getElementById('voiceStatusIcon'), 'voiceBtnPos');
   makeDraggable(document.getElementById('cameraStatusIcon'), 'cameraBtnPos');
   if (data.voiceAssistantOn === true && recognizer.isSupported()) { setTimeout(() => { if (!recognizer.isActive) { try { recognizer.activate(); } catch(e) { } } }, 1500); }
