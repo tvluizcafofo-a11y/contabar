@@ -313,6 +313,17 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .barcode-search-step.sucesso .step-status{color:var(--green);font-weight:bold}
 .barcode-search-step.falha{opacity:.4;border-color:var(--border)}
 .bc-spin{display:inline-block;width:14px;height:14px;border:2px solid var(--produto-spinner-track);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+
+/* ⭐ LISTA DE ESTABELECIMENTOS — botões em uma única linha */
+.estab-row{padding:10px;border-bottom:1px solid var(--border);display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;flex-wrap:nowrap !important;min-width:0}
+.estab-row-info{flex:1 1 0%;min-width:0;overflow:hidden}
+.estab-row-nome{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
+.estab-row-sub{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.estab-row-actions{flex:0 0 auto;display:flex !important;flex-wrap:nowrap !important;gap:5px;align-items:center}
+.estab-row-actions button{padding:7px 10px !important;font-size:12px !important;white-space:nowrap;flex-shrink:0;border-radius:8px}
+@media(max-width:380px){
+  .estab-row-actions button{padding:6px 8px !important;font-size:11px !important}
+}
 </style>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#2563eb">
@@ -559,12 +570,11 @@ footer{text-align:center;color:var(--muted);padding:25px}
 <button class="back-config-btn" onclick="showScreen('configuracoes')">⬅️ Voltar</button>
 <div class="card">
 <h2>🏢 Estabelecimentos</h2>
-<div class="estab-selector">
-<label>Ativo:</label>
-<select id="estabAtivoSelect" onchange="trocarEstabelecimentoAtivo()"></select>
-<button class="secondary" onclick="mostrarMiniCardapio()">📋 Ver cardápio</button>
+<div class="estab-selector" style="display:none;">
+  <label>Ativo:</label>
+  <select id="estabAtivoSelect" onchange="trocarEstabelecimentoAtivo()"></select>
+  <button class="secondary" onclick="mostrarMiniCardapio()">📋 Ver cardápio</button>
 </div>
-<hr style="border-color:var(--border);margin:15px 0">
 <div style="margin-bottom:15px;"><button onclick="mostrarFormEstabelecimento()">➕ Adicionar</button></div>
 <div id="formEstabelecimento" style="display:none; padding:16px; background:var(--panel-2); border-radius:12px; border:1px solid var(--border); margin-bottom:18px;">
   <h3 id="formEstabTitulo" style="margin-top:0">➕ Novo</h3>
@@ -575,7 +585,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
     <button class="secondary" onclick="fecharFormEstabelecimento()">❌ Cancelar</button>
   </div>
 </div>
-<h3>📋 Cadastrados</h3>
 <div id="listaEstabelecimentos"></div>
 </div>
 </section>
@@ -2860,7 +2869,18 @@ function renderEstabelecimentos() {
   lista.innerHTML = ids.map(id => {
     const e = data.estabelecimentos[id];
     const ativo = (id === currentId) ? '⭐ ' : '';
-    return `<div class="list-item"><span><b>${ativo}${escapeHtml(e.nome)}</b><br><span class="note">${e.produtos?.length || 0} produtos</span></span><div class="actions"><button class="secondary small" onclick="editarEstabelecimento('${id}')">✏️</button><button class="secondary small" onclick="setEstabelecimentoAtivo('${id}')">Selecionar</button><button class="danger small" onclick="excluirEstabelecimento('${id}')">🗑</button></div></div>`;
+    const isAtivo = (id === currentId);
+    return `<div class="estab-row">
+      <div class="estab-row-info">
+        <b class="estab-row-nome">${ativo}${escapeHtml(e.nome)}</b>
+        <div class="estab-row-sub">${e.produtos?.length || 0} produtos</div>
+      </div>
+      <div class="estab-row-actions">
+        <button class="secondary small" onclick="editarEstabelecimento('${id}')" title="Editar">✏️</button>
+        <button class="secondary small" onclick="${isAtivo ? '' : `setEstabelecimentoAtivo('${id}')`}" title="Selecionar" ${isAtivo ? 'disabled style="opacity:.5"' : ''}>${isAtivo ? '✓' : 'Selecionar'}</button>
+        <button class="danger small" onclick="excluirEstabelecimento('${id}')" title="Excluir">🗑</button>
+      </div>
+    </div>`;
   }).join('');
 }
 function renderCardapio() {
@@ -3126,7 +3146,7 @@ function exportarDados(incluirImagens = true) {
   let dadosExport, totalImagens = 0;
   if (incluirImagens) { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; }); }); }
   else { dadosExport = JSON.parse(JSON.stringify(data)); Object.values(dadosExport.estabelecimentos).forEach(estab => { (estab.produtos || []).forEach(p => { if (p.imagem) totalImagens++; p.imagem = null; }); }); }
-  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 30, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
+  dadosExport.__meta = { app: 'FECHA A CONTA', versao: 31, exportadoEm: new Date().toISOString(), incluirImagens: !!incluirImagens, totalImagens };
   const jsonStr = JSON.stringify(dadosExport, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
