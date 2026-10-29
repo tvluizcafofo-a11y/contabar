@@ -324,6 +324,25 @@ footer{text-align:center;color:var(--muted);padding:25px}
 @media(max-width:380px){
   .estab-row-actions button{padding:6px 8px !important;font-size:11px !important}
 }
+/* ⭐ GRUPOS DE HISTÓRICO POR ESTABELECIMENTO */
+.hist-grupo{background:var(--panel);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--card-shadow)}
+.hist-grupo-header{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:var(--collapsible-bg);color:var(--collapsible-text);border:0;border-radius:0;font-size:15px;font-weight:bold;cursor:pointer;text-align:left;box-shadow:none}
+.hist-grupo-header .hist-grupo-titulo{flex:1;min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hist-grupo-header .hist-grupo-nome{font-size:16px;font-weight:900;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.hist-grupo-header .hist-grupo-badge{font-size:11px;padding:2px 10px;border-radius:20px;background:var(--collapsible-counter-bg);color:var(--collapsible-counter-text);font-weight:bold;white-space:nowrap}
+.hist-grupo-header .hist-grupo-total{font-size:16px;font-weight:900;color:var(--money-color);white-space:nowrap;flex-shrink:0}
+.hist-grupo-header .collapsible-arrow{font-size:13px;transition:transform .25s ease;flex-shrink:0}
+.hist-grupo-header.open .collapsible-arrow{transform:rotate(180deg)}
+.hist-grupo-content{padding:12px;background:var(--panel-2);display:none}
+.hist-grupo-content.aberto{display:block}
+.hist-grupo-content .card{margin-bottom:12px}
+.hist-grupo-content .card:last-child{margin-bottom:0}
+@media(max-width:650px){
+  .hist-grupo-header{padding:12px 12px;gap:8px}
+  .hist-grupo-header .hist-grupo-nome{font-size:14px}
+  .hist-grupo-header .hist-grupo-total{font-size:14px}
+  .hist-grupo-content{padding:8px}
+}
 </style>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#2563eb">
@@ -961,6 +980,9 @@ let barcodeTorchOn = false;
 let barcodeModalAberto = false;
 let codigoProcessando = false;
 let timeoutVerificarProdutoOutrosEstabs = null;
+
+/* ⭐ ESTADO DE GRUPOS ABERTOS NO HISTÓRICO POR ESTABELECIMENTO */
+let historicoEstabAberto = {};
 
 const $ = id => document.getElementById(id);
 const speechDiagnostic = { lastText:null, lastError:null, succeeded:false, usedNative:false, usedWebSpeech:false, usedAudioFallback:false, usedVisual:false };
@@ -2856,7 +2878,7 @@ async function excluirContaHistorico(id) {
 async function limparHistorico() {
   const ok = await confirmar('Limpar TODO o histórico?', { icone: '⚠️', titulo: 'Limpar', textoSim: 'Sim', textoNao: 'Não' });
   if (!ok) return;
-  data.historico = []; save(); renderHistorico();
+  data.historico = []; historicoEstabAberto = {}; save(); renderHistorico();
 }
 function renderEstabelecimentos() {
   const select = $('estabAtivoSelect');
@@ -2956,6 +2978,21 @@ function parseDataConta(dataStr, idFallback) {
   if (d && t) { const [dia, mes, ano] = d.split('/'); const [hora, min, seg] = t.split(':'); return new Date(ano, mes - 1, dia, hora || 0, min || 0, seg || 0); }
   return new Date(idFallback || Date.now());
 }
+
+/* ⭐ TOGGLE DE GRUPO DE ESTABELECIMENTO NO HISTÓRICO */
+function toggleHistoricoEstab(btn) {
+  if (!btn) return;
+  const nome = btn.dataset.estabNome;
+  const content = btn.nextElementSibling;
+  if (!content) return;
+  const aberto = content.style.display !== 'none';
+  content.style.display = aberto ? 'none' : 'block';
+  content.classList.toggle('aberto', !aberto);
+  btn.classList.toggle('open', !aberto);
+  historicoEstabAberto[nome] = !aberto;
+}
+
+/* ⭐ RENDER DO HISTÓRICO (data OU por estabelecimento) */
 function renderHistorico() {
   const lista = document.getElementById('listaHistorico');
   const badge = document.getElementById('badgeQtdHistoricoInicio');
@@ -2980,11 +3017,52 @@ function renderHistorico() {
     const est = estiloMP[mp] || estiloMP['Não informado'];
     return `<div class="card historico-item" style="margin-bottom:12px;border-left:4px solid ${est.cor};cursor:pointer" onclick="abrirRecibo(${h.id})"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px"><div style="flex:1;min-width:200px"><b>${escapeHtml(h.data)}</b><br><span class="note">${escapeHtml(h.estabelecimento)} | Cliente: ${escapeHtml(h.cliente || '—')}</span><br><span style="display:inline-block;margin:6px 0;padding:4px 10px;border-radius:20px;background:${est.bg};color:${est.cor};font-size:13px;font-weight:bold">${est.icone} ${mp}</span><br><b>Total: ${money(h.total)}</b></div><div class="actions" onclick="event.stopPropagation()"><button class="danger small" onclick="excluirContaHistorico(${h.id})">🗑</button></div></div></div>`;
   }
-  let totalGeral = 0;
-  let html = '';
-  hist.forEach(h => { totalGeral += h.total || 0; html += criarCardConta(h); });
-  lista.innerHTML = html;
-  document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral: ${money(totalGeral)}`;
+
+  const modoOrdem = ($('histOrdem') && $('histOrdem').value) || 'data';
+
+  if (modoOrdem === 'estabelecimento') {
+    /* ⭐ VISUALIZAÇÃO AGRUPADA POR ESTABELECIMENTO */
+    const grupos = {};
+    hist.forEach(h => {
+      const nome = h.estabelecimento || '—';
+      if (!grupos[nome]) grupos[nome] = { nome, contas: [], total: 0, qtdItens: 0 };
+      grupos[nome].contas.push(h);
+      grupos[nome].total += h.total || 0;
+      grupos[nome].qtdItens += (h.itens || []).reduce((s, it) => s + (it.qtd || 0), 0);
+    });
+    const nomesOrdenados = Object.keys(grupos).sort((a, b) => grupos[b].total - grupos[a].total);
+
+    let html = '';
+    let totalGeral = 0;
+    nomesOrdenados.forEach(nome => {
+      const g = grupos[nome];
+      totalGeral += g.total;
+      const aberto = !!historicoEstabAberto[nome];
+      const contasHtml = g.contas.map(h => criarCardConta(h)).join('');
+      html += `<div class="hist-grupo">
+        <button class="hist-grupo-header ${aberto ? 'open' : ''}" data-estab-nome="${escapeHtml(nome)}" onclick="toggleHistoricoEstab(this)">
+          <span class="hist-grupo-titulo">
+            <span class="hist-grupo-nome">🏢 ${escapeHtml(nome)}</span>
+            <span class="hist-grupo-badge">${g.contas.length} ${g.contas.length === 1 ? 'conta' : 'contas'}</span>
+          </span>
+          <span class="hist-grupo-total">${money(g.total)}</span>
+          <span class="collapsible-arrow">▼</span>
+        </button>
+        <div class="hist-grupo-content ${aberto ? 'aberto' : ''}" style="display:${aberto ? 'block' : 'none'}">
+          ${contasHtml}
+        </div>
+      </div>`;
+    });
+    lista.innerHTML = html;
+    document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral: ${money(totalGeral)}`;
+  } else {
+    /* VISUALIZAÇÃO POR DATA (original) */
+    let totalGeral = 0;
+    let html = '';
+    hist.forEach(h => { totalGeral += h.total || 0; html += criarCardConta(h); });
+    lista.innerHTML = html;
+    document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral: ${money(totalGeral)}`;
+  }
 }
 function renderAll() {
   renderEstabelecimentos(); renderCardapio(); renderConta(); renderHistorico();
@@ -3186,6 +3264,7 @@ function importarDados(e) {
         githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
         manifestRotulosCache = null; manifestRotulosRepoCache = null;
         manifestCodigosCache = null; manifestCodigosRepoCache = null;
+        historicoEstabAberto = {};
         applyTheme(data.theme || 'light');
         save(); renderAll();
         ['voiceStatusIcon','cameraStatusIcon'].forEach((id, i) => {
@@ -3218,6 +3297,7 @@ async function clearAllData() {
   githubTreeCache = null; githubTreeRepoCache = null; githubTreeBranchCache = null; githubTreeCacheTime = 0;
   manifestRotulosCache = null; manifestRotulosRepoCache = null;
   manifestCodigosCache = null; manifestCodigosRepoCache = null;
+  historicoEstabAberto = {};
   ['voiceStatusIcon','cameraStatusIcon'].forEach(id => {
     const el = document.getElementById(id); if (!el) return;
     el.style.left = ''; el.style.top = ''; el.style.right = ''; el.style.bottom = '';
