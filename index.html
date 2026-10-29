@@ -1007,9 +1007,8 @@ let timeoutVerificarProdutoOutrosEstabs = null;
 let historicoEstabAberto = {};
 
 /* ⭐ CONTROLE DO BOTÃO VOLTAR */
-let exitAttemptPending = false;
 let suppressNextPopstate = false;
-let saidaConfirmada = false;
+let exitAttemptPending = false;
 
 const $ = id => document.getElementById(id);
 const speechDiagnostic = { lastText:null, lastError:null, succeeded:false, usedNative:false, usedWebSpeech:false, usedAudioFallback:false, usedVisual:false };
@@ -1204,28 +1203,10 @@ function fecharSecoesAbertas() {
   return false;
 }
 
-/* ⭐ SAÍDA DO APP — tenta TODOS os métodos conhecidos */
-function confirmarSaidaApp() {
-  if (exitAttemptPending) return;
-  exitAttemptPending = true;
-  saidaConfirmada = false;
-  const modal = document.getElementById('exitAppModal');
-  if (modal) modal.classList.add('active');
-  if (speechOn) speak('Deseja sair do aplicativo?');
-}
-function cancelarSaidaApp() {
-  exitAttemptPending = false;
-  const modal = document.getElementById('exitAppModal');
-  if (modal) modal.classList.remove('active');
-  if (speechOn) { try { speechSynthesis.cancel(); } catch(e) {} }
-}
-
-/* Tenta fechar o app por TODOS os meios conhecidos.
-   Retorna true se algum método foi chamado com sucesso (mesmo que não saibamos se fechou). */
+/* ⭐ SAÍDA DO APP — sem modal, chama direto os bridges + histórico */
 function tentarFecharAppCompleto() {
   let chamouAlgumMetodo = false;
 
-  // 1) Android JS bridge — vários nomes possíveis
   const bridges = [
     () => { if (window.Android && typeof window.Android.closeApp === 'function') { window.Android.closeApp(); return true; } return false; },
     () => { if (window.Android && typeof window.Android.exitApp === 'function') { window.Android.exitApp(); return true; } return false; },
@@ -1243,7 +1224,6 @@ function tentarFecharAppCompleto() {
     try { if (bridge()) { chamouAlgumMetodo = true; break; } } catch(e) { console.warn('Bridge falhou:', e); }
   }
 
-  // 2) Truques de window.close (alguns WebViews permitem via window.open)
   try { window.open('', '_self', ''); } catch(e) {}
   try { window.close(); } catch(e) {}
   try { self.close(); } catch(e) {}
@@ -1252,33 +1232,16 @@ function tentarFecharAppCompleto() {
   return chamouAlgumMetodo;
 }
 
-function confirmarSaidaSim() {
+/* Stub — mantida para compatibilidade com fecharModaisAbertos */
+function cancelarSaidaApp() {
   exitAttemptPending = false;
-  saidaConfirmada = true;
   const modal = document.getElementById('exitAppModal');
   if (modal) modal.classList.remove('active');
-  try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch(e) {}
-
-  // Pequeno delay para o modal sumir visualmente antes de tentar fechar
-  setTimeout(() => {
-    const chamouBridge = tentarFecharAppCompleto();
-
-    // Se nenhum bridge foi chamado, tenta esgotar o histórico
-    // (em WebViews Android, isso pode disparar Activity.onBackPressed → finish())
-    if (!chamouBridge) {
-      setTimeout(() => {
-        try {
-          // Tenta voltar até o começo do histórico do app
-          if (history.length > 1) {
-            history.go(-history.length);
-          }
-          // E depois um back final (pode disparar onBackPressed nativo)
-          setTimeout(() => { try { history.back(); } catch(e) {} }, 150);
-        } catch(e) {}
-      }, 150);
-    }
-  }, 60);
+  if (speechOn) { try { speechSynthesis.cancel(); } catch(e) {} }
 }
+/* Stub — não é mais chamada pelo back, mas mantida por segurança */
+function confirmarSaidaApp() { tentarFecharAppCompleto(); }
+function confirmarSaidaSim() { tentarFecharAppCompleto(); }
 
 function atualizarEstabAtivoBar() {
   const bar = document.getElementById('estabAtivoBar');
@@ -2082,7 +2045,12 @@ function agendarVerificacaoProdutoEmOutrosEstabs() {
   timeoutVerificarProdutoOutrosEstabs = setTimeout(() => { verificarProdutoEmOutrosEstabs(); }, 650);
 }
 
-function desligarApp() { confirmarSaidaApp(); }
+/* ⭐ Comando "desligar app" (por voz) — fecha direto sem modal */
+function desligarApp() {
+  if (speechOn) speak('Até logo!');
+  try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch(e) {}
+  setTimeout(tentarFecharAppCompleto, 80);
+}
 
 function renderSinonimos() {
   const container = document.getElementById('listaSinonimos'); if (!container) return;
@@ -3322,12 +3290,6 @@ function processVoice(text) {
   if (!text) return;
   document.getElementById('lastCommand').textContent = 'Você disse: "' + text + '"';
   const norm = normalize(text);
-  if (exitAttemptPending) {
-    if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|sair|sai)([\s.,!?]|$)/.test(norm)) { confirmarSaidaSim(); return; }
-    if (/(^|\s)(nao|cancela|cancelar|negativo|no|recusar|recuso|ficar|continuar)([\s.,!?]|$)/.test(norm)) { cancelarSaidaApp(); return; }
-    showFeedback('⚠️ Diga "sim" ou "não".');
-    return;
-  }
   if (confirmacaoPendente) {
     if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar|salvar|salva)([\s.,!?]|$)/.test(norm)) { resolverConfirmacao(true); return; }
     if (/(^|\s)(nao|cancela|cancelar|negativo|no|recusar|recuso)([\s.,!?]|$)/.test(norm)) { resolverConfirmacao(false); return; }
@@ -3492,15 +3454,7 @@ try {
 window.addEventListener('popstate', function(e) {
   if (suppressNextPopstate) { suppressNextPopstate = false; return; }
 
-  // Se o usuário já confirmou a saída, não reabre o modal — apenas deixa a navegação fluir
-  if (saidaConfirmada) {
-    const state = e.state || {};
-    if (state.depth === 0 || state.depth === undefined) {
-      try { history.back(); } catch(err) {}
-    }
-    return;
-  }
-
+  // 1) Tenta fechar UI aberta (modal/form/seção). Se fechou, cancela a navegação.
   const fechouUI = fecharModaisAbertos() || fecharFormulariosAbertos() || fecharSecoesAbertas();
   if (fechouUI) {
     suppressNextPopstate = true;
@@ -3508,16 +3462,15 @@ window.addEventListener('popstate', function(e) {
     return;
   }
 
+  // 2) Chegou no início (depth 0) — tenta fechar o app direto, sem perguntar
   const state = e.state || {};
   const depth = state.depth;
   if (depth === undefined || depth === 0) {
-    suppressNextPopstate = true;
-    try { history.go(1); } catch(err) {}
-    _mostrarTela('inicio');
-    confirmarSaidaApp();
+    tentarFecharAppCompleto();
     return;
   }
 
+  // 3) Navegação normal entre telas
   _mostrarTela(state.appScreen || 'inicio');
 });
 
