@@ -313,8 +313,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 .barcode-search-step.sucesso .step-status{color:var(--green);font-weight:bold}
 .barcode-search-step.falha{opacity:.4;border-color:var(--border)}
 .bc-spin{display:inline-block;width:14px;height:14px;border:2px solid var(--produto-spinner-track);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
-
-/* ⭐ LISTA DE ESTABELECIMENTOS — botões em uma única linha */
 .estab-row{padding:10px;border-bottom:1px solid var(--border);display:flex !important;align-items:center !important;justify-content:space-between !important;gap:8px !important;flex-wrap:nowrap !important;min-width:0}
 .estab-row-info{flex:1 1 0%;min-width:0;overflow:hidden}
 .estab-row-nome{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}
@@ -324,7 +322,6 @@ footer{text-align:center;color:var(--muted);padding:25px}
 @media(max-width:380px){
   .estab-row-actions button{padding:6px 8px !important;font-size:11px !important}
 }
-/* ⭐ GRUPOS DE HISTÓRICO POR ESTABELECIMENTO */
 .hist-grupo{background:var(--panel);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;box-shadow:var(--card-shadow)}
 .hist-grupo-header{width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;background:var(--collapsible-bg);color:var(--collapsible-text);border:0;border-radius:0;font-size:15px;font-weight:bold;cursor:pointer;text-align:left;box-shadow:none}
 .hist-grupo-header .hist-grupo-titulo{flex:1;min-width:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -343,6 +340,20 @@ footer{text-align:center;color:var(--muted);padding:25px}
   .hist-grupo-header .hist-grupo-total{font-size:14px}
   .hist-grupo-content{padding:8px}
 }
+.exit-app-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--modal-overlay);z-index:10500;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.exit-app-modal.active{display:flex}
+.exit-app-content{background:var(--panel);border:1px solid var(--border);border-radius:22px;padding:32px 24px 24px;max-width:380px;width:100%;box-shadow:0 24px 70px rgba(15,23,42,.45);animation:exitAppIn .32s cubic-bezier(.22,1,.36,1);text-align:center;color:var(--text);position:relative;overflow:hidden}
+.exit-app-content::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;background:linear-gradient(90deg,var(--accent),var(--yellow),var(--danger))}
+@keyframes exitAppIn{from{transform:scale(.85) translateY(24px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.exit-app-icon{font-size:64px;line-height:1;margin:6px 0 12px;animation:exitAppFloat 2.2s ease-in-out infinite;display:inline-block}
+@keyframes exitAppFloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+.exit-app-title{font-family:'Anton','Impact',sans-serif;font-size:26px;letter-spacing:2px;text-transform:uppercase;color:var(--title-color);margin:0 0 10px;line-height:1.1}
+.exit-app-message{font-size:15px;color:var(--text);margin:0 0 24px;line-height:1.5}
+.exit-app-message b{color:var(--accent)}
+.exit-app-actions{display:flex;gap:12px}
+.exit-app-actions button{flex:1;padding:16px 14px;font-size:15px;font-weight:bold;min-height:54px;border-radius:12px}
+.exit-app-btn-nao{background:var(--btn-secondary-bg);color:var(--btn-secondary-text);box-shadow:0 2px 6px rgba(15,23,42,.08)}
+.exit-app-btn-sim{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 4px 16px rgba(239,68,68,.4)}
 </style>
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#2563eb">
@@ -849,6 +860,18 @@ footer{text-align:center;color:var(--muted);padding:25px}
   </div>
 </div>
 
+<div id="exitAppModal" class="exit-app-modal">
+  <div class="exit-app-content">
+    <div class="exit-app-icon">🍺</div>
+    <h2 class="exit-app-title">Sair do App?</h2>
+    <p class="exit-app-message">Deseja realmente fechar o<br><b>FECHA A CONTA</b>?</p>
+    <div class="exit-app-actions">
+      <button class="exit-app-btn-nao" onclick="cancelarSaidaApp()">↩ Continuar</button>
+      <button class="exit-app-btn-sim" onclick="confirmarSaidaSim()">🚪 Sair</button>
+    </div>
+  </div>
+</div>
+
 <script>
 function applyTheme(theme){
   const root = document.documentElement;
@@ -981,8 +1004,12 @@ let barcodeModalAberto = false;
 let codigoProcessando = false;
 let timeoutVerificarProdutoOutrosEstabs = null;
 
-/* ⭐ ESTADO DE GRUPOS ABERTOS NO HISTÓRICO POR ESTABELECIMENTO */
 let historicoEstabAberto = {};
+
+/* ⭐ CONTROLE DO BOTÃO VOLTAR */
+let exitAttemptPending = false;
+let suppressNextPopstate = false;
+let saidaConfirmada = false;
 
 const $ = id => document.getElementById(id);
 const speechDiagnostic = { lastText:null, lastError:null, succeeded:false, usedNative:false, usedWebSpeech:false, usedAudioFallback:false, usedVisual:false };
@@ -1039,11 +1066,22 @@ function _mostrarTela(screenId) {
   if (screenId === 'sinonimos') renderSinonimos();
   try { window.scrollTo({ top: 0, behavior: 'auto' }); } catch(e) { window.scrollTo(0, 0); }
 }
+
+function pushHistoryState(screenId) {
+  try {
+    const current = history.state || {};
+    if (current.appScreen === screenId) return;
+    const depth = (current.depth || 0) + 1;
+    history.pushState({ appScreen: screenId, depth }, '');
+  } catch(e) { }
+}
+
 function showScreen(screenId) {
   if (screenId === 'conta') screenId = 'inicio';
-  if (screenId === 'cardapio') { abrirSecaoProdutos(); return; }
-  if (screenId === 'historico') { abrirSecaoHistorico(); return; }
+  if (screenId === 'cardapio') { pushHistoryState('inicio'); abrirSecaoProdutos(); return; }
+  if (screenId === 'historico') { pushHistoryState('inicio'); abrirSecaoHistorico(); return; }
   if (screenId === 'inicio') fecharSecoesInicio();
+  pushHistoryState(screenId);
   _mostrarTela(screenId);
 }
 function abrirSecaoProdutos() {
@@ -1094,6 +1132,152 @@ function toggleCollapsibleInicio(contentId, btn) {
     target.style.display = 'block';
     if (btn) btn.classList.add('open');
   }
+}
+
+function fecharModaisAbertos() {
+  const mapModalToClose = [
+    { id: 'exitAppModal', fn: () => cancelarSaidaApp() },
+    { id: 'confirmModal', fn: () => resolverConfirmacao(false) },
+    { id: 'escolhaProdutoModal', fn: () => fecharEscolhaProduto() },
+    { id: 'escolherImagemModal', fn: () => fecharEscolherImagem() },
+    { id: 'barcodeModal', fn: () => { try { fecharLeitorCodigoBarras(); } catch(e) {} } },
+    { id: 'barcodeSearchOverlay', fn: () => cancelarBuscaCodigoBarras() },
+    { id: 'paymentModal', fn: () => fecharPaymentModal() },
+    { id: 'reciboModal', fn: () => fecharRecibo() },
+    { id: 'shareModal', fn: () => fecharShareModal() }
+  ];
+  for (const { id, fn } of mapModalToClose) {
+    const el = document.getElementById(id);
+    if (el && el.classList.contains('active')) { try { fn(); } catch(e) {} return true; }
+  }
+  const exportModal = document.getElementById('exportModal');
+  if (exportModal && exportModal.style.display === 'flex') { fecharModalExportacao(); return true; }
+  const miniModal = document.getElementById('miniCardapioModal');
+  if (miniModal && miniModal.style.display === 'block') { fecharMiniCardapio(); return true; }
+  return false;
+}
+
+function fecharFormulariosAbertos() {
+  const inicioAtivo = document.getElementById('inicio')?.classList.contains('active');
+  if (inicioAtivo) {
+    const formProd = document.getElementById('formProduto');
+    if (formProd && formProd.style.display !== 'none') {
+      try { fecharFormProduto(true); } catch(e) {}
+      return true;
+    }
+  }
+  const estabAtivo = document.getElementById('estabelecimentos')?.classList.contains('active');
+  if (estabAtivo) {
+    const formEstab = document.getElementById('formEstabelecimento');
+    if (formEstab && formEstab.style.display !== 'none') {
+      try { fecharFormEstabelecimento(); } catch(e) {}
+      return true;
+    }
+  }
+  const userAtivo = document.getElementById('usuario')?.classList.contains('active');
+  if (userAtivo) {
+    const formUser = document.getElementById('usuarioFormWrapper');
+    if (formUser && formUser.style.display === 'block') {
+      const formBanco = document.getElementById('novoBancoContainer');
+      if (formBanco && formBanco.style.display === 'block') {
+        try { cancelarNovoBanco(); } catch(e) {}
+        return true;
+      }
+      try { toggleUsuarioForm(); } catch(e) {}
+      return true;
+    }
+  }
+  return false;
+}
+
+function fecharSecoesAbertas() {
+  const inicioAtivo = document.getElementById('inicio')?.classList.contains('active');
+  if (!inicioAtivo) return false;
+  const secProdutos = document.getElementById('inicioProdutosContent');
+  const secHist = document.getElementById('inicioHistoricoContent');
+  const produtosAberto = secProdutos && secProdutos.style.display !== 'none';
+  const histAberto = secHist && secHist.style.display !== 'none';
+  if (produtosAberto || histAberto) {
+    fecharSecoesInicio();
+    return true;
+  }
+  return false;
+}
+
+/* ⭐ SAÍDA DO APP — tenta TODOS os métodos conhecidos */
+function confirmarSaidaApp() {
+  if (exitAttemptPending) return;
+  exitAttemptPending = true;
+  saidaConfirmada = false;
+  const modal = document.getElementById('exitAppModal');
+  if (modal) modal.classList.add('active');
+  if (speechOn) speak('Deseja sair do aplicativo?');
+}
+function cancelarSaidaApp() {
+  exitAttemptPending = false;
+  const modal = document.getElementById('exitAppModal');
+  if (modal) modal.classList.remove('active');
+  if (speechOn) { try { speechSynthesis.cancel(); } catch(e) {} }
+}
+
+/* Tenta fechar o app por TODOS os meios conhecidos.
+   Retorna true se algum método foi chamado com sucesso (mesmo que não saibamos se fechou). */
+function tentarFecharAppCompleto() {
+  let chamouAlgumMetodo = false;
+
+  // 1) Android JS bridge — vários nomes possíveis
+  const bridges = [
+    () => { if (window.Android && typeof window.Android.closeApp === 'function') { window.Android.closeApp(); return true; } return false; },
+    () => { if (window.Android && typeof window.Android.exitApp === 'function') { window.Android.exitApp(); return true; } return false; },
+    () => { if (window.Android && typeof window.Android.finish === 'function') { window.Android.finish(); return true; } return false; },
+    () => { if (window.Android && typeof window.Android.close === 'function') { window.Android.close(); return true; } return false; },
+    () => { if (window.AndroidBridge && typeof window.AndroidBridge.closeApp === 'function') { window.AndroidBridge.closeApp(); return true; } return false; },
+    () => { if (window.NativeBridge && typeof window.NativeBridge.closeApp === 'function') { window.NativeBridge.closeApp(); return true; } return false; },
+    () => { if (window.NativeBridge && typeof window.NativeBridge.exitApp === 'function') { window.NativeBridge.exitApp(); return true; } return false; },
+    () => { if (window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === 'function') { window.ReactNativeWebView.postMessage(JSON.stringify({ action: 'exit' })); return true; } return false; },
+    () => { if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.exit && typeof window.webkit.messageHandlers.exit.postMessage === 'function') { window.webkit.messageHandlers.exit.postMessage({ action: 'exit' }); return true; } return false; },
+    () => { if (window.navigator && window.navigator.app && typeof window.navigator.app.exitApp === 'function') { window.navigator.app.exitApp(); return true; } return false; }
+  ];
+
+  for (const bridge of bridges) {
+    try { if (bridge()) { chamouAlgumMetodo = true; break; } } catch(e) { console.warn('Bridge falhou:', e); }
+  }
+
+  // 2) Truques de window.close (alguns WebViews permitem via window.open)
+  try { window.open('', '_self', ''); } catch(e) {}
+  try { window.close(); } catch(e) {}
+  try { self.close(); } catch(e) {}
+  try { top.close(); } catch(e) {}
+
+  return chamouAlgumMetodo;
+}
+
+function confirmarSaidaSim() {
+  exitAttemptPending = false;
+  saidaConfirmada = true;
+  const modal = document.getElementById('exitAppModal');
+  if (modal) modal.classList.remove('active');
+  try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch(e) {}
+
+  // Pequeno delay para o modal sumir visualmente antes de tentar fechar
+  setTimeout(() => {
+    const chamouBridge = tentarFecharAppCompleto();
+
+    // Se nenhum bridge foi chamado, tenta esgotar o histórico
+    // (em WebViews Android, isso pode disparar Activity.onBackPressed → finish())
+    if (!chamouBridge) {
+      setTimeout(() => {
+        try {
+          // Tenta voltar até o começo do histórico do app
+          if (history.length > 1) {
+            history.go(-history.length);
+          }
+          // E depois um back final (pode disparar onBackPressed nativo)
+          setTimeout(() => { try { history.back(); } catch(e) {} }, 150);
+        } catch(e) {}
+      }, 150);
+    }
+  }, 60);
 }
 
 function atualizarEstabAtivoBar() {
@@ -1592,7 +1776,7 @@ async function fecharLeitorCodigoBarras() {
   barcodeModalAberto = false; codigoProcessando = false;
   try { if (html5QrScanner) { try { await html5QrScanner.stop(); } catch(e) {} try { html5QrScanner.clear(); } catch(e) {} html5QrScanner = null; } } catch(e) {}
   const readerEl = document.getElementById('barcodeReader'); if (readerEl) readerEl.innerHTML = '';
-  document.getElementById('barcodeModal').classList.remove('active');
+  const modal = document.getElementById('barcodeModal'); if (modal) modal.classList.remove('active');
   barcodeTorchOn = false;
 }
 async function confirmarCodigoBarras() {
@@ -1898,16 +2082,7 @@ function agendarVerificacaoProdutoEmOutrosEstabs() {
   timeoutVerificarProdutoOutrosEstabs = setTimeout(() => { verificarProdutoEmOutrosEstabs(); }, 650);
 }
 
-async function desligarApp() {
-  const ok = await confirmar('Sair do aplicativo?', { icone: '🚪', titulo: 'Sair', textoSim: 'Sair', textoNao: 'Não' });
-  if (!ok) return;
-  if (speechOn) speak('Até logo!');
-  showFeedback('👋 Até logo!');
-  try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch(e){}
-  try { if (window.Android && typeof window.Android.closeApp === 'function') { window.Android.closeApp(); return; } } catch(e) {}
-  try { window.open('', '_self', ''); window.close(); } catch(e) {}
-  setTimeout(() => { try { document.body.innerHTML = `<div style="position:fixed;inset:0;background:linear-gradient(135deg,#0d1016,#171d29);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#f4f7fb;font-family:Arial,sans-serif;text-align:center;padding:30px;z-index:99999;"><div style="font-size:90px">🍺</div><h1 style="font-family:Anton,Impact,sans-serif;color:#79e9aa;letter-spacing:5px;font-size:52px;margin:14px 0">FECHA A CONTA</h1><p style="font-size:18px;color:#aeb8c8;margin-top:24px">Até logo! 👋</p><button onclick="location.reload()" style="margin-top:32px;padding:14px 28px;font-size:16px;background:#39c97a;color:#092114;border:0;border-radius:10px;font-weight:bold;cursor:pointer">🔄 Reabrir</button></div>`; } catch(e) {} }, 1200);
-}
+function desligarApp() { confirmarSaidaApp(); }
 
 function renderSinonimos() {
   const container = document.getElementById('listaSinonimos'); if (!container) return;
@@ -2729,8 +2904,8 @@ function fecharContaVazia() {
   save(); renderAll();
 }
 function fecharPaymentModal() {
-  document.getElementById('paymentModal').classList.remove('active');
-  const container = document.getElementById('qrcode'); while (container.firstChild) container.removeChild(container.firstChild);
+  const modal = document.getElementById('paymentModal'); if (modal) modal.classList.remove('active');
+  const container = document.getElementById('qrcode'); if (container) { while (container.firstChild) container.removeChild(container.firstChild); }
   if (qrCodeInstance) qrCodeInstance = null;
   if (callbackAposFechar) callbackAposFechar = null;
   contaFechada = null; abrindoBanco = false; metodoPagamento = null;
@@ -2979,7 +3154,6 @@ function parseDataConta(dataStr, idFallback) {
   return new Date(idFallback || Date.now());
 }
 
-/* ⭐ TOGGLE DE GRUPO DE ESTABELECIMENTO NO HISTÓRICO */
 function toggleHistoricoEstab(btn) {
   if (!btn) return;
   const nome = btn.dataset.estabNome;
@@ -2992,7 +3166,6 @@ function toggleHistoricoEstab(btn) {
   historicoEstabAberto[nome] = !aberto;
 }
 
-/* ⭐ RENDER DO HISTÓRICO (data OU por estabelecimento) */
 function renderHistorico() {
   const lista = document.getElementById('listaHistorico');
   const badge = document.getElementById('badgeQtdHistoricoInicio');
@@ -3021,7 +3194,6 @@ function renderHistorico() {
   const modoOrdem = ($('histOrdem') && $('histOrdem').value) || 'data';
 
   if (modoOrdem === 'estabelecimento') {
-    /* ⭐ VISUALIZAÇÃO AGRUPADA POR ESTABELECIMENTO */
     const grupos = {};
     hist.forEach(h => {
       const nome = h.estabelecimento || '—';
@@ -3056,7 +3228,6 @@ function renderHistorico() {
     lista.innerHTML = html;
     document.getElementById('totalGeralHistorico').innerHTML = `💰 Total geral: ${money(totalGeral)}`;
   } else {
-    /* VISUALIZAÇÃO POR DATA (original) */
     let totalGeral = 0;
     let html = '';
     hist.forEach(h => { totalGeral += h.total || 0; html += criarCardConta(h); });
@@ -3151,6 +3322,12 @@ function processVoice(text) {
   if (!text) return;
   document.getElementById('lastCommand').textContent = 'Você disse: "' + text + '"';
   const norm = normalize(text);
+  if (exitAttemptPending) {
+    if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|sair|sai)([\s.,!?]|$)/.test(norm)) { confirmarSaidaSim(); return; }
+    if (/(^|\s)(nao|cancela|cancelar|negativo|no|recusar|recuso|ficar|continuar)([\s.,!?]|$)/.test(norm)) { cancelarSaidaApp(); return; }
+    showFeedback('⚠️ Diga "sim" ou "não".');
+    return;
+  }
   if (confirmacaoPendente) {
     if (/(^|\s)(sim|confirmo|claro|pode|positivo|ok|okay|isso|beleza|confirmar|salvar|salva)([\s.,!?]|$)/.test(norm)) { resolverConfirmacao(true); return; }
     if (/(^|\s)(nao|cancela|cancelar|negativo|no|recusar|recuso)([\s.,!?]|$)/.test(norm)) { resolverConfirmacao(false); return; }
@@ -3306,12 +3483,50 @@ async function clearAllData() {
   showFeedback('🗑 Todos os dados apagados.');
 }
 
+/* ⭐ INICIALIZAÇÃO DO CONTROLE DE NAVEGAÇÃO */
+try {
+  history.replaceState({ appScreen: 'inicio', depth: 0 }, '');
+  history.pushState({ appScreen: 'inicio', depth: 1 }, '');
+} catch(e) { /* History API indisponível */ }
+
+window.addEventListener('popstate', function(e) {
+  if (suppressNextPopstate) { suppressNextPopstate = false; return; }
+
+  // Se o usuário já confirmou a saída, não reabre o modal — apenas deixa a navegação fluir
+  if (saidaConfirmada) {
+    const state = e.state || {};
+    if (state.depth === 0 || state.depth === undefined) {
+      try { history.back(); } catch(err) {}
+    }
+    return;
+  }
+
+  const fechouUI = fecharModaisAbertos() || fecharFormulariosAbertos() || fecharSecoesAbertas();
+  if (fechouUI) {
+    suppressNextPopstate = true;
+    try { history.go(1); } catch(err) {}
+    return;
+  }
+
+  const state = e.state || {};
+  const depth = state.depth;
+  if (depth === undefined || depth === 0) {
+    suppressNextPopstate = true;
+    try { history.go(1); } catch(err) {}
+    _mostrarTela('inicio');
+    confirmarSaidaApp();
+    return;
+  }
+
+  _mostrarTela(state.appScreen || 'inicio');
+});
+
 window.onload = function() {
   applyTheme(data.theme || 'light');
   renderAll();
   renderPreviewImagemProduto();
   atualizarStatusGithubRepo();
-  showScreen('inicio');
+  _mostrarTela('inicio');
   const dropArea = document.getElementById('dropArea');
   if (dropArea) {
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => { dropArea.addEventListener(eventName, e => { e.preventDefault(); e.stopPropagation(); }, false); });
