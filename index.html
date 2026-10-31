@@ -3493,5 +3493,409 @@ window.onload = function() {
   if (data.voiceAssistantOn === true && recognizer.isSupported()) { setTimeout(() => { if (!recognizer.isActive) { try { recognizer.activate(); } catch(e) { } } }, 1500); }
 };
 </script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     HORÁRIO DE FUNCIONAMENTO — DROP-IN
+     Adiciona abertura/fechamento por dia da semana (estilo Google)
+     Não altera o código original — apenas estende.
+     ══════════════════════════════════════════════════════════════ -->
+<style>
+.horarios-section{margin-top:14px;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+.horarios-section h4{margin:0 0 10px 0;font-size:14px;color:var(--title-color);display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.horarios-section h4 .horarios-acoes{display:flex;gap:6px}
+.horario-row{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.horario-row:last-child{border-bottom:0}
+.horario-dia{flex:0 0 120px;font-size:13px;font-weight:bold;color:var(--text)}
+.horario-times{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+.horario-times input[type="time"]{margin:0;padding:7px 10px;border-radius:8px;font-size:13px;flex:1;min-width:80px;background:var(--input-bg);color:var(--text);border:1px solid var(--border);width:auto}
+.horario-times input[type="time"]:disabled{opacity:.45;cursor:not-allowed}
+.horario-ate{font-size:12px;color:var(--muted);white-space:nowrap}
+.horario-fechado{flex:0 0 auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);cursor:pointer;margin:0;white-space:nowrap}
+.horario-fechado input[type="checkbox"]{width:16px;height:16px;margin:0;accent-color:var(--accent);cursor:pointer}
+.horario-status{display:inline-block;font-size:11px;font-weight:bold;padding:2px 8px;border-radius:12px}
+.horario-status.aberto{background:rgba(16,185,129,.15);color:#059669}
+.horario-status.fechado{background:rgba(239,68,68,.15);color:#dc2626}
+[data-theme="dark"] .horario-status.aberto{background:rgba(57,201,122,.2);color:#79e9aa}
+[data-theme="dark"] .horario-status.fechado{background:rgba(239,93,103,.2);color:#ff8f96}
+@media(max-width:550px){
+  .horario-dia{flex:1 0 100%}
+  .horario-fechado{flex:1 0 100%;justify-content:flex-end}
+}
+</style>
+
+<script>
+(function(){
+'use strict';
+
+/* ─── 1. Constantes de dias ─────────────────────────────────────── */
+var DIAS = [
+  {key:'seg', label:'Segunda-feira'},
+  {key:'ter', label:'Terça-feira'},
+  {key:'qua', label:'Quarta-feira'},
+  {key:'qui', label:'Quinta-feira'},
+  {key:'sex', label:'Sexta-feira'},
+  {key:'sab', label:'Sábado'},
+  {key:'dom', label:'Domingo'}
+];
+
+/* ─── 2. Horário padrão (seg-sex 09-18, sáb 09-13, dom fechado) ── */
+function horariosPadrao(){
+  var h = {};
+  DIAS.forEach(function(d){
+    var ab='09:00', fe='18:00', fechado=false;
+    if (d.key==='sab') fe = '13:00';
+    if (d.key==='dom') fechado = true;
+    h[d.key] = {abertura:ab, fechamento:fe, fechado:fechado};
+  });
+  return h;
+}
+
+/* ─── 3. Injeta a seção no formulário (uma única vez) ──────────── */
+function injetarHTMLFormulario(){
+  var form = document.getElementById('formEstabelecimento');
+  if (!form || document.getElementById('horariosEstabContainer')) return;
+  var html = '<div class="horarios-section">'
+    + '<h4><span>🕐 Horário de Funcionamento</span>'
+    + '<span class="horarios-acoes">'
+    + '<button type="button" class="secondary small" onclick="aplicarHorarioTodosDias()" title="Copiar o horário de segunda para todos os dias">📋 Copiar p/ todos</button>'
+    + '</span></h4>'
+    + '<div id="horariosEstabContainer"></div>'
+    + '</div>';
+  var btnSalvar = document.getElementById('btnSalvarEstab');
+  if (btnSalvar && btnSalvar.parentNode && btnSalvar.parentNode.parentNode === form) {
+    btnSalvar.parentNode.insertAdjacentHTML('beforebegin', html);
+  } else {
+    form.insertAdjacentHTML('beforeend', html);
+  }
+}
+
+/* ─── 4. Renderiza os campos no formulário ─────────────────────── */
+function renderHorariosForm(horarios){
+  var container = document.getElementById('horariosEstabContainer');
+  if (!container) return;
+  var h = horarios || horariosPadrao();
+  container.innerHTML = DIAS.map(function(dia){
+    var cfg = h[dia.key] || {abertura:'09:00', fechamento:'18:00', fechado:false};
+    var des = cfg.fechado ? 'disabled' : '';
+    return '<div class="horario-row">'
+      + '<span class="horario-dia">' + dia.label + '</span>'
+      + '<div class="horario-times">'
+      +   '<input type="time" id="hor_' + dia.key + '_abertura" value="' + (cfg.abertura||'09:00') + '" ' + des + '>'
+      +   '<span class="horario-ate">até</span>'
+      +   '<input type="time" id="hor_' + dia.key + '_fechamento" value="' + (cfg.fechamento||'18:00') + '" ' + des + '>'
+      + '</div>'
+      + '<label class="horario-fechado">'
+      +   '<input type="checkbox" id="hor_' + dia.key + '_fechado" ' + (cfg.fechado?'checked':'') + ' onchange="toggleDiaFechado(\'' + dia.key + '\')"> Fechado'
+      + '</label>'
+      + '</div>';
+  }).join('');
+}
+
+/* ─── 5. Helpers ────────────────────────────────────────────────── */
+function toggleDiaFechado(key){
+  var chk = document.getElementById('hor_' + key + '_fechado');
+  var ab  = document.getElementById('hor_' + key + '_abertura');
+  var fe  = document.getElementById('hor_' + key + '_fechamento');
+  if (!chk) return;
+  if (ab) ab.disabled = chk.checked;
+  if (fe) fe.disabled = chk.checked;
+}
+
+function coletarHorariosForm(){
+  var horarios = {};
+  DIAS.forEach(function(dia){
+    var ab  = document.getElementById('hor_' + dia.key + '_abertura');
+    var fe  = document.getElementById('hor_' + dia.key + '_fechamento');
+    var chk = document.getElementById('hor_' + dia.key + '_fechado');
+    horarios[dia.key] = {
+      abertura:   ab  ? ab.value  : '09:00',
+      fechamento: fe  ? fe.value  : '18:00',
+      fechado:    chk ? chk.checked : false
+    };
+  });
+  return horarios;
+}
+
+function aplicarHorarioTodosDias(){
+  var abSeg = document.getElementById('hor_seg_abertura');
+  var feSeg = document.getElementById('hor_seg_fechamento');
+  var feSegChk = document.getElementById('hor_seg_fechado');
+  if (!abSeg || !feSeg) return;
+  DIAS.forEach(function(dia){
+    if (dia.key === 'seg') return;
+    var ab  = document.getElementById('hor_' + dia.key + '_abertura');
+    var fe  = document.getElementById('hor_' + dia.key + '_fechamento');
+    var chk = document.getElementById('hor_' + dia.key + '_fechado');
+    if (ab)  ab.value  = abSeg.value;
+    if (fe)  fe.value  = feSeg.value;
+    if (chk) chk.checked = feSegChk ? feSegChk.checked : false;
+    toggleDiaFechado(dia.key);
+  });
+  if (typeof showFeedback === 'function') showFeedback('📋 Horário de segunda aplicado a todos os dias');
+}
+
+function getStatusHorarioEstab(estab){
+  if (!estab || !estab.horarios) return null;
+  var agora = new Date();
+  var map = ['dom','seg','ter','qua','qui','sex','sab'];
+  var cfg = estab.horarios[map[agora.getDay()]];
+  if (!cfg) return null;
+  if (cfg.fechado) return { aberto:false, texto:'Fechado hoje' };
+  var pA = (cfg.abertura  ||'00:00').split(':').map(Number);
+  var pF = (cfg.fechamento||'23:59').split(':').map(Number);
+  var minAgora = agora.getHours()*60 + agora.getMinutes();
+  var minA = pA[0]*60 + (pA[1]||0);
+  var minF = pF[0]*60 + (pF[1]||0);
+  var aberto = (minF >= minA) ? (minAgora >= minA && minAgora < minF) : (minAgora >= minA || minAgora < minF);
+  return { aberto: aberto, texto: aberto ? ('Aberto até ' + cfg.fechamento) : ('Fechado · abre ' + cfg.abertura) };
+}
+
+/* ─── 6. Expõe helpers para os onclick do HTML ─────────────────── */
+window.aplicarHorarioTodosDias = aplicarHorarioTodosDias;
+window.toggleDiaFechado = toggleDiaFechado;
+window.getStatusHorarioEstab = getStatusHorarioEstab;
+
+/* ─── 7. Overrides das funções originais ───────────────────────── */
+var _origMostrarForm = window.mostrarFormEstabelecimento;
+var _origEditar      = window.editarEstabelecimento;
+var _origSalvar      = window.salvarEstabelecimento;
+var _origCriarVoz    = window.criarEstabelecimentoPorVoz;
+var _origRenderEstab = window.renderEstabelecimentos;
+
+window.mostrarFormEstabelecimento = function(){
+  if (typeof _origMostrarForm === 'function') _origMostrarForm.apply(this, arguments);
+  renderHorariosForm(null);
+};
+
+window.editarEstabelecimento = function(id){
+  if (typeof _origEditar === 'function') _origEditar.apply(this, arguments);
+  var e = (typeof data !== 'undefined' && data.estabelecimentos) ? data.estabelecimentos[id] : null;
+  renderHorariosForm(e && e.horarios ? e.horarios : horariosPadrao());
+};
+
+window.salvarEstabelecimento = function(){
+  var nomeEl = document.getElementById('barNome');
+  var nome = nomeEl ? nomeEl.value.trim() : '';
+  if (!nome) { if (typeof showFeedback === 'function') showFeedback('⚠️ Informe o nome.'); return; }
+  var horarios = coletarHorariosForm();
+  var editId = (typeof currentEditEstabId !== 'undefined') ? currentEditEstabId : null;
+  var idsAntes = Object.keys(data.estabelecimentos);
+
+  if (typeof _origSalvar === 'function') _origSalvar.apply(this, arguments);
+
+  var key = null;
+  if (editId && data.estabelecimentos[editId]) { key = editId; }
+  else {
+    var idsDepois = Object.keys(data.estabelecimentos);
+    for (var i = 0; i < idsDepois.length; i++){
+      if (idsAntes.indexOf(idsDepois[i]) === -1) { key = idsDepois[i]; break; }
+    }
+  }
+  if (key) {
+    data.estabelecimentos[key].horarios = horarios;
+    if (typeof save === 'function') save();
+    if (typeof renderEstabelecimentos === 'function') renderEstabelecimentos();
+  }
+};
+
+window.criarEstabelecimentoPorVoz = function(nome){
+  var idsAntes = Object.keys(data.estabelecimentos);
+  if (typeof _origCriarVoz === 'function') _origCriarVoz.apply(this, arguments);
+  var idsDepois = Object.keys(data.estabelecimentos);
+  for (var i = 0; i < idsDepois.length; i++){
+    if (idsAntes.indexOf(idsDepois[i]) === -1) {
+      data.estabelecimentos[idsDepois[i]].horarios = horariosPadrao();
+      if (typeof save === 'function') save();
+      break;
+    }
+  }
+};
+
+window.renderEstabelecimentos = function(){
+  if (typeof _origRenderEstab === 'function') _origRenderEstab.apply(this, arguments);
+  var lista = document.getElementById('listaEstabelecimentos');
+  if (!lista || typeof data === 'undefined') return;
+  lista.querySelectorAll('.estab-row').forEach(function(row){
+    var infoDiv = row.querySelector('.estab-row-info');
+    if (!infoDiv) return;
+    var nomeEl = infoDiv.querySelector('.estab-row-nome');
+    if (!nomeEl) return;
+    var nome = nomeEl.textContent.replace(/^[⭐\s]+/, '').trim();
+    var sub = infoDiv.querySelector('.estab-row-sub');
+    if (!sub || infoDiv.querySelector('.horario-status')) return;
+    for (var id in data.estabelecimentos) {
+      var e = data.estabelecimentos[id];
+      if (e && e.nome === nome) {
+        var status = getStatusHorarioEstab(e);
+        if (status) {
+          sub.insertAdjacentHTML('afterend',
+            '<div class="horario-status ' + (status.aberto ? 'aberto' : 'fechado') +
+            '" style="margin-top:3px">🕐 ' + status.texto + '</div>');
+        }
+        break;
+      }
+    }
+  });
+};
+
+/* ─── 8. Injeta o HTML e re-renderiza a lista (badges aparecem) ── */
+injetarHTMLFormulario();
+
+/* Caso o renderAll já tenha rodado antes do drop-in, refaz a lista
+   para que os badges de status apareçam imediatamente. */
+if (typeof renderEstabelecimentos === 'function') {
+  setTimeout(function(){ try { renderEstabelecimentos(); } catch(e){} }, 0);
+}
+
+})();
+</script>
+<!-- ══════════════ FIM DO DROP-IN ══════════════ -->
+<!-- ══════════════════════════════════════════════════════════════
+     AUTO-PREENCHIMENTO: editar Segunda → replica em todos os dias
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+  var DIAS_KEYS = ['seg','ter','qua','qui','sex','sab','dom'];
+
+  function aplicarSegundaATodos(){
+    var abSeg  = document.getElementById('hor_seg_abertura');
+    var feSeg  = document.getElementById('hor_seg_fechamento');
+    var chkSeg = document.getElementById('hor_seg_fechado');
+    if (!abSeg || !feSeg) return;
+
+    DIAS_KEYS.forEach(function(k){
+      if (k === 'seg') return;
+      var ab  = document.getElementById('hor_' + k + '_abertura');
+      var fe  = document.getElementById('hor_' + k + '_fechamento');
+      var chk = document.getElementById('hor_' + k + '_fechado');
+      if (ab)  ab.value = abSeg.value;
+      if (fe)  fe.value = feSeg.value;
+      if (chk) {
+        chk.checked = chkSeg ? chkSeg.checked : false;
+        if (ab) ab.disabled = chk.checked;
+        if (fe) fe.disabled = chk.checked;
+      }
+    });
+  }
+
+  /* Captura eventos de input (dispara enquanto digita / escolhe hora)
+     e change (dispara ao confirmar). O terceiro parâmetro `true`
+     garante que o listener roda na fase de CAPTURA — antes até do
+     handler onclick/onchange do próprio campo. */
+  document.addEventListener('input', function(e){
+    var id = e.target && e.target.id;
+    if (id === 'hor_seg_abertura' || id === 'hor_seg_fechamento') {
+      aplicarSegundaATodos();
+    }
+  }, true);
+
+  document.addEventListener('change', function(e){
+    var id = e.target && e.target.id;
+    if (id === 'hor_seg_abertura' || id === 'hor_seg_fechamento' || id === 'hor_seg_fechado') {
+      aplicarSegundaATodos();
+    }
+  }, true);
+})();
+</script>
+<!-- ══════════════ FIM DO AUTO-PREENCHIMENTO ══════════════ -->
+<!-- ══════════════════════════════════════════════════════════════
+     BADGE ABERTO/FECHADO NO CABEÇALHO
+     Reaproveita getStatusHorarioEstab() do drop-in de horários.
+     ══════════════════════════════════════════════════════════════ -->
+<style>
+.estab-status-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:11px;
+  font-weight:bold;
+  padding:3px 10px;
+  border-radius:20px;
+  white-space:nowrap;
+  flex-shrink:0;
+  border:2px solid rgba(255,255,255,.45);
+  text-shadow:none;
+  letter-spacing:.5px;
+  line-height:1;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);
+}
+.estab-status-badge.aberto{background:#10b981;color:#fff}
+.estab-status-badge.fechado{background:#ef4444;color:#fff}
+.estab-status-badge .dot{
+  width:7px;height:7px;border-radius:50%;background:#fff;
+  box-shadow:0 0 0 2px rgba(255,255,255,.35);
+  flex-shrink:0;
+}
+.estab-status-badge.aberto .dot{animation:estabBadgePulse 1.6s ease-in-out infinite}
+@keyframes estabBadgePulse{0%,100%{opacity:1}50%{opacity:.4}}
+@media(max-width:650px){
+  .estab-status-badge{font-size:9px;padding:2px 7px;gap:4px;border-width:1.5px;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+  .estab-status-badge .dot{width:5px;height:5px;box-shadow:0 0 0 1.5px rgba(255,255,255,.35)}
+}
+</style>
+
+<script>
+(function(){
+  'use strict';
+  var _origAtualizarBar = window.atualizarEstabAtivoBar;
+
+  function ensureBadge(){
+    var bar = document.getElementById('estabAtivoBar');
+    if (!bar) return null;
+    var b = document.getElementById('estabStatusBadge');
+    if (!b) {
+      b = document.createElement('span');
+      b.id = 'estabStatusBadge';
+      b.className = 'estab-status-badge';
+      bar.appendChild(b);
+    }
+    return b;
+  }
+
+  function atualizarBadgeStatus(){
+    if (typeof getEstabelecimentoAtivo !== 'function') return;
+    if (typeof getStatusHorarioEstab !== 'function') return;
+    var badge = ensureBadge();
+    if (!badge) return;
+    var estab = getEstabelecimentoAtivo();
+    if (!estab) { badge.style.display = 'none'; return; }
+    var status = getStatusHorarioEstab(estab);
+    if (!status) { badge.style.display = 'none'; return; }
+    badge.style.display = 'inline-flex';
+    badge.className = 'estab-status-badge ' + (status.aberto ? 'aberto' : 'fechado');
+    badge.innerHTML = '<span class="dot"></span>' + (status.aberto ? 'ABERTO' : 'FECHADO');
+    badge.title = status.texto || (status.aberto ? 'Aberto agora' : 'Fechado agora');
+  }
+
+  /* Sobrescreve a função original; chama-a primeiro e depois decora o bar */
+  window.atualizarEstabAtivoBar = function(){
+    if (typeof _origAtualizarBar === 'function') _origAtualizarBar.apply(this, arguments);
+    atualizarBadgeStatus();
+  };
+  window.atualizarBadgeStatus = atualizarBadgeStatus;
+
+  /* Recalcula o status a cada 30s (o horário pode virar enquanto o app está aberto)
+     e também quando a aba/app volta a ficar visível. */
+  setInterval(atualizarBadgeStatus, 30000);
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) atualizarBadgeStatus();
+  });
+
+  /* Dispara uma vez logo após o carregamento */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(atualizarBadgeStatus, 100); });
+  } else {
+    setTimeout(atualizarBadgeStatus, 100);
+  }
+})();
+</script>
+<!-- ══════════════ FIM DO BADGE ══════════════ -->
+</body>
+</html>
+</body>
+</html>
+</body>
+</html>
 </body>
 </html>
