@@ -1,0 +1,32 @@
+/* ==============================================================
+   ESTILOS EXCLUSIVOS DO DASHBOARD
+   ============================================================== */
+.dash-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:18px}
+.dash-kpi{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:var(--card-shadow);position:relative;overflow:hidden}
+.dash-kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+.dash-kpi.green::before{background:var(--green)}.dash-kpi.yellow::before{background:var(--yellow)}.dash-kpi.purple::before{background:var(--purple)}.dash-kpi.pink::before{background:var(--pink)}
+.dash-kpi .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:bold;margin-bottom:6px}
+.dash-kpi .val{font-size:22px;font-weight:900;color:var(--text-strong);line-height:1.1}
+.dash-kpi .sub{font-size:11px;color:var(--muted);margin-top:4px}
+.dash-controls{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:18px;box-shadow:var(--card-shadow)}
+.dash-ctrl-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
+.dash-ctrl{display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px}
+.dash-ctrl label{font-size:10px;font-weight:bold;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.dash-charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+@media(max-width:1000px){.dash-charts-grid{grid-template-columns:1fr}}
+.dash-chart-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--card-shadow)}
+.dash-chart-hdr{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.dash-chart-hdr h3{margin:0;font-size:15px;color:var(--title-color)}
+.dash-chart-tools{display:flex;gap:6px;flex-wrap:wrap}
+.dash-chart-tools select{padding:6px 10px;font-size:12px;border-radius:6px;min-width:110px;margin:0}
+.dash-chart-box{position:relative;height:320px;width:100%}
+@media(max-width:650px){.dash-chart-box{height:260px}}
+.dash-table-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--card-shadow);margin-bottom:18px}
+.dash-table-card h2{margin:0 0 14px 0;font-size:16px;color:var(--title-color);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dash-money{font-weight:bold;color:var(--money-color);text-align:right;white-space:nowrap}
+.dash-scroll{max-height:500px;overflow-y:auto}
+.dash-tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:bold}
+.dash-tag.pix{background:rgba(37,99,235,.12);color:var(--accent)}
+.dash-tag.dinheiro{background:rgba(16,185,129,.15);color:#059669}
+.dash-tag.cartao{background:rgba(251,191,36,.2);color:#b45309}
+.dash-tag.outro{background:rgba(100,116,139,.15);color:var(--muted)}
