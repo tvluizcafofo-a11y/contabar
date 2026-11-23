@@ -3991,197 +3991,208 @@ if (typeof renderEstabelecimentos === 'function') {
 })();
 </script>
 
-<!-- ============ MÓDULO: COMPARTILHAR RELATÓRIO COMO IMAGEM ============ -->
+<!-- ============ MÓDULO: SCREENSHOT DO RELATÓRIO (WYSIWYG) ============ -->
 <script>
 (function () {
   'use strict';
+  var TAG = '[screenshot]';
+  function log(){ console.log.apply(console, [TAG].concat([].slice.call(arguments))); }
+  function err(){ console.error.apply(console, [TAG].concat([].slice.call(arguments))); }
 
-  /* ---------- 1) Carrega html2canvas sob demanda ---------- */
-  function carregarHtml2Canvas(cb) {
-    if (typeof window.html2canvas === 'function') { cb(); return; }
-    var s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-    s.async = true;
-    s.onload = function () { cb(); };
-    s.onerror = function () {
-      console.error('[share-img] Falha ao carregar html2canvas do CDN.');
-    };
-    document.head.appendChild(s);
-  }
+  var CDN_HTML2CANVAS = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+  var CDN_HTMLTOIMAGE = 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js';
 
-  /* ---------- 2) Feedback visual (usa o feedbackModal que já existe) ---------- */
-  function fb(msg) {
-    var modal = document.getElementById('feedbackModal');
-    var msgEl = document.getElementById('feedbackMessage');
-    if (modal && msgEl) {
-      msgEl.textContent = msg;
-      modal.classList.add('show');
+  function fb(msg, ms) {
+    var m = document.getElementById('feedbackModal');
+    var e = document.getElementById('feedbackMessage');
+    if (m && e) {
+      e.textContent = msg;
+      m.classList.add('show');
       clearTimeout(window.__fbImgT);
-      window.__fbImgT = setTimeout(function () { modal.classList.remove('show'); }, 3500);
-    } else {
-      console.log('[share-img]', msg);
-    }
+      window.__fbImgT = setTimeout(function () { m.classList.remove('show'); }, ms || 4000);
+    } else { alert(msg); }
   }
 
-  /* ---------- 3) A função principal ---------- */
-  async function gerarImagemRelatorioCompartilhar() {
-    var alvo = document.getElementById('reciboBody');
-    if (!alvo || !alvo.innerHTML.trim()) {
-      fb('❌ Relatório não encontrado. Abra um relatório primeiro.');
-      return;
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      if (document.querySelector('script[src="' + src + '"]')) return res();
+      var s = document.createElement('script');
+      s.src = src; s.async = true;
+      s.onload = function () { log('carregado:', src); res(); };
+      s.onerror = function () { rej(new Error('Falha ao carregar ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  async function garantirHtmlToImage() {
+    if (window.htmlToImage) return;
+    await loadScript(CDN_HTMLTOIMAGE);
+    if (!window.htmlToImage) throw new Error('html-to-image não carregou');
+  }
+  async function garantirHtml2Canvas() {
+    if (window.html2canvas) return;
+    await loadScript(CDN_HTML2CANVAS);
+    if (!window.html2canvas) throw new Error('html2canvas não carregou');
+  }
+
+  /* ---------- Captura o que está VISÍVEL (sem clone) ---------- */
+  async function capturar() {
+    var recibo = document.getElementById('reciboBody');
+    if (!recibo) throw new Error('#reciboBody não encontrado');
+    if (!recibo.textContent.trim()) throw new Error('Relatório vazio. Abra um relatório primeiro.');
+
+    /* Se o modal do recibo estiver fechado, abre invisível para capturar */
+    var modal = document.getElementById('reciboModal');
+    var reabriu = false;
+    if (modal && !modal.classList.contains('active')) {
+      modal.classList.add('active');
+      modal.style.visibility = 'hidden';   // esconde do usuário
+      modal.style.pointerEvents = 'none';
+      reabriu = true;
+      log('modal do recibo reaberto (invisível) para captura');
+      await new Promise(function(r){ setTimeout(r, 120); });
     }
-    if (typeof window.html2canvas !== 'function') {
-      fb('⏳ Carregando biblioteca...');
-      carregarHtml2Canvas(function () { gerarImagemRelatorioCompartilhar(); });
-      return;
-    }
 
-    fb('⏳ Gerando imagem...');
-
-    /* Wrapper fora da tela, com estilo CLARO fixo (independe do tema) */
-    var wrapper = document.createElement('div');
-    wrapper.style.cssText = [
-      'position:fixed','left:-99999px','top:0','width:480px',
-      'background:#ffffff','padding:28px 24px',
-      'font-family:Arial,Helvetica,sans-serif','color:#1a2841',
-      'box-sizing:border-box',
-      /* variáveis usadas pelas classes .recibo-* */
-      '--text:#1a2841','--text-strong:#0f172a','--muted:#64748b',
-      '--border:#dde5f0','--accent:#2563eb',
-      '--money-color:#1d4ed8','--recibo-titulo:#1e40af',
-      '--recibo-total:#1e40af','--recibo-preco:#1d4ed8',
-      '--panel-2:#f5f8fd','--panel:#ffffff',
-      '--estab-name-color:#d97706'
-    ].join(';');
-
-    /* Cabeçalho */
-    var header = document.createElement('div');
-    header.style.cssText =
-      'text-align:center;padding-bottom:14px;border-bottom:3px solid #2563eb;margin-bottom:18px;';
-    header.innerHTML =
-      '<div style="font-size:26px;font-weight:900;color:#1e40af;letter-spacing:2px;line-height:1.1;">🍺 FECHA A CONTA</div>' +
-      '<div style="font-size:11px;color:#64748b;margin-top:4px;letter-spacing:2px;">RELATÓRIO DE CONSUMO</div>';
-    wrapper.appendChild(header);
-
-    /* Clone do relatório atual */
-    var clone = alvo.cloneNode(true);
-    clone.style.cssText = 'display:block;color:#1a2841;';
-    wrapper.appendChild(clone);
-
-    /* Rodapé */
-    var footer = document.createElement('div');
-    footer.style.cssText =
-      'text-align:center;padding-top:14px;border-top:2px solid #e2e8f0;margin-top:18px;font-size:10px;color:#94a3b8;';
-    footer.textContent = 'Gerado em ' + new Date().toLocaleString('pt-BR');
-    wrapper.appendChild(footer);
-
-    document.body.appendChild(wrapper);
+    /* Força tema claro durante a captura para a imagem ficar legível */
+    var root = document.documentElement;
+    var eraDark = root.getAttribute('data-theme') === 'dark';
+    if (eraDark) { root.setAttribute('data-theme', 'light'); void root.offsetHeight; }
 
     try {
-      var canvas = await window.html2canvas(wrapper, {
+      /* pequeno delay p/ CSS + fontes aplicarem */
+      await new Promise(function(r){ setTimeout(r, 150); });
+
+      /* Estratégia 1: html-to-image (melhor com CSS vars) */
+      try {
+        await garantirHtmlToImage();
+        log('capturando com html-to-image…');
+        var dataUrl = await window.htmlToImage.toPng(recibo, {
+          backgroundColor: '#ffffff',
+          pixelRatio: 2,
+          cacheBust: true,
+          skipFonts: false,
+          style: { padding: '20px', background: '#ffffff' }
+        });
+        var resp = await fetch(dataUrl);
+        var blob = await resp.blob();
+        if (!blob || blob.size < 200) throw new Error('blob inválido do html-to-image');
+        log('OK (html-to-image). Tamanho:', blob.size, 'bytes');
+        return blob;
+      } catch (e1) {
+        err('html-to-image falhou:', e1);
+      }
+
+      /* Estratégia 2: html2canvas direto no elemento visível */
+      await garantirHtml2Canvas();
+      log('capturando com html2canvas…');
+      var canvas = await window.html2canvas(recibo, {
         backgroundColor: '#ffffff',
         scale: 2,
         logging: false,
         useCORS: true,
-        allowTaint: true
+        allowTaint: true,
+        foreignObjectRendering: false,
+        width: recibo.scrollWidth,
+        height: recibo.scrollHeight,
+        windowWidth: document.documentElement.clientWidth,
+        windowHeight: document.documentElement.clientHeight
       });
-
-      var blob = await new Promise(function (res) { canvas.toBlob(res, 'image/png', 0.95); });
-      var fileName = 'relatorio-fecha-conta-' + new Date().toISOString().slice(0, 10) + '.png';
-
-      /* 1) Web Share API nativo (WhatsApp, e-mail, Telegram...) */
-      try {
-        if (blob && typeof navigator.canShare === 'function') {
-          var file = new File([blob], fileName, { type: 'image/png' });
-          if (navigator.canShare({ files: [file] })) {
-            await navigator.share({
-              files: [file],
-              title: 'Relatório de Consumo - Fecha a Conta',
-              text: 'Confira meu relatório de consumo!'
-            });
-            fb('✅ Imagem compartilhada!');
-            return;
-          }
-        }
-      } catch (shareErr) {
-        if (shareErr && shareErr.name === 'AbortError') return; // usuário cancelou
-        console.warn('[share-img] share falhou, usando download:', shareErr);
-      }
-
-      /* 2) Fallback: baixa o PNG */
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-
-      fb('✅ Imagem gerada! Abra em Downloads para compartilhar.');
-    } catch (err) {
-      console.error('[share-img] Erro:', err);
-      fb('❌ Erro ao gerar imagem. Tente novamente.');
+      var blob2 = await new Promise(function(r){ canvas.toBlob(r, 'image/png', 0.95); });
+      if (!blob2 || blob2.size < 200) throw new Error('blob inválido do html2canvas');
+      log('OK (html2canvas). Tamanho:', blob2.size, 'bytes');
+      return blob2;
     } finally {
-      if (wrapper.parentNode) document.body.removeChild(wrapper);
+      if (eraDark) root.setAttribute('data-theme', 'dark');
+      if (reabriu && modal) {
+        modal.classList.remove('active');
+        modal.style.visibility = '';
+        modal.style.pointerEvents = '';
+      }
     }
   }
 
-  /* ---------- 4) Injeta o botão dentro do #shareModal ---------- */
-  function injetarBotao() {
-    /* Se o botão já existe, não duplica */
-    if (document.getElementById('btnShareImgRelatorio')) return;
+  /* ---------- Compartilha / baixa ---------- */
+  async function compartilhar(blob) {
+    var fileName = 'relatorio-' + new Date().toISOString().slice(0, 10) + '.png';
+    var file = new File([blob], fileName, { type: 'image/png' });
 
-    var shareOpts = document.getElementById('shareOptions');
-    if (!shareOpts) return;
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: 'Relatório Fecha a Conta',
+          text: 'Confira meu relatório de consumo!'
+        });
+        fb('✅ Compartilhado!');
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+        err('share falhou, vai para download:', e);
+      }
+    }
+
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = fileName;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    fb('✅ Imagem salva em Downloads!');
+  }
+
+  /* ---------- Função pública ---------- */
+  async function gerarImagemRelatorioCompartilhar() {
+    try {
+      fb('⏳ Capturando tela do relatório…');
+      var blob = await capturar();
+      await compartilhar(blob);
+    } catch (e) {
+      err('ERRO geral:', e);
+      fb('❌ ' + (e.message || 'Erro ao capturar. Veja o console (F12).'));
+    }
+  }
+  window.gerarImagemRelatorioCompartilhar = gerarImagemRelatorioCompartilhar;
+
+  /* ---------- Botão ---------- */
+  function injetarBotao() {
+    if (document.getElementById('btnShareImgRelatorio')) return;
+    var opts = document.getElementById('shareOptions');
+    if (!opts) return;
 
     var btn = document.createElement('button');
     btn.id = 'btnShareImgRelatorio';
     btn.type = 'button';
     btn.className = 'share-option';
-    btn.style.cssText =
-      'margin-top:8px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;';
+    btn.style.cssText = 'margin-top:8px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;';
     btn.innerHTML =
       '<span class="share-icon">📸</span>' +
       '<span class="share-info">' +
         '<div class="share-title">Compartilhar como imagem</div>' +
-        '<div class="share-desc">Gera imagem do relatório para WhatsApp, e-mail, etc.</div>' +
+        '<div class="share-desc">Captura a tela do relatório</div>' +
       '</span>';
-    btn.addEventListener('click', function () {
-      gerarImagemRelatorioCompartilhar();
-    });
-
-    /* Insere como IRMÃO de #shareOptions (depois dele) — assim não é
-       apagado quando o app re-renderiza os compartilhamentos existentes. */
-    shareOpts.parentNode.insertBefore(btn, shareOpts.nextSibling);
+    btn.addEventListener('click', gerarImagemRelatorioCompartilhar);
+    opts.parentNode.insertBefore(btn, opts.nextSibling);
+    log('botão injetado');
   }
 
-  /* ---------- 5) Inicialização ---------- */
   function init() {
-    carregarHtml2Canvas(function () { /* pré-carrega em background */ });
     injetarBotao();
-
-    /* Se o #shareModal for aberto depois, garante o botão */
     var modal = document.getElementById('shareModal');
     if (modal && typeof MutationObserver !== 'undefined') {
-      var obs = new MutationObserver(function () {
+      new MutationObserver(function () {
         if (modal.classList.contains('active')) injetarBotao();
-      });
-      obs.observe(modal, { attributes: true, attributeFilter: ['class'] });
+      }).observe(modal, { attributes: true, attributeFilter: ['class'] });
     }
+    /* pré-carrega libs em background */
+    garantirHtmlToImage().catch(function(){});
+    garantirHtml2Canvas().catch(function(){});
+    log('módulo pronto');
   }
-
-  /* Expõe para debug/uso externo */
-  window.gerarImagemRelatorioCompartilhar = gerarImagemRelatorioCompartilhar;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  } else { init(); }
 })();
 </script>
-<!-- ================================================================== -->
 
 </body>
 </html>
