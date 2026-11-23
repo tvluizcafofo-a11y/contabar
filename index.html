@@ -3990,5 +3990,198 @@ if (typeof renderEstabelecimentos === 'function') {
   }
 })();
 </script>
+
+<!-- ============ MÓDULO: COMPARTILHAR RELATÓRIO COMO IMAGEM ============ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- 1) Carrega html2canvas sob demanda ---------- */
+  function carregarHtml2Canvas(cb) {
+    if (typeof window.html2canvas === 'function') { cb(); return; }
+    var s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.async = true;
+    s.onload = function () { cb(); };
+    s.onerror = function () {
+      console.error('[share-img] Falha ao carregar html2canvas do CDN.');
+    };
+    document.head.appendChild(s);
+  }
+
+  /* ---------- 2) Feedback visual (usa o feedbackModal que já existe) ---------- */
+  function fb(msg) {
+    var modal = document.getElementById('feedbackModal');
+    var msgEl = document.getElementById('feedbackMessage');
+    if (modal && msgEl) {
+      msgEl.textContent = msg;
+      modal.classList.add('show');
+      clearTimeout(window.__fbImgT);
+      window.__fbImgT = setTimeout(function () { modal.classList.remove('show'); }, 3500);
+    } else {
+      console.log('[share-img]', msg);
+    }
+  }
+
+  /* ---------- 3) A função principal ---------- */
+  async function gerarImagemRelatorioCompartilhar() {
+    var alvo = document.getElementById('reciboBody');
+    if (!alvo || !alvo.innerHTML.trim()) {
+      fb('❌ Relatório não encontrado. Abra um relatório primeiro.');
+      return;
+    }
+    if (typeof window.html2canvas !== 'function') {
+      fb('⏳ Carregando biblioteca...');
+      carregarHtml2Canvas(function () { gerarImagemRelatorioCompartilhar(); });
+      return;
+    }
+
+    fb('⏳ Gerando imagem...');
+
+    /* Wrapper fora da tela, com estilo CLARO fixo (independe do tema) */
+    var wrapper = document.createElement('div');
+    wrapper.style.cssText = [
+      'position:fixed','left:-99999px','top:0','width:480px',
+      'background:#ffffff','padding:28px 24px',
+      'font-family:Arial,Helvetica,sans-serif','color:#1a2841',
+      'box-sizing:border-box',
+      /* variáveis usadas pelas classes .recibo-* */
+      '--text:#1a2841','--text-strong:#0f172a','--muted:#64748b',
+      '--border:#dde5f0','--accent:#2563eb',
+      '--money-color:#1d4ed8','--recibo-titulo:#1e40af',
+      '--recibo-total:#1e40af','--recibo-preco:#1d4ed8',
+      '--panel-2:#f5f8fd','--panel:#ffffff',
+      '--estab-name-color:#d97706'
+    ].join(';');
+
+    /* Cabeçalho */
+    var header = document.createElement('div');
+    header.style.cssText =
+      'text-align:center;padding-bottom:14px;border-bottom:3px solid #2563eb;margin-bottom:18px;';
+    header.innerHTML =
+      '<div style="font-size:26px;font-weight:900;color:#1e40af;letter-spacing:2px;line-height:1.1;">🍺 FECHA A CONTA</div>' +
+      '<div style="font-size:11px;color:#64748b;margin-top:4px;letter-spacing:2px;">RELATÓRIO DE CONSUMO</div>';
+    wrapper.appendChild(header);
+
+    /* Clone do relatório atual */
+    var clone = alvo.cloneNode(true);
+    clone.style.cssText = 'display:block;color:#1a2841;';
+    wrapper.appendChild(clone);
+
+    /* Rodapé */
+    var footer = document.createElement('div');
+    footer.style.cssText =
+      'text-align:center;padding-top:14px;border-top:2px solid #e2e8f0;margin-top:18px;font-size:10px;color:#94a3b8;';
+    footer.textContent = 'Gerado em ' + new Date().toLocaleString('pt-BR');
+    wrapper.appendChild(footer);
+
+    document.body.appendChild(wrapper);
+
+    try {
+      var canvas = await window.html2canvas(wrapper, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        allowTaint: true
+      });
+
+      var blob = await new Promise(function (res) { canvas.toBlob(res, 'image/png', 0.95); });
+      var fileName = 'relatorio-fecha-conta-' + new Date().toISOString().slice(0, 10) + '.png';
+
+      /* 1) Web Share API nativo (WhatsApp, e-mail, Telegram...) */
+      try {
+        if (blob && typeof navigator.canShare === 'function') {
+          var file = new File([blob], fileName, { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: 'Relatório de Consumo - Fecha a Conta',
+              text: 'Confira meu relatório de consumo!'
+            });
+            fb('✅ Imagem compartilhada!');
+            return;
+          }
+        }
+      } catch (shareErr) {
+        if (shareErr && shareErr.name === 'AbortError') return; // usuário cancelou
+        console.warn('[share-img] share falhou, usando download:', shareErr);
+      }
+
+      /* 2) Fallback: baixa o PNG */
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+
+      fb('✅ Imagem gerada! Abra em Downloads para compartilhar.');
+    } catch (err) {
+      console.error('[share-img] Erro:', err);
+      fb('❌ Erro ao gerar imagem. Tente novamente.');
+    } finally {
+      if (wrapper.parentNode) document.body.removeChild(wrapper);
+    }
+  }
+
+  /* ---------- 4) Injeta o botão dentro do #shareModal ---------- */
+  function injetarBotao() {
+    /* Se o botão já existe, não duplica */
+    if (document.getElementById('btnShareImgRelatorio')) return;
+
+    var shareOpts = document.getElementById('shareOptions');
+    if (!shareOpts) return;
+
+    var btn = document.createElement('button');
+    btn.id = 'btnShareImgRelatorio';
+    btn.type = 'button';
+    btn.className = 'share-option';
+    btn.style.cssText =
+      'margin-top:8px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;';
+    btn.innerHTML =
+      '<span class="share-icon">📸</span>' +
+      '<span class="share-info">' +
+        '<div class="share-title">Compartilhar como imagem</div>' +
+        '<div class="share-desc">Gera imagem do relatório para WhatsApp, e-mail, etc.</div>' +
+      '</span>';
+    btn.addEventListener('click', function () {
+      gerarImagemRelatorioCompartilhar();
+    });
+
+    /* Insere como IRMÃO de #shareOptions (depois dele) — assim não é
+       apagado quando o app re-renderiza os compartilhamentos existentes. */
+    shareOpts.parentNode.insertBefore(btn, shareOpts.nextSibling);
+  }
+
+  /* ---------- 5) Inicialização ---------- */
+  function init() {
+    carregarHtml2Canvas(function () { /* pré-carrega em background */ });
+    injetarBotao();
+
+    /* Se o #shareModal for aberto depois, garante o botão */
+    var modal = document.getElementById('shareModal');
+    if (modal && typeof MutationObserver !== 'undefined') {
+      var obs = new MutationObserver(function () {
+        if (modal.classList.contains('active')) injetarBotao();
+      });
+      obs.observe(modal, { attributes: true, attributeFilter: ['class'] });
+    }
+  }
+
+  /* Expõe para debug/uso externo */
+  window.gerarImagemRelatorioCompartilhar = gerarImagemRelatorioCompartilhar;
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+<!-- ================================================================== -->
+
 </body>
 </html>
